@@ -84,6 +84,15 @@ export const DOMESTIC_REGIONS: { code: DomesticRegionCode; label: string; cities
     { code: 'T', label: 'Region T', cities: '거제도, 통영, 해남, 태백, 여수, 울진' },
 ];
 
+export const TRUCK_TIER_LIMITS = [
+    { maxWeight: 100, maxCBM: 1, label: "~100kg Pickup" },
+    { maxWeight: 500, maxCBM: 3, label: "~500kg Pickup" },
+    { maxWeight: 1100, maxCBM: Infinity, label: "1t Truck" },
+    { maxWeight: 3500, maxCBM: Infinity, label: "3.5t Truck" },
+    { maxWeight: 5000, maxCBM: Infinity, label: "5t Truck" },
+    { maxWeight: 11000, maxCBM: Infinity, label: "11t Truck" }
+];
+
 // DB_DOMESTIC_RATES (Unit: KRW)
 // Format: [100kg, 500kg, 1t, 3.5t, 5t, 11t]
 // 0 indicates "Negotiated" or "Not Available" for that tier (usually upgrades to next tier)
@@ -114,6 +123,12 @@ export const DOMESTIC_RATES: Record<DomesticRegionCode, number[]> = {
 export const HANDLING_FEE = 35000; // Export Custom Clearance + Doc
 export const FUMIGATION_FEE = 30000; // Heat treatment per shipment (simplified)
 
+// Packing Logic Constants
+export const PACKING_WEIGHT_BUFFER = 1.1; // 10% weight increase
+export const PACKING_WEIGHT_ADDITION = 10; // 10kg addition per item
+export const PACKING_MATERIAL_BASE_COST = 15000; // per m2
+export const PACKING_LABOR_UNIT_COST = 50000; // per item
+
 // Initial State
 export const INITIAL_MARGIN = 15; // Target 15%
 
@@ -135,3 +150,23 @@ export const ORIGIN_COUNTRY_OPTIONS = [
 ];
 
 export const INCOTERM_OPTIONS = Object.values(Incoterm);
+
+// PDF Layout Configuration
+export const PDF_LAYOUT = {
+    MARGIN_X: 20,
+    LINE_HEIGHT: 7,
+    COLORS: {
+      PRIMARY: [2, 132, 199] as [number, number, number], // J-Ways Blue
+      TEXT: [0, 0, 0] as [number, number, number],
+      TEXT_LIGHT: [100, 100, 100] as [number, number, number],
+      WARNING: [180, 83, 9] as [number, number, number],
+      BG_HEADER: [240, 249, 255] as [number, number, number],
+      BG_TABLE: [245, 245, 245] as [number, number, number]
+    },
+    FONTS: {
+      SIZE_HEADER: 22,
+      SIZE_SUBHEADER: 12,
+      SIZE_NORMAL: 10,
+      SIZE_SMALL: 8
+    }
+};

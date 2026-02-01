@@ -15,7 +15,13 @@ import {
   ZONE_BASE_RATES,
   DOMESTIC_RATES,
   SURGE_THRESHOLDS,
-  SURGE_RATES
+  SURGE_RATES,
+  PACKING_WEIGHT_BUFFER,
+  PACKING_WEIGHT_ADDITION,
+  PACKING_MATERIAL_BASE_COST,
+  PACKING_LABOR_UNIT_COST,
+  DEFAULT_EXCHANGE_RATE,
+  TRUCK_TIER_LIMITS
 } from "@/constants";
 
 // --- Types for Internal Calculations ---
@@ -83,6 +89,64 @@ export const determineUpsZone = (country: string, zip: string): { zone: string; 
    return { zone: defaultZone, label: defaultZone };
 };
 
+export const calculateItemSurge = (
+  l: number, 
+  w: number, 
+  h: number, 
+  weight: number, 
+  packingType: PackingType,
+  itemIndex: number
+): { surgeCost: number; warnings: string[] } => {
+    let surgeCost = 0;
+    const warnings: string[] = [];
+    
+    const sortedDims = [l, w, h].sort((a, b) => b - a);
+    const longest = sortedDims[0];
+    const secondLongest = sortedDims[1];
+    const actualGirth = longest + (2 * secondLongest) + (2 * sortedDims[2]);
+
+    let packageSurgeApplied = false;
+    let surgeReason = "";
+
+    if (longest > SURGE_THRESHOLDS.MAX_LIMIT_LENGTH_CM || weight > 70 || actualGirth > SURGE_THRESHOLDS.MAX_LIMIT_GIRTH_CM) {
+        surgeCost += SURGE_RATES.OVER_MAX;
+        warnings.push(`Box #${itemIndex + 1}: Exceeds Max Limits (L>${SURGE_THRESHOLDS.MAX_LIMIT_LENGTH_CM}cm or >70kg). Heavy penalty applied.`);
+        packageSurgeApplied = true;
+    } 
+    else if (actualGirth > SURGE_THRESHOLDS.LPS_LENGTH_GIRTH_CM) {
+        surgeCost += SURGE_RATES.LARGE_PACKAGE;
+        surgeReason = "Large Package (L+Girth > 300cm)";
+        packageSurgeApplied = true;
+    }
+    
+    if (!packageSurgeApplied || surgeReason.includes("Large Package")) {
+        if (weight > SURGE_THRESHOLDS.AHS_WEIGHT_KG) {
+             surgeCost += SURGE_RATES.AHS_WEIGHT;
+             if (!packageSurgeApplied) surgeReason = "AHS Weight (>25kg)";
+             else surgeReason += " + AHS Weight";
+             packageSurgeApplied = true;
+        }
+        else if (!surgeReason.includes("Large Package")) {
+            if (longest > SURGE_THRESHOLDS.AHS_DIM_LONG_SIDE_CM || secondLongest > SURGE_THRESHOLDS.AHS_DIM_SECOND_SIDE_CM) {
+                surgeCost += SURGE_RATES.AHS_DIMENSION;
+                surgeReason = "AHS Dim (L>122 or W>76)";
+                packageSurgeApplied = true;
+            }
+            else if ([PackingType.WOODEN_BOX, PackingType.SKID].includes(packingType)) {
+                surgeCost += SURGE_RATES.AHS_DIMENSION;
+                surgeReason = "AHS Packing (Wood/Skid)";
+                packageSurgeApplied = true;
+            }
+        }
+    }
+
+    if (packageSurgeApplied && warnings.length === 0) {
+         warnings.push(`Box #${itemIndex + 1}: ${surgeReason} applied.`);
+    }
+
+    return { surgeCost, warnings };
+};
+
 export const calculateItemCosts = (items: CargoItem[], packingType: PackingType, manualPackingCost?: number): ItemCalculationResult => {
   let totalActualWeight = 0;
   let totalPackedVolumetricWeight = 0;
@@ -103,11 +167,11 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
       l += 10; 
       w += 10; 
       h += 15;
-      weight = weight * 1.1 + 10; 
+      weight = weight * PACKING_WEIGHT_BUFFER + PACKING_WEIGHT_ADDITION; 
       
       const surfaceAreaM2 = (2 * (l*w + l*h + w*h)) / 10000;
-      packingMaterialCost += surfaceAreaM2 * 15000 * item.quantity;
-      packingLaborCost += 50000 * item.quantity;
+      packingMaterialCost += surfaceAreaM2 * PACKING_MATERIAL_BASE_COST * item.quantity;
+      packingLaborCost += PACKING_LABOR_UNIT_COST * item.quantity;
       
       if (packingType === PackingType.VACUUM) {
          packingLaborCost *= 1.5;
@@ -116,48 +180,10 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
     
     // Surge Logic
     for (let q = 0; q < item.quantity; q++) {
-        const sortedDims = [l, w, h].sort((a, b) => b - a);
-        const longest = sortedDims[0];
-        const secondLongest = sortedDims[1];
-        const actualGirth = longest + (2 * secondLongest) + (2 * sortedDims[2]);
-
-        let packageSurgeApplied = false;
-        let surgeReason = "";
-
-        if (longest > SURGE_THRESHOLDS.MAX_LIMIT_LENGTH_CM || weight > 70 || actualGirth > SURGE_THRESHOLDS.MAX_LIMIT_GIRTH_CM) {
-            upsSurgeCost += SURGE_RATES.OVER_MAX;
-            if (q === 0) warnings.push(`Box #${index+1}: Exceeds Max Limits (L>${SURGE_THRESHOLDS.MAX_LIMIT_LENGTH_CM}cm or >70kg). Heavy penalty applied.`);
-            packageSurgeApplied = true;
-        } 
-        else if (actualGirth > SURGE_THRESHOLDS.LPS_LENGTH_GIRTH_CM) {
-            upsSurgeCost += SURGE_RATES.LARGE_PACKAGE;
-            surgeReason = "Large Package (L+Girth > 300cm)";
-            packageSurgeApplied = true;
-        }
-        
-        if (!packageSurgeApplied || surgeReason.includes("Large Package")) {
-            if (weight > SURGE_THRESHOLDS.AHS_WEIGHT_KG) {
-                upsSurgeCost += SURGE_RATES.AHS_WEIGHT;
-                 if (!packageSurgeApplied) surgeReason = "AHS Weight (>25kg)";
-                 else surgeReason += " + AHS Weight";
-                 packageSurgeApplied = true;
-            }
-            else if (!surgeReason.includes("Large Package")) {
-                if (longest > SURGE_THRESHOLDS.AHS_DIM_LONG_SIDE_CM || secondLongest > SURGE_THRESHOLDS.AHS_DIM_SECOND_SIDE_CM) {
-                    upsSurgeCost += SURGE_RATES.AHS_DIMENSION;
-                    surgeReason = "AHS Dim (L>122 or W>76)";
-                    packageSurgeApplied = true;
-                }
-                else if ([PackingType.WOODEN_BOX, PackingType.SKID].includes(packingType)) {
-                    upsSurgeCost += SURGE_RATES.AHS_DIMENSION;
-                    surgeReason = "AHS Packing (Wood/Skid)";
-                    packageSurgeApplied = true;
-                }
-            }
-        }
-
-        if (q === 0 && packageSurgeApplied) {
-            warnings.push(`Box #${index+1}: ${surgeReason} applied.`);
+        const surgeResult = calculateItemSurge(l, w, h, weight, packingType, index);
+        upsSurgeCost += surgeResult.surgeCost;
+        if (q === 0) {
+            warnings.push(...surgeResult.warnings);
         }
     }
 
@@ -196,23 +222,19 @@ export const calculateDomesticCosts = (
     let truckType = "Parcel/Small";
     const warnings: string[] = [];
     
-    const TRUCK_TIERS = ["~100kg Pickup", "~500kg Pickup", "1t Truck", "3.5t Truck", "5t Truck", "11t Truck"];
     const rates = DOMESTIC_RATES[regionCode] || DOMESTIC_RATES['A'];
-    let tierIndex = 0;
+    
+    let tierIndex = TRUCK_TIER_LIMITS.findIndex(limit => 
+        totalActualWeight <= limit.maxWeight && totalCBM <= limit.maxCBM
+    );
 
-    if (totalActualWeight <= 100 && totalCBM <= 1) tierIndex = 0;
-    else if (totalActualWeight <= 500 && totalCBM <= 3) tierIndex = 1;
-    else if (totalActualWeight <= 1100) tierIndex = 2;
-    else if (totalActualWeight <= 3500) tierIndex = 3;
-    else if (totalActualWeight <= 5000) tierIndex = 4;
-    else if (totalActualWeight <= 11000) tierIndex = 5;
-    else {
-        tierIndex = 5;
+    if (tierIndex === -1) {
+        tierIndex = TRUCK_TIER_LIMITS.length - 1;
         truckType = "11t Truck (Overweight)";
         warnings.push("Cargo exceeds 11t. Multiple trucks may be required. Quoted at max single truck rate.");
+    } else {
+        truckType = TRUCK_TIER_LIMITS[tierIndex].label;
     }
-    
-    if (!truckType.includes("Overweight")) truckType = TRUCK_TIERS[tierIndex];
 
     let selectedRate = rates[tierIndex];
 
@@ -232,8 +254,8 @@ export const calculateDomesticCosts = (
 
             if (upgradedIndex !== -1) {
                 domesticBase = selectedRate;
-                truckType = `${TRUCK_TIERS[upgradedIndex]} (Auto-Upgrade)`;
-                warnings.push(`Standard rate unavailable for Region ${regionCode}. Defaulted to ${TRUCK_TIERS[upgradedIndex]}. Please negotiate and enter 'Domestic Cost' manually.`);
+                truckType = `${TRUCK_TIER_LIMITS[upgradedIndex].label} (Auto-Upgrade)`;
+                warnings.push(`Standard rate unavailable for Region ${regionCode}. Defaulted to ${TRUCK_TIER_LIMITS[upgradedIndex].label}. Please negotiate and enter 'Domestic Cost' manually.`);
                 tierIndex = upgradedIndex; 
             } else {
                 warnings.push(`No valid domestic rate found for Region ${regionCode}.`);
@@ -336,7 +358,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
 
   // 6. Totals
   const domesticTotal = domesticResult.domesticBase + domesticResult.domesticSurcharge;
-  let totalCostAmount = domesticTotal + packingTotal + finalHandlingFee + upsTotal + destDuty;
+  const totalCostAmount = domesticTotal + packingTotal + finalHandlingFee + upsTotal + destDuty;
   
   let quoteBasisCost = 0;
   if ([Incoterm.EXW, Incoterm.FOB].includes(input.incoterm)) {
@@ -361,7 +383,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const marginAmount = targetRevenue - quoteBasisCost;
   const totalQuoteAmount = Math.ceil(targetRevenue / 100) * 100; 
 
-  const exchangeRate = input.exchangeRate || 1450;
+  const exchangeRate = input.exchangeRate || DEFAULT_EXCHANGE_RATE;
   const totalQuoteAmountUSD = totalQuoteAmount / exchangeRate;
 
   if (input.marginPercent < 10) {
