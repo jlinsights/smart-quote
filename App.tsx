@@ -5,7 +5,7 @@ import { calculateQuote } from './services/calculationService';
 import { generatePDF } from './services/pdfService';
 import { InputSection } from './components/InputSection';
 import { ResultSection } from './components/ResultSection';
-import { Plane, Zap, Moon, Sun, ChevronRight, Smartphone, Monitor } from 'lucide-react';
+import { Zap, Moon, Sun, ChevronRight, Smartphone, Monitor } from 'lucide-react';
 
 const App: React.FC = () => {
   // Dark Mode State
@@ -141,15 +141,28 @@ const App: React.FC = () => {
       {/* Header */}
       <header className={headerClass}>
         <div className={`flex items-center justify-between w-full ${!isMobileView ? 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16' : ''}`}>
-          <div className="flex items-center space-x-3">
-             <div className="bg-jways-600 text-white p-2 rounded-lg shadow-sm">
-                <Plane className="w-5 h-5 sm:w-6 sm:h-6" />
-             </div>
+          <div className="flex items-center space-x-4">
+             {/* Goodman GLS Logo */}
+             <img 
+                src="https://www.goodmangls.com/img/common/logo.png" 
+                alt="Goodman GLS" 
+                className="h-7 sm:h-9 w-auto object-contain"
+                onError={(e) => {
+                    // Simple text fallback in case image fails to load
+                    e.currentTarget.style.display = 'none';
+                    const fallback = document.getElementById('logo-fallback');
+                    if (fallback) fallback.classList.remove('hidden');
+                }}
+             />
+             <div id="logo-fallback" className="hidden font-bold text-xl text-jways-800 dark:text-white">GOODMAN GLS</div>
+             
+             <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
+
              <div>
-                <h1 className={`${isMobileView ? 'text-lg' : 'text-xl'} font-bold text-gray-900 dark:text-white tracking-tight`}>
-                    J-Ways <span className="text-jways-600 dark:text-jways-400">Smart Quote</span>
+                <h1 className={`${isMobileView ? 'text-lg' : 'text-xl'} font-bold text-jways-600 dark:text-jways-400 tracking-tight`}>
+                    Smart Quote
                 </h1>
-                {!isMobileView && <p className="hidden sm:block text-xs text-gray-500 dark:text-gray-400 font-medium tracking-wide">QUANTUM JUMP 2026</p>}
+                {!isMobileView && <p className="hidden sm:block text-[10px] text-gray-400 font-medium tracking-wide uppercase">Integrated Logistics Solution</p>}
              </div>
           </div>
           
@@ -250,8 +263,8 @@ const App: React.FC = () => {
       {/* Footer (Hidden in Mobile View for cleaner look) */}
       {!isMobileView && (
         <footer className="border-t border-gray-200 dark:border-gray-700 mt-0 py-8 bg-white dark:bg-gray-800 text-center transition-colors duration-200 hidden lg:block">
-            <p className="text-sm text-gray-400 dark:text-gray-500">© 2025 Goodman GLS & J-Ways. Internal Use Only.</p>
-            <p className="text-xs text-gray-300 dark:text-gray-600 mt-1">System Version 2.1 | Data Updated: 2025.01.15</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">© 2025 Goodman GLS. Internal Use Only.</p>
+            <p className="text-xs text-gray-300 dark:text-gray-600 mt-1">System Version 2.2 | Data Updated: 2025.01.15</p>
         </footer>
       )}
       </div>

@@ -12,12 +12,12 @@ export const generatePDF = (input: QuoteInput, result: QuoteResult) => {
 
   // --- Header ---
   doc.setFontSize(22);
-  doc.setTextColor(2, 132, 199); // J-Ways Blue
-  doc.text("J-Ways Smart Quote", 20, yPos);
+  doc.setTextColor(2, 132, 199); // Blue
+  doc.text("Goodman GLS Smart Quote", 20, yPos);
   
   doc.setFontSize(10);
   doc.setTextColor(100);
-  doc.text("Integrated Logistics Solution", 150, yPos);
+  doc.text("Integrated Logistics Solution", 140, yPos);
   
   nextLine(15);
 
@@ -25,7 +25,7 @@ export const generatePDF = (input: QuoteInput, result: QuoteResult) => {
   doc.setFontSize(10);
   doc.setTextColor(0);
   doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, yPos);
-  doc.text(`Quote Ref: JW-${Math.random().toString(36).substr(2, 6).toUpperCase()}`, 150, yPos);
+  doc.text(`Quote Ref: GM-${Math.random().toString(36).substr(2, 6).toUpperCase()}`, 150, yPos);
   nextLine(10);
 
   // --- Route & Terms ---
@@ -195,7 +195,7 @@ export const generatePDF = (input: QuoteInput, result: QuoteResult) => {
   doc.setFontSize(8);
   doc.setTextColor(150);
   doc.text("This quote is an estimate based on provided dimensions and is subject to change upon final measurement.", 20, pageHeight - 20);
-  doc.text("© 2025 J-Ways Co., Ltd.", 20, pageHeight - 15);
+  doc.text("© 2025 Goodman GLS.", 20, pageHeight - 15);
 
-  doc.save("jways_smart_quote.pdf");
+  doc.save("goodman_gls_quote.pdf");
 };
