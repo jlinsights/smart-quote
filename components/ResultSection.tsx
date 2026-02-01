@@ -1,27 +1,106 @@
 import React, { useState } from 'react';
-import { QuoteResult } from '@/types';
-import { Calculator, Truck, Edit3, PackageCheck, HelpCircle, X, Plane, BoxSelect, TrendingUp, Info } from 'lucide-react';
-import { resultStyles } from './result-styles';
+import { QuoteResult } from '../types';
+import { AlertTriangle, TrendingUp, Truck, Plane, PackageCheck, Anchor, Info, Calculator, DollarSign, Edit3, FileDown, HelpCircle, X, BoxSelect, ExternalLink } from 'lucide-react';
 
 interface Props {
   result: QuoteResult;
+  onMarginChange: (newMargin: number) => void;
   onDomesticCostChange: (newCost: number) => void;
   onPackingCostChange: (newCost: number) => void;
-  onMarginChange: (newMargin: number) => void;
+  onDownloadPdf: () => void;
 }
 
-export const CostBreakdownCard: React.FC<Props> = ({ result, onDomesticCostChange, onPackingCostChange, onMarginChange }) => {
+export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onDomesticCostChange, onPackingCostChange, onDownloadPdf }) => {
   const [showPackingInfo, setShowPackingInfo] = useState(false);
-  const { cardClass } = resultStyles;
+  const [showSurgeInfo, setShowSurgeInfo] = useState(false);
 
   const formatCurrency = (val: number) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(val);
+  const formatUSD = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+  const formatNum = (val: number) => new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1 }).format(val);
 
+  // Aggregated Costs for Display
+  const domesticCost = result.breakdown.domesticBase + result.breakdown.domesticSurcharge;
   const packingCost = result.breakdown.packingMaterial + result.breakdown.packingLabor + result.breakdown.packingFumigation + result.breakdown.handlingFees;
   const upsTotalCost = result.breakdown.upsBase + result.breakdown.upsFsc + result.breakdown.upsWarRisk + result.breakdown.upsSurge;
-  const totalInternalCost = result.totalCostAmount;
+  const totalInternalCost = result.totalCostAmount; // This includes duty if applicable
 
   return (
-      <div className={cardClass}>
+    <div className="space-y-6 sticky top-6">
+      
+      {/* Main Quote Card */}
+      <div className="bg-gradient-to-br from-jways-800 to-jways-900 rounded-2xl shadow-xl p-6 text-white relative overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
+        <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Anchor className="w-32 h-32 transform rotate-12" />
+        </div>
+        
+        <div className="relative z-10">
+            <div className="flex justify-between items-start mb-2">
+                <h2 className="text-jways-200 text-xs font-bold tracking-widest uppercase mt-1">Total Estimated Quote</h2>
+                <button 
+                    onClick={onDownloadPdf}
+                    className="flex items-center space-x-1 bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1.5 rounded-lg backdrop-blur-sm transition-colors border border-white/10"
+                    title="Download Quote PDF"
+                >
+                    <FileDown className="w-3.5 h-3.5" />
+                    <span>PDF</span>
+                </button>
+            </div>
+            
+            <div className="flex flex-col mb-5">
+                <div className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+                    {formatCurrency(result.totalQuoteAmount)}
+                </div>
+                <div className="text-lg text-jways-300 font-light mt-1 flex items-center">
+                    <span className="opacity-70 mr-2">≈</span> {formatUSD(result.totalQuoteAmountUSD)} <span className="text-xs ml-1 opacity-50">USD</span>
+                </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3 text-sm bg-white/10 p-4 rounded-xl backdrop-blur-md border border-white/10">
+                <div>
+                    <span className="block text-jways-200 text-xs mb-0.5">Transit Time</span>
+                    <span className="font-semibold text-white">{result.transitTime}</span>
+                </div>
+                <div>
+                    <span className="block text-jways-200 text-xs mb-0.5">Zone</span>
+                    <span className="font-semibold text-white">{result.appliedZone}</span>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      {/* Warnings */}
+      {result.warnings.length > 0 && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 p-4 rounded-r-xl shadow-sm">
+            <div className="flex">
+                <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                <div className="ml-3">
+                    <h3 className="text-sm font-bold text-amber-800 dark:text-amber-200">Attention Needed</h3>
+                    <ul className="list-disc pl-5 mt-1 text-sm text-amber-700 dark:text-amber-300 space-y-1">
+                        {result.warnings.map((w, i) => <li key={i}>{w}</li>)}
+                    </ul>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {/* Key Metrics */}
+      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+        <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center transition-colors">
+            <span className="block text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Act. Weight</span>
+            <span className="block text-sm sm:text-base font-bold text-gray-800 dark:text-white">{formatNum(result.totalActualWeight)} <span className="text-xs font-normal text-gray-400">kg</span></span>
+        </div>
+        <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center transition-colors">
+            <span className="block text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Bill. Weight</span>
+            <span className="block text-sm sm:text-base font-bold text-jways-600 dark:text-jways-400">{formatNum(result.billableWeight)} <span className="text-xs font-normal text-gray-400">kg</span></span>
+        </div>
+        <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center transition-colors">
+            <span className="block text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Margin</span>
+            <span className={`block text-sm sm:text-base font-bold ${result.profitMargin < 10 ? 'text-red-500 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>{result.profitMargin}%</span>
+        </div>
+      </div>
+
+      {/* Cost Structure & Pricing Breakdown */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
         <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 flex justify-between items-center transition-colors">
             <h3 className="font-bold text-gray-700 dark:text-gray-200 flex items-center text-sm">
                 <Calculator className="w-4 h-4 mr-2 text-jways-500" />
@@ -137,12 +216,47 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onDomesticCostChang
                         </div>
                         {/* Breakdown of Surge Costs if they exist */}
                         {result.breakdown.upsSurge > 0 && (
-                            <div className="flex justify-between items-center text-amber-600 dark:text-amber-500 text-xs pl-6 animate-pulse">
-                                <div className="flex items-center">
-                                    <BoxSelect className="w-3 h-3 mr-1" />
-                                    <span>UPS Demand/Surge Fees</span>
+                            <div className="flex flex-col space-y-2 mt-1">
+                                <div className="flex justify-between items-center text-amber-600 dark:text-amber-500 text-xs pl-6 animate-pulse">
+                                    <div className="flex items-center">
+                                        <BoxSelect className="w-3 h-3 mr-1" />
+                                        <span>UPS Demand/Surge Fees</span>
+                                        <button
+                                            onClick={() => setShowSurgeInfo(!showSurgeInfo)}
+                                            className="ml-1 text-amber-500 hover:text-amber-700 dark:hover:text-amber-300 transition-colors focus:outline-none"
+                                            title="View Surcharge Policy"
+                                        >
+                                            <Info className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                    <span>{formatCurrency(result.breakdown.upsSurge)}</span>
                                 </div>
-                                <span>{formatCurrency(result.breakdown.upsSurge)}</span>
+
+                                {/* Surge Info Box */}
+                                {showSurgeInfo && (
+                                    <div className="ml-6 bg-amber-50 dark:bg-amber-900/30 rounded-lg p-3 text-xs text-amber-800 dark:text-amber-200 border border-amber-100 dark:border-amber-800 relative animate-in fade-in slide-in-from-top-1 duration-200">
+                                        <button
+                                            onClick={() => setShowSurgeInfo(false)}
+                                            className="absolute top-2 right-2 text-amber-400 hover:text-amber-600 dark:hover:text-amber-100"
+                                        >
+                                            <X className="w-3 h-3" />
+                                        </button>
+                                        <p className="font-bold mb-2">UPS 추가 취급/수요 할증 (Surcharges)</p>
+                                        <ul className="space-y-1 list-disc pl-4 mb-2">
+                                            <li><span className="font-semibold">Additional Handling:</span> 무게 25kg 이상 또는 긴 변 122cm 이상</li>
+                                            <li><span className="font-semibold">Large Package:</span> 길이 + 둘레 {'>'} 300cm</li>
+                                            <li><span className="font-semibold">Over Max:</span> 길이 274cm 초과 또는 무게 70kg 초과 (Penalty)</li>
+                                        </ul>
+                                        <a
+                                            href="https://assets.ups.com/adobe/assets/urn:aaid:aem:2840054d-e7bd-47d5-925d-a940bcd4efe5/original/as/surge-fee-us-en.pdf"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 underline mt-1"
+                                        >
+                                            View Official UPS Policy <ExternalLink className="w-3 h-3 ml-1" />
+                                        </a>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -211,5 +325,6 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onDomesticCostChang
              </p>
         </div>
       </div>
+    </div>
   );
 };

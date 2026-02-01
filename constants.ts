@@ -34,9 +34,14 @@ export const CN_SOUTH_ZIP_RANGES = [
     { start: 650000, end: 679999 }, // Yunnan (Requested)
 ];
 
-// Market Defaults
-export const DEFAULT_EXCHANGE_RATE = 1430; // KRW/USD
-export const DEFAULT_FSC_PERCENT = 31.5; // 31.5%
+// Market Defaults (Fallbacks)
+// These are used if the API fetch fails or while loading
+export const DEFAULT_EXCHANGE_RATE = 1430; // KRW/USD Fallback
+export const DEFAULT_FSC_PERCENT = 31.5; // 31.5% Fallback
+
+// API Configuration Placeholders
+export const MARKET_DATA_API_ENDPOINT = "https://api.jways-logistics.com/v1/rates/current";
+export const API_FETCH_INTERVAL_MS = 1000 * 60 * 60 * 24; // 24 Hours
 
 export const WAR_RISK_SURCHARGE_RATE = 0.05; // 5% Peak/War risk
 

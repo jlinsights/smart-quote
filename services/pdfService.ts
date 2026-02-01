@@ -1,6 +1,6 @@
 import { jsPDF } from "jspdf";
-import { QuoteInput, QuoteResult } from "@/types";
-import { DOMESTIC_REGIONS, COUNTRY_OPTIONS } from "@/constants";
+import { QuoteInput, QuoteResult } from "../types";
+import { DOMESTIC_REGIONS, COUNTRY_OPTIONS } from "../constants";
 
 export const generatePDF = (input: QuoteInput, result: QuoteResult) => {
   const doc = new jsPDF();

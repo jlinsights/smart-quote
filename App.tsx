@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { QuoteInput, Incoterm, PackingType } from './types';
+import { QuoteInput, QuoteResult, DomesticRegionCode, Incoterm, PackingType } from './types';
 import { INITIAL_MARGIN, DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from './constants';
-import { calculateQuote } from '@/features/quote/services/calculationService';
-import { generatePDF } from '@/lib/pdfService';
-import { InputSection } from '@/features/quote/components/InputSection';
-import { ResultSection } from '@/features/quote/components/ResultSection';
+import { calculateQuote } from './services/calculationService';
+import { generatePDF } from './services/pdfService';
+import { InputSection } from './components/InputSection';
+import { ResultSection } from './components/ResultSection';
 import { Plane, Zap, Moon, Sun, ChevronRight, Smartphone, Monitor } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -13,6 +13,12 @@ const App: React.FC = () => {
   
   // View Mode State (for simulation)
   const [isMobileView, setIsMobileView] = useState(false);
+
+  // System Rates State (Fetched from API)
+  const [systemRates, setSystemRates] = useState({
+      exchangeRate: DEFAULT_EXCHANGE_RATE,
+      fscPercent: DEFAULT_FSC_PERCENT
+  });
 
   // Apply dark class to html element
   useEffect(() => {
@@ -43,10 +49,44 @@ const App: React.FC = () => {
     manualPackingCost: undefined
   });
 
+  const [result, setResult] = useState<QuoteResult | null>(null);
 
+  // Simulate API Fetching for Market Rates
+  useEffect(() => {
+    const fetchMarketRates = async () => {
+        try {
+            // Simulate API Delay
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // Simulated Response with updated rates
+            const liveRates = {
+                exchangeRate: 1445.50, // Updated from 1430
+                fscPercent: 32.25      // Updated from 31.5
+            };
+            
+            setSystemRates(liveRates);
+            
+            // Update input to reflect live rates automatically
+            setInput(prev => ({
+                ...prev,
+                exchangeRate: liveRates.exchangeRate,
+                fscPercent: liveRates.fscPercent
+            }));
+            
+            console.log('Live market rates updated:', liveRates);
+        } catch (error) {
+            console.error('Failed to fetch market rates, using fallbacks.', error);
+        }
+    };
+    
+    fetchMarketRates();
+  }, []);
 
   // Reactive Calculation
-  const result = React.useMemo(() => calculateQuote(input), [input]);
+  useEffect(() => {
+    const calculatedResult = calculateQuote(input);
+    setResult(calculatedResult);
+  }, [input]);
 
   const handleMarginChange = (newMargin: number) => {
     setInput(prev => ({ ...prev, marginPercent: newMargin }));
@@ -154,7 +194,13 @@ const App: React.FC = () => {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Enter cargo details to generate domestic (ez) and overseas (UPS) integrated quote.</p>
                </div>
                
-               <InputSection input={input} onChange={setInput} isMobileView={isMobileView} />
+               <InputSection 
+                    input={input} 
+                    onChange={setInput} 
+                    isMobileView={isMobileView} 
+                    systemExchangeRate={systemRates.exchangeRate}
+                    systemFscPercent={systemRates.fscPercent}
+               />
             </div>
 
             {/* Right Column: Result */}
