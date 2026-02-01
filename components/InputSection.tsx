@@ -48,10 +48,14 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
 
   // Mobile Optimization: 
   // - text-base prevents iOS zoom on focus
-  // - py-2.5 px-3 for larger touch target
-  // - rounded-lg for modern look
-  const inputClass = `w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-jways-500 focus:ring-jways-500 text-base ${!isMobileView ? 'sm:text-sm' : ''} py-2.5 px-3 border bg-white dark:bg-gray-700 dark:text-white transition-colors placeholder-gray-400`;
-  const labelClass = "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-0.5";
+  // - py-3.5 px-4 for comfortable touch targets on mobile
+  // - py-2.5 px-3 for compact desktop view
+  const inputClass = `w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-jways-500 focus:ring-jways-500 border bg-white dark:bg-gray-700 dark:text-white transition-colors placeholder-gray-400 
+    ${isMobileView ? 'text-base py-3.5 px-4' : 'text-sm py-2.5 px-3'}`;
+    
+  const labelClass = `block font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-0.5 
+    ${isMobileView ? 'text-base' : 'text-sm'}`;
+    
   const cardClass = "bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors";
   const sectionTitleClass = "text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-5 flex items-center border-b border-gray-100 dark:border-gray-700 pb-2";
   const grayCardClass = "bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl shadow-inner border border-gray-200 dark:border-gray-700 transition-colors";
@@ -64,6 +68,19 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
   
   // Financial factors grid - adapt to 3 items
   const financialGrid = `grid grid-cols-1 ${!isMobileView ? 'sm:grid-cols-3' : 'grid-cols-2'} gap-5`;
+
+  // Helper for Cargo labels
+  const cargoLabelClass = `block font-medium text-gray-500 dark:text-gray-400 mb-1 
+    ${isMobileView ? 'text-sm' : 'text-xs'}`;
+
+  // Button Styles with Touch Target Logic
+  const addBoxBtnClass = isMobileView
+    ? "text-sm flex items-center bg-jways-600 text-white px-4 py-2.5 rounded-lg shadow-sm hover:bg-jways-700 active:scale-95 transition-all font-medium"
+    : "text-xs flex items-center bg-jways-600 text-white px-3 py-1.5 rounded-lg shadow-sm hover:bg-jways-700 active:scale-95 transition-all font-medium";
+
+  const resetBtnClass = isMobileView
+    ? "text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg border border-amber-100 dark:border-amber-800 shadow-sm whitespace-nowrap flex items-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors cursor-pointer group"
+    : "text-[10px] sm:text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md border border-amber-100 dark:border-amber-800 shadow-sm whitespace-nowrap flex items-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors cursor-pointer group";
 
   return (
     <div className="space-y-6">
@@ -116,6 +133,8 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
               className={inputClass}
               placeholder="e.g. 90001"
               inputMode="numeric"
+              pattern="[0-9]*" 
+              autoComplete="postal-code"
             />
           </div>
           <div>
@@ -183,10 +202,10 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
                         type="checkbox"
                         checked={input.isJejuPickup}
                         onChange={(e) => updateField('isJejuPickup', e.target.checked)}
-                        className="h-5 w-5 text-jways-600 focus:ring-jways-500 border-gray-300 rounded"
+                        className={`text-jways-600 focus:ring-jways-500 border-gray-300 rounded ${isMobileView ? 'h-6 w-6' : 'h-5 w-5'}`}
                     />
                     <div className="ml-3">
-                        <span className="block text-sm font-medium text-gray-900 dark:text-gray-300">Jeju / Remote Island</span>
+                        <span className={`block font-medium text-gray-900 dark:text-gray-300 ${isMobileView ? 'text-base' : 'text-sm'}`}>Jeju / Remote Island</span>
                         <span className="block text-xs text-amber-500 font-medium">Additional Surcharge Applies</span>
                     </div>
                 </label>
@@ -211,7 +230,7 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
             ) : (
                 <button 
                     onClick={resetRates}
-                    className="text-[10px] sm:text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md border border-amber-100 dark:border-amber-800 shadow-sm whitespace-nowrap flex items-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors cursor-pointer group"
+                    className={resetBtnClass}
                     title="Reset to weekly default rates"
                 >
                     <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mr-1.5 group-hover:scale-125 transition-transform"></span>
@@ -228,10 +247,12 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
                     </div>
                     <input
                         type="number"
+                        step="any"
                         value={input.exchangeRate}
                         onChange={(e) => updateField('exchangeRate', Number(e.target.value))}
                         className={`${inputClass} pl-8 bg-white focus:bg-white ${input.exchangeRate !== DEFAULT_EXCHANGE_RATE ? 'ring-1 ring-amber-300 dark:ring-amber-700' : ''}`}
                         inputMode="decimal"
+                        autoComplete="off"
                     />
                 </div>
             </div>
@@ -245,6 +266,7 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
                         onChange={(e) => updateField('fscPercent', Number(e.target.value))}
                         className={`${inputClass} pr-8 bg-white focus:bg-white ${input.fscPercent !== DEFAULT_FSC_PERCENT ? 'ring-1 ring-amber-300 dark:ring-amber-700' : ''}`}
                         inputMode="decimal"
+                        autoComplete="off"
                     />
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                     <span className="text-gray-500 sm:text-sm font-bold">%</span>
@@ -256,10 +278,12 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
                 <div className="relative rounded-lg shadow-sm">
                     <input 
                     type="number" 
+                    step="any"
                     value={input.marginPercent}
                     onChange={(e) => updateField('marginPercent', Number(e.target.value))}
-                    className={`w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-jways-500 text-base ${!isMobileView ? 'sm:text-sm' : ''} py-2.5 px-3 border dark:text-white pr-8 transition-colors ${input.marginPercent < 10 ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300' : 'bg-white focus:bg-white dark:bg-gray-700'}`}
+                    className={`${inputClass} ${input.marginPercent < 10 ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300' : 'bg-white focus:bg-white dark:bg-gray-700'}`}
                     inputMode="decimal"
+                    autoComplete="off"
                     />
                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                         <span className="text-gray-500 sm:text-sm font-bold">%</span>
@@ -291,7 +315,7 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
             </h3>
             <button 
                 onClick={addItem}
-                className="text-xs flex items-center bg-jways-600 text-white px-3 py-1.5 rounded-lg shadow-sm hover:bg-jways-700 active:scale-95 transition-all font-medium"
+                className={addBoxBtnClass}
             >
                 <Plus className="w-3 h-3 mr-1" /> Add Box
             </button>
@@ -310,39 +334,39 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
 
                {/* Quantity */}
                <div className={`col-span-4 ${!isMobileView ? 'sm:col-span-2' : ''}`}>
-                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Qty</label>
-                 <input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(idx, 'quantity', Number(e.target.value))} className={`${inputClass} text-center`} inputMode="numeric" />
+                 <label className={cargoLabelClass}>Qty</label>
+                 <input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(idx, 'quantity', Number(e.target.value))} className={`${inputClass} text-center`} inputMode="numeric" pattern="[0-9]*" />
                </div>
 
                 {/* Weight - Moved up for mobile visibility */}
                <div className={`col-span-6 ${!isMobileView ? 'sm:col-span-3 sm:order-last md:order-none' : ''}`}>
-                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Weight (kg)</label>
-                 <input type="number" value={item.weight} onChange={(e) => updateItem(idx, 'weight', Number(e.target.value))} className={inputClass} inputMode="decimal" />
+                 <label className={cargoLabelClass}>Weight (kg)</label>
+                 <input type="number" step="any" value={item.weight} onChange={(e) => updateItem(idx, 'weight', Number(e.target.value))} className={inputClass} inputMode="decimal" />
                </div>
 
                 {/* Trash - Top right on mobile */}
                <div className={`col-span-2 ${!isMobileView ? 'sm:col-span-1' : ''} flex justify-end pb-1.5 sm:pb-2`}>
                  <button 
                     onClick={() => removeItem(idx)} 
-                    className="p-2 text-red-400 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    className={`text-red-400 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ${isMobileView ? 'p-3' : 'p-2'}`}
                     disabled={input.items.length === 1}
                  >
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className={`${isMobileView ? 'w-6 h-6' : 'w-5 h-5'}`} />
                  </button>
                </div>
 
                {/* Dimensions - Row 2 on mobile */}
                <div className={`col-span-4 ${!isMobileView ? 'sm:col-span-2' : ''}`}>
-                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">L (cm)</label>
-                 <input type="number" value={item.length} onChange={(e) => updateItem(idx, 'length', Number(e.target.value))} className={inputClass} inputMode="decimal" />
+                 <label className={cargoLabelClass}>L (cm)</label>
+                 <input type="number" step="any" value={item.length} onChange={(e) => updateItem(idx, 'length', Number(e.target.value))} className={inputClass} inputMode="decimal" />
                </div>
                <div className={`col-span-4 ${!isMobileView ? 'sm:col-span-2' : ''}`}>
-                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">W (cm)</label>
-                 <input type="number" value={item.width} onChange={(e) => updateItem(idx, 'width', Number(e.target.value))} className={inputClass} inputMode="decimal" />
+                 <label className={cargoLabelClass}>W (cm)</label>
+                 <input type="number" step="any" value={item.width} onChange={(e) => updateItem(idx, 'width', Number(e.target.value))} className={inputClass} inputMode="decimal" />
                </div>
                <div className={`col-span-4 ${!isMobileView ? 'sm:col-span-2' : ''}`}>
-                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">H (cm)</label>
-                 <input type="number" value={item.height} onChange={(e) => updateItem(idx, 'height', Number(e.target.value))} className={inputClass} inputMode="decimal" />
+                 <label className={cargoLabelClass}>H (cm)</label>
+                 <input type="number" step="any" value={item.height} onChange={(e) => updateItem(idx, 'height', Number(e.target.value))} className={inputClass} inputMode="decimal" />
                </div>
                
             </div>
@@ -375,11 +399,13 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
             <div className="relative">
                 <input 
                     type="number" 
+                    step="any"
                     value={input.manualPackingCost ?? ''}
                     onChange={(e) => updateField('manualPackingCost', e.target.value === '' ? undefined : Number(e.target.value))}
                     className={inputClass}
                     placeholder="Auto-calculated if empty"
                     inputMode="decimal"
+                    autoComplete="off"
                 />
             </div>
             <p className="mt-1 text-[10px] text-gray-400">
@@ -392,10 +418,12 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
                <label className={labelClass}>Estimated Duty & Tax (KRW)</label>
                <input 
                 type="number" 
+                step="any"
                 value={input.dutyTaxEstimate}
                 onChange={(e) => updateField('dutyTaxEstimate', Number(e.target.value))}
                 className={inputClass}
                 inputMode="decimal"
+                autoComplete="off"
                />
             </div>
           )}
