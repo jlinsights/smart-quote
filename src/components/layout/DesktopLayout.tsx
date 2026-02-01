@@ -52,7 +52,7 @@ export const DesktopLayout: React.FC<Props> = ({
                />
                <div>
                   <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
-                      J-Ways <span className="text-jways-600 dark:text-jways-400">Smart Quote</span>
+                      <span className="text-jways-600 dark:text-jways-400">Smart Quote</span>
                   </h1>
                   <p className="hidden sm:block text-xs text-gray-500 dark:text-gray-400 font-medium tracking-wide">QUANTUM JUMP 2026</p>
                </div>
