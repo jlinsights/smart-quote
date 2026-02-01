@@ -1,20 +1,110 @@
+# Smart Quote System
+
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+  <img src="/public/goodman-gls-logo.png" alt="Goodman GLS Logo" height="60" />
 </div>
 
-# Run and deploy your AI Studio app
+<br />
 
-This contains everything you need to run your app locally.
+The **Smart Quote System** is a robust logistics quoting application designed for **Goodman GLS** and **J-Ways**. It automates the complex calculation of integrated shipping costs, including domestic pickup, export packing, and international air freight (UPS).
 
-View your app in AI Studio: https://ai.studio/apps/drive/1fHIH4llLVhEUlG02IE-2k7x2kMVE7SfM
+**Live URL**: [https://smart-quote-main-kqksmsx4e-jlinsights-projects.vercel.app](https://smart-quote-main-kqksmsx4e-jlinsights-projects.vercel.app)
 
-## Run Locally
+---
 
-**Prerequisites:**  Node.js
+## 🚀 Key Features
 
+### 1. Intelligent Cost Calculation
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- **Domestic Trucking**: Automatically selects the optimal truck size (1t, 1.4t, up to 11t) based on total weight and CBM.
+- **Smart Surcharges**: Detects and applies special fees for:
+  - **Jeju/Island Pickup**: Ferry and remote area surcharges.
+  - **UPS Surge Fees**: Analyzes cargo dimensions to apply AHS (Additional Handling), Large Package, and Over Maximum Limits penalties.
+- **Volumetric Analysis**: Automatically compares actual vs. volumetric weight to determine billable weight.
+
+### 2. Modern UI/UX
+
+- **Responsive Layout Architecture**:
+  - **Desktop**: Full-width dashboard for logistics planners.
+  - **Mobile Simulation**: A dedicated mobile-app-like view for on-the-go quick quotes.
+- **Dark Mode**: Fully supported dark theme with dynamic logo switching.
+- **Real-time Feedback**: Instant quote updates as cargo details are modified.
+
+### 3. Professional Output
+
+- **PDF Generator**: Generates a detailed, branded PDF quote ("jways_smart_quote.pdf") containing:
+  - Shipment metadata (Route, Incoterm, Refernce ID).
+  - Full cargo manifest with dimensions.
+  - Detailed cost breakdown (Domestic, Packing, Freight, Duties).
+  - Explicit warning notices for special surcharges.
+
+## 🛠️ Technology Stack
+
+- **Framework**: React (Vite)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **PDF Generation**: jsPDF
+- **Testing**: Vitest (Unit Tests)
+- **Icons**: Lucide React
+
+## 📂 Project Structure
+
+```bash
+src/
+├── components/
+│   └── layout/          # DesktopLayout & MobileLayout components
+├── features/
+│   └── quote/
+│       ├── components/  # Quote form sections (Cargo, Route, Financial)
+│       └── services/    # Core Business Logic (calculationService.ts)
+├── lib/                 # Shared libraries (pdfService.ts)
+├── types.ts             # TypeScript definitions
+└── constants.ts         # Configuration (Rates, Zones, Layout Settings)
+```
+
+## 💻 Getting Started
+
+### Prerequisites
+
+- Node.js (v18+)
+- npm
+
+### Installation
+
+```bash
+git clone https://github.com/jlinsights/smart-quote.git
+cd smart-quote
+npm install
+```
+
+### Development
+
+Start the local development server:
+
+```bash
+npm run dev
+```
+
+### Testing
+
+Run the automated unit tests to verify calculation logic:
+
+```bash
+npm test
+```
+
+_Current Coverage: Surge Logic (AHS/Large Pkg) & Truck Selection_
+
+### Build
+
+Build for production:
+
+```bash
+npm run build
+```
+
+---
+
+## 🔒 Internal Use Only
+
+This system contains proprietary rate tables and logic for Goodman GLS / J-Ways internal operations.
