@@ -1,6 +1,6 @@
 import React from 'react';
 import { QuoteInput, CargoItem } from '@/types';
-import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from '@/constants';
+import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from '@/config/rates';
 import { RouteSection } from './RouteSection';
 import { FinancialSection } from './FinancialSection';
 import { CargoSection } from './CargoSection';

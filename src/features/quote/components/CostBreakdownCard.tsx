@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { QuoteResult } from '@/types';
 import { Calculator, Truck, Edit3, PackageCheck, HelpCircle, X, Plane, BoxSelect, TrendingUp, Info } from 'lucide-react';
+import { UI_TEXT } from '@/config/text';
 import { resultStyles } from './result-styles';
 
 interface Props {
@@ -105,20 +106,12 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onDomesticCostChang
                                 >
                                     <X className="w-3 h-3" />
                                 </button>
-                                <p className="font-bold mb-2 text-jways-700 dark:text-jways-300">비용 산출 기준 (Calculation Basis)</p>
+                                <p className="font-bold mb-2 text-jways-700 dark:text-jways-300">{UI_TEXT.COST_BREAKDOWN.TITLE}</p>
                                 <ul className="space-y-1.5 list-disc pl-4 marker:text-gray-300">
-                                    <li>
-                                        <span className="font-semibold">자재비 (Material):</span> 화물 표면적(m²) × 15,000원
-                                    </li>
-                                    <li>
-                                        <span className="font-semibold">인건비 (Labor):</span> 박스당 50,000원 (진공포장 시 1.5배)
-                                    </li>
-                                    <li>
-                                        <span className="font-semibold">훈증비 (Fumigation):</span> 30,000원 (Packing 시 고정)
-                                    </li>
-                                    <li>
-                                        <span className="font-semibold">핸들링 (Handling):</span> 35,000원 (수출통관/서류)
-                                    </li>
+                                    <li>{UI_TEXT.COST_BREAKDOWN.MATERIAL}</li>
+                                    <li>{UI_TEXT.COST_BREAKDOWN.LABOR}</li>
+                                    <li>{UI_TEXT.COST_BREAKDOWN.FUMIGATION}</li>
+                                    <li>{UI_TEXT.COST_BREAKDOWN.HANDLING}</li>
                                 </ul>
                             </div>
                         )}
@@ -207,7 +200,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onDomesticCostChang
         <div className="bg-gray-50 dark:bg-gray-700/50 px-5 py-3 text-xs text-gray-500 dark:text-gray-400 flex items-start transition-colors">
              <Info className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5 text-gray-400" />
              <p className="leading-relaxed">
-                 Prices include all estimated surcharges. Final invoice may vary based on actual measurements.
+                 {UI_TEXT.COST_BREAKDOWN.DISCLAIMER}
              </p>
         </div>
       </div>

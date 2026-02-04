@@ -10,19 +10,23 @@ import {
   WAR_RISK_SURCHARGE_RATE, 
   HANDLING_FEE, 
   FUMIGATION_FEE,
-  DEFAULT_COUNTRY_ZONES,
-  CN_SOUTH_ZIP_RANGES,
   ZONE_BASE_RATES,
   DOMESTIC_RATES,
-  SURGE_THRESHOLDS,
   SURGE_RATES,
+  DEFAULT_EXCHANGE_RATE,
+  PACKING_MATERIAL_BASE_COST,
+  PACKING_LABOR_UNIT_COST
+} from "@/config/rates";
+import {
+  DEFAULT_COUNTRY_ZONES,
+  CN_SOUTH_ZIP_RANGES
+} from "@/config/zones";
+import {
+  SURGE_THRESHOLDS,
   PACKING_WEIGHT_BUFFER,
   PACKING_WEIGHT_ADDITION,
-  PACKING_MATERIAL_BASE_COST,
-  PACKING_LABOR_UNIT_COST,
-  DEFAULT_EXCHANGE_RATE,
   TRUCK_TIER_LIMITS
-} from "@/constants";
+} from "@/config/business-rules";
 
 // --- Types for Internal Calculations ---
 interface ItemCalculationResult {

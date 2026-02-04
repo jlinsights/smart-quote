@@ -2,7 +2,7 @@ import React from 'react';
 import { QuoteInput, QuoteResult } from '@/types';
 import { InputSection } from '@/features/quote/components/InputSection';
 import { ResultSection } from '@/features/quote/components/ResultSection';
-import { Zap, Moon, Sun, ChevronRight, Smartphone, Monitor } from 'lucide-react';
+import { Moon, Sun, Monitor, RotateCcw } from 'lucide-react';
 
 interface Props {
   isDarkMode: boolean;
@@ -16,6 +16,7 @@ interface Props {
   onDomesticCostChange: (val: number) => void;
   onPackingCostChange: (val: number) => void;
   onDownloadPdf: () => void;
+  onReset: () => void;
   scrollToResults: () => void;
 }
 
@@ -31,7 +32,7 @@ export const MobileLayout: React.FC<Props> = ({
   onDomesticCostChange,
   onPackingCostChange,
   onDownloadPdf,
-  scrollToResults
+  onReset
 }) => {
   const containerClass = "max-w-[420px] mx-auto border-x border-gray-200 dark:border-gray-800 shadow-2xl bg-white dark:bg-gray-900 min-h-screen transition-all duration-300";
   const headerClass = "sticky top-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 h-14 flex items-center justify-between";
@@ -53,6 +54,15 @@ export const MobileLayout: React.FC<Props> = ({
           </div>
           
           <div className="flex items-center space-x-2">
+             {/* Reset Button */}
+             <button
+               onClick={onReset}
+               className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-red-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-red-400 transition-colors"
+               title="Reset Quote"
+             >
+                <RotateCcw className="w-5 h-5" />
+             </button>
+
              {/* View Mode Toggle */}
              <button
                onClick={() => setIsMobileView(!isMobileView)}

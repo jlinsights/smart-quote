@@ -1,6 +1,8 @@
 import React from 'react';
 import { QuoteInput, DomesticRegionCode, Incoterm } from '@/types';
-import { ORIGIN_COUNTRY_OPTIONS, COUNTRY_OPTIONS, INCOTERM_OPTIONS, DOMESTIC_REGIONS } from '@/constants';
+import { ORIGIN_COUNTRY_OPTIONS, COUNTRY_OPTIONS, INCOTERM_OPTIONS } from '@/config/options';
+import { DOMESTIC_REGIONS } from '@/config/zones';
+import { UI_TEXT } from '@/config/text';
 import { Clock, AlertCircle } from 'lucide-react';
 import { inputStyles } from './input-styles';
 
@@ -109,8 +111,8 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                     <div className="flex items-start">
                          <Clock className="w-3.5 h-3.5 mr-2 text-jways-600 dark:text-jways-400 flex-shrink-0 mt-0.5" />
                          <div className="text-gray-600 dark:text-gray-300">
-                            <p className="mb-0.5"><span className="font-bold text-gray-800 dark:text-gray-200">당일혼적:</span> 14시 이전 픽업건은 당일 18시까지 입고</p>
-                            <p><span className="font-bold text-gray-800 dark:text-gray-200">익일혼적:</span> 14시 이후 픽업건은 익일 10시까지 입고</p>
+                            <p className="mb-0.5">{UI_TEXT.ROUTE.SAME_DAY_CUTOFF}</p>
+                            <p>{UI_TEXT.ROUTE.NEXT_DAY_CUTOFF}</p>
                          </div>
                     </div>
                     
@@ -118,10 +120,10 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                          <div className="flex items-start pt-2 border-t border-gray-200 dark:border-gray-600/50">
                             <AlertCircle className="w-3.5 h-3.5 mr-2 text-amber-500 flex-shrink-0 mt-0.5" />
                             <div className="text-gray-600 dark:text-gray-300 leading-snug">
-                                <span className="font-bold text-amber-700 dark:text-amber-500">별도 협의 필요 (Region {input.domesticRegionCode}):</span> 
+                                <span className="font-bold text-amber-700 dark:text-amber-500">{UI_TEXT.ROUTE.REMOTE_WARNING_TITLE} (Region {input.domesticRegionCode}):</span> 
                                 <br/>
-                                전라도/특수 지역의 500kg 미만 화물은 별도 요율 협의가 필요합니다. 
-                                <span className="block mt-1 text-gray-500">→ 결과 화면의 <strong>'Domestic Cost'</strong>를 직접 입력해주세요.</span>
+                                {UI_TEXT.ROUTE.REMOTE_WARNING_DESC}
+                                <span className="block mt-1 text-gray-500">{UI_TEXT.ROUTE.REMOTE_WARNING_ACTION}</span>
                             </div>
                         </div>
                     )}
@@ -135,8 +137,8 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                         className={`text-jways-600 focus:ring-jways-500 border-gray-300 rounded ${isMobileView ? 'h-6 w-6' : 'h-5 w-5'}`}
                     />
                     <div className="ml-3">
-                        <span className={`block font-medium text-gray-900 dark:text-gray-300 ${isMobileView ? 'text-base' : 'text-sm'}`}>Jeju / Remote Island</span>
-                        <span className="block text-xs text-amber-500 font-medium">Additional Surcharge Applies</span>
+                        <span className={`block font-medium text-gray-900 dark:text-gray-300 ${isMobileView ? 'text-base' : 'text-sm'}`}>{UI_TEXT.ROUTE.JEJU_LABEL}</span>
+                        <span className="block text-xs text-amber-500 font-medium">{UI_TEXT.ROUTE.JEJU_SUB}</span>
                     </div>
                 </label>
             </div>

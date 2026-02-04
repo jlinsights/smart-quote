@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { QuoteInput, Incoterm, PackingType } from './types';
-import { INITIAL_MARGIN, DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from './constants';
+import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from '@/config/rates';
+import { INITIAL_MARGIN } from '@/config/business-rules';
 import { calculateQuote } from '@/features/quote/services/calculationService';
 import { generatePDF } from '@/lib/pdfService';
 import { MobileLayout } from '@/components/layout/MobileLayout';
@@ -22,8 +23,7 @@ const App: React.FC = () => {
     }
   }, [isDarkMode]);
 
-  // Initial Input State
-  const [input, setInput] = useState<QuoteInput>({
+  const initialInput: QuoteInput = {
     originCountry: 'KR',
     destinationCountry: 'US',
     destinationZip: '',
@@ -40,7 +40,10 @@ const App: React.FC = () => {
     fscPercent: DEFAULT_FSC_PERCENT,
     manualDomesticCost: undefined,
     manualPackingCost: undefined
-  });
+  };
+
+  // Initial Input State
+  const [input, setInput] = useState<QuoteInput>(initialInput);
 
   // Reactive Calculation
   const result = React.useMemo(() => calculateQuote(input), [input]);
@@ -55,6 +58,12 @@ const App: React.FC = () => {
 
   const handlePackingCostChange = (newCost: number) => {
       setInput(prev => ({ ...prev, manualPackingCost: newCost }));
+  };
+
+  const handleReset = () => {
+      if (confirm('Are you sure you want to reset the quote?')) {
+          setInput(initialInput);
+      }
   };
   
   const handleDownloadPdf = () => {
@@ -82,6 +91,7 @@ const App: React.FC = () => {
     onDomesticCostChange: handleDomesticCostChange,
     onPackingCostChange: handlePackingCostChange,
     onDownloadPdf: handleDownloadPdf,
+    onReset: handleReset,
     scrollToResults
   };
 

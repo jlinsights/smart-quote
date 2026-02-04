@@ -1,6 +1,8 @@
 import { jsPDF } from "jspdf";
 import { QuoteInput, QuoteResult } from "@/types";
-import { DOMESTIC_REGIONS, COUNTRY_OPTIONS, PDF_LAYOUT } from "@/constants";
+import { DOMESTIC_REGIONS } from "@/config/zones";
+import { COUNTRY_OPTIONS } from "@/config/options";
+import { PDF_LAYOUT } from "@/config/ui-constants";
 
 const { COLORS, FONTS, MARGIN_X, LINE_HEIGHT } = PDF_LAYOUT;
 

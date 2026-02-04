@@ -14,34 +14,36 @@ The **Smart Quote System** is a robust logistics quoting application designed fo
 
 ## 🚀 Key Features
 
-### 1. Intelligent Cost Calculation
+### 1. Intelligent Logistics Calculation
 
-- **Domestic Trucking**: Automatically selects the optimal truck size (1t, 1.4t, up to 11t) based on total weight and CBM.
-- **Smart Surcharges**: Detects and applies special fees for:
-  - **Jeju/Island Pickup**: Ferry and remote area surcharges.
-  - **UPS Surge Fees**: Analyzes cargo dimensions to apply AHS (Additional Handling), Large Package, and Over Maximum Limits penalties.
-- **Volumetric Analysis**: Automatically compares actual vs. volumetric weight to determine billable weight.
+- **Smart Truck Selection**: Dynamically assigns the optimal vehicle (1t to 11t) based on total weight and volume caps.
+- **Advanced Surcharge Logic**:
+  - **AHS (Additional Handling)**: Auto-applies fees for weight >25kg or irregluar dimensions.
+  - **Large Package**: Detects length + girth > 300cm.
+  - **Over Max Limits**: Alerts and penalizes cargo exceeding network limits.
+- **Precision Zoning**:
+  - **China**: Distinguishes South China (Zone 5) vs North/Rest (Zone 2) based on 6-digit zip codes.
+  - **USA**: Routing for West (Zone 6) vs East/Central (Zone 7) based on zip prefixes.
 
-### 2. Modern UI/UX
+### 2. Financial Intelligence
 
-- **Responsive Layout Architecture**:
-  - **Desktop**: Full-width dashboard for logistics planners.
-  - **Mobile Simulation**: A dedicated mobile-app-like view for on-the-go quick quotes.
-- **Dark Mode**: Fully supported dark theme with dynamic logo switching.
-- **Real-time Feedback**: Instant quote updates as cargo details are modified.
+- **Volumetric Analysis**: Automatically compares Actual vs. Volumetric weight (Dim Factor 5000) to determine billable weight.
+- **Margin Protection**:
+  - **Low Margin Alert**: Warnings for margins below 10%.
+  - **Revenue Target**: Calculates target revenue based on desired margin percentage.
+- **Exchange Rate Handling**: Real-time USD conversion for cross-border reference.
 
 ### 3. Professional Output
 
-- **PDF Generator**: Generates a detailed, branded PDF quote ("jways_smart_quote.pdf") containing:
-  - Shipment metadata (Route, Incoterm, Refernce ID).
-  - Full cargo manifest with dimensions.
-  - Detailed cost breakdown (Domestic, Packing, Freight, Duties).
-  - Explicit warning notices for special surcharges.
+- **PDF Generator**: Generates a detailed, branded PDF quote containing:
+  - **Route & Manifest**: Origin, Destination, Incoterms, and full cargo list.
+  - **Cost Breakdown**: Granular view of Domestic, Packing, Freight, and Duty costs.
+  - **Compliance Warnings**: Explicit notices for surcharges and special handling requirements.
 
 ## 🛠️ Technology Stack
 
-- **Framework**: React (Vite)
-- **Language**: TypeScript
+- **Core**: React 19, TypeScript ~5.8
+- **Build Tool**: Vite ^6.2
 - **Styling**: Tailwind CSS
 - **PDF Generation**: jsPDF
 - **Testing**: Vitest (Unit Tests)
@@ -51,15 +53,15 @@ The **Smart Quote System** is a robust logistics quoting application designed fo
 
 ```bash
 src/
-├── components/
-│   └── layout/          # DesktopLayout & MobileLayout components
+├── components/          # Shared UI Components
+│   └── layout/          # DesktopLayout & MobileLayout
 ├── features/
 │   └── quote/
-│       ├── components/  # Quote form sections (Cargo, Route, Financial)
-│       └── services/    # Core Business Logic (calculationService.ts)
-├── lib/                 # Shared libraries (pdfService.ts)
-├── types.ts             # TypeScript definitions
-└── constants.ts         # Configuration (Rates, Zones, Layout Settings)
+│       ├── components/  # Quote Form Sections (Cargo, Route, Financial)
+│       └── services/    # Core Logic (calculationService.ts)
+├── lib/                 # Utilities (pdfService.ts)
+├── constants.ts         # Configuration (Rates, Zones, Limits)
+└── types.ts             # Type Definitions
 ```
 
 ## 💻 Getting Started

@@ -1,6 +1,6 @@
 import React from 'react';
 import { QuoteInput } from '@/types';
-import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from '@/constants';
+import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from '@/config/rates';
 import { TrendingUp, RotateCcw, Info } from 'lucide-react';
 import { inputStyles } from './input-styles';
 

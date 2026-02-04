@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { calculateItemSurge, calculateDomesticCosts } from './calculationService';
 import { PackingType } from '@/types';
-import { SURGE_RATES, TRUCK_TIER_LIMITS } from '@/constants';
+import { SURGE_RATES } from '@/config/rates';
+import { TRUCK_TIER_LIMITS } from '@/config/business-rules';
 
 describe('calculationService', () => {
   

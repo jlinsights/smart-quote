@@ -2,7 +2,7 @@ import React from 'react';
 import { QuoteInput, QuoteResult } from '@/types';
 import { InputSection } from '@/features/quote/components/InputSection';
 import { ResultSection } from '@/features/quote/components/ResultSection';
-import { Zap, Moon, Sun, ChevronRight, Smartphone } from 'lucide-react';
+import { Zap, Moon, Sun, ChevronRight, Smartphone, RotateCcw } from 'lucide-react';
 
 interface Props {
   isDarkMode: boolean;
@@ -16,6 +16,7 @@ interface Props {
   onDomesticCostChange: (val: number) => void;
   onPackingCostChange: (val: number) => void;
   onDownloadPdf: () => void;
+  onReset: () => void;
   scrollToResults: () => void;
 }
 
@@ -31,6 +32,7 @@ export const DesktopLayout: React.FC<Props> = ({
   onDomesticCostChange,
   onPackingCostChange,
   onDownloadPdf,
+  onReset,
   scrollToResults
 }) => {
   const containerClass = "min-h-screen bg-gray-50 dark:bg-gray-900 font-sans transition-colors duration-200";
@@ -63,6 +65,15 @@ export const DesktopLayout: React.FC<Props> = ({
                    <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
                    <span>Lightning Quote System</span>
                 </div>
+               
+               {/* Reset Button */}
+               <button
+                 onClick={onReset}
+                 className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-red-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-red-400 transition-colors"
+                 title="Reset Quote"
+               >
+                  <RotateCcw className="w-5 h-5" />
+               </button>
                
                {/* View Mode Toggle */}
                <button
