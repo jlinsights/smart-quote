@@ -28,22 +28,64 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetR
     ? "text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg border border-amber-100 dark:border-amber-800 shadow-sm whitespace-nowrap flex items-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors cursor-pointer group"
     : "text-[10px] sm:text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md border border-amber-100 dark:border-amber-800 shadow-sm whitespace-nowrap flex items-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors cursor-pointer group";
 
-  const handleRefreshFsc = async () => {
-    setIsRefreshing(true);
+  /* 
+    UPS Fuel Surcharge Auto-Fetch Logic
+    - Triggered on mount if current value matches default.
+    - Only runs in production/Vercel environment (api/fsc). 
+  */
+  const handleRefreshFsc = async (silent = false) => {
+    if (!silent) setIsRefreshing(true);
     try {
         const res = await fetch('/api/fsc');
-        if (!res.ok) throw new Error("Failed to fetch");
+        if (!res.ok) {
+            // In local dev, this might 404. We just ignore it silently in auto-fetch mode.
+            if (!silent) throw new Error("Failed to fetch");
+            return;
+        }
         const data = await res.json();
         if (data.rate) {
             onFieldChange('fscPercent', data.rate);
         }
     } catch (e) {
-        console.error("Failed to auto-update FSC", e);
-        // Optional: Add visual error feedback
+        if (!silent) console.error("Failed to auto-update FSC", e);
     } finally {
-        setIsRefreshing(false);
+        if (!silent) setIsRefreshing(false);
     }
   };
+
+  /* 
+    Exchange Rate Auto-Fetch Logic (TTS)
+    - Triggered on mount if current value matches default.
+  */
+  const handleRefreshExRate = async (silent = false) => {
+    if (!silent) setIsRefreshing(true);
+    try {
+        const res = await fetch('/api/exchange-rate');
+        if (!res.ok) {
+             if (!silent) throw new Error("Failed to fetch Ex. Rate");
+             return;
+        }
+        const data = await res.json();
+        if (data.rate) {
+            onFieldChange('exchangeRate', data.rate);
+        }
+    } catch (e) {
+        if (!silent) console.error("Failed to auto-update Ex. Rate", e);
+    } finally {
+        if (!silent) setIsRefreshing(false);
+    }
+  };
+
+  // Auto-fetch on mount if using default rates
+  React.useEffect(() => {
+    if (input.fscPercent === DEFAULT_FSC_PERCENT) {
+        handleRefreshFsc(true);
+    }
+    if (input.exchangeRate === DEFAULT_EXCHANGE_RATE) {
+        handleRefreshExRate(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
 
   return (
     <div className={grayCardClass}>
@@ -70,7 +112,17 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetR
       </div>
       <div className={financialGrid}>
          <div>
-             <label className={lc}>Ex. Rate</label>
+             <div className="flex items-center justify-between mb-1">
+                <label className={lc}>Ex. Rate (TTS)</label>
+                <button 
+                    onClick={() => handleRefreshExRate(false)}
+                    disabled={isRefreshing}
+                    className={`p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isRefreshing ? 'animate-spin text-jways-600' : 'text-gray-400'}`}
+                    title="Auto-fetch TTS rate"
+                >
+                    <RefreshCw className="w-3 h-3" />
+                </button>
+             </div>
              <div className="relative rounded-lg shadow-sm">
                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                  <span className="text-gray-500 sm:text-sm font-bold">₩</span>
@@ -91,7 +143,7 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetR
                 <label className={lc}>FSC %</label>
                 <div className="flex items-center space-x-1">
                     <button 
-                        onClick={handleRefreshFsc}
+                        onClick={() => handleRefreshFsc(false)}
                         disabled={isRefreshing}
                         className={`p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isRefreshing ? 'animate-spin text-jways-600' : 'text-gray-400'}`}
                         title="Auto-fetch latest official rate"
