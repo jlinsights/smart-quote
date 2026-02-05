@@ -50,4 +50,5 @@ export const PACKING_LABOR_UNIT_COST = 50000; // per item
 
 // Market Defaults
 export const DEFAULT_EXCHANGE_RATE = 1430; 
-export const DEFAULT_FSC_PERCENT = 31.5; 
+export const DEFAULT_FSC_PERCENT = 30.25; 
+export const UPS_FSC_URL = "https://www.ups.com/kr/ko/support/shipping-support/shipping-costs-rates/fuel-surcharges.page";

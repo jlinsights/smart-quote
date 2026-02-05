@@ -1,7 +1,8 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { QuoteInput } from '@/types';
-import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from '@/config/rates';
-import { TrendingUp, RotateCcw, Info } from 'lucide-react';
+import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT, UPS_FSC_URL } from '@/config/rates';
+import { TrendingUp, RotateCcw, Info, ExternalLink, RefreshCw } from 'lucide-react';
 import { inputStyles } from './input-styles';
 
 interface Props {
@@ -16,6 +17,8 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetR
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
   
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const isDefaultRates = input.exchangeRate === DEFAULT_EXCHANGE_RATE && input.fscPercent === DEFAULT_FSC_PERCENT;
   
   // Financial factors grid - adapt to 3 items
@@ -24,6 +27,23 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetR
   const resetBtnClass = isMobileView
     ? "text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg border border-amber-100 dark:border-amber-800 shadow-sm whitespace-nowrap flex items-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors cursor-pointer group"
     : "text-[10px] sm:text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md border border-amber-100 dark:border-amber-800 shadow-sm whitespace-nowrap flex items-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors cursor-pointer group";
+
+  const handleRefreshFsc = async () => {
+    setIsRefreshing(true);
+    try {
+        const res = await fetch('/api/fsc');
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        if (data.rate) {
+            onFieldChange('fscPercent', data.rate);
+        }
+    } catch (e) {
+        console.error("Failed to auto-update FSC", e);
+        // Optional: Add visual error feedback
+    } finally {
+        setIsRefreshing(false);
+    }
+  };
 
   return (
     <div className={grayCardClass}>
@@ -67,7 +87,28 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetR
              </div>
          </div>
          <div>
-             <label className={lc}>FSC %</label>
+             <div className="flex items-center justify-between mb-1">
+                <label className={lc}>FSC %</label>
+                <div className="flex items-center space-x-1">
+                    <button 
+                        onClick={handleRefreshFsc}
+                        disabled={isRefreshing}
+                        className={`p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isRefreshing ? 'animate-spin text-jways-600' : 'text-gray-400'}`}
+                        title="Auto-fetch latest official rate"
+                    >
+                        <RefreshCw className="w-3 h-3" />
+                    </button>
+                    <a 
+                        href={UPS_FSC_URL} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-blue-500 transition-colors"
+                        title="Check Official UPS Rate"
+                    >
+                        <ExternalLink className="w-3 h-3" />
+                    </a>
+                </div>
+             </div>
              <div className="relative rounded-lg shadow-sm">
                  <input
                      type="number"
@@ -117,3 +158,4 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetR
     </div>
   );
 };
+
