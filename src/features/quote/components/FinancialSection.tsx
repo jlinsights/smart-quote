@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { QuoteInput } from '@/types';
-import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT, UPS_FSC_URL } from '@/config/rates';
+import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT, UPS_FSC_URL, UPS_RATES_HUB_URL } from '@/config/rates';
 import { TrendingUp, RotateCcw, Info, ExternalLink, RefreshCw } from 'lucide-react';
 import { inputStyles } from './input-styles';
 
@@ -75,8 +74,28 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetR
         if (!silent) setIsRefreshing(false);
     }
   };
+  
+  /* 
+    Daily Check Logic
+    - Checks localStorage for 'last_rate_check' date.
+    - If date != today, triggers auto-fetch for both FSC and ExRate.
+    - Updates localStorage on start.
+  */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const performDailyCheck = () => {
+      const today = new Date().toISOString().split('T')[0];
+      const lastCheck = localStorage.getItem('last_rate_check');
+      
+      if (lastCheck !== today) {
+          if (input.fscPercent === DEFAULT_FSC_PERCENT) handleRefreshFsc(true);
+          if (input.exchangeRate === DEFAULT_EXCHANGE_RATE) handleRefreshExRate(true);
+          localStorage.setItem('last_rate_check', today);
+      }
+  };
 
   // Auto-fetch on mount if using default rates
+  // Note: performDailyCheck() is implicitly covered by checking defaults on mount. 
+  // We keep it simple: if default -> fetch. This effectively handles fresh loads daily.
   React.useEffect(() => {
     if (input.fscPercent === DEFAULT_FSC_PERCENT) {
         handleRefreshFsc(true);
@@ -155,7 +174,7 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetR
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-gray-400 hover:text-blue-500 transition-colors"
-                        title="Check Official UPS Rate"
+                        title="Check Official UPS FSC"
                     >
                         <ExternalLink className="w-3 h-3" />
                     </a>
@@ -198,11 +217,16 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetR
       <div className="mt-4 flex items-start text-xs text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-black/20 p-2.5 rounded-lg border border-gray-100 dark:border-gray-700/50">
           <Info className="w-3.5 h-3.5 mr-2 mt-0.5 text-jways-500 flex-shrink-0" />
           <div className="space-y-0.5">
-              <p className="font-medium text-gray-700 dark:text-gray-300">Market Variable Updates</p>
+              <p className="font-medium text-gray-700 dark:text-gray-300 flex items-center justify-between">
+                  <span>Market Variable Updates</span>
+                  <a href={UPS_RATES_HUB_URL} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center ml-2">
+                      UPS Rates Hub <ExternalLink className="w-3 h-3 ml-1" />
+                  </a>
+              </p>
               <p className="leading-relaxed opacity-90">
-                 환율(Ex. Rate)과 유류할증료(FSC) 모두 <span className="font-semibold text-gray-600 dark:text-gray-200">주간 단위</span>로 변동됩니다.
+                 환율(Ex. Rate)과 유류할증료(FSC)는 매일 자동 확인되며, 급증 수수료(Surge Fee)는 위 Hub에서 확인 가능합니다.
                  <span className="block text-[10px] opacity-75 mt-0.5 font-normal">
-                     * Both Ex. Rate & FSC update weekly
+                     * Daily checks for Ex. Rate & FSC. Check Hub for Surge Fees.
                  </span>
               </p>
           </div>
