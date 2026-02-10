@@ -10,17 +10,12 @@ import {
   WAR_RISK_SURCHARGE_RATE, 
   HANDLING_FEE, 
   FUMIGATION_FEE,
-  ZONE_BASE_RATES,
   DOMESTIC_RATES,
   SURGE_RATES,
   DEFAULT_EXCHANGE_RATE,
   PACKING_MATERIAL_BASE_COST,
   PACKING_LABOR_UNIT_COST
 } from "@/config/rates";
-import {
-  DEFAULT_COUNTRY_ZONES,
-  CN_SOUTH_ZIP_RANGES
-} from "@/config/zones";
 import {
   SURGE_THRESHOLDS,
   PACKING_WEIGHT_BUFFER,
@@ -64,33 +59,39 @@ export const calculateCBM = (l: number, w: number, h: number) => {
   return (l * w * h) / 1000000;
 };
 
-export const determineUpsZone = (country: string, zip: string): { zone: string; label: string } => {
-   const cleanZip = zip.replace(/[^0-9]/g, '');
+export const determineUpsZone = (country: string): { rateKey: string; label: string } => {
+   // Mapping based on "수출 EXPRESS SAVER" Tariff (2025)
    
-   if (country === 'CN') {
-       const zipNum = parseInt(cleanZip.substring(0, 6), 10);
-       if (!isNaN(zipNum)) {
-          for (const range of CN_SOUTH_ZIP_RANGES) {
-              if (zipNum >= range.start && zipNum <= range.end) {
-                  return { zone: 'Zone 5', label: 'Zone 5 (South China)' };
-              }
-          }
-       }
-       return { zone: 'Zone 2', label: 'Zone 2 (North/Rest of China)' };
-   }
+   // C3: China (South Excluded), Macau, Taiwan
+   if (['CN', 'MO', 'TW'].includes(country)) return { rateKey: 'C3', label: 'China/Taiwan' };
 
-   if (country === 'US') {
-       if (cleanZip.startsWith('8') || cleanZip.startsWith('9')) {
-           return { zone: 'Zone 6', label: 'Zone 6 (US West)' };
-       }
-       if (['4', '5', '6', '7'].some(prefix => cleanZip.startsWith(prefix))) {
-           return { zone: 'Zone 7', label: 'Zone 7 (US Midwest/Central)' };
-       }
-       return { zone: 'Zone 7', label: 'Zone 7 (US East)' };
-   }
+   // C4: Japan, Vietnam, Singapore, Malaysia, Philippines
+   if (['JP', 'VN', 'SG', 'MY', 'PH'].includes(country)) return { rateKey: 'C4', label: 'Japan/SE Asia 1' };
 
-   const defaultZone = DEFAULT_COUNTRY_ZONES[country] || 'Zone 9';
-   return { zone: defaultZone, label: defaultZone };
+   // C5: Brunei, Indonesia
+   if (['BN', 'ID'].includes(country)) return { rateKey: 'C5', label: 'Indonesia/Brunei' };
+
+   // C6: Australia, India, New Zealand
+   if (['AU', 'IN', 'NZ'].includes(country)) return { rateKey: 'C6', label: 'Australia/India' };
+
+   // C7: USA, Canada, Mexico, Puerto Rico
+   if (['US', 'CA', 'MX', 'PR'].includes(country)) return { rateKey: 'C7', label: 'North America' };
+
+   // C8: Major EU (BE, CZ, GB, FR, DE, IT, MC, NL)
+   if (['BE', 'CZ', 'GB', 'FR', 'DE', 'IT', 'MC', 'NL', 'ES'].includes(country)) return { rateKey: 'C8', label: 'Europe (Major)' };
+
+   // C9: Other EU (AT, DK, FI, GR, IE, NO, PT)
+   if (['AT', 'DK', 'FI', 'GR', 'IE', 'NO', 'PT', 'SE', 'CH'].includes(country)) return { rateKey: 'C9', label: 'Europe (Other)' };
+
+   // C10: Rest of World Group 1 (Middle East, S.America)
+   // Sample: AR, BH, BR, KH, CL, CO, EG, IL, JO, LB...
+   if (['AR', 'BH', 'BR', 'KH', 'CL', 'CO', 'EG', 'IL', 'JO', 'LB', 'TR', 'SA', 'ZA', 'AE'].includes(country)) return { rateKey: 'C10', label: 'Middle East/S.America' };
+
+   // C11: Hong Kong, Albania... (Seems mix of Others)
+   if (['HK', 'AL'].includes(country)) return { rateKey: 'C11', label: 'Hong Kong/Others' };
+
+   // Default catch-all (Expensive Zone)
+   return { rateKey: 'C10', label: 'Rest of World' };
 };
 
 export const calculateItemSurge = (
@@ -283,20 +284,65 @@ export const calculateDomesticCosts = (
     return { domesticBase, domesticSurcharge, truckType, warnings };
 };
 
+
+import { UPS_EXACT_RATES, UPS_RANGE_RATES } from "@/config/ups_tariff";
+
 export const calculateUpsCosts = (
   billableWeight: number, 
   country: string, 
-  zip: string, 
   fscPercent: number
 ): UpsCalculationResult => {
-    const zoneInfo = determineUpsZone(country, zip);
-    const baseRatePerKg = ZONE_BASE_RATES[zoneInfo.zone] || 13500; 
+    const zoneInfo = determineUpsZone(country);
+    const zoneKey = zoneInfo.rateKey; 
 
-    let upsBase = billableWeight * baseRatePerKg;
+    let upsBase = 0;
+
+    // Helper to round up to nearest 0.5
+    const roundToHalf = (num: number) => Math.ceil(num * 2) / 2;
     
-    if (billableWeight > 100) upsBase *= 0.85;
-    else if (billableWeight > 45) upsBase *= 0.90;
-  
+    // Logic: 
+    // 1. Check Exact Rates (usually up to 20kg)
+    // 2. Check Range Rates (usually > 20kg, e.g. 21-1000kg)
+
+    const lookupWeight = roundToHalf(billableWeight);
+    const zoneRates = UPS_EXACT_RATES[zoneKey];
+    
+    // Check if exact match exists
+    if (zoneRates && zoneRates[lookupWeight]) {
+        upsBase = zoneRates[lookupWeight];
+    } else {
+        // If not in exact rates, check Range Rates.
+        const range = UPS_RANGE_RATES.find(r => billableWeight >= r.min && billableWeight <= r.max);
+        
+        if (range) {
+             // Cast to any to avoid generic key indexing issues or use specific type if available
+             const rates = range.rates as Record<string, number>;
+             if (rates[zoneKey]) {
+                 const perKgRate = rates[zoneKey];
+                 const multiplierWeight = Math.ceil(billableWeight); 
+                 upsBase = multiplierWeight * perKgRate;
+             }
+        } else {
+             // Fallback logic
+             if (zoneRates) {
+                 const weights = Object.keys(zoneRates).map(Number).sort((a, b) => a - b);
+                 const found = weights.find(w => w >= lookupWeight);
+                 if (found) {
+                     upsBase = zoneRates[found];
+                 } else {
+                     // Check next range if exact fails
+                     const nextRange = UPS_RANGE_RATES.find(r => r.min <= Math.ceil(billableWeight));
+                     if (nextRange) {
+                         const rates = nextRange.rates as Record<string, number>;
+                         if (rates[zoneKey]) {
+                             upsBase = Math.ceil(billableWeight) * rates[zoneKey];
+                         }
+                     }
+                 }
+             }
+        }
+    }
+    
     const fscRate = (fscPercent || 0) / 100;
     const upsFsc = upsBase * fscRate;
     const upsWarRisk = upsBase * WAR_RISK_SURCHARGE_RATE;
@@ -309,6 +355,7 @@ export const calculateUpsCosts = (
       transitTime: '3-5 Business Days'
     };
 };
+
 
 // --- Main Orchestrator ---
 
@@ -351,7 +398,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   userWarnings.push(...domesticResult.warnings);
 
   // 4. UPS Costs
-  const upsResult = calculateUpsCosts(billableWeight, input.destinationCountry, input.destinationZip, input.fscPercent);
+  const upsResult = calculateUpsCosts(billableWeight, input.destinationCountry, input.fscPercent);
   const upsTotal = upsResult.upsBase + upsResult.upsFsc + upsResult.upsWarRisk + itemResult.upsSurgeCost;
 
   // 5. Duty
