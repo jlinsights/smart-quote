@@ -214,7 +214,7 @@ export const generatePDF = (input: QuoteInput, result: QuoteResult) => {
   yPos = drawCargoManifest(doc, input.items, result, yPos);
   yPos = drawCostBreakdown(doc, result, yPos);
   yPos = drawQuoteSummary(doc, result, yPos);
-  yPos = drawWarnings(doc, result.warnings, yPos);
+  drawWarnings(doc, result.warnings, yPos);
   
   drawFooter(doc);
 

@@ -3,7 +3,7 @@ import pandas as pd
 import math
 
 file_path = "/Users/jaehong/My Drive (jhlim725@gmail.com)/GOODMAN/원팀로지스틱스-굿맨지엘에스 2025 UPS - RATE.XLS"
-output_path = "src/config/ups_tariff.ts"
+output_path = "../src/config/ups_tariff.ts"
 sheet_name = '수출 EXPRESS SAVER'
 
 def clean_rate(val):
