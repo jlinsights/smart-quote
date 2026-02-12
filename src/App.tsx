@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { QuoteInput, Incoterm, PackingType } from './types';
+import { QuoteInput, QuoteResult, Incoterm, PackingType } from './types';
 import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from '@/config/rates';
 import { INITIAL_MARGIN } from '@/config/business-rules';
-import { calculateQuote } from '@/features/quote/services/calculationService';
+// import { calculateQuote } from '@/features/quote/services/calculationService';
 import { generatePDF } from '@/lib/pdfService';
+import { fetchQuote } from '@/api/quoteApi';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { DesktopLayout } from '@/components/layout/DesktopLayout';
 
@@ -45,8 +46,29 @@ const App: React.FC = () => {
   // Initial Input State
   const [input, setInput] = useState<QuoteInput>(initialInput);
 
-  // Reactive Calculation
-  const result = React.useMemo(() => calculateQuote(input), [input]);
+  // API State
+  const [result, setResult] = useState<QuoteResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Debounce & Fetch Logic
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await fetchQuote(input);
+        setResult(data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to calculate quote. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timer);
+  }, [input]);
 
   const handleMarginChange = (newMargin: number) => {
     setInput(prev => ({ ...prev, marginPercent: newMargin }));
@@ -86,7 +108,7 @@ const App: React.FC = () => {
     setIsMobileView,
     input,
     setInput,
-    result,
+    result: result!, // Force non-null for now as initial state is quickly populated or handled by components checking null
     onMarginChange: handleMarginChange,
     onDomesticCostChange: handleDomesticCostChange,
     onPackingCostChange: handlePackingCostChange,
@@ -101,6 +123,17 @@ const App: React.FC = () => {
         <MobileLayout {...layoutProps} />
       ) : (
         <DesktopLayout {...layoutProps} />
+      )}
+      {isLoading && (
+        <div className="fixed top-20 right-4 bg-jways-600 text-white px-4 py-2 rounded-lg shadow-lg text-xs font-bold z-50 flex items-center animate-pulse">
+          <div className="w-2 h-2 bg-white rounded-full mr-2 animate-bounce"></div>
+          Updating...
+        </div>
+      )}
+      {error && (
+        <div className="fixed top-20 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg text-xs font-bold z-50">
+          {error}
+        </div>
       )}
     </>
   );
