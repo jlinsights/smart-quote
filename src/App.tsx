@@ -2,20 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { QuoteInput, QuoteResult, Incoterm, PackingType } from './types';
 import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from '@/config/rates';
 import { INITIAL_MARGIN } from '@/config/business-rules';
-// import { calculateQuote } from '@/features/quote/services/calculationService';
 import { generatePDF } from '@/lib/pdfService';
 import { fetchQuote } from '@/api/quoteApi';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { DesktopLayout } from '@/components/layout/DesktopLayout';
+import { QuoteHistoryPage } from '@/features/history/components/QuoteHistoryPage';
+import { SaveQuoteButton } from '@/features/quote/components/SaveQuoteButton';
+import { NavigationTabs, AppView } from '@/components/layout/NavigationTabs';
+import { Moon, Sun, Smartphone, RotateCcw, Zap } from 'lucide-react';
 
 const App: React.FC = () => {
-  // Dark Mode State
+  const [currentView, setCurrentView] = useState<AppView>('calculator');
   const [isDarkMode, setIsDarkMode] = useState(false);
-  
-  // View Mode State (for simulation)
   const [isMobileView, setIsMobileView] = useState(false);
 
-  // Apply dark class to html element
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
@@ -43,15 +43,11 @@ const App: React.FC = () => {
     manualPackingCost: undefined
   };
 
-  // Initial Input State
   const [input, setInput] = useState<QuoteInput>(initialInput);
-
-  // API State
   const [result, setResult] = useState<QuoteResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Debounce & Fetch Logic
   useEffect(() => {
     const timer = setTimeout(async () => {
       setIsLoading(true);
@@ -65,7 +61,7 @@ const App: React.FC = () => {
       } finally {
         setIsLoading(false);
       }
-    }, 500); // 500ms debounce
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [input]);
@@ -75,19 +71,19 @@ const App: React.FC = () => {
   };
 
   const handleDomesticCostChange = (newCost: number) => {
-      setInput(prev => ({ ...prev, manualDomesticCost: newCost }));
+    setInput(prev => ({ ...prev, manualDomesticCost: newCost }));
   };
 
   const handlePackingCostChange = (newCost: number) => {
-      setInput(prev => ({ ...prev, manualPackingCost: newCost }));
+    setInput(prev => ({ ...prev, manualPackingCost: newCost }));
   };
 
   const handleReset = () => {
-      if (confirm('Are you sure you want to reset the quote?')) {
-          setInput(initialInput);
-      }
+    if (confirm('Are you sure you want to reset the quote?')) {
+      setInput(initialInput);
+    }
   };
-  
+
   const handleDownloadPdf = () => {
     if (result) {
       generatePDF(input, result);
@@ -97,7 +93,7 @@ const App: React.FC = () => {
   const scrollToResults = () => {
     const element = document.getElementById('result-section');
     if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -108,7 +104,7 @@ const App: React.FC = () => {
     setIsMobileView,
     input,
     setInput,
-    result: result!, // Force non-null for now as initial state is quickly populated or handled by components checking null
+    result: result!,
     onMarginChange: handleMarginChange,
     onDomesticCostChange: handleDomesticCostChange,
     onPackingCostChange: handlePackingCostChange,
@@ -117,13 +113,151 @@ const App: React.FC = () => {
     scrollToResults
   };
 
+  const containerClass = "min-h-screen bg-gray-50 dark:bg-gray-900 font-sans transition-colors duration-200";
+  const headerClass = "bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-200";
+
   return (
-    <>
-      {isMobileView ? (
-        <MobileLayout {...layoutProps} />
-      ) : (
-        <DesktopLayout {...layoutProps} />
-      )}
+    <div className="bg-gray-50 dark:bg-gray-900">
+      <div className={containerClass}>
+        {/* Unified Header */}
+        <header className={headerClass}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="h-16 flex items-center justify-between w-full">
+              <div className="flex items-center space-x-3">
+                <img
+                  src={isDarkMode ? "/goodman-gls-logo-dark.png" : "/goodman-gls-logo.png"}
+                  alt="Goodman GLS"
+                  className="h-8 sm:h-10 w-auto object-contain"
+                />
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
+                    <span className="text-jways-600 dark:text-jways-400">Smart Quote</span>
+                  </h1>
+                  <p className="hidden sm:block text-xs text-gray-500 dark:text-gray-400 font-medium tracking-wide">QUANTUM JUMP 2026</p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                {/* Navigation Tabs */}
+                <NavigationTabs currentView={currentView} onViewChange={setCurrentView} />
+
+                {/* Save Quote (visible on calculator view) */}
+                {currentView === 'calculator' && result && (
+                  <div className="hidden sm:block">
+                    <SaveQuoteButton input={input} />
+                  </div>
+                )}
+
+                <div className="hidden md:flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                  <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
+                  <span>Lightning Quote System</span>
+                </div>
+
+                {currentView === 'calculator' && (
+                  <button
+                    onClick={handleReset}
+                    className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-red-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-red-400 transition-colors"
+                    title="Reset Quote"
+                  >
+                    <RotateCcw className="w-5 h-5" />
+                  </button>
+                )}
+
+                {currentView === 'calculator' && (
+                  <button
+                    onClick={() => setIsMobileView(!isMobileView)}
+                    className="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
+                    title="Switch to Mobile View"
+                  >
+                    <Smartphone className="w-5 h-5" />
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  className="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Toggle Dark Mode"
+                >
+                  {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Save Button */}
+            {currentView === 'calculator' && result && (
+              <div className="sm:hidden pb-3">
+                <SaveQuoteButton input={input} />
+              </div>
+            )}
+          </div>
+        </header>
+
+        {/* Main Content */}
+        {currentView === 'calculator' ? (
+          <>
+            {isMobileView ? (
+              <MobileLayout {...layoutProps} />
+            ) : (
+              <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32 lg:pb-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                  <div className="lg:col-span-7">
+                    <div className="mb-6">
+                      <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Shipment Configuration</h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Enter cargo details to generate domestic (ez) and overseas (UPS) integrated quote.</p>
+                    </div>
+                    <InputSection input={input} onChange={setInput} isMobileView={false} />
+                  </div>
+                  <div className="lg:col-span-5" id="result-section">
+                    {result && (
+                      <ResultSection
+                        result={result}
+                        onMarginChange={handleMarginChange}
+                        onDomesticCostChange={handleDomesticCostChange}
+                        onPackingCostChange={handlePackingCostChange}
+                        onDownloadPdf={handleDownloadPdf}
+                      />
+                    )}
+                  </div>
+                </div>
+              </main>
+            )}
+
+            {/* Sticky Bottom Bar (Mobile / Responsive) */}
+            {result && !isMobileView && (
+              <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-800/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 safe-area-bottom">
+                <div className="max-w-lg mx-auto flex justify-between items-center">
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Estimate</p>
+                    <div className="flex items-baseline space-x-1">
+                      <p className="text-xl font-bold text-jways-700 dark:text-jways-400">
+                        {new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(result.totalQuoteAmount)}
+                      </p>
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                        ({new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(result.totalQuoteAmountUSD)})
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={scrollToResults}
+                    className="flex items-center bg-jways-600 text-white px-4 py-3 rounded-xl text-sm font-bold shadow-lg hover:bg-jways-700 active:scale-95 transition-all"
+                  >
+                    View Details
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <QuoteHistoryPage />
+        )}
+
+        {/* Footer */}
+        <footer className="border-t border-gray-200 dark:border-gray-700 mt-0 py-8 bg-white dark:bg-gray-800 text-center transition-colors duration-200 hidden lg:block">
+          <p className="text-sm text-gray-400 dark:text-gray-500">&copy; 2025 Goodman GLS & J-Ways. Internal Use Only.</p>
+          <p className="text-xs text-gray-300 dark:text-gray-600 mt-1">System Version 2.1 | Data Updated: 2025.01.15</p>
+        </footer>
+      </div>
+
       {isLoading && (
         <div className="fixed top-20 right-4 bg-jways-600 text-white px-4 py-2 rounded-lg shadow-lg text-xs font-bold z-50 flex items-center animate-pulse">
           <div className="w-2 h-2 bg-white rounded-full mr-2 animate-bounce"></div>
@@ -135,8 +269,12 @@ const App: React.FC = () => {
           {error}
         </div>
       )}
-    </>
+    </div>
   );
 };
+
+// Re-import components used directly in the calculator view within App
+import { InputSection } from '@/features/quote/components/InputSection';
+import { ResultSection } from '@/features/quote/components/ResultSection';
 
 export default App;

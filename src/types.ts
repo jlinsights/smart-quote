@@ -83,3 +83,77 @@ export enum Incoterm {
     
     breakdown: CostBreakdown;
   }
+
+  // ── Quote History Types ──
+
+  export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected';
+
+  export interface QuoteSummary {
+    id: number;
+    referenceNo: string;
+    destinationCountry: string;
+    totalQuoteAmount: number;
+    totalQuoteAmountUsd: number;
+    profitMargin: number;
+    billableWeight: number;
+    domesticTruckType: string;
+    status: QuoteStatus;
+    createdAt: string;
+  }
+
+  export interface QuoteDetail {
+    id: number;
+    referenceNo: string;
+    status: QuoteStatus;
+    notes: string | null;
+    createdAt: string;
+    updatedAt: string;
+    // Input
+    originCountry: string;
+    destinationCountry: string;
+    destinationZip: string;
+    domesticRegionCode: string;
+    isJejuPickup: boolean;
+    incoterm: string;
+    packingType: string;
+    marginPercent: number;
+    dutyTaxEstimate: number;
+    exchangeRate: number;
+    fscPercent: number;
+    manualDomesticCost: number | null;
+    manualPackingCost: number | null;
+    items: CargoItem[];
+    // Result
+    totalQuoteAmount: number;
+    totalQuoteAmountUSD: number;
+    totalCostAmount: number;
+    profitAmount: number;
+    profitMargin: number;
+    billableWeight: number;
+    appliedZone: string;
+    domesticTruckType: string;
+    warnings: string[];
+    breakdown: CostBreakdown;
+  }
+
+  export interface Pagination {
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+    perPage: number;
+  }
+
+  export interface QuoteListResponse {
+    quotes: QuoteSummary[];
+    pagination: Pagination;
+  }
+
+  export interface QuoteListParams {
+    page?: number;
+    perPage?: number;
+    q?: string;
+    destinationCountry?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    status?: QuoteStatus;
+  }
