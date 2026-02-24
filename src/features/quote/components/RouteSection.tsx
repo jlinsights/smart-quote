@@ -97,7 +97,7 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                 >
                   <option value="UPS">UPS</option>
                   <option value="DHL">DHL</option>
-                  <option value="EMAX" disabled={!['CN', 'VN'].includes(input.destinationCountry)}>E-MAX {['CN', 'VN'].includes(input.destinationCountry) ? '' : '(Only CN/VN)'}</option>
+                  <option value="EMAX">E-MAX {['CN', 'VN'].includes(input.destinationCountry) ? '' : '(Only CN/VN)'}</option>
                 </select>
                 {selectChevron}
             </div>
