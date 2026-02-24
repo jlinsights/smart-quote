@@ -6,107 +6,124 @@
 
 <br />
 
-The **Smart Quote System** is a robust logistics quoting application designed for **Goodman GLS** and **J-Ways**. It automates the complex calculation of integrated shipping costs, including domestic pickup, export packing, and international air freight (UPS).
+The **Smart Quote System** is a full-stack logistics quoting application for **Goodman GLS** and **J-Ways**. It calculates international shipping costs across multiple carriers (UPS, DHL, EMAX), including export packing, surcharges, and margin analysis. React frontend with a Rails API backend and mirrored calculation logic.
 
-**Live URL**: [https://smart-quote-main-kqksmsx4e-jlinsights-projects.vercel.app](https://smart-quote-main-kqksmsx4e-jlinsights-projects.vercel.app)
+**Live URL**: [https://smart-quote-main.vercel.app](https://smart-quote-main.vercel.app)
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-### 1. Intelligent Logistics Calculation
+### Multi-Carrier Quoting (UPS, DHL, EMAX)
 
-- **Smart Truck Selection**: Dynamically assigns the optimal vehicle (1t to 11t) based on total weight and volume caps.
-- **Advanced Surcharge Logic**:
-  - **AHS (Additional Handling)**: Auto-applies fees for weight >25kg or irregluar dimensions.
-  - **Large Package**: Detects length + girth > 300cm.
-  - **Over Max Limits**: Alerts and penalizes cargo exceeding network limits.
-- **Precision Zoning**:
-  - **China**: Distinguishes South China (Zone 5) vs North/Rest (Zone 2) based on 6-digit zip codes.
-  - **USA**: Routing for West (Zone 6) vs East/Central (Zone 7) based on zip prefixes.
+- **Zone-based pricing**: Country-to-zone mapping (Z1-Z10 for UPS, Z1-Z9 for DHL, zones for EMAX) with exact rate tables (0.5-20kg in 0.5kg steps) and range rates (>20kg per-kg)
+- **Surcharges**: FSC% fuel surcharge, war risk (5%), carrier-specific surge fees
+- **UPS Surge Logic** (priority order): Over Max (>70kg or length >274cm) → Large Package (girth >300cm) → AHS Weight (>25kg) → AHS Dimension (longest >122cm or second >76cm) → AHS Packing (wood/skid)
 
-### 2. Financial Intelligence
+### Calculation Pipeline
 
-- **Volumetric Analysis**: Automatically compares Actual vs. Volumetric weight (Dim Factor 5000) to determine billable weight.
-- **Margin Protection**:
-  - **Low Margin Alert**: Warnings for margins below 10%.
-  - **Revenue Target**: Calculates target revenue based on desired margin percentage.
-- **Exchange Rate Handling**: Real-time USD conversion for cross-border reference.
+1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L×W×H / 5000 for UPS, /6000 for EMAX), packing material/labor, surge charges
+2. **Carrier Costs** - Zone lookup → rate table → FSC → war risk
+3. **Margin** - `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100
+4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB)
 
-### 3. Professional Output
+### Quote History & Management
 
-- **PDF Generator**: Generates a detailed, branded PDF quote containing:
-  - **Route & Manifest**: Origin, Destination, Incoterms, and full cargo list.
-  - **Cost Breakdown**: Granular view of Domestic, Packing, Freight, and Duty costs.
-  - **Compliance Warnings**: Explicit notices for surcharges and special handling requirements.
+- Save quotes with auto-generated reference numbers (`SQ-YYYY-NNNN`)
+- Search, filter by country/date/status, paginated list
+- Detail modal, CSV export, quote deletion
 
-## 🛠️ Technology Stack
+### Professional Output
 
-- **Core**: React 19, TypeScript ~5.8
-- **Build Tool**: Vite ^6.2
-- **Styling**: Tailwind CSS
-- **PDF Generation**: jsPDF
-- **Testing**: Vitest (Unit Tests)
-- **Icons**: Lucide React
+- **PDF Generator**: Branded PDF with route, cargo manifest, cost breakdown, compliance warnings
 
-## 📂 Project Structure
+## Tech Stack
 
-```bash
-src/
-├── components/          # Shared UI Components
-│   └── layout/          # DesktopLayout & MobileLayout
-├── features/
-│   └── quote/
-│       ├── components/  # Quote Form Sections (Cargo, Route, Financial)
-│       └── services/    # Core Logic (calculationService.ts)
-├── lib/                 # Utilities (pdfService.ts)
-├── constants.ts         # Configuration (Rates, Zones, Limits)
-└── types.ts             # Type Definitions
+| Layer | Stack |
+|-------|-------|
+| **Frontend** | React 19, TypeScript 5.8, Vite 6, Tailwind CSS |
+| **Backend** | Rails 8 API-only, Ruby 3.4, PostgreSQL |
+| **Testing** | Vitest + Testing Library (frontend), RSpec + FactoryBot (backend) |
+| **Deploy** | Vercel (frontend), Render.com (backend, Docker, Singapore) |
+| **Other** | jsPDF, Lucide React, Kaminari (pagination) |
+
+## Project Structure
+
+```
+/                              # Frontend
+  src/
+    api/quoteApi.ts            # API client (fetch, VITE_API_URL)
+    types.ts                   # All TypeScript types & enums
+    config/                    # Rate tables, tariffs, business rules
+      ups_tariff.ts            # UPS Z1-Z10 rates
+      dhl_tariff.ts            # DHL zone rates
+      emax_tariff.ts           # EMAX zone rates
+    features/
+      quote/
+        components/            # CargoSection, RouteSection, FinancialSection, ResultSection, etc.
+        services/              # calculationService.ts (mirrored calculation logic)
+      history/
+        components/            # QuoteHistoryPage, QuoteHistoryTable, QuoteSearchBar, etc.
+    components/layout/         # DesktopLayout, MobileLayout, NavigationTabs
+    lib/pdfService.ts          # PDF generation
+smart-quote-api/               # Backend (Rails 8 API)
+  app/services/
+    quote_calculator.rb        # Main calculator orchestrator
+    calculators/               # Individual calculators
+      ups_cost.rb, ups_zone.rb
+      dhl_cost.rb, dhl_zone.rb
+      emax_cost.rb
+      item_cost.rb, surge_cost.rb, domestic_cost.rb
+  lib/constants/               # Tariff tables (ups_tariff.rb, dhl_tariff.rb, emax_tariff.rb)
 ```
 
-## 💻 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- Node.js (v18+)
-- npm
+- Node.js (v18+), npm
+- Ruby 3.4+, Bundler, PostgreSQL (for backend)
 
-### Installation
+### Frontend
 
 ```bash
-git clone https://github.com/jlinsights/smart-quote.git
-cd smart-quote
 npm install
+npm run dev          # Dev server on http://localhost:5173
+npm run build        # Production build (tsc + vite)
+npm run lint         # ESLint (--max-warnings 0)
+npm run test         # Vitest watch mode
+npx vitest run       # Run tests once (7 files, 69 tests)
 ```
 
-### Development
-
-Start the local development server:
+### Backend (from `smart-quote-api/`)
 
 ```bash
-npm run dev
+bundle install
+bin/rails db:prepare
+bin/rails server     # API on http://localhost:3000
+bundle exec rspec    # RSpec tests
+bin/rubocop          # Ruby linting
 ```
 
-### Testing
+### API Endpoints
 
-Run the automated unit tests to verify calculation logic:
-
-```bash
-npm test
+```
+POST   /api/v1/quotes/calculate  # Stateless calculation
+POST   /api/v1/quotes            # Calculate + save
+GET    /api/v1/quotes             # List (page, per_page, q, destination_country, date_from, date_to, status)
+GET    /api/v1/quotes/:id         # Detail
+DELETE /api/v1/quotes/:id         # Delete
+GET    /api/v1/quotes/export      # CSV download
 ```
 
-_Current Coverage: Surge Logic (AHS/Large Pkg) & Truck Selection_
+## Environment Variables
 
-### Build
-
-Build for production:
-
-```bash
-npm run build
-```
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `VITE_API_URL` | Backend API base URL | `http://localhost:3000` |
 
 ---
 
-## 🔒 Internal Use Only
+## Internal Use Only
 
 This system contains proprietary rate tables and logic for Goodman GLS / J-Ways internal operations.
