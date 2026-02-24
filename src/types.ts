@@ -43,6 +43,7 @@ export enum Incoterm {
 
     // Manual Overrides
     manualPackingCost?: number; // Optional manual override for packing & docs
+    manualSurgeCost?: number; // Optional manual surge/AHS cost (auto-calc disabled)
   }
   
   export interface CostBreakdown {

@@ -48,24 +48,25 @@ module Calculators
           end
         end
 
-        # Surge charges are UPS-specific (AHS, Large Package, Over Max).
-        # DHL and EMAX have different surcharge structures not modeled here.
-        if @carrier == 'UPS'
-          quantity.times do |q|
-            surge_result = Calculators::SurgeCost.call(
-              length: l,
-              width: w,
-              height: h,
-              weight: weight,
-              packing_type: @packing_type,
-              item_index: index
-            )
-            ups_surge_cost += surge_result[:surge_cost]
-            if q == 0
-              warnings.concat(surge_result[:warnings])
-            end
-          end
-        end
+        # Surge/AHS auto-calculation disabled — currently suspended by carriers.
+        # Manual surge input is available via manualSurgeCost in QuoteCalculator.
+        # When surge is reactivated, uncomment the block below.
+        # if @carrier == 'UPS'
+        #   quantity.times do |q|
+        #     surge_result = Calculators::SurgeCost.call(
+        #       length: l,
+        #       width: w,
+        #       height: h,
+        #       weight: weight,
+        #       packing_type: @packing_type,
+        #       item_index: index
+        #     )
+        #     ups_surge_cost += surge_result[:surge_cost]
+        #     if q == 0
+        #       warnings.concat(surge_result[:warnings])
+        #     end
+        #   end
+        # end
 
         total_actual_weight += weight * quantity
         total_packed_volumetric_weight += calculate_volumetric_weight(l, w, h, @volumetric_divisor) * quantity

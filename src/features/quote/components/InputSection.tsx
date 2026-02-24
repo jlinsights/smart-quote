@@ -1,6 +1,5 @@
 import React from 'react';
 import { QuoteInput, CargoItem } from '@/types';
-import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from '@/config/rates';
 import { RouteSection } from './RouteSection';
 import { FinancialSection } from './FinancialSection';
 import { CargoSection } from './CargoSection';
@@ -18,24 +17,16 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
     onChange({ ...input, [key]: value });
   };
 
-  const resetRates = () => {
-    onChange({ 
-        ...input, 
-        exchangeRate: DEFAULT_EXCHANGE_RATE, 
-        fscPercent: DEFAULT_FSC_PERCENT 
-    });
-  };
-
   const handleCargoChange = (newItems: CargoItem[]) => {
       updateField('items', newItems);
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <RouteSection input={input} onFieldChange={updateField} isMobileView={isMobileView} />
-      <FinancialSection input={input} onFieldChange={updateField} resetRates={resetRates} isMobileView={isMobileView} />
       <CargoSection items={input.items} onChange={handleCargoChange} isMobileView={isMobileView} />
       <ServiceSection input={input} onFieldChange={updateField} isMobileView={isMobileView} />
+      <FinancialSection input={input} onFieldChange={updateField} isMobileView={isMobileView} />
     </div>
   );
 };

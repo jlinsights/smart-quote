@@ -1,192 +1,70 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { QuoteInput } from '@/types';
-import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT, UPS_FSC_URL, UPS_RATES_HUB_URL } from '@/config/rates';
-import { TrendingUp, RotateCcw, Info, ExternalLink, RefreshCw } from 'lucide-react';
+import { UPS_FSC_URL } from '@/config/rates';
+import { TrendingUp, ExternalLink } from 'lucide-react';
 import { inputStyles } from './input-styles';
 
 interface Props {
   input: QuoteInput;
   onFieldChange: <K extends keyof QuoteInput>(key: K, value: QuoteInput[K]) => void;
-  resetRates: () => void;
   isMobileView: boolean;
 }
 
-export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetRates, isMobileView }) => {
+export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobileView }) => {
   const { inputClass, labelClass, grayCardClass } = inputStyles;
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
-  
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const isDefaultRates = input.exchangeRate === DEFAULT_EXCHANGE_RATE && input.fscPercent === DEFAULT_FSC_PERCENT;
-  
-  // Financial factors grid - adapt to 3 items
-  const financialGrid = `grid grid-cols-1 ${!isMobileView ? 'sm:grid-cols-3' : 'grid-cols-2'} gap-5`;
-
-  const resetBtnClass = isMobileView
-    ? "text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg border border-amber-100 dark:border-amber-800 shadow-sm whitespace-nowrap flex items-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors cursor-pointer group"
-    : "text-[10px] sm:text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md border border-amber-100 dark:border-amber-800 shadow-sm whitespace-nowrap flex items-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors cursor-pointer group";
-
-  /* 
-    UPS Fuel Surcharge Auto-Fetch Logic
-    - Triggered on mount if current value matches default.
-    - Only runs in production/Vercel environment (api/fsc). 
-  */
-  const handleRefreshFsc = async (silent = false) => {
-    if (!silent) setIsRefreshing(true);
-    try {
-        const res = await fetch('/api/fsc');
-        if (!res.ok) {
-            // In local dev, this might 404. We just ignore it silently in auto-fetch mode.
-            if (!silent) throw new Error("Failed to fetch");
-            return;
-        }
-        const data = await res.json();
-        if (data.rate) {
-            onFieldChange('fscPercent', data.rate);
-        }
-    } catch (e) {
-        if (!silent) console.error("Failed to auto-update FSC", e);
-    } finally {
-        if (!silent) setIsRefreshing(false);
-    }
-  };
-
-  /* 
-    Exchange Rate Auto-Fetch Logic (TTS)
-    - Triggered on mount if current value matches default.
-  */
-  const handleRefreshExRate = async (silent = false) => {
-    if (!silent) setIsRefreshing(true);
-    try {
-        const res = await fetch('/api/exchange-rate');
-        if (!res.ok) {
-             if (!silent) throw new Error("Failed to fetch Ex. Rate");
-             return;
-        }
-        const data = await res.json();
-        if (data.rate) {
-            onFieldChange('exchangeRate', data.rate);
-        }
-    } catch (e) {
-        if (!silent) console.error("Failed to auto-update Ex. Rate", e);
-    } finally {
-        if (!silent) setIsRefreshing(false);
-    }
-  };
-  
-  /* 
-    Daily Check Logic
-    - Checks localStorage for 'last_rate_check' date.
-    - If date != today, triggers auto-fetch for both FSC and ExRate.
-    - Updates localStorage on start.
-  */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const performDailyCheck = () => {
-      const today = new Date().toISOString().split('T')[0];
-      const lastCheck = localStorage.getItem('last_rate_check');
-      
-      if (lastCheck !== today) {
-          if (input.fscPercent === DEFAULT_FSC_PERCENT) handleRefreshFsc(true);
-          if (input.exchangeRate === DEFAULT_EXCHANGE_RATE) handleRefreshExRate(true);
-          localStorage.setItem('last_rate_check', today);
-      }
-  };
-
-  // Auto-fetch on mount if using default rates
-  // Note: performDailyCheck() is implicitly covered by checking defaults on mount. 
-  // We keep it simple: if default -> fetch. This effectively handles fresh loads daily.
-  React.useEffect(() => {
-    if (input.fscPercent === DEFAULT_FSC_PERCENT) {
-        handleRefreshFsc(true);
-    }
-    if (input.exchangeRate === DEFAULT_EXCHANGE_RATE) {
-        handleRefreshExRate(true);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run once on mount
+  const financialGrid = `grid grid-cols-1 ${!isMobileView ? 'sm:grid-cols-3' : 'grid-cols-2'} gap-3`;
 
   return (
     <div className={grayCardClass}>
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-4">
          <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider flex items-center">
              <TrendingUp className="w-4 h-4 mr-2 text-jways-600 dark:text-jways-400" />
              Financial Factors
          </h3>
-         {isDefaultRates ? (
-             <span className="text-[10px] sm:text-xs text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md border border-green-100 dark:border-green-800 shadow-sm whitespace-nowrap flex items-center">
-                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
-                 Live Rates Applied
-             </span>
-         ) : (
-             <button 
-                 onClick={resetRates}
-                 className={resetBtnClass}
-                 title="Reset to weekly default rates"
-             >
-                 <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mr-1.5 group-hover:scale-125 transition-transform"></span>
-                 Manual Override <RotateCcw className="w-3 h-3 ml-1.5 opacity-70" />
-             </button>
-         )}
+         <a
+             href={UPS_FSC_URL}
+             target="_blank"
+             rel="noopener noreferrer"
+             className="text-[10px] sm:text-xs text-gray-500 hover:text-blue-600 flex items-center transition-colors"
+             title="Check Official UPS FSC"
+         >
+             UPS FSC <ExternalLink className="w-3 h-3 ml-1" />
+         </a>
       </div>
       <div className={financialGrid}>
          <div>
-             <div className="flex items-center justify-between mb-1">
-                <label className={lc}>Ex. Rate (TTS)</label>
-                <button 
-                    onClick={() => handleRefreshExRate(false)}
-                    disabled={isRefreshing}
-                    className={`p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isRefreshing ? 'animate-spin text-jways-600' : 'text-gray-400'}`}
-                    title="Auto-fetch TTS rate"
-                >
-                    <RefreshCw className="w-3 h-3" />
-                </button>
-             </div>
+             <label className={lc}>Ex. Rate (KRW/USD)</label>
              <div className="relative rounded-lg shadow-sm">
                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                 <span className="text-gray-500 sm:text-sm font-bold">₩</span>
+                 <span className="text-gray-500 sm:text-sm font-bold">&#8361;</span>
                  </div>
                  <input
                      type="number"
                      step="any"
+                     min="1"
                      value={input.exchangeRate}
                      onChange={(e) => onFieldChange('exchangeRate', Number(e.target.value))}
-                     className={`${ic} pl-8 bg-white focus:bg-white ${input.exchangeRate !== DEFAULT_EXCHANGE_RATE ? 'ring-1 ring-amber-300 dark:ring-amber-700' : ''}`}
+                     className={`${ic} pl-8`}
+                     placeholder="1430"
                      inputMode="decimal"
                      autoComplete="off"
                  />
              </div>
          </div>
          <div>
-             <div className="flex items-center justify-between mb-1">
-                <label className={lc}>FSC %</label>
-                <div className="flex items-center space-x-1">
-                    <button 
-                        onClick={() => handleRefreshFsc(false)}
-                        disabled={isRefreshing}
-                        className={`p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isRefreshing ? 'animate-spin text-jways-600' : 'text-gray-400'}`}
-                        title="Auto-fetch latest official rate"
-                    >
-                        <RefreshCw className="w-3 h-3" />
-                    </button>
-                    <a 
-                        href={UPS_FSC_URL} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-blue-500 transition-colors"
-                        title="Check Official UPS FSC"
-                    >
-                        <ExternalLink className="w-3 h-3" />
-                    </a>
-                </div>
-             </div>
+             <label className={lc}>FSC %</label>
              <div className="relative rounded-lg shadow-sm">
                  <input
                      type="number"
                      step="0.01"
+                     min="0"
                      value={input.fscPercent}
                      onChange={(e) => onFieldChange('fscPercent', Number(e.target.value))}
-                     className={`${ic} pr-8 bg-white focus:bg-white ${input.fscPercent !== DEFAULT_FSC_PERCENT ? 'ring-1 ring-amber-300 dark:ring-amber-700' : ''}`}
+                     className={`${ic} pr-8`}
+                     placeholder="30.25"
                      inputMode="decimal"
                      autoComplete="off"
                  />
@@ -198,12 +76,15 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetR
          <div className={isMobileView ? "col-span-2" : ""}>
              <label className={lc}>Target Margin (%)</label>
              <div className="relative rounded-lg shadow-sm">
-                 <input 
-                 type="number" 
+                 <input
+                 type="number"
                  step="any"
+                 min="0"
+                 max="99"
                  value={input.marginPercent}
                  onChange={(e) => onFieldChange('marginPercent', Number(e.target.value))}
-                 className={`${ic} ${input.marginPercent < 10 ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300' : 'bg-white focus:bg-white dark:bg-gray-700'}`}
+                 className={`${ic} pr-8 ${input.marginPercent < 10 ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300' : ''}`}
+                 placeholder="15"
                  inputMode="decimal"
                  autoComplete="off"
                  />
@@ -211,27 +92,11 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, resetR
                      <span className="text-gray-500 sm:text-sm font-bold">%</span>
                  </div>
              </div>
+             {input.marginPercent < 10 && (
+                 <p className="mt-1 text-[10px] text-red-500 font-medium">Low margin — approval required</p>
+             )}
          </div>
-      </div>
-      
-      <div className="mt-4 flex items-start text-xs text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-black/20 p-2.5 rounded-lg border border-gray-100 dark:border-gray-700/50">
-          <Info className="w-3.5 h-3.5 mr-2 mt-0.5 text-jways-500 flex-shrink-0" />
-          <div className="space-y-0.5">
-              <p className="font-medium text-gray-700 dark:text-gray-300 flex items-center justify-between">
-                  <span>Market Variable Updates</span>
-                  <a href={UPS_RATES_HUB_URL} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center ml-2">
-                      UPS Rates Hub <ExternalLink className="w-3 h-3 ml-1" />
-                  </a>
-              </p>
-              <p className="leading-relaxed opacity-90">
-                 환율(Ex. Rate)과 유류할증료(FSC)는 매일 자동 확인되며, 급증 수수료(Surge Fee)는 위 Hub에서 확인 가능합니다.
-                 <span className="block text-[10px] opacity-75 mt-0.5 font-normal">
-                     * Daily checks for Ex. Rate & FSC. Check Hub for Surge Fees.
-                 </span>
-              </p>
-          </div>
       </div>
     </div>
   );
 };
-

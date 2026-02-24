@@ -231,5 +231,28 @@ describe('calculationService', () => {
       const result = calculateQuote({ ...baseInput, overseasCarrier: undefined });
       expect(result.carrier).toBe('UPS');
     });
+
+    it('surge is 0 by default (auto-calc disabled)', () => {
+      const result = calculateQuote({ ...baseInput, overseasCarrier: 'UPS' });
+      expect(result.breakdown.intlSurge).toBe(0);
+    });
+
+    it('manual surge cost is applied when provided', () => {
+      const result = calculateQuote({ ...baseInput, overseasCarrier: 'UPS', manualSurgeCost: 50000 });
+      expect(result.breakdown.intlSurge).toBe(50000);
+      expect(result.totalCostAmount).toBeGreaterThan(
+        calculateQuote({ ...baseInput, overseasCarrier: 'UPS' }).totalCostAmount
+      );
+    });
+
+    it('manual surge cost works for DHL too', () => {
+      const result = calculateQuote({
+        ...baseInput,
+        overseasCarrier: 'DHL',
+        destinationCountry: 'JP',
+        manualSurgeCost: 30000,
+      });
+      expect(result.breakdown.intlSurge).toBe(30000);
+    });
   });
 });

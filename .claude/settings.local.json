@@ -1,4 +1,11 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__claude_ai_Vercel__deploy_to_vercel",
+      "mcp__claude_ai_Vercel__get_deployment"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "github",
     "postgres",
@@ -15,6 +22,5 @@
     "cargo-docs",
     "crates-search",
     "rust-analyzer"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

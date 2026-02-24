@@ -145,16 +145,17 @@ export const calculateItemSurge = (
     return { surgeCost, warnings };
 };
 
-export const calculateItemCosts = (items: CargoItem[], packingType: PackingType, manualPackingCost?: number, volumetricDivisor: number = 5000, carrier: string = 'UPS'): ItemCalculationResult => {
+// NOTE: carrier param removed while surge auto-calc is disabled. Add it back when reactivating.
+export const calculateItemCosts = (items: CargoItem[], packingType: PackingType, manualPackingCost?: number, volumetricDivisor: number = 5000): ItemCalculationResult => {
   let totalActualWeight = 0;
   let totalPackedVolumetricWeight = 0;
   let totalCBM = 0;
   let packingMaterialCost = 0;
   let packingLaborCost = 0;
-  let surgeCost = 0;
+  const surgeCost = 0;
   const warnings: string[] = [];
 
-  items.forEach((item, index) => {
+  items.forEach((item) => {
     let l = item.length;
     let w = item.width;
     let h = item.height;
@@ -176,17 +177,17 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
       }
     }
 
-    // Surge charges are UPS-specific (AHS, Large Package, Over Max).
-    // DHL and EMAX have different surcharge structures not modeled here.
-    if (carrier === 'UPS') {
-      for (let q = 0; q < item.quantity; q++) {
-          const surgeResult = calculateItemSurge(l, w, h, weight, packingType, index);
-          surgeCost += surgeResult.surgeCost;
-          if (q === 0) {
-              warnings.push(...surgeResult.warnings);
-          }
-      }
-    }
+    // Surge/AHS auto-calculation disabled — currently suspended by carriers.
+    // Manual surge input is available via QuoteInput.manualSurgeCost.
+    // To reactivate: add carrier param back to this function, add index to forEach,
+    // change surgeCost to let, and uncomment:
+    // if (carrier === 'UPS') {
+    //   for (let q = 0; q < item.quantity; q++) {
+    //       const surgeResult = calculateItemSurge(l, w, h, weight, packingType, index);
+    //       surgeCost += surgeResult.surgeCost;
+    //       if (q === 0) { warnings.push(...surgeResult.warnings); }
+    //   }
+    // }
 
     totalActualWeight += weight * item.quantity;
     totalPackedVolumetricWeight += calculateVolumetricWeight(l, w, h, volumetricDivisor) * item.quantity;
@@ -378,7 +379,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const volumetricDivisor = isEmax ? 6000 : 5000;
 
   // 1. Calculate Item Costs (Packing, Surge, Weights)
-  const itemResult = calculateItemCosts(input.items, input.packingType, input.manualPackingCost, volumetricDivisor, carrier);
+  const itemResult = calculateItemCosts(input.items, input.packingType, input.manualPackingCost, volumetricDivisor);
 
   let packingFumigationCost = 0;
   if (input.packingType !== PackingType.NONE) {
@@ -421,7 +422,9 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
       break;
   }
 
-  const intlTotal = carrierResult.intlBase + carrierResult.intlFsc + carrierResult.intlWarRisk + itemResult.surgeCost;
+  // Surge: use manual input (0 by default since auto-calc is disabled)
+  const surgeCost = input.manualSurgeCost ?? 0;
+  const intlTotal = carrierResult.intlBase + carrierResult.intlFsc + carrierResult.intlWarRisk + surgeCost;
 
   // 4. Duty
   let destDuty = 0;
@@ -484,7 +487,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
       intlBase: carrierResult.intlBase,
       intlFsc: carrierResult.intlFsc,
       intlWarRisk: carrierResult.intlWarRisk,
-      intlSurge: itemResult.surgeCost,
+      intlSurge: surgeCost,
       destDuty,
       totalCost: totalCostAmount
     }

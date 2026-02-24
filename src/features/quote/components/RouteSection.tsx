@@ -9,11 +9,29 @@ interface Props {
   isMobileView: boolean;
 }
 
+const ZIP_HINTS: Record<string, { placeholder: string; pattern?: string }> = {
+  US: { placeholder: 'e.g. 90001', pattern: '[0-9]{5}' },
+  CN: { placeholder: 'e.g. 100000', pattern: '[0-9]{6}' },
+  JP: { placeholder: 'e.g. 100-0001', pattern: '[0-9]{3}-?[0-9]{4}' },
+  VN: { placeholder: 'e.g. 700000', pattern: '[0-9]{6}' },
+  SG: { placeholder: 'e.g. 018956', pattern: '[0-9]{6}' },
+  DE: { placeholder: 'e.g. 10115', pattern: '[0-9]{5}' },
+  GB: { placeholder: 'e.g. SW1A 1AA', pattern: '[A-Za-z0-9 ]{5,8}' },
+};
+
+const selectChevron = (
+  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+  </div>
+);
+
 export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileView }) => {
   const { inputClass, labelClass, cardClass, sectionTitleClass, twoColGrid } = inputStyles;
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
   const grid = twoColGrid(isMobileView);
+
+  const zipHint = ZIP_HINTS[input.destinationCountry] || { placeholder: 'Zip / Postal Code' };
 
   return (
     <div className={cardClass}>
@@ -22,46 +40,55 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
             Route & Terms
         </h3>
         <div className={grid}>
-          
+
           <div>
             <label className={lc}>Origin Country</label>
             <div className="relative">
-                <select 
+                <select
                 value={input.originCountry}
                 onChange={(e) => onFieldChange('originCountry', e.target.value)}
                 className={`${ic} appearance-none`}
                 >
                 {ORIGIN_COUNTRY_OPTIONS.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
+                {selectChevron}
             </div>
           </div>
 
           <div>
             <label className={lc}>Destination Country</label>
             <div className="relative">
-                <select 
+                <select
                 value={input.destinationCountry}
                 onChange={(e) => {
                   onFieldChange('destinationCountry', e.target.value);
-                  // Optional: Reset EMAX if country changes to non-CN/VN, but simpler to just show error or let backend handle it
                 }}
                 className={`${ic} appearance-none`}
                 >
                 {COUNTRY_OPTIONS.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
+                {selectChevron}
             </div>
           </div>
-          
+
+          <div>
+            <label className={lc}>Dest. Zip Code</label>
+            <input
+              type="text"
+              value={input.destinationZip}
+              onChange={(e) => onFieldChange('destinationZip', e.target.value)}
+              className={ic}
+              placeholder={zipHint.placeholder}
+              pattern={zipHint.pattern}
+              inputMode="text"
+              autoComplete="postal-code"
+            />
+          </div>
+
           <div>
             <label className={lc}>Overseas Carrier</label>
             <div className="relative">
-                <select 
+                <select
                 value={input.overseasCarrier || 'UPS'}
                 onChange={(e) => onFieldChange('overseasCarrier', e.target.value as QuoteInput['overseasCarrier'])}
                 className={`${ic} appearance-none`}
@@ -70,40 +97,24 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                   <option value="DHL">DHL</option>
                   <option value="EMAX" disabled={!['CN', 'VN'].includes(input.destinationCountry)}>E-MAX {['CN', 'VN'].includes(input.destinationCountry) ? '' : '(Only CN/VN)'}</option>
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
+                {selectChevron}
             </div>
           </div>
-          <div>
-            <label className={lc}>Dest. Zip Code</label>
-            <input 
-              type="text" 
-              value={input.destinationZip}
-              onChange={(e) => onFieldChange('destinationZip', e.target.value)}
-              className={ic}
-              placeholder="e.g. 90001"
-              inputMode="numeric"
-              pattern="[0-9]*" 
-              autoComplete="postal-code"
-            />
-          </div>
+
           <div>
             <label className={lc}>Incoterms</label>
             <div className="relative">
-                <select 
+                <select
                 value={input.incoterm}
                 onChange={(e) => onFieldChange('incoterm', e.target.value as Incoterm)}
                 className={`${ic} appearance-none`}
                 >
                 {INCOTERM_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
+                {selectChevron}
             </div>
           </div>
-          
+
         </div>
     </div>
   );

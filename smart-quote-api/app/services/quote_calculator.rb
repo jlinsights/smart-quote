@@ -71,7 +71,9 @@ class QuoteCalculator
                         )
                       end
 
-    overseas_total = overseas_result[:intl_base] + overseas_result[:intl_fsc] + overseas_result[:intl_war_risk] + item_result[:ups_surge_cost]
+    # Surge: use manual input (auto-calc suspended, may be reactivated later)
+    surge_cost = @input[:manualSurgeCost] || 0
+    overseas_total = overseas_result[:intl_base] + overseas_result[:intl_fsc] + overseas_result[:intl_war_risk] + surge_cost
 
     # 5. Duty
     dest_duty = 0
@@ -138,7 +140,7 @@ class QuoteCalculator
         upsBase: overseas_result[:intl_base],
         upsFsc: overseas_result[:intl_fsc],
         upsWarRisk: overseas_result[:intl_war_risk],
-        upsSurge: item_result[:ups_surge_cost],
+        upsSurge: surge_cost,
         destDuty: dest_duty,
         totalCost: total_cost_amount
       }

@@ -21,7 +21,7 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
         <div>
           <label className={lc}>Special Packing</label>
           <div className="relative">
-              <select 
+              <select
               value={input.packingType}
               onChange={(e) => onFieldChange('packingType', e.target.value as PackingType)}
               className={`${ic} appearance-none`}
@@ -33,12 +33,12 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
               </div>
           </div>
         </div>
-        
+
         <div>
           <label className={lc}>Packing & Docs Cost Override (KRW)</label>
           <div className="relative">
-              <input 
-                  type="number" 
+              <input
+                  type="number"
                   step="any"
                   value={input.manualPackingCost ?? ''}
                   onChange={(e) => onFieldChange('manualPackingCost', e.target.value === '' ? undefined : Number(e.target.value))}
@@ -53,11 +53,31 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
           </p>
         </div>
 
+        <div>
+          <label className={lc}>Surge / AHS Fee (KRW)</label>
+          <div className="relative">
+              <input
+                  type="number"
+                  step="1000"
+                  min="0"
+                  value={input.manualSurgeCost ?? ''}
+                  onChange={(e) => onFieldChange('manualSurgeCost', e.target.value === '' ? undefined : Number(e.target.value))}
+                  className={ic}
+                  placeholder="0 (currently suspended)"
+                  inputMode="numeric"
+                  autoComplete="off"
+              />
+          </div>
+          <p className="mt-1 text-[10px] text-gray-400">
+              AHS/Large Package/Over Max surcharges. Enter if applicable — auto-calc suspended.
+          </p>
+        </div>
+
         {input.incoterm === Incoterm.DDP && (
           <div>
              <label className={lc}>Estimated Duty & Tax (KRW)</label>
-             <input 
-              type="number" 
+             <input
+              type="number"
               step="any"
               value={input.dutyTaxEstimate}
               onChange={(e) => onFieldChange('dutyTaxEstimate', Number(e.target.value))}
