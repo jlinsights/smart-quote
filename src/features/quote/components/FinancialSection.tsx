@@ -1,6 +1,6 @@
 import React from 'react';
 import { QuoteInput } from '@/types';
-import { UPS_FSC_URL, DHL_FSC_URL } from '@/config/rates';
+import { UPS_FSC_URL, DHL_FSC_URL, NAVER_EXCHANGE_RATE_URL } from '@/config/rates';
 import { TrendingUp, ExternalLink } from 'lucide-react';
 import { inputStyles } from './input-styles';
 
@@ -47,6 +47,15 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
                  title="Check Official DHL Fuel Surcharge"
              >
                  DHL FSC <ExternalLink className="w-3 h-3 ml-1" />
+             </a>
+             <a
+                 href={NAVER_EXCHANGE_RATE_URL}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="text-[10px] sm:text-xs text-gray-500 hover:text-green-600 flex items-center transition-colors"
+                 title="Check Naver Exchange Rate"
+             >
+                 Naver 환율 <ExternalLink className="w-3 h-3 ml-1" />
              </a>
          </div>
       </div>
