@@ -5,15 +5,13 @@
     "platform": "claude",
     "level": "Dynamic"
   },
-  "activeFeatures": {
+  "activeFeatures": {},
+  "archivedFeatures": {
     "calculate-quote": {
-      "phase": "completed",
-      "startedAt": "2026-02-24",
-      "planDoc": "docs/01-plan/features/calculate-quote.plan.md",
-      "designDoc": "docs/02-design/features/calculate-quote.design.md",
-      "analysisDoc": "docs/03-analysis/calculate-quote.analysis.md",
+      "archivedAt": "2026-02-24",
+      "archivedTo": "docs/archive/2026-02/calculate-quote/",
       "matchRate": 100,
-      "iteration": 1
+      "iterations": 2
     }
   }
 }
