@@ -1,1 +1,1 @@
-🔧 fix: UPS zone 키 Z1-Z10 정렬 + 백엔드 요율 동기화 + mapBreakdown 테스트 추가
+🐛 fix: DHL/EMAX 견적 정확도 개선 — UPS 서지 요금 타 캐리어 적용 방지, DHL 운송시간 라벨 수정, EMAX 국가 경고 추가

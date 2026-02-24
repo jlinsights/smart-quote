@@ -3,7 +3,6 @@ import {
   calculateItemSurge,
   determineUpsZone,
   determineDhlZone,
-  calculateUpsCosts,
   calculateDhlCosts,
   calculateEmaxCosts,
   calculateQuote,
