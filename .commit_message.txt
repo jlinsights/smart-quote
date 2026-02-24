@@ -1,1 +1,1 @@
-💰 feat: Target Margin을 % → USD 금액 입력($50 기본값)으로 변경, 마진%는 자동 계산, 백엔드 동기화
+📦 chore: Save-Quote PDCA 아카이브 완료 - calculate-quote, Save-Quote 2건 보관

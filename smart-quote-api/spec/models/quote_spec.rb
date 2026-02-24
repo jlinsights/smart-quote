@@ -18,7 +18,6 @@ RSpec.describe Quote, type: :model do
     it {
       is_expected.to validate_numericality_of(:margin_percent)
         .is_greater_than_or_equal_to(0)
-        .is_less_than(100)
     }
 
     it { is_expected.to validate_inclusion_of(:status).in_array(Quote::VALID_STATUSES) }

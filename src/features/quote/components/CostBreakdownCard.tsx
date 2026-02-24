@@ -91,22 +91,40 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                         <div className="flex justify-between items-start text-gray-700 dark:text-gray-300">
                             <div className="flex items-center">
                                 <Plane className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
-                                <span>Intl. Freight ({result.appliedZone.includes('E-MAX') ? 'E-MAX' : (result.appliedZone.includes('DHL') || result.transitTime.includes('DHL') ? 'DHL' : 'UPS')})</span>
+                                <span>Intl. Freight ({result.carrier === 'EMAX' ? 'E-MAX' : result.carrier})</span>
                             </div>
                             <div className="text-right">
                                 <span className="block font-medium">{formatCurrency(upsTotalCost)}</span>
                             </div>
                         </div>
-                        {/* Breakdown of Surge Costs if they exist */}
-                        {result.breakdown.intlSurge > 0 && (
-                            <div className="flex justify-between items-center text-amber-600 dark:text-amber-500 text-xs pl-6 animate-pulse">
-                                <div className="flex items-center">
-                                    <BoxSelect className="w-3 h-3 mr-1" />
-                                    <span>Demand/Surge Fees</span>
-                                </div>
-                                <span>{formatCurrency(result.breakdown.intlSurge)}</span>
+                        {/* Sub-breakdown: Base / FSC / War Risk / Surge */}
+                        <div className="space-y-0.5 text-xs text-gray-500 dark:text-gray-400 pl-6">
+                            <div className="flex justify-between">
+                                <span>Base Rate</span>
+                                <span>{formatCurrency(result.breakdown.intlBase)}</span>
                             </div>
-                        )}
+                            {result.breakdown.intlFsc > 0 && (
+                                <div className="flex justify-between">
+                                    <span>FSC ({result.breakdown.intlBase > 0 ? Math.round(result.breakdown.intlFsc / result.breakdown.intlBase * 100 * 10) / 10 : 0}%)</span>
+                                    <span>{formatCurrency(result.breakdown.intlFsc)}</span>
+                                </div>
+                            )}
+                            {result.breakdown.intlWarRisk > 0 && (
+                                <div className="flex justify-between">
+                                    <span>War Risk (5%)</span>
+                                    <span>{formatCurrency(result.breakdown.intlWarRisk)}</span>
+                                </div>
+                            )}
+                            {result.breakdown.intlSurge > 0 && (
+                                <div className="flex justify-between text-amber-600 dark:text-amber-500">
+                                    <div className="flex items-center">
+                                        <BoxSelect className="w-3 h-3 mr-1" />
+                                        <span>Demand/Surge</span>
+                                    </div>
+                                    <span>{formatCurrency(result.breakdown.intlSurge)}</span>
+                                </div>
+                            )}
+                        </div>
                     </div>
                     
                     {/* DDP Duty (Conditional) */}

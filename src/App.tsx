@@ -33,7 +33,7 @@ const App: React.FC = () => {
     marginUSD: 50,
     dutyTaxEstimate: 0,
     exchangeRate: 1300,
-    fscPercent: 10,
+    fscPercent: 30,
     overseasCarrier: 'UPS',
     manualPackingCost: undefined
   };
@@ -68,6 +68,10 @@ const App: React.FC = () => {
     if (result) {
       generatePDF(input, result);
     }
+  };
+
+  const handleQuoteSaved = () => {
+    setCurrentView('history');
   };
 
   const scrollToResults = () => {
@@ -123,7 +127,7 @@ const App: React.FC = () => {
                 {/* Save Quote (visible on calculator view) */}
                 {currentView === 'calculator' && result && (
                   <div className="hidden sm:block">
-                    <SaveQuoteButton input={input} />
+                    <SaveQuoteButton input={input} result={result} onSaved={handleQuoteSaved} />
                   </div>
                 )}
 
@@ -165,7 +169,7 @@ const App: React.FC = () => {
             {/* Mobile Save Button */}
             {currentView === 'calculator' && result && (
               <div className="sm:hidden pb-3">
-                <SaveQuoteButton input={input} />
+                <SaveQuoteButton input={input} result={result} onSaved={handleQuoteSaved} />
               </div>
             )}
           </div>

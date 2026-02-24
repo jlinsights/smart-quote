@@ -1,7 +1,16 @@
 import React from 'react';
 import { QuoteInput, Incoterm } from '@/types';
-import { ORIGIN_COUNTRY_OPTIONS, COUNTRY_OPTIONS, INCOTERM_OPTIONS } from '@/config/options';
+import { COUNTRY_OPTIONS, INCOTERM_OPTIONS } from '@/config/options';
 import { inputStyles } from './input-styles';
+
+const INCOTERM_DESC: Record<string, string> = {
+  [Incoterm.EXW]: 'Buyer arranges all shipping from seller\'s premises.',
+  [Incoterm.FOB]: 'Seller delivers to port. Buyer bears freight & risk after.',
+  [Incoterm.CNF]: 'Seller pays freight to destination port. Buyer bears risk.',
+  [Incoterm.CIF]: 'Seller pays freight + insurance to destination port.',
+  [Incoterm.DAP]: 'Seller delivers to destination. Buyer pays duties & taxes.',
+  [Incoterm.DDP]: 'Seller delivers duty paid. All costs included in price.',
+};
 
 interface Props {
   input: QuoteInput;
@@ -43,15 +52,8 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
 
           <div>
             <label className={lc}>Origin Country</label>
-            <div className="relative">
-                <select
-                value={input.originCountry}
-                onChange={(e) => onFieldChange('originCountry', e.target.value)}
-                className={`${ic} appearance-none`}
-                >
-                {ORIGIN_COUNTRY_OPTIONS.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
-                </select>
-                {selectChevron}
+            <div className={`${ic} bg-gray-50 dark:bg-gray-600 text-gray-700 dark:text-gray-200 cursor-default flex items-center`}>
+                <span className="mr-1.5">🇰🇷</span> South Korea (KR)
             </div>
           </div>
 
@@ -113,6 +115,15 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                 </select>
                 {selectChevron}
             </div>
+          </div>
+
+          {/* Incoterm description */}
+          <div className="flex items-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-1">
+              <span className="font-semibold text-gray-600 dark:text-gray-300">{input.incoterm}</span>
+              {' — '}
+              {INCOTERM_DESC[input.incoterm] || ''}
+            </p>
           </div>
 
         </div>

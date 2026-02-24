@@ -1,8 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CargoItem } from '@/types';
 import { Package, Plus, Box, Trash2, Copy } from 'lucide-react';
 import { SURGE_THRESHOLDS } from '@/config/business-rules';
 import { inputStyles } from './input-styles';
+
+type UnitSystem = 'metric' | 'imperial';
+
+const CM_PER_IN = 2.54;
+const KG_PER_LB = 0.453592;
+
+const toDisplay = (value: number, unit: UnitSystem, type: 'dim' | 'weight'): number => {
+  if (unit === 'metric') return value;
+  return type === 'dim' ? value / CM_PER_IN : value / KG_PER_LB;
+};
+
+const toInternal = (value: number, unit: UnitSystem, type: 'dim' | 'weight'): number => {
+  if (unit === 'metric') return value;
+  return type === 'dim' ? value * CM_PER_IN : value * KG_PER_LB;
+};
+
+const roundDisplay = (value: number): string => {
+  if (!value) return '';
+  const rounded = Math.round(value * 100) / 100;
+  return rounded.toString();
+};
 
 interface Props {
   items: CargoItem[];
@@ -10,17 +31,22 @@ interface Props {
   isMobileView: boolean;
 }
 
-const getItemWarnings = (item: CargoItem): string[] => {
+const getItemWarnings = (item: CargoItem, unit: UnitSystem): string[] => {
   const warnings: string[] = [];
   const dims = [item.length, item.width, item.height].sort((a, b) => b - a);
   const longest = dims[0];
   const girth = longest + 2 * dims[1] + 2 * dims[2];
 
+  const dimUnit = unit === 'metric' ? 'cm' : 'in';
+  const wtUnit = unit === 'metric' ? 'kg' : 'lb';
+  const fmtDim = (cm: number) => unit === 'metric' ? cm : Math.round(cm / CM_PER_IN * 10) / 10;
+  const fmtWt = (kg: number) => unit === 'metric' ? kg : Math.round(kg / KG_PER_LB * 10) / 10;
+
   if (item.weight > SURGE_THRESHOLDS.AHS_WEIGHT_KG) {
-    warnings.push(`Weight > ${SURGE_THRESHOLDS.AHS_WEIGHT_KG}kg — may need surge fee`);
+    warnings.push(`Weight > ${fmtWt(SURGE_THRESHOLDS.AHS_WEIGHT_KG)}${wtUnit} — may need surge fee`);
   }
   if (longest > SURGE_THRESHOLDS.AHS_DIM_LONG_SIDE_CM) {
-    warnings.push(`Length > ${SURGE_THRESHOLDS.AHS_DIM_LONG_SIDE_CM}cm — check AHS Dim`);
+    warnings.push(`Length > ${fmtDim(SURGE_THRESHOLDS.AHS_DIM_LONG_SIDE_CM)}${dimUnit} — check AHS Dim`);
   }
   if (longest > SURGE_THRESHOLDS.MAX_LIMIT_LENGTH_CM || girth > SURGE_THRESHOLDS.MAX_LIMIT_GIRTH_CM) {
     warnings.push('Exceeds UPS max limits — verify with carrier');
@@ -31,8 +57,12 @@ const getItemWarnings = (item: CargoItem): string[] => {
 };
 
 export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView }) => {
+  const [unitSystem, setUnitSystem] = useState<UnitSystem>('metric');
   const { inputClass, cardClass } = inputStyles;
   const ic = inputClass(isMobileView);
+
+  const dimLabel = unitSystem === 'metric' ? 'cm' : 'in';
+  const wtLabel = unitSystem === 'metric' ? 'kg' : 'lb';
 
   const addItem = () => {
     const lastItem = items[items.length - 1];
@@ -67,7 +97,12 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
 
   const updateItem = (index: number, field: keyof CargoItem, value: number) => {
     const newItems = [...items];
-    newItems[index] = { ...newItems[index], [field]: value };
+    const isDim = field === 'length' || field === 'width' || field === 'height';
+    const isWeight = field === 'weight';
+    const internalValue = isDim ? toInternal(value, unitSystem, 'dim')
+      : isWeight ? toInternal(value, unitSystem, 'weight')
+      : value;
+    newItems[index] = { ...newItems[index], [field]: internalValue };
     onChange(newItems);
   };
 
@@ -85,17 +120,41 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
               <Package className="w-4 h-4 mr-2" />
               Cargo Details
           </h3>
-          <button
-              onClick={addItem}
-              className={addBoxBtnClass}
-          >
-              <Plus className="w-3 h-3 mr-1" /> Add Box
-          </button>
+          <div className="flex items-center gap-2">
+              <div className="inline-flex rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden text-xs">
+                <button
+                  onClick={() => setUnitSystem('metric')}
+                  className={`px-2.5 py-1 font-medium transition-colors ${
+                    unitSystem === 'metric'
+                      ? 'bg-jways-600 text-white'
+                      : 'bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  cm / kg
+                </button>
+                <button
+                  onClick={() => setUnitSystem('imperial')}
+                  className={`px-2.5 py-1 font-medium transition-colors ${
+                    unitSystem === 'imperial'
+                      ? 'bg-jways-600 text-white'
+                      : 'bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  in / lb
+                </button>
+              </div>
+              <button
+                  onClick={addItem}
+                  className={addBoxBtnClass}
+              >
+                  <Plus className="w-3 h-3 mr-1" /> Add Box
+              </button>
+          </div>
       </div>
 
       <div className="space-y-4">
         {items.map((item, idx) => {
-          const warnings = getItemWarnings(item);
+          const warnings = getItemWarnings(item, unitSystem);
           const hasZeroDims = item.length === 0 || item.width === 0 || item.height === 0 || item.weight === 0;
 
           return (
@@ -114,14 +173,14 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
 
                  {/* Weight */}
                  <div className={`col-span-6 ${!isMobileView ? 'sm:col-span-3 sm:order-last md:order-none' : ''}`}>
-                   <label className={cargoLabelClass}>Weight (kg)</label>
+                   <label className={cargoLabelClass}>Weight ({wtLabel})</label>
                    <input
                      type="number" step="0.1" min="0.1"
-                     value={item.weight || ''}
+                     value={roundDisplay(toDisplay(item.weight, unitSystem, 'weight'))}
                      onChange={(e) => updateItem(idx, 'weight', Number(e.target.value))}
                      className={`${ic} ${item.weight > SURGE_THRESHOLDS.AHS_WEIGHT_KG ? 'ring-1 ring-amber-400 dark:ring-amber-600' : ''}`}
                      inputMode="decimal"
-                     placeholder="kg"
+                     placeholder={wtLabel}
                    />
                  </div>
 
@@ -146,36 +205,36 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
 
                  {/* Dimensions */}
                  <div className={`col-span-4 ${!isMobileView ? 'sm:col-span-2' : ''}`}>
-                   <label className={cargoLabelClass}>L (cm)</label>
+                   <label className={cargoLabelClass}>L ({dimLabel})</label>
                    <input
                      type="number" step="0.1" min="0.1"
-                     value={item.length || ''}
+                     value={roundDisplay(toDisplay(item.length, unitSystem, 'dim'))}
                      onChange={(e) => updateItem(idx, 'length', Number(e.target.value))}
                      className={`${ic} ${item.length > SURGE_THRESHOLDS.AHS_DIM_LONG_SIDE_CM ? 'ring-1 ring-amber-400 dark:ring-amber-600' : ''}`}
                      inputMode="decimal"
-                     placeholder="cm"
+                     placeholder={dimLabel}
                    />
                  </div>
                  <div className={`col-span-4 ${!isMobileView ? 'sm:col-span-2' : ''}`}>
-                   <label className={cargoLabelClass}>W (cm)</label>
+                   <label className={cargoLabelClass}>W ({dimLabel})</label>
                    <input
                      type="number" step="0.1" min="0.1"
-                     value={item.width || ''}
+                     value={roundDisplay(toDisplay(item.width, unitSystem, 'dim'))}
                      onChange={(e) => updateItem(idx, 'width', Number(e.target.value))}
                      className={ic}
                      inputMode="decimal"
-                     placeholder="cm"
+                     placeholder={dimLabel}
                    />
                  </div>
                  <div className={`col-span-4 ${!isMobileView ? 'sm:col-span-2' : ''}`}>
-                   <label className={cargoLabelClass}>H (cm)</label>
+                   <label className={cargoLabelClass}>H ({dimLabel})</label>
                    <input
                      type="number" step="0.1" min="0.1"
-                     value={item.height || ''}
+                     value={roundDisplay(toDisplay(item.height, unitSystem, 'dim'))}
                      onChange={(e) => updateItem(idx, 'height', Number(e.target.value))}
                      className={ic}
                      inputMode="decimal"
-                     placeholder="cm"
+                     placeholder={dimLabel}
                    />
                  </div>
 
