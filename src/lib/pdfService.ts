@@ -105,7 +105,7 @@ const drawCostBreakdown = (doc: jsPDF, result: QuoteResult, yPos: number): numbe
   yPos = nextLine(yPos);
 
   // International
-  const overseasTotal = result.breakdown.upsBase + result.breakdown.upsFsc + result.breakdown.upsWarRisk + result.breakdown.upsSurge;
+  const overseasTotal = result.breakdown.intlBase + result.breakdown.intlFsc + result.breakdown.intlWarRisk + result.breakdown.intlSurge;
   
   const isEmax = result.appliedZone.includes('E-MAX');
   const isDhl = result.appliedZone.includes('DHL') || result.transitTime.includes('DHL');
@@ -116,10 +116,10 @@ const drawCostBreakdown = (doc: jsPDF, result: QuoteResult, yPos: number): numbe
   yPos = nextLine(yPos);
 
   // Surge Detail (Only if applied)
-  if (result.breakdown.upsSurge > 0) {
+  if (result.breakdown.intlSurge > 0) {
       doc.setTextColor(...COLORS.WARNING);
       doc.setFontSize(9);
-      doc.text(`  ↳ Includes Demand/Surge Fees: ${formatKRW(result.breakdown.upsSurge)}`, MARGIN_X, yPos);
+      doc.text(`  ↳ Includes Demand/Surge Fees: ${formatKRW(result.breakdown.intlSurge)}`, MARGIN_X, yPos);
       doc.setFontSize(FONTS.SIZE_NORMAL);
       doc.setTextColor(0);
       yPos = nextLine(yPos);

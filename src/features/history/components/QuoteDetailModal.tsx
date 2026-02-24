@@ -66,7 +66,6 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose }) => {
               <Field label="Incoterm" value={quote.incoterm} />
               <Field label="Packing" value={quote.packingType} />
               <Field label="Zone" value={quote.appliedZone || '-'} />
-              <Field label="Domestic Truck" value={quote.domesticTruckType || '-'} />
               <Field label="Exchange Rate" value={`${quote.exchangeRate.toLocaleString()} KRW/USD`} />
               <Field label="FSC" value={`${quote.fscPercent}%`} />
             </div>
@@ -105,16 +104,14 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose }) => {
           {/* Cost Breakdown */}
           <Section title="Cost Breakdown">
             <div className="space-y-1.5 text-sm">
-              <BreakdownRow label="Domestic Base" value={quote.breakdown.domesticBase} />
-              <BreakdownRow label="Domestic Surcharge" value={quote.breakdown.domesticSurcharge} />
               <BreakdownRow label="Packing Material" value={quote.breakdown.packingMaterial} />
               <BreakdownRow label="Packing Labor" value={quote.breakdown.packingLabor} />
               <BreakdownRow label="Packing Fumigation" value={quote.breakdown.packingFumigation} />
               <BreakdownRow label="Handling Fees" value={quote.breakdown.handlingFees} />
-              <BreakdownRow label="UPS Base" value={quote.breakdown.upsBase} />
-              <BreakdownRow label="UPS FSC" value={quote.breakdown.upsFsc} />
-              <BreakdownRow label="UPS War Risk" value={quote.breakdown.upsWarRisk} />
-              <BreakdownRow label="UPS Surge" value={quote.breakdown.upsSurge} />
+              <BreakdownRow label="Intl. Base" value={quote.breakdown.intlBase} />
+              <BreakdownRow label="Intl. FSC" value={quote.breakdown.intlFsc} />
+              <BreakdownRow label="Intl. War Risk" value={quote.breakdown.intlWarRisk} />
+              <BreakdownRow label="Intl. Surge" value={quote.breakdown.intlSurge} />
               {quote.breakdown.destDuty > 0 && (
                 <BreakdownRow label="Dest Duty/Tax" value={quote.breakdown.destDuty} />
               )}

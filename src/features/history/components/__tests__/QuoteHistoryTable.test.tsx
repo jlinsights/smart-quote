@@ -11,7 +11,6 @@ const mockQuote: QuoteSummary = {
   totalQuoteAmountUsd: 1150.5,
   profitMargin: 20.0,
   billableWeight: 15.5,
-  domesticTruckType: '1t Truck',
   status: 'draft',
   createdAt: '2026-02-14T00:00:00Z',
 };

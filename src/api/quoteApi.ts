@@ -1,7 +1,25 @@
-import { QuoteInput, QuoteResult, QuoteDetail, QuoteListResponse, QuoteListParams } from "@/types";
+import { QuoteInput, QuoteResult, QuoteDetail, QuoteListResponse, QuoteListParams, CostBreakdown } from "@/types";
 
 // @ts-expect-error -- Vite injects import.meta.env at build time
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+// Maps backend breakdown fields (upsBase) to frontend generic names (intlBase).
+// Handles both old saved quotes and future field names.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function mapBreakdown(raw: any): CostBreakdown {
+  return {
+    packingMaterial: raw.packingMaterial ?? 0,
+    packingLabor: raw.packingLabor ?? 0,
+    packingFumigation: raw.packingFumigation ?? 0,
+    handlingFees: raw.handlingFees ?? 0,
+    intlBase: raw.upsBase ?? raw.intlBase ?? 0,
+    intlFsc: raw.upsFsc ?? raw.intlFsc ?? 0,
+    intlWarRisk: raw.upsWarRisk ?? raw.intlWarRisk ?? 0,
+    intlSurge: raw.upsSurge ?? raw.intlSurge ?? 0,
+    destDuty: raw.destDuty ?? 0,
+    totalCost: raw.totalCost ?? 0,
+  };
+}
 
 export class QuoteApiError extends Error {
   constructor(public status: number, message: string) {
@@ -31,10 +49,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 // ── Existing: stateless calculation ──
 
 export const fetchQuote = async (input: QuoteInput): Promise<QuoteResult> => {
-  return request<QuoteResult>('/api/v1/quotes/calculate', {
+  const raw = await request<QuoteResult & { breakdown: unknown }>('/api/v1/quotes/calculate', {
     method: 'POST',
     body: JSON.stringify(input),
   });
+  return { ...raw, breakdown: mapBreakdown(raw.breakdown) };
 };
 
 // ── Quote History CRUD ──
@@ -66,7 +85,8 @@ export const listQuotes = async (
 };
 
 export const getQuote = async (id: number): Promise<QuoteDetail> => {
-  return request<QuoteDetail>(`/api/v1/quotes/${id}`);
+  const raw = await request<QuoteDetail & { breakdown: unknown }>(`/api/v1/quotes/${id}`);
+  return { ...raw, breakdown: mapBreakdown(raw.breakdown) };
 };
 
 export const deleteQuote = async (id: number): Promise<void> => {

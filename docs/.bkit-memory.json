@@ -7,7 +7,7 @@
   },
   "activeFeatures": {
     "calculate-quote": {
-      "phase": "design",
+      "phase": "do",
       "startedAt": "2026-02-24",
       "planDoc": "docs/01-plan/features/calculate-quote.plan.md",
       "designDoc": "docs/02-design/features/calculate-quote.design.md"

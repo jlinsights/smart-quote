@@ -27,14 +27,14 @@ interface ItemCalculationResult {
   totalCBM: number;
   packingMaterialCost: number;
   packingLaborCost: number;
-  upsSurgeCost: number;
+  surgeCost: number;
   warnings: string[];
 }
 
-interface UpsCalculationResult {
-  upsBase: number;
-  upsFsc: number;
-  upsWarRisk: number;
+interface CarrierCostResult {
+  intlBase: number;
+  intlFsc: number;
+  intlWarRisk: number;
   appliedZone: string;
   transitTime: string;
 }
@@ -148,7 +148,7 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
   let totalCBM = 0;
   let packingMaterialCost = 0;
   let packingLaborCost = 0;
-  let upsSurgeCost = 0;
+  let surgeCost = 0;
   const warnings: string[] = [];
 
   items.forEach((item, index) => {
@@ -176,7 +176,7 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
     // Surge Logic
     for (let q = 0; q < item.quantity; q++) {
         const surgeResult = calculateItemSurge(l, w, h, weight, packingType, index);
-        upsSurgeCost += surgeResult.surgeCost;
+        surgeCost += surgeResult.surgeCost;
         if (q === 0) {
             warnings.push(...surgeResult.warnings);
         }
@@ -199,7 +199,7 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
     totalCBM,
     packingMaterialCost,
     packingLaborCost,
-    upsSurgeCost,
+    surgeCost,
     warnings
   };
 };
@@ -207,39 +207,38 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
 import { UPS_EXACT_RATES, UPS_RANGE_RATES } from "@/config/ups_tariff";
 
 export const calculateUpsCosts = (
-  billableWeight: number, 
-  country: string, 
+  billableWeight: number,
+  country: string,
   fscPercent: number
-): UpsCalculationResult => {
+): CarrierCostResult => {
     const zoneInfo = determineUpsZone(country);
-    const zoneKey = zoneInfo.rateKey; 
+    const zoneKey = zoneInfo.rateKey;
 
-    let upsBase = 0;
+    let intlBase = 0;
 
     // Helper to round up to nearest 0.5
     const roundToHalf = (num: number) => Math.ceil(num * 2) / 2;
-    
-    // Logic: 
+
+    // Logic:
     // 1. Check Exact Rates (usually up to 20kg)
     // 2. Check Range Rates (usually > 20kg, e.g. 21-1000kg)
 
     const lookupWeight = roundToHalf(billableWeight);
     const zoneRates = UPS_EXACT_RATES[zoneKey];
-    
+
     // Check if exact match exists
     if (zoneRates && zoneRates[lookupWeight]) {
-        upsBase = zoneRates[lookupWeight];
+        intlBase = zoneRates[lookupWeight];
     } else {
         // If not in exact rates, check Range Rates.
         const range = UPS_RANGE_RATES.find(r => billableWeight >= r.min && billableWeight <= r.max);
-        
+
         if (range) {
-             // Cast to any to avoid generic key indexing issues or use specific type if available
              const rates = range.rates as Record<string, number>;
              if (rates[zoneKey]) {
                  const perKgRate = rates[zoneKey];
-                 const multiplierWeight = Math.ceil(billableWeight); 
-                 upsBase = multiplierWeight * perKgRate;
+                 const multiplierWeight = Math.ceil(billableWeight);
+                 intlBase = multiplierWeight * perKgRate;
              }
         } else {
              // Fallback logic
@@ -247,49 +246,139 @@ export const calculateUpsCosts = (
                  const weights = Object.keys(zoneRates).map(Number).sort((a, b) => a - b);
                  const found = weights.find(w => w >= lookupWeight);
                  if (found) {
-                     upsBase = zoneRates[found];
+                     intlBase = zoneRates[found];
                  } else {
                      // Check next range if exact fails
                      const nextRange = UPS_RANGE_RATES.find(r => r.min <= Math.ceil(billableWeight));
                      if (nextRange) {
                          const rates = nextRange.rates as Record<string, number>;
                          if (rates[zoneKey]) {
-                             upsBase = Math.ceil(billableWeight) * rates[zoneKey];
+                             intlBase = Math.ceil(billableWeight) * rates[zoneKey];
                          }
                      }
                  }
              }
         }
     }
-    
+
     const fscRate = (fscPercent || 0) / 100;
-    const upsFsc = upsBase * fscRate;
-    const upsWarRisk = upsBase * WAR_RISK_SURCHARGE_RATE;
+    const intlFsc = intlBase * fscRate;
+    const intlWarRisk = intlBase * WAR_RISK_SURCHARGE_RATE;
 
     return {
-      upsBase,
-      upsFsc,
-      upsWarRisk,
+      intlBase,
+      intlFsc,
+      intlWarRisk,
       appliedZone: zoneInfo.label,
       transitTime: '3-5 Business Days'
     };
 };
 
 
+// --- DHL Calculator ---
+
+import { DHL_EXACT_RATES, DHL_RANGE_RATES } from "@/config/dhl_tariff";
+import { EMAX_RATES, EMAX_HANDLING_CHARGE } from "@/config/emax_tariff";
+
+export const determineDhlZone = (country: string): { rateKey: string; label: string } => {
+  if (['CN', 'HK', 'MO', 'SG', 'TW'].includes(country)) return { rateKey: 'Z1', label: 'CN/HK/SG/TW' };
+  if (['JP'].includes(country)) return { rateKey: 'Z2', label: 'Japan' };
+  if (['PH', 'TH'].includes(country)) return { rateKey: 'Z3', label: 'PH/TH' };
+  if (['VN', 'IN'].includes(country)) return { rateKey: 'Z4', label: 'VN/IN' };
+  if (['AU', 'KH'].includes(country)) return { rateKey: 'Z5', label: 'AU/KH' };
+  if (['US', 'CA'].includes(country)) return { rateKey: 'Z6', label: 'US/CA' };
+  if (['GB', 'FR', 'DE', 'IT', 'ES', 'DK', 'NL', 'BE', 'CH', 'FI', 'SE', 'NO', 'AT', 'PT', 'IE', 'MC', 'CZ', 'PL', 'HU', 'RO', 'BG'].includes(country))
+    return { rateKey: 'Z7', label: 'Europe' };
+  // Z8 = default
+  return { rateKey: 'Z8', label: 'Rest of World' };
+};
+
+export const calculateDhlCosts = (
+  billableWeight: number,
+  country: string,
+  fscPercent: number
+): CarrierCostResult => {
+  const zoneInfo = determineDhlZone(country);
+  const zoneKey = zoneInfo.rateKey;
+  let intlBase = 0;
+
+  const roundToHalf = (num: number) => Math.ceil(num * 2) / 2;
+  const lookupWeight = roundToHalf(billableWeight);
+  const zoneRates = DHL_EXACT_RATES[zoneKey];
+
+  if (zoneRates && zoneRates[lookupWeight]) {
+    intlBase = zoneRates[lookupWeight];
+  } else {
+    const range = DHL_RANGE_RATES.find(r => billableWeight >= r.min && billableWeight <= r.max);
+    if (range) {
+      const rates = range.rates as Record<string, number>;
+      if (rates[zoneKey]) {
+        intlBase = Math.ceil(billableWeight) * rates[zoneKey];
+      }
+    } else if (zoneRates) {
+      const weights = Object.keys(zoneRates).map(Number).sort((a, b) => a - b);
+      const found = weights.find(w => w >= lookupWeight);
+      if (found) {
+        intlBase = zoneRates[found];
+      } else {
+        const nextRange = DHL_RANGE_RATES.find(r => r.min <= Math.ceil(billableWeight));
+        if (nextRange) {
+          const rates = nextRange.rates as Record<string, number>;
+          if (rates[zoneKey]) {
+            intlBase = Math.ceil(billableWeight) * rates[zoneKey];
+          }
+        }
+      }
+    }
+  }
+
+  const fscRate = (fscPercent || 0) / 100;
+  const intlFsc = intlBase * fscRate;
+  const intlWarRisk = intlBase * WAR_RISK_SURCHARGE_RATE;
+
+  return {
+    intlBase,
+    intlFsc,
+    intlWarRisk,
+    appliedZone: zoneInfo.label,
+    transitTime: '3-7 Business Days (DHL)',
+  };
+};
+
+// --- EMAX Calculator ---
+
+export const calculateEmaxCosts = (
+  billableWeight: number,
+  country: string
+): CarrierCostResult => {
+  const countryKey = country === 'CN' ? 'CN' : 'VN';
+  const perKgRate = EMAX_RATES[countryKey] ?? EMAX_RATES['VN'];
+  const intlBase = Math.ceil(billableWeight) * perKgRate + EMAX_HANDLING_CHARGE;
+
+  return {
+    intlBase,
+    intlFsc: 0,
+    intlWarRisk: 0,
+    appliedZone: `E-MAX ${countryKey}`,
+    transitTime: '5-10 Business Days (E-MAX)',
+  };
+};
+
 // --- Main Orchestrator ---
 
 export const calculateQuote = (input: QuoteInput): QuoteResult => {
-  const isEmax = input.overseasCarrier === 'EMAX';
+  const carrier = input.overseasCarrier || 'UPS';
+  const isEmax = carrier === 'EMAX';
   const volumetricDivisor = isEmax ? 6000 : 5000;
 
   // 1. Calculate Item Costs (Packing, Surge, Weights)
   const itemResult = calculateItemCosts(input.items, input.packingType, input.manualPackingCost, volumetricDivisor);
-  
+
   let packingFumigationCost = 0;
   if (input.packingType !== PackingType.NONE) {
     packingFumigationCost = FUMIGATION_FEE;
   }
-  
+
   let finalHandlingFee = HANDLING_FEE;
   // Manual override zeroes out specific components if applied
   if (input.manualPackingCost !== undefined && input.manualPackingCost >= 0) {
@@ -307,19 +396,31 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
     userWarnings.push("High Volumetric Weight Detected (>20% over actual). Consider Repacking.");
   }
 
-  // 4. UPS Costs
-  const upsResult = calculateUpsCosts(billableWeight, input.destinationCountry, input.fscPercent);
-  const upsTotal = upsResult.upsBase + upsResult.upsFsc + upsResult.upsWarRisk + itemResult.upsSurgeCost;
+  // 3. Carrier Costs (routing by carrier)
+  let carrierResult: CarrierCostResult;
+  switch (carrier) {
+    case 'DHL':
+      carrierResult = calculateDhlCosts(billableWeight, input.destinationCountry, input.fscPercent);
+      break;
+    case 'EMAX':
+      carrierResult = calculateEmaxCosts(billableWeight, input.destinationCountry);
+      break;
+    default:
+      carrierResult = calculateUpsCosts(billableWeight, input.destinationCountry, input.fscPercent);
+      break;
+  }
 
-  // 5. Duty
+  const intlTotal = carrierResult.intlBase + carrierResult.intlFsc + carrierResult.intlWarRisk + itemResult.surgeCost;
+
+  // 4. Duty
   let destDuty = 0;
   if (input.incoterm === Incoterm.DDP) {
     destDuty = input.dutyTaxEstimate;
   }
 
-  // 6. Totals
-  const totalCostAmount = packingTotal + finalHandlingFee + upsTotal + destDuty;
-  
+  // 5. Totals
+  const totalCostAmount = packingTotal + finalHandlingFee + intlTotal + destDuty;
+
   let quoteBasisCost = 0;
   if ([Incoterm.EXW, Incoterm.FOB].includes(input.incoterm)) {
      quoteBasisCost = packingTotal + finalHandlingFee;
@@ -328,20 +429,20 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
      quoteBasisCost = totalCostAmount;
   }
 
-  // 7. Margin & Revenue
+  // 6. Margin & Revenue
   const safeMarginPercent = Math.min(Math.max(input.marginPercent, 0), 99);
   const marginRate = safeMarginPercent / 100;
-  
+
   let targetRevenue = 0;
   if (marginRate < 1) {
       targetRevenue = quoteBasisCost / (1 - marginRate);
   } else {
-      targetRevenue = quoteBasisCost * 2; 
+      targetRevenue = quoteBasisCost * 2;
       userWarnings.push("Invalid margin rate. Defaulted to markup.");
   }
-  
+
   const marginAmount = targetRevenue - quoteBasisCost;
-  const totalQuoteAmount = Math.ceil(targetRevenue / 100) * 100; 
+  const totalQuoteAmount = Math.ceil(targetRevenue / 100) * 100;
 
   const exchangeRate = input.exchangeRate || DEFAULT_EXCHANGE_RATE;
   const totalQuoteAmountUSD = totalQuoteAmount / exchangeRate;
@@ -360,22 +461,19 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
     totalActualWeight: itemResult.totalActualWeight,
     totalVolumetricWeight: itemResult.totalPackedVolumetricWeight,
     billableWeight,
-    appliedZone: upsResult.appliedZone,
-    transitTime: upsResult.transitTime,
-    domesticTruckType: 'N/A',
-    isFreightMode: false,
+    appliedZone: carrierResult.appliedZone,
+    transitTime: carrierResult.transitTime,
+    carrier,
     warnings: userWarnings,
     breakdown: {
-      domesticBase: 0,
-      domesticSurcharge: 0,
       packingMaterial: itemResult.packingMaterialCost,
       packingLabor: itemResult.packingLaborCost,
       packingFumigation: packingFumigationCost,
       handlingFees: finalHandlingFee,
-      upsBase: upsResult.upsBase,
-      upsFsc: upsResult.upsFsc,
-      upsWarRisk: upsResult.upsWarRisk,
-      upsSurge: itemResult.upsSurgeCost,
+      intlBase: carrierResult.intlBase,
+      intlFsc: carrierResult.intlFsc,
+      intlWarRisk: carrierResult.intlWarRisk,
+      intlSurge: itemResult.surgeCost,
       destDuty,
       totalCost: totalCostAmount
     }

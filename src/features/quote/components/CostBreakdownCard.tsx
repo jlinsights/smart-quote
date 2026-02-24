@@ -17,7 +17,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
   const formatCurrency = (val: number) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(val);
 
   const packingCost = result.breakdown.packingMaterial + result.breakdown.packingLabor + result.breakdown.packingFumigation + result.breakdown.handlingFees;
-  const upsTotalCost = result.breakdown.upsBase + result.breakdown.upsFsc + result.breakdown.upsWarRisk + result.breakdown.upsSurge;
+  const upsTotalCost = result.breakdown.intlBase + result.breakdown.intlFsc + result.breakdown.intlWarRisk + result.breakdown.intlSurge;
   const totalInternalCost = result.totalCostAmount;
 
   return (
@@ -97,13 +97,13 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                             </div>
                         </div>
                         {/* Breakdown of Surge Costs if they exist */}
-                        {result.breakdown.upsSurge > 0 && (
+                        {result.breakdown.intlSurge > 0 && (
                             <div className="flex justify-between items-center text-amber-600 dark:text-amber-500 text-xs pl-6 animate-pulse">
                                 <div className="flex items-center">
                                     <BoxSelect className="w-3 h-3 mr-1" />
                                     <span>Demand/Surge Fees</span>
                                 </div>
-                                <span>{formatCurrency(result.breakdown.upsSurge)}</span>
+                                <span>{formatCurrency(result.breakdown.intlSurge)}</span>
                             </div>
                         )}
                     </div>

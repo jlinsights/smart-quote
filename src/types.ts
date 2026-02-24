@@ -46,16 +46,14 @@ export enum Incoterm {
   }
   
   export interface CostBreakdown {
-    domesticBase: number;
-    domesticSurcharge: number; // Jeju/Remote or specific truck surcharges
     packingMaterial: number;
     packingLabor: number;
     packingFumigation: number;
     handlingFees: number; // Customs, Docs
-    upsBase: number;
-    upsFsc: number; // Fuel Surcharge
-    upsWarRisk: number; // Peak season/War
-    upsSurge: number; // Additional Handling, Large Package, etc.
+    intlBase: number; // Carrier base rate (UPS/DHL/EMAX)
+    intlFsc: number; // Fuel Surcharge (0 for EMAX)
+    intlWarRisk: number; // War risk surcharge (0 for EMAX)
+    intlSurge: number; // Additional Handling, Large Package, etc.
     destDuty: number;
     totalCost: number;
   }
@@ -67,18 +65,16 @@ export enum Incoterm {
     profitAmount: number;
     profitMargin: number;
     currency: string;
-    
+
     // Details for logic transparency
     totalActualWeight: number;
     totalVolumetricWeight: number;
     billableWeight: number;
     appliedZone: string;
     transitTime: string;
-    
-    domesticTruckType: string; // e.g., "1t Truck" or "Parcel"
-    isFreightMode: boolean;
+    carrier: string; // 'UPS' | 'DHL' | 'EMAX'
     warnings: string[];
-    
+
     breakdown: CostBreakdown;
   }
 
@@ -94,7 +90,7 @@ export enum Incoterm {
     totalQuoteAmountUsd: number;
     profitMargin: number;
     billableWeight: number;
-    domesticTruckType: string;
+    domesticTruckType?: string;
     status: QuoteStatus;
     createdAt: string;
   }
@@ -129,7 +125,7 @@ export enum Incoterm {
     profitMargin: number;
     billableWeight: number;
     appliedZone: string;
-    domesticTruckType: string;
+    domesticTruckType?: string;
     warnings: string[];
     breakdown: CostBreakdown;
   }
