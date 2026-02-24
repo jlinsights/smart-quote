@@ -1,1 +1,1 @@
-⚡ fix: 견적 계산을 백엔드 API → 프론트엔드 useMemo 즉시 계산으로 전환, "Updating..." 무한 로딩 해결
+💰 feat: Target Margin을 % → USD 금액 입력($50 기본값)으로 변경, 마진%는 자동 계산, 백엔드 동기화

@@ -33,7 +33,7 @@ export enum Incoterm {
     incoterm: Incoterm;
     packingType: PackingType;
     items: CargoItem[];
-    marginPercent: number; // 0-100
+    marginUSD: number; // Target margin in USD (e.g. 50.00)
     dutyTaxEstimate: number; // For DDP only
     
     // Market Variables

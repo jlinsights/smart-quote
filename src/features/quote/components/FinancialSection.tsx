@@ -8,14 +8,19 @@ interface Props {
   input: QuoteInput;
   onFieldChange: <K extends keyof QuoteInput>(key: K, value: QuoteInput[K]) => void;
   isMobileView: boolean;
+  effectiveMarginPercent?: number;
 }
 
-export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobileView }) => {
+export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobileView, effectiveMarginPercent }) => {
   const { inputClass, labelClass, grayCardClass } = inputStyles;
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
 
   const financialGrid = `grid grid-cols-1 ${!isMobileView ? 'sm:grid-cols-3' : 'grid-cols-2'} gap-3`;
+
+  const derivedMarginPercent = effectiveMarginPercent != null
+    ? `${effectiveMarginPercent.toFixed(1)}%`
+    : '—';
 
   return (
     <div className={grayCardClass}>
@@ -85,27 +90,26 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
              </div>
          </div>
          <div className={isMobileView ? "col-span-2" : ""}>
-             <label className={lc}>Target Margin (%)</label>
+             <label className={lc}>Target Margin (USD)</label>
              <div className="relative rounded-lg shadow-sm">
+                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                     <span className="text-gray-500 sm:text-sm font-bold">$</span>
+                 </div>
                  <input
                  type="number"
                  step="any"
                  min="0"
-                 max="99"
-                 value={input.marginPercent}
-                 onChange={(e) => onFieldChange('marginPercent', Number(e.target.value))}
-                 className={`${ic} pr-8 ${input.marginPercent < 10 ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300' : ''}`}
-                 placeholder="15"
+                 value={input.marginUSD}
+                 onChange={(e) => onFieldChange('marginUSD', Number(e.target.value))}
+                 className={`${ic} pl-8 pr-16`}
+                 placeholder="50"
                  inputMode="decimal"
                  autoComplete="off"
                  />
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                     <span className="text-gray-500 sm:text-sm font-bold">%</span>
+                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                     <span className="text-xs text-gray-400 font-medium">{derivedMarginPercent}</span>
                  </div>
              </div>
-             {input.marginPercent < 10 && (
-                 <p className="mt-1 text-[10px] text-red-500 font-medium">Low margin — approval required</p>
-             )}
          </div>
       </div>
     </div>

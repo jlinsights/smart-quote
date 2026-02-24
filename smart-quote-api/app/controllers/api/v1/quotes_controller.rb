@@ -114,7 +114,7 @@ module Api
           is_jeju_pickup: input["isJejuPickup"] || input[:isJejuPickup] || false,
           incoterm: input["incoterm"] || input[:incoterm],
           packing_type: input["packingType"] || input[:packingType] || "NONE",
-          margin_percent: input["marginPercent"] || input[:marginPercent],
+          margin_percent: input["marginUSD"] || input[:marginUSD] || 50,
           duty_tax_estimate: input["dutyTaxEstimate"] || input[:dutyTaxEstimate] || 0,
           exchange_rate: input["exchangeRate"] || input[:exchangeRate],
           fsc_percent: input["fscPercent"] || input[:fscPercent],

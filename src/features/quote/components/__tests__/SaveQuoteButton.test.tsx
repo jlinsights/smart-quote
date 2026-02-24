@@ -16,7 +16,7 @@ const mockInput: QuoteInput = {
   incoterm: Incoterm.FOB,
   packingType: PackingType.NONE,
   items: [],
-  marginPercent: 20,
+  marginUSD: 50,
   dutyTaxEstimate: 0,
   exchangeRate: 1300,
   fscPercent: 27.5,

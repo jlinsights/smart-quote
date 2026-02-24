@@ -105,7 +105,7 @@ export const DesktopLayout: React.FC<Props> = ({
                     <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Shipment Configuration</h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Enter cargo details to generate domestic (ez) and overseas (UPS) integrated quote.</p>
                  </div>
-                 <InputSection input={input} onChange={setInput} isMobileView={false} />
+                 <InputSection input={input} onChange={setInput} isMobileView={false} effectiveMarginPercent={result?.profitMargin} />
               </div>
 
               {/* Right Column: Result */}
@@ -116,6 +116,7 @@ export const DesktopLayout: React.FC<Props> = ({
                     onMarginChange={onMarginChange}
                     onPackingCostChange={onPackingCostChange}
                     onDownloadPdf={onDownloadPdf}
+                    marginUSD={input.marginUSD}
                   />
                  )}
               </div>

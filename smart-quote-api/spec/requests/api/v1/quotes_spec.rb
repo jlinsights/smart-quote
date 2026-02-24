@@ -36,7 +36,7 @@ RSpec.describe "Api::V1::Quotes", type: :request do
       domesticRegionCode: "A",
       incoterm: "FOB",
       packingType: "NONE",
-      marginPercent: 20.0,
+      marginUSD: 50.0,
       exchangeRate: 1300.0,
       fscPercent: 27.5,
       items: [

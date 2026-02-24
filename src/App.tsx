@@ -30,7 +30,7 @@ const App: React.FC = () => {
     items: [
       { id: '1', width: 10, length: 10, height: 10, weight: 1, quantity: 1 }
     ],
-    marginPercent: 0,
+    marginUSD: 50,
     dutyTaxEstimate: 0,
     exchangeRate: 1300,
     fscPercent: 10,
@@ -51,7 +51,7 @@ const App: React.FC = () => {
   }, [input]);
 
   const handleMarginChange = (newMargin: number) => {
-    setInput(prev => ({ ...prev, marginPercent: newMargin }));
+    setInput(prev => ({ ...prev, marginUSD: newMargin }));
   };
 
   const handlePackingCostChange = (newCost: number) => {
@@ -184,7 +184,7 @@ const App: React.FC = () => {
                       <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Shipment Configuration</h2>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Enter cargo details to generate overseas (UPS) integrated quote.</p>
                     </div>
-                    <InputSection input={input} onChange={setInput} isMobileView={false} />
+                    <InputSection input={input} onChange={setInput} isMobileView={false} effectiveMarginPercent={result?.profitMargin} />
                   </div>
                   <div className="lg:col-span-5" id="result-section">
                     {result && (
@@ -193,6 +193,7 @@ const App: React.FC = () => {
                         onMarginChange={handleMarginChange}
                         onPackingCostChange={handlePackingCostChange}
                         onDownloadPdf={handleDownloadPdf}
+                        marginUSD={input.marginUSD}
                       />
                     )}
                   </div>

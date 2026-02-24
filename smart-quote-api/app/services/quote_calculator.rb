@@ -92,26 +92,20 @@ class QuoteCalculator
       quote_basis_cost = total_cost_amount
     end
 
-    # 7. Margin & Revenue
-    margin_percent = @input[:marginPercent] || INITIAL_MARGIN
-    safe_margin_percent = [ [margin_percent, 0].max, 99 ].min
-    margin_rate = safe_margin_percent / 100.0
-
-    target_revenue = 0
-    if margin_rate < 1
-      target_revenue = quote_basis_cost / (1 - margin_rate)
-    else
-      target_revenue = quote_basis_cost * 2
-      user_warnings << "Invalid margin rate. Defaulted to markup."
-    end
-
-    margin_amount = target_revenue - quote_basis_cost
-    total_quote_amount = (target_revenue / 100.0).ceil * 100
-
+    # 7. Margin & Revenue (USD-based)
     exchange_rate = @input[:exchangeRate] || DEFAULT_EXCHANGE_RATE
+    safe_margin_usd = [(@input[:marginUSD] || 50).to_f, 0].max
+    margin_krw = safe_margin_usd * exchange_rate
+
+    target_revenue = quote_basis_cost + margin_krw
+    margin_amount = margin_krw
+    total_quote_amount = (target_revenue / 100.0).ceil * 100
     total_quote_amount_usd = total_quote_amount / exchange_rate.to_f
 
-    if margin_percent < 10
+    # Derive effective margin %
+    effective_margin_percent = target_revenue > 0 ? (margin_krw / target_revenue) * 100 : 0
+
+    if effective_margin_percent < 10
       user_warnings << "Low Margin Alert: Profit margin is below 10%. Approval required."
     end
 
@@ -120,7 +114,7 @@ class QuoteCalculator
       totalQuoteAmountUSD: total_quote_amount_usd,
       totalCostAmount: total_cost_amount,
       profitAmount: margin_amount,
-      profitMargin: margin_percent,
+      profitMargin: effective_margin_percent.round(2),
       currency: 'KRW',
       totalActualWeight: item_result[:total_actual_weight],
       totalVolumetricWeight: item_result[:total_packed_volumetric_weight],

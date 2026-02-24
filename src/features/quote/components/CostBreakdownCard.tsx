@@ -8,9 +8,10 @@ interface Props {
   result: QuoteResult;
   onPackingCostChange: (newCost: number) => void;
   onMarginChange: (newMargin: number) => void;
+  marginUSD: number;
 }
 
-export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange, onMarginChange }) => {
+export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange, onMarginChange, marginUSD }) => {
   const [showPackingInfo, setShowPackingInfo] = useState(false);
   const { cardClass } = resultStyles;
 
@@ -134,24 +135,22 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                      <div className="flex justify-between items-center text-green-700 dark:text-green-400">
                         <div className="flex items-center">
                             <TrendingUp className="w-4 h-4 mr-2 flex-shrink-0" />
-                            <span className="mr-2 font-medium">Profit Margin</span>
-                            
-                            {/* Interactive Margin Input */}
-                            <div className="relative rounded-md shadow-sm w-24">
+                            <span className="mr-2 font-medium">Margin</span>
+
+                            {/* Interactive Margin Input (USD) */}
+                            <div className="relative rounded-md shadow-sm w-28">
+                                <div className="pointer-events-none absolute inset-y-0 left-0 pl-2 flex items-center text-gray-500 text-xs">$</div>
                                 <input
                                     type="number"
                                     min="0"
-                                    max="100"
-                                    value={result.profitMargin}
+                                    step="any"
+                                    value={marginUSD}
                                     onChange={(e) => onMarginChange(Number(e.target.value))}
-                                    className="focus:ring-jways-500 focus:border-jways-500 block w-full text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-2 py-1.5 text-right font-bold"
+                                    className="focus:ring-jways-500 focus:border-jways-500 block w-full text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white pl-5 pr-2 py-1.5 text-right font-bold"
+                                    inputMode="decimal"
                                 />
-                                <div className="pointer-events-none absolute inset-y-0 right-0 pr-8 flex items-center hidden">
-                                </div>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 pr-2 flex items-center text-gray-500 text-xs">
-                                    %
-                                </div>
                             </div>
+                            <span className="ml-2 text-xs text-gray-400">({result.profitMargin}%)</span>
                         </div>
                         <span className="font-bold">+ {formatCurrency(result.profitAmount)}</span>
                     </div>

@@ -8,7 +8,7 @@ FactoryBot.define do
     is_jeju_pickup { false }
     incoterm { "FOB" }
     packing_type { "NONE" }
-    margin_percent { 15.0 }
+    margin_percent { 50.0 } # Stores marginUSD value
     duty_tax_estimate { 0 }
     exchange_rate { 1300.0 }
     fsc_percent { 27.5 }

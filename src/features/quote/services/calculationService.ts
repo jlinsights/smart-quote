@@ -443,25 +443,22 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
      quoteBasisCost = totalCostAmount;
   }
 
-  // 6. Margin & Revenue
-  const safeMarginPercent = Math.min(Math.max(input.marginPercent, 0), 99);
-  const marginRate = safeMarginPercent / 100;
-
-  let targetRevenue = 0;
-  if (marginRate < 1) {
-      targetRevenue = quoteBasisCost / (1 - marginRate);
-  } else {
-      targetRevenue = quoteBasisCost * 2;
-      userWarnings.push("Invalid margin rate. Defaulted to markup.");
-  }
-
-  const marginAmount = targetRevenue - quoteBasisCost;
-  const totalQuoteAmount = Math.ceil(targetRevenue / 100) * 100;
-
+  // 6. Margin & Revenue (USD-based)
   const exchangeRate = input.exchangeRate || DEFAULT_EXCHANGE_RATE;
+  const safeMarginUSD = Math.max(input.marginUSD ?? 50, 0);
+  const marginKRW = safeMarginUSD * exchangeRate;
+
+  const targetRevenue = quoteBasisCost + marginKRW;
+  const marginAmount = marginKRW;
+  const totalQuoteAmount = Math.ceil(targetRevenue / 100) * 100;
   const totalQuoteAmountUSD = totalQuoteAmount / exchangeRate;
 
-  if (input.marginPercent < 10) {
+  // Derive effective margin % for display
+  const effectiveMarginPercent = targetRevenue > 0
+    ? (marginKRW / targetRevenue) * 100
+    : 0;
+
+  if (effectiveMarginPercent < 10) {
     userWarnings.push("Low Margin Alert: Profit margin is below 10%. Approval required.");
   }
 
@@ -470,7 +467,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
     totalQuoteAmountUSD,
     totalCostAmount,
     profitAmount: marginAmount,
-    profitMargin: input.marginPercent,
+    profitMargin: Math.round(effectiveMarginPercent * 100) / 100,
     currency: 'KRW',
     totalActualWeight: itemResult.totalActualWeight,
     totalVolumetricWeight: itemResult.totalPackedVolumetricWeight,

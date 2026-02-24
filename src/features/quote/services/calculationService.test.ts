@@ -171,7 +171,7 @@ describe('calculationService', () => {
       incoterm: Incoterm.DAP,
       packingType: PackingType.NONE,
       items: [{ id: '1', width: 30, length: 40, height: 30, weight: 10, quantity: 1 }],
-      marginPercent: 15,
+      marginUSD: 50,
       dutyTaxEstimate: 0,
       exchangeRate: 1430,
       fscPercent: 30,
@@ -210,11 +210,12 @@ describe('calculationService', () => {
       expect(result.breakdown.intlWarRisk).toBe(0);
     });
 
-    it('margin calculation: 15% margin on cost', () => {
+    it('margin calculation: USD 50 margin added to cost', () => {
       const result = calculateQuote(baseInput);
-      // totalQuoteAmount = ceil(cost / (1 - 0.15) / 100) * 100
+      // marginKRW = 50 * 1430 = 71500, targetRevenue = cost + 71500, rounded up to 100
       expect(result.totalQuoteAmount % 100).toBe(0);
       expect(result.profitAmount).toBeGreaterThan(0);
+      expect(result.profitMargin).toBeGreaterThan(0);
     });
 
     it('EXW incoterm: quoteBasisCost excludes international freight', () => {

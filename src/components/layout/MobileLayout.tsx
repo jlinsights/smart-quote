@@ -91,7 +91,7 @@ export const MobileLayout: React.FC<Props> = ({
                     <p className="text-sm text-gray-500 dark:text-gray-400">Enter cargo details to generate domestic (ez) and overseas (UPS) integrated quote.</p>
                  </div>
                  
-                 <InputSection input={input} onChange={setInput} isMobileView={true} />
+                 <InputSection input={input} onChange={setInput} isMobileView={true} effectiveMarginPercent={result?.profitMargin} />
               </div>
 
               {/* Right Column: Result */}
@@ -102,6 +102,7 @@ export const MobileLayout: React.FC<Props> = ({
                     onMarginChange={onMarginChange}
                     onPackingCostChange={onPackingCostChange}
                     onDownloadPdf={onDownloadPdf}
+                    marginUSD={input.marginUSD}
                   />
                  )}
               </div>

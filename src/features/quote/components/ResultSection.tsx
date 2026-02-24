@@ -10,18 +10,20 @@ interface Props {
   onMarginChange: (newMargin: number) => void;
   onPackingCostChange: (newCost: number) => void;
   onDownloadPdf: () => void;
+  marginUSD: number;
 }
 
-export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onPackingCostChange, onDownloadPdf }) => {
+export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onPackingCostChange, onDownloadPdf, marginUSD }) => {
   return (
     <div className="space-y-6 sticky top-6">
       <QuoteSummaryCard result={result} onDownloadPdf={onDownloadPdf} />
       <WarningAlerts warnings={result.warnings} />
       <KeyMetricsGrid result={result} />
-      <CostBreakdownCard 
-        result={result} 
-        onPackingCostChange={onPackingCostChange} 
-        onMarginChange={onMarginChange} 
+      <CostBreakdownCard
+        result={result}
+        onPackingCostChange={onPackingCostChange}
+        onMarginChange={onMarginChange}
+        marginUSD={marginUSD}
       />
     </div>
   );
