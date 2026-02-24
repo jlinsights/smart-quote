@@ -1,9 +1,6 @@
 import React from 'react';
-import { QuoteInput, DomesticRegionCode, Incoterm } from '@/types';
+import { QuoteInput, Incoterm } from '@/types';
 import { ORIGIN_COUNTRY_OPTIONS, COUNTRY_OPTIONS, INCOTERM_OPTIONS } from '@/config/options';
-import { DOMESTIC_REGIONS } from '@/config/zones';
-import { UI_TEXT } from '@/config/text';
-import { Clock, AlertCircle } from 'lucide-react';
 import { inputStyles } from './input-styles';
 
 interface Props {
@@ -47,10 +44,31 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
             <div className="relative">
                 <select 
                 value={input.destinationCountry}
-                onChange={(e) => onFieldChange('destinationCountry', e.target.value)}
+                onChange={(e) => {
+                  onFieldChange('destinationCountry', e.target.value);
+                  // Optional: Reset EMAX if country changes to non-CN/VN, but simpler to just show error or let backend handle it
+                }}
                 className={`${ic} appearance-none`}
                 >
                 {COUNTRY_OPTIONS.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
+          </div>
+          
+          <div>
+            <label className={lc}>Overseas Carrier</label>
+            <div className="relative">
+                <select 
+                value={input.overseasCarrier || 'UPS'}
+                onChange={(e) => onFieldChange('overseasCarrier', e.target.value as QuoteInput['overseasCarrier'])}
+                className={`${ic} appearance-none`}
+                >
+                  <option value="UPS">UPS</option>
+                  <option value="DHL">DHL</option>
+                  <option value="EMAX" disabled={!['CN', 'VN'].includes(input.destinationCountry)}>E-MAX {['CN', 'VN'].includes(input.destinationCountry) ? '' : '(Only CN/VN)'}</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -83,64 +101,6 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
-            </div>
-          </div>
-          
-          <div className={!isMobileView ? "md:col-span-2" : ""}>
-            <label className={lc}>Pickup Region (Domestic)</label>
-            <div className="space-y-3">
-                <div className="relative">
-                    <select 
-                    value={input.domesticRegionCode}
-                    onChange={(e) => onFieldChange('domesticRegionCode', e.target.value as DomesticRegionCode)}
-                    className={`${ic} appearance-none`}
-                    disabled={input.isJejuPickup}
-                    >
-                    {DOMESTIC_REGIONS.map(r => (
-                        <option key={r.code} value={r.code}>
-                            {r.code} - {r.label} ({r.cities.substring(0, 40)}{r.cities.length > 40 ? '...' : ''})
-                        </option>
-                    ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 text-xs border border-gray-100 dark:border-gray-600 space-y-2">
-                    <div className="flex items-start">
-                         <Clock className="w-3.5 h-3.5 mr-2 text-jways-600 dark:text-jways-400 flex-shrink-0 mt-0.5" />
-                         <div className="text-gray-600 dark:text-gray-300">
-                            <p className="mb-0.5">{UI_TEXT.ROUTE.SAME_DAY_CUTOFF}</p>
-                            <p>{UI_TEXT.ROUTE.NEXT_DAY_CUTOFF}</p>
-                         </div>
-                    </div>
-                    
-                    {['O','P','Q','R','S','T'].includes(input.domesticRegionCode) && (
-                         <div className="flex items-start pt-2 border-t border-gray-200 dark:border-gray-600/50">
-                            <AlertCircle className="w-3.5 h-3.5 mr-2 text-amber-500 flex-shrink-0 mt-0.5" />
-                            <div className="text-gray-600 dark:text-gray-300 leading-snug">
-                                <span className="font-bold text-amber-700 dark:text-amber-500">{UI_TEXT.ROUTE.REMOTE_WARNING_TITLE} (Region {input.domesticRegionCode}):</span> 
-                                <br/>
-                                {UI_TEXT.ROUTE.REMOTE_WARNING_DESC}
-                                <span className="block mt-1 text-gray-500">{UI_TEXT.ROUTE.REMOTE_WARNING_ACTION}</span>
-                            </div>
-                        </div>
-                    )}
-                </div>
-                
-                <label className="flex items-center p-3 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <input
-                        type="checkbox"
-                        checked={input.isJejuPickup}
-                        onChange={(e) => onFieldChange('isJejuPickup', e.target.checked)}
-                        className={`text-jways-600 focus:ring-jways-500 border-gray-300 rounded ${isMobileView ? 'h-6 w-6' : 'h-5 w-5'}`}
-                    />
-                    <div className="ml-3">
-                        <span className={`block font-medium text-gray-900 dark:text-gray-300 ${isMobileView ? 'text-base' : 'text-sm'}`}>{UI_TEXT.ROUTE.JEJU_LABEL}</span>
-                        <span className="block text-xs text-amber-500 font-medium">{UI_TEXT.ROUTE.JEJU_SUB}</span>
-                    </div>
-                </label>
             </div>
           </div>
           

@@ -1,0 +1,1 @@
+🔧 fix: TypeScript 컴파일 에러 7건 수정 (중복 import, 누락 props, 미사용 prop 제거)

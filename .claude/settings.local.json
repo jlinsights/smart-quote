@@ -1,0 +1,20 @@
+{
+  "enabledMcpjsonServers": [
+    "github",
+    "postgres",
+    "brave-search",
+    "ruby-docs",
+    "rails-docs",
+    "rubygems",
+    "bundler",
+    "react-docs",
+    "typescript-docs",
+    "vite-docs",
+    "npm-security",
+    "rust-docs",
+    "cargo-docs",
+    "crates-search",
+    "rust-analyzer"
+  ],
+  "enableAllProjectMcpServers": true
+}

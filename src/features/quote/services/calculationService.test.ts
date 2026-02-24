@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { calculateItemSurge, calculateDomesticCosts } from './calculationService';
+import { calculateItemSurge } from './calculationService';
 import { PackingType } from '@/types';
 import { SURGE_RATES } from '@/config/rates';
-import { TRUCK_TIER_LIMITS } from '@/config/business-rules';
 
 describe('calculationService', () => {
   
@@ -44,23 +43,6 @@ describe('calculationService', () => {
     });
   });
 
-  describe('calculateDomesticCosts (Truck Selection)', () => {
-      it('should select ~100kg Pickup for small shipment', () => {
-          const result = calculateDomesticCosts(50, 0.5, 'A', false);
-          expect(result.truckType).toBe(TRUCK_TIER_LIMITS[0].label);
-      });
 
-      it('should select 1t Truck for 800kg shipment', () => {
-          const result = calculateDomesticCosts(800, 2, 'A', false);
-          // TRUCK_TIER_LIMITS: ~100, ~500, 1t (1100kg)
-          expect(result.truckType).toBe(TRUCK_TIER_LIMITS[2].label); // 1t Truck
-      });
-
-      it('should select 11t Truck (Overweight) for very large shipment', () => {
-          const result = calculateDomesticCosts(12000, 20, 'A', false);
-          expect(result.truckType).toContain('Overweight');
-          expect(result.warnings[0]).toContain('Cargo exceeds 11t');
-      });
-  });
 
 });

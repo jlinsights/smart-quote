@@ -13,7 +13,6 @@ interface Props {
   setInput: React.Dispatch<React.SetStateAction<QuoteInput>>;
   result: QuoteResult;
   onMarginChange: (val: number) => void;
-  onDomesticCostChange: (val: number) => void;
   onPackingCostChange: (val: number) => void;
   onDownloadPdf: () => void;
   onReset: () => void;
@@ -29,7 +28,6 @@ export const DesktopLayout: React.FC<Props> = ({
   setInput,
   result,
   onMarginChange,
-  onDomesticCostChange,
   onPackingCostChange,
   onDownloadPdf,
   onReset,
@@ -113,10 +111,9 @@ export const DesktopLayout: React.FC<Props> = ({
               {/* Right Column: Result */}
               <div className="lg:col-span-5" id="result-section">
                  {result && (
-                  <ResultSection 
-                    result={result} 
-                    onMarginChange={onMarginChange} 
-                    onDomesticCostChange={onDomesticCostChange}
+                  <ResultSection
+                    result={result}
+                    onMarginChange={onMarginChange}
                     onPackingCostChange={onPackingCostChange}
                     onDownloadPdf={onDownloadPdf}
                   />

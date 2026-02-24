@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { QuoteInput, QuoteResult, Incoterm, PackingType } from './types';
-import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from '@/config/rates';
-import { INITIAL_MARGIN } from '@/config/business-rules';
 import { generatePDF } from '@/lib/pdfService';
 import { fetchQuote } from '@/api/quoteApi';
 import { MobileLayout } from '@/components/layout/MobileLayout';
-import { DesktopLayout } from '@/components/layout/DesktopLayout';
 import { QuoteHistoryPage } from '@/features/history/components/QuoteHistoryPage';
 import { SaveQuoteButton } from '@/features/quote/components/SaveQuoteButton';
 import { NavigationTabs, AppView } from '@/components/layout/NavigationTabs';
@@ -28,18 +25,16 @@ const App: React.FC = () => {
     originCountry: 'KR',
     destinationCountry: 'US',
     destinationZip: '',
-    domesticRegionCode: 'A',
-    isJejuPickup: false,
     incoterm: Incoterm.DAP,
     packingType: PackingType.NONE,
     items: [
-      { id: '1', width: 40, length: 50, height: 40, weight: 15, quantity: 1 }
+      { id: '1', width: 10, length: 10, height: 10, weight: 1, quantity: 1 }
     ],
-    marginPercent: INITIAL_MARGIN,
+    marginPercent: 0,
     dutyTaxEstimate: 0,
-    exchangeRate: DEFAULT_EXCHANGE_RATE,
-    fscPercent: DEFAULT_FSC_PERCENT,
-    manualDomesticCost: undefined,
+    exchangeRate: 1300,
+    fscPercent: 10,
+    overseasCarrier: 'UPS',
     manualPackingCost: undefined
   };
 
@@ -68,10 +63,6 @@ const App: React.FC = () => {
 
   const handleMarginChange = (newMargin: number) => {
     setInput(prev => ({ ...prev, marginPercent: newMargin }));
-  };
-
-  const handleDomesticCostChange = (newCost: number) => {
-    setInput(prev => ({ ...prev, manualDomesticCost: newCost }));
   };
 
   const handlePackingCostChange = (newCost: number) => {
@@ -106,7 +97,6 @@ const App: React.FC = () => {
     setInput,
     result: result!,
     onMarginChange: handleMarginChange,
-    onDomesticCostChange: handleDomesticCostChange,
     onPackingCostChange: handlePackingCostChange,
     onDownloadPdf: handleDownloadPdf,
     onReset: handleReset,
@@ -203,7 +193,7 @@ const App: React.FC = () => {
                   <div className="lg:col-span-7">
                     <div className="mb-6">
                       <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Shipment Configuration</h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Enter cargo details to generate domestic (ez) and overseas (UPS) integrated quote.</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Enter cargo details to generate overseas (UPS) integrated quote.</p>
                     </div>
                     <InputSection input={input} onChange={setInput} isMobileView={false} />
                   </div>
@@ -212,7 +202,6 @@ const App: React.FC = () => {
                       <ResultSection
                         result={result}
                         onMarginChange={handleMarginChange}
-                        onDomesticCostChange={handleDomesticCostChange}
                         onPackingCostChange={handlePackingCostChange}
                         onDownloadPdf={handleDownloadPdf}
                       />

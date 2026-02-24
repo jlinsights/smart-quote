@@ -13,7 +13,6 @@ interface Props {
   setInput: React.Dispatch<React.SetStateAction<QuoteInput>>;
   result: QuoteResult;
   onMarginChange: (val: number) => void;
-  onDomesticCostChange: (val: number) => void;
   onPackingCostChange: (val: number) => void;
   onDownloadPdf: () => void;
   onReset: () => void;
@@ -29,7 +28,6 @@ export const MobileLayout: React.FC<Props> = ({
   setInput,
   result,
   onMarginChange,
-  onDomesticCostChange,
   onPackingCostChange,
   onDownloadPdf,
   onReset
@@ -99,11 +97,10 @@ export const MobileLayout: React.FC<Props> = ({
               {/* Right Column: Result */}
               <div id="result-section">
                  {result && (
-                  <ResultSection 
-                    result={result} 
-                    onMarginChange={onMarginChange} 
-                    onDomesticCostChange={onDomesticCostChange} 
-                    onPackingCostChange={onPackingCostChange} 
+                  <ResultSection
+                    result={result}
+                    onMarginChange={onMarginChange}
+                    onPackingCostChange={onPackingCostChange}
                     onDownloadPdf={onDownloadPdf}
                   />
                  )}

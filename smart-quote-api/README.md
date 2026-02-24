@@ -1,24 +1,64 @@
-# README
+# Smart Quote API
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is the API backend for the Smart Quote application, built with Ruby on Rails 8.
 
-Things you may want to cover:
+## Prerequisites
 
-* Ruby version
+- Ruby 3.4.5
+- PostgreSQL
+- Docker (for deployment with Kamal)
 
-* System dependencies
+## Setup
 
-* Configuration
+1. **Install dependencies:**
 
-* Database creation
+   ```bash
+   bundle install
+   ```
 
-* Database initialization
+2. **Database Setup:**
 
-* How to run the test suite
+   Ensure PostgreSQL is running, then create and migrate the database:
 
-* Services (job queues, cache servers, search engines, etc.)
+   ```bash
+   bin/rails db:prepare
+   ```
 
-* Deployment instructions
+## Running the Application
 
-* ...
+Start the Rails server:
+
+```bash
+bin/rails server
+```
+
+The API will be available at `http://localhost:3000`.
+
+## Testing
+
+Run the test suite:
+
+```bash
+bin/rails test
+```
+
+## Code Quality & Security
+
+- **Linting:** Run `bin/rubocop` to check for code style issues.
+- **Security:** Run `bin/brakeman` to scan for security vulnerabilities.
+
+## Deployment
+
+This application is configured for deployment using [Kamal](https://kamal-deploy.org/).
+
+1. **Setup Kamal:**
+
+   ```bash
+   kamal setup
+   ```
+
+2. **Deploy:**
+
+   ```bash
+   kamal deploy
+   ```

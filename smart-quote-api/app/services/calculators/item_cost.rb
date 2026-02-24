@@ -3,14 +3,15 @@ module Calculators
     include Constants::Rates
     include Constants::BusinessRules
 
-    def self.call(items:, packing_type:, manual_packing_cost: nil)
-      new(items, packing_type, manual_packing_cost).call
+    def self.call(items:, packing_type:, manual_packing_cost: nil, volumetric_divisor: 5000)
+      new(items, packing_type, manual_packing_cost, volumetric_divisor).call
     end
 
-    def initialize(items, packing_type, manual_packing_cost)
+    def initialize(items, packing_type, manual_packing_cost, volumetric_divisor)
       @items = items
       @packing_type = packing_type
       @manual_packing_cost = manual_packing_cost
+      @volumetric_divisor = volumetric_divisor
     end
 
     def call
@@ -62,7 +63,7 @@ module Calculators
         end
 
         total_actual_weight += weight * quantity
-        total_packed_volumetric_weight += calculate_volumetric_weight(l, w, h) * quantity
+        total_packed_volumetric_weight += calculate_volumetric_weight(l, w, h, @volumetric_divisor) * quantity
         total_cbm += calculate_cbm(l, w, h) * quantity
       end
 
@@ -85,8 +86,8 @@ module Calculators
 
     private
 
-    def calculate_volumetric_weight(l, w, h)
-      (l.ceil * w.ceil * h.ceil) / 5000.0
+    def calculate_volumetric_weight(l, w, h, divisor)
+      (l.ceil * w.ceil * h.ceil) / divisor.to_f
     end
 
     def calculate_cbm(l, w, h)

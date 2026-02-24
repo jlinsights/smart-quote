@@ -39,18 +39,15 @@ describe('pdfService', () => {
         const input: QuoteInput = {
             originCountry: 'KR',
             destinationCountry: 'US',
-            destinationZip: '10001',
-            domesticRegionCode: 'A',
-            isJejuPickup: false,
-            incoterm: Incoterm.DDP,
-            packingType: PackingType.WOODEN_BOX,
-            items: [{ id: '1', width: 10, length: 10, height: 10, weight: 1, quantity: 1 }],
-            marginPercent: 15,
+            destinationZip: '12345',
+            incoterm: Incoterm.DAP,
+            packingType: PackingType.NONE,
+            items: [{ id: '1', width: 40, length: 50, height: 40, weight: 15, quantity: 1 }],
+            marginPercent: 20,
             dutyTaxEstimate: 0,
-            exchangeRate: 1400,
-            fscPercent: 30,
-            manualDomesticCost: undefined,
-            manualPackingCost: undefined
+            exchangeRate: 1300,
+            fscPercent: 15,
+            overseasCarrier: 'UPS'
         };
 
         const result: QuoteResult = {

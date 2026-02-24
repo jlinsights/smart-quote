@@ -1,6 +1,5 @@
 import { jsPDF } from "jspdf";
 import { QuoteInput, QuoteResult } from "@/types";
-import { DOMESTIC_REGIONS } from "@/config/zones";
 import { COUNTRY_OPTIONS } from "@/config/options";
 import { PDF_LAYOUT } from "@/config/ui-constants";
 
@@ -40,10 +39,9 @@ const drawShipmentDetails = (doc: jsPDF, input: QuoteInput, yPos: number): numbe
   doc.setFont("helvetica", "normal");
   doc.setFontSize(FONTS.SIZE_NORMAL);
   
-  const regionLabel = DOMESTIC_REGIONS.find(r => r.code === input.domesticRegionCode)?.label || input.domesticRegionCode;
   const countryLabel = COUNTRY_OPTIONS.find(c => c.code === input.destinationCountry)?.name || input.destinationCountry;
 
-  doc.text(`Origin: ${input.originCountry} - ${regionLabel} (Pickup)`, MARGIN_X, yPos);
+  doc.text(`Origin: ${input.originCountry}`, MARGIN_X, yPos);
   doc.text(`Destination: ${countryLabel} (${input.destinationZip})`, 110, yPos);
   yPos = nextLine(yPos);
   doc.text(`Incoterm: ${input.incoterm}`, MARGIN_X, yPos);
@@ -98,16 +96,7 @@ const drawCostBreakdown = (doc: jsPDF, result: QuoteResult, yPos: number): numbe
   
   const formatKRW = (val: number) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(val);
 
-  // Domestic
-  doc.text("Domestic Transport (ez):", MARGIN_X, yPos);
-  doc.text(formatKRW(result.breakdown.domesticBase), 160, yPos, { align: 'right' });
-  yPos = nextLine(yPos);
-
-  if (result.breakdown.domesticSurcharge > 0) {
-    doc.text("Island/Remote Surcharge:", MARGIN_X, yPos);
-    doc.text(formatKRW(result.breakdown.domesticSurcharge), 160, yPos, { align: 'right' });
-    yPos = nextLine(yPos);
-  }
+  // Domestic (Removed)
 
   // Packing
   const packingTotal = result.breakdown.packingMaterial + result.breakdown.packingLabor + result.breakdown.packingFumigation + result.breakdown.handlingFees;
@@ -116,12 +105,17 @@ const drawCostBreakdown = (doc: jsPDF, result: QuoteResult, yPos: number): numbe
   yPos = nextLine(yPos);
 
   // International
-  const upsTotal = result.breakdown.upsBase + result.breakdown.upsFsc + result.breakdown.upsWarRisk + result.breakdown.upsSurge;
-  doc.text("International Freight (UPS):", MARGIN_X, yPos);
-  doc.text(formatKRW(upsTotal), 160, yPos, { align: 'right' });
+  const overseasTotal = result.breakdown.upsBase + result.breakdown.upsFsc + result.breakdown.upsWarRisk + result.breakdown.upsSurge;
+  
+  const isEmax = result.appliedZone.includes('E-MAX');
+  const isDhl = result.appliedZone.includes('DHL') || result.transitTime.includes('DHL');
+  const carrierName = isEmax ? 'E-MAX' : (isDhl ? 'DHL' : 'UPS');
+  
+  doc.text(`International Freight (${carrierName}):`, MARGIN_X, yPos);
+  doc.text(formatKRW(overseasTotal), 160, yPos, { align: 'right' });
   yPos = nextLine(yPos);
 
-  // UPS Surge Detail (Only if applied)
+  // Surge Detail (Only if applied)
   if (result.breakdown.upsSurge > 0) {
       doc.setTextColor(...COLORS.WARNING);
       doc.setFontSize(9);
@@ -169,7 +163,11 @@ const drawQuoteSummary = (doc: jsPDF, result: QuoteResult, yPos: number): number
   // --- Service Level ---
   doc.setFontSize(FONTS.SIZE_NORMAL);
   doc.setTextColor(50);
-  doc.text(`Service Level: UPS International (Door-to-Door)`, MARGIN_X, yPos);
+  const isEmax = result.appliedZone.includes('E-MAX');
+  const isDhl = result.appliedZone.includes('DHL') || result.transitTime.includes('DHL');
+  const carrierName = isEmax ? 'E-MAX' : (isDhl ? 'DHL' : 'UPS');
+
+  doc.text(`Service Level: ${carrierName} International (Door-to-Door)`, MARGIN_X, yPos);
   yPos = nextLine(yPos);
   doc.text(`Applied Zone: ${result.appliedZone}`, MARGIN_X, yPos);
   yPos = nextLine(yPos);

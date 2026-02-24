@@ -12,11 +12,15 @@ class QuoteCalculator
   end
 
   def call
+    carrier = @input[:overseasCarrier] || 'UPS'
+    volumetric_divisor = carrier == 'EMAX' ? 6000 : 5000
+
     # 1. Calculate Item Costs
     item_result = Calculators::ItemCost.call(
       items: @input[:items],
       packing_type: @input[:packingType] || 'NONE',
-      manual_packing_cost: @input[:manualPackingCost]
+      manual_packing_cost: @input[:manualPackingCost],
+      volumetric_divisor: volumetric_divisor
     )
 
     packing_fumigation_cost = 0
@@ -40,28 +44,28 @@ class QuoteCalculator
       user_warnings << "High Volumetric Weight Detected (>20% over actual). Consider Repacking."
     end
 
-    # 3. Domestic Costs
-    is_jeju_pickup = @input[:isJejuPickup] || false
-    domestic_region_code = @input[:domesticRegionCode] || 'A'
-    total_items_count = @input[:items].sum { |i| i[:quantity].to_i }
-    
-    domestic_result = Calculators::DomesticCost.call(
-      total_actual_weight: item_result[:total_actual_weight],
-      total_cbm: item_result[:total_cbm],
-      region_code: domestic_region_code,
-      is_jeju_pickup: is_jeju_pickup,
-      manual_domestic_cost: @input[:manualDomesticCost],
-      item_count: total_items_count
-    )
-    user_warnings.concat(domestic_result[:warnings])
+    # 3. Domestic Costs (Removed per User Request)
+    # 4. Overseas Carrier Costs
+    overseas_result = if carrier == 'DHL'
+                        Calculators::DhlCost.call(
+                          billable_weight: billable_weight, 
+                          country: @input[:destinationCountry], 
+                          fsc_percent: @input[:fscPercent] || DEFAULT_FSC_PERCENT
+                        )
+                      elsif carrier == 'EMAX'
+                        Calculators::EmaxCost.call(
+                          billable_weight: billable_weight, 
+                          country: @input[:destinationCountry]
+                        )
+                      else
+                        Calculators::UpsCost.call(
+                          billable_weight: billable_weight, 
+                          country: @input[:destinationCountry], 
+                          fsc_percent: @input[:fscPercent] || DEFAULT_FSC_PERCENT
+                        )
+                      end
 
-    # 4. UPS Costs
-    ups_result = Calculators::UpsCost.call(
-      billable_weight: billable_weight, 
-      country: @input[:destinationCountry], 
-      fsc_percent: @input[:fscPercent] || DEFAULT_FSC_PERCENT
-    )
-    ups_total = ups_result[:ups_base] + ups_result[:ups_fsc] + ups_result[:ups_war_risk] + item_result[:ups_surge_cost]
+    overseas_total = overseas_result[:intl_base] + overseas_result[:intl_fsc] + overseas_result[:intl_war_risk] + item_result[:ups_surge_cost]
 
     # 5. Duty
     dest_duty = 0
@@ -70,12 +74,11 @@ class QuoteCalculator
     end
 
     # 6. Totals
-    domestic_total = domestic_result[:domestic_base] + domestic_result[:domestic_surcharge]
-    total_cost_amount = domestic_total + packing_total + final_handling_fee + ups_total + dest_duty
+    total_cost_amount = packing_total + final_handling_fee + overseas_total + dest_duty
 
     quote_basis_cost = 0
     if ['EXW', 'FOB'].include?(@input[:incoterm])
-      quote_basis_cost = domestic_total + packing_total + final_handling_fee
+      quote_basis_cost = packing_total + final_handling_fee
       user_warnings << "Collect Term: International Freight calculated for reference but may be billed to Consignee/Partner."
     else
       quote_basis_cost = total_cost_amount
@@ -114,21 +117,21 @@ class QuoteCalculator
       totalActualWeight: item_result[:total_actual_weight],
       totalVolumetricWeight: item_result[:total_packed_volumetric_weight],
       billableWeight: billable_weight,
-      appliedZone: ups_result[:applied_zone],
-      transitTime: ups_result[:transit_time],
-      domesticTruckType: domestic_result[:truck_type],
-      isFreightMode: domestic_result[:truck_type].include?("Truck"),
+      appliedZone: overseas_result[:applied_zone],
+      transitTime: overseas_result[:transit_time],
+      domesticTruckType: "N/A",
+      isFreightMode: false,
       warnings: user_warnings,
       breakdown: {
-        domesticBase: domestic_result[:domestic_base],
-        domesticSurcharge: domestic_result[:domestic_surcharge],
+        domesticBase: 0,
+        domesticSurcharge: 0,
         packingMaterial: item_result[:packing_material_cost],
         packingLabor: item_result[:packing_labor_cost],
         packingFumigation: packing_fumigation_cost,
         handlingFees: final_handling_fee,
-        upsBase: ups_result[:ups_base],
-        upsFsc: ups_result[:ups_fsc],
-        upsWarRisk: ups_result[:ups_war_risk],
+        upsBase: overseas_result[:intl_base],
+        upsFsc: overseas_result[:intl_fsc],
+        upsWarRisk: overseas_result[:intl_war_risk],
         upsSurge: item_result[:ups_surge_cost],
         destDuty: dest_duty,
         totalCost: total_cost_amount

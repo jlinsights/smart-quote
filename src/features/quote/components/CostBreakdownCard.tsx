@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { QuoteResult } from '@/types';
-import { Calculator, Truck, Edit3, PackageCheck, HelpCircle, X, Plane, BoxSelect, TrendingUp, Info } from 'lucide-react';
+import { Calculator, Edit3, PackageCheck, HelpCircle, X, Plane, BoxSelect, TrendingUp, Info } from 'lucide-react';
 import { UI_TEXT } from '@/config/text';
 import { resultStyles } from './result-styles';
 
 interface Props {
   result: QuoteResult;
-  onDomesticCostChange: (newCost: number) => void;
   onPackingCostChange: (newCost: number) => void;
   onMarginChange: (newMargin: number) => void;
 }
 
-export const CostBreakdownCard: React.FC<Props> = ({ result, onDomesticCostChange, onPackingCostChange, onMarginChange }) => {
+export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange, onMarginChange }) => {
   const [showPackingInfo, setShowPackingInfo] = useState(false);
   const { cardClass } = resultStyles;
 
@@ -38,37 +37,6 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onDomesticCostChang
                 <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Cost Basis</h4>
                 <div className="space-y-4 pl-3 border-l-2 border-dashed border-gray-200 dark:border-gray-700">
                     
-                    {/* ez Domestic */}
-                    <div className="flex justify-between items-start text-gray-700 dark:text-gray-300 group">
-                        <div className="flex items-center">
-                            <Truck className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
-                            <div className="flex flex-col">
-                                <span>Domestic (ez)</span>
-                                <span className="text-[10px] text-gray-400 mt-0.5 max-w-[120px] leading-tight">{result.domesticTruckType}</span>
-                            </div>
-                        </div>
-                        <div className="text-right flex items-center">
-                             {/* Manual Input for Domestic Cost */}
-                             <div className="relative">
-                                <input
-                                    type="number"
-                                    value={result.breakdown.domesticBase}
-                                    onChange={(e) => onDomesticCostChange(Number(e.target.value))}
-                                    className="w-24 text-right text-sm font-medium border-b border-gray-300 dark:border-gray-600 bg-transparent focus:border-jways-500 focus:ring-0 p-0 pr-1 hover:border-gray-400 transition-colors"
-                                />
-                                <Edit3 className="w-3 h-3 text-gray-300 absolute -right-4 top-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                             </div>
-                        </div>
-                    </div>
-
-                    {/* Surcharge Line (if any) */}
-                    {result.breakdown.domesticSurcharge > 0 && (
-                        <div className="flex justify-between items-center text-gray-500 dark:text-gray-400 text-xs pl-6">
-                            <span>+ Island/Remote Surcharge</span>
-                            <span>{formatCurrency(result.breakdown.domesticSurcharge)}</span>
-                        </div>
-                    )}
-
                     {/* Packing */}
                     <div className="flex flex-col space-y-2">
                         <div className="flex justify-between items-center text-gray-700 dark:text-gray-300 group">
@@ -117,12 +85,12 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onDomesticCostChang
                         )}
                     </div>
 
-                    {/* UPS International */}
+                    {/* Overseas Carrier */}
                     <div className="flex flex-col space-y-1">
                         <div className="flex justify-between items-start text-gray-700 dark:text-gray-300">
                             <div className="flex items-center">
                                 <Plane className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
-                                <span>Intl. Freight (UPS)</span>
+                                <span>Intl. Freight ({result.appliedZone.includes('E-MAX') ? 'E-MAX' : (result.appliedZone.includes('DHL') || result.transitTime.includes('DHL') ? 'DHL' : 'UPS')})</span>
                             </div>
                             <div className="text-right">
                                 <span className="block font-medium">{formatCurrency(upsTotalCost)}</span>
@@ -133,7 +101,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onDomesticCostChang
                             <div className="flex justify-between items-center text-amber-600 dark:text-amber-500 text-xs pl-6 animate-pulse">
                                 <div className="flex items-center">
                                     <BoxSelect className="w-3 h-3 mr-1" />
-                                    <span>UPS Demand/Surge Fees</span>
+                                    <span>Demand/Surge Fees</span>
                                 </div>
                                 <span>{formatCurrency(result.breakdown.upsSurge)}</span>
                             </div>

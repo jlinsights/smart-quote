@@ -9,37 +9,40 @@ module Calculators
     end
 
     def call
-      # C3: China (South Excluded), Macau, Taiwan
-      return result('C3', 'China/Taiwan') if ['CN', 'MO', 'TW'].include?(@country)
+      # Zone 1: 싱가포르, 대만, 마카오, 중국
+      return result('Z1', 'SG/TW/MO/CN') if %w[SG TW MO CN].include?(@country)
 
-      # C4: Japan, Vietnam, Singapore, Malaysia, Philippines
-      return result('C4', 'Japan/SE Asia 1') if ['JP', 'VN', 'SG', 'MY', 'PH'].include?(@country)
+      # Zone 2: 일본, 베트남
+      return result('Z2', 'JP/VN') if %w[JP VN].include?(@country)
 
-      # C5: Brunei, Indonesia
-      return result('C5', 'Indonesia/Brunei') if ['BN', 'ID'].include?(@country)
+      # Zone 3: 태국, 필리핀
+      return result('Z3', 'TH/PH') if %w[TH PH].include?(@country)
 
-      # C6: Australia, India, New Zealand
-      return result('C6', 'Australia/India') if ['AU', 'IN', 'NZ'].include?(@country)
+      # Zone 4: 호주, 인도
+      return result('Z4', 'AU/IN') if %w[AU IN].include?(@country)
 
-      # C7: USA, Canada, Mexico, Puerto Rico
-      return result('C7', 'North America') if ['US', 'CA', 'MX', 'PR'].include?(@country)
+      # Zone 5: 캐나다, 미국
+      return result('Z5', 'CA/US') if %w[CA US].include?(@country)
 
-      # C8: Major EU (BE, CZ, GB, FR, DE, IT, MC, NL, ES)
-      return result('C8', 'Europe (Major)') if ['BE', 'CZ', 'GB', 'FR', 'DE', 'IT', 'MC', 'NL', 'ES'].include?(@country)
+      # Zone 6: 스페인, 이태리, 영국, 프랑스
+      return result('Z6', 'ES/IT/GB/FR') if %w[ES IT GB FR].include?(@country)
 
-      # C9: Other EU (AT, DK, FI, GR, IE, NO, PT, SE, CH)
-      return result('C9', 'Europe (Other)') if ['AT', 'DK', 'FI', 'GR', 'IE', 'NO', 'PT', 'SE', 'CH'].include?(@country)
-
-      # C10: Rest of World Group 1 (Middle East, S.America)
-      if ['AR', 'BH', 'BR', 'KH', 'CL', 'CO', 'EG', 'IL', 'JO', 'LB', 'TR', 'SA', 'ZA', 'AE'].include?(@country)
-        return result('C10', 'Middle East/S.America')
+      # Zone 7: 동유럽, 덴마크, 노르웨이 (그리고 나머지 주요 서유럽도 여기에 편입)
+      if %w[DK NO SE FI DE NL BE IE CH AT PT CZ PL HU RO BG].include?(@country)
+        return result('Z7', 'EEU/DK/NO')
       end
 
-      # C11: Hong Kong, Albania... (Seems mix of Others)
-      return result('C11', 'Hong Kong/Others') if ['HK', 'AL'].include?(@country)
+      # Zone 8: 남미, AE, TR
+      return result('Z8', 'S.Am/AE/TR') if %w[AR BR CL CO AE TR].include?(@country)
 
-      # Default catch-all (Expensive Zone)
-      result('C10', 'Rest of World')
+      # Zone 9: 아프리카, 중동, 파키스탄
+      return result('Z9', 'Africa/ME/PK') if %w[ZA EG BH IL JO LB SA PK].include?(@country)
+
+      # Zone 10: 홍콩
+      return result('Z10', 'HK') if %w[HK].include?(@country)
+
+      # Default catch-all
+      result('Z10', 'Rest of World')
     end
 
     private

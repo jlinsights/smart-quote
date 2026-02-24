@@ -30,8 +30,6 @@ export enum Incoterm {
     originCountry: string;
     destinationCountry: string;
     destinationZip: string;
-    domesticRegionCode: DomesticRegionCode; 
-    isJejuPickup: boolean;
     incoterm: Incoterm;
     packingType: PackingType;
     items: CargoItem[];
@@ -41,9 +39,9 @@ export enum Incoterm {
     // Market Variables
     exchangeRate: number; // KRW per USD
     fscPercent: number; // Fuel Surcharge %
+    overseasCarrier?: 'UPS' | 'DHL' | 'EMAX';
 
     // Manual Overrides
-    manualDomesticCost?: number; // Optional manual override for domestic leg
     manualPackingCost?: number; // Optional manual override for packing & docs
   }
   

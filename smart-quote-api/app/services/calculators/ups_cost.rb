@@ -24,11 +24,11 @@ module Calculators
       ups_war_risk = ups_base * Constants::Rates::WAR_RISK_SURCHARGE_RATE
 
       {
-        ups_base: ups_base,
-        ups_fsc: ups_fsc,
-        ups_war_risk: ups_war_risk,
+        intl_base: ups_base,
+        intl_fsc: ups_fsc,
+        intl_war_risk: ups_war_risk,
         applied_zone: zone_info[:label],
-        transit_time: '3-5 Business Days'
+        transit_time: 'UPS 3-5 Business Days'
       }
     end
 

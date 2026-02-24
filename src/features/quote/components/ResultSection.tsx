@@ -8,12 +8,11 @@ import { CostBreakdownCard } from './CostBreakdownCard';
 interface Props {
   result: QuoteResult;
   onMarginChange: (newMargin: number) => void;
-  onDomesticCostChange: (newCost: number) => void;
   onPackingCostChange: (newCost: number) => void;
   onDownloadPdf: () => void;
 }
 
-export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onDomesticCostChange, onPackingCostChange, onDownloadPdf }) => {
+export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onPackingCostChange, onDownloadPdf }) => {
   return (
     <div className="space-y-6 sticky top-6">
       <QuoteSummaryCard result={result} onDownloadPdf={onDownloadPdf} />
@@ -21,7 +20,6 @@ export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onDomes
       <KeyMetricsGrid result={result} />
       <CostBreakdownCard 
         result={result} 
-        onDomesticCostChange={onDomesticCostChange} 
         onPackingCostChange={onPackingCostChange} 
         onMarginChange={onMarginChange} 
       />

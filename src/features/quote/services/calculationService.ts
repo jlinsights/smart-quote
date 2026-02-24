@@ -3,14 +3,12 @@ import {
   QuoteResult, 
   PackingType, 
   Incoterm,
-  CargoItem,
-  DomesticRegionCode
+  CargoItem
 } from "@/types";
 import { 
   WAR_RISK_SURCHARGE_RATE, 
   HANDLING_FEE, 
   FUMIGATION_FEE,
-  DOMESTIC_RATES,
   SURGE_RATES,
   DEFAULT_EXCHANGE_RATE,
   PACKING_MATERIAL_BASE_COST,
@@ -19,8 +17,7 @@ import {
 import {
   SURGE_THRESHOLDS,
   PACKING_WEIGHT_BUFFER,
-  PACKING_WEIGHT_ADDITION,
-  TRUCK_TIER_LIMITS
+  PACKING_WEIGHT_ADDITION
 } from "@/config/business-rules";
 
 // --- Types for Internal Calculations ---
@@ -34,13 +31,6 @@ interface ItemCalculationResult {
   warnings: string[];
 }
 
-interface DomesticCalculationResult {
-  domesticBase: number;
-  domesticSurcharge: number;
-  truckType: string;
-  warnings: string[];
-}
-
 interface UpsCalculationResult {
   upsBase: number;
   upsFsc: number;
@@ -51,8 +41,8 @@ interface UpsCalculationResult {
 
 // --- Helper Functions ---
 
-export const calculateVolumetricWeight = (l: number, w: number, h: number) => {
-  return (Math.ceil(l) * Math.ceil(w) * Math.ceil(h)) / 5000;
+export const calculateVolumetricWeight = (l: number, w: number, h: number, divisor: number = 5000) => {
+  return (Math.ceil(l) * Math.ceil(w) * Math.ceil(h)) / divisor;
 };
 
 export const calculateCBM = (l: number, w: number, h: number) => {
@@ -152,7 +142,7 @@ export const calculateItemSurge = (
     return { surgeCost, warnings };
 };
 
-export const calculateItemCosts = (items: CargoItem[], packingType: PackingType, manualPackingCost?: number): ItemCalculationResult => {
+export const calculateItemCosts = (items: CargoItem[], packingType: PackingType, manualPackingCost?: number, volumetricDivisor: number = 5000): ItemCalculationResult => {
   let totalActualWeight = 0;
   let totalPackedVolumetricWeight = 0;
   let totalCBM = 0;
@@ -193,7 +183,7 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
     }
 
     totalActualWeight += weight * item.quantity;
-    totalPackedVolumetricWeight += calculateVolumetricWeight(l, w, h) * item.quantity;
+    totalPackedVolumetricWeight += calculateVolumetricWeight(l, w, h, volumetricDivisor) * item.quantity;
     totalCBM += calculateCBM(l, w, h) * item.quantity;
   });
 
@@ -213,77 +203,6 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
     warnings
   };
 };
-
-export const calculateDomesticCosts = (
-  totalActualWeight: number, 
-  totalCBM: number, 
-  regionCode: DomesticRegionCode, 
-  isJejuPickup: boolean, 
-  manualDomesticCost?: number,
-  itemCount: number = 1
-): DomesticCalculationResult => {
-    let domesticBase = 0;
-    let domesticSurcharge = 0;
-    let truckType = "Parcel/Small";
-    const warnings: string[] = [];
-    
-    const rates = DOMESTIC_RATES[regionCode] || DOMESTIC_RATES['A'];
-    
-    let tierIndex = TRUCK_TIER_LIMITS.findIndex(limit => 
-        totalActualWeight <= limit.maxWeight && totalCBM <= limit.maxCBM
-    );
-
-    if (tierIndex === -1) {
-        tierIndex = TRUCK_TIER_LIMITS.length - 1;
-        truckType = "11t Truck (Overweight)";
-        warnings.push("Cargo exceeds 11t. Multiple trucks may be required. Quoted at max single truck rate.");
-    } else {
-        truckType = TRUCK_TIER_LIMITS[tierIndex].label;
-    }
-
-    let selectedRate = rates[tierIndex];
-
-    if (manualDomesticCost !== undefined && manualDomesticCost > 0) {
-        domesticBase = manualDomesticCost;
-        truckType = `${truckType} (Manual Rate)`;
-    } else {
-        if (selectedRate === 0) {
-            let upgradedIndex = -1;
-            for (let i = tierIndex + 1; i < rates.length; i++) {
-                if (rates[i] > 0) {
-                    selectedRate = rates[i];
-                    upgradedIndex = i;
-                    break;
-                }
-            }
-
-            if (upgradedIndex !== -1) {
-                domesticBase = selectedRate;
-                truckType = `${TRUCK_TIER_LIMITS[upgradedIndex].label} (Auto-Upgrade)`;
-                warnings.push(`Standard rate unavailable for Region ${regionCode}. Defaulted to ${TRUCK_TIER_LIMITS[upgradedIndex].label}. Please negotiate and enter 'Domestic Cost' manually.`);
-                tierIndex = upgradedIndex; 
-            } else {
-                warnings.push(`No valid domestic rate found for Region ${regionCode}.`);
-            }
-        } else {
-            domesticBase = selectedRate;
-        }
-    }
-
-    if (isJejuPickup) {
-        if (tierIndex >= 2) {
-             domesticSurcharge = domesticBase * 1.0; 
-             warnings.push("Jeju/Island Pickup: 100% Surcharge applied for ferry and remote trucking.");
-        } else {
-             domesticSurcharge = 3000 * itemCount;
-             if (domesticSurcharge === 0) domesticSurcharge = 50000; 
-             warnings.push("Jeju/Island Pickup: Parcel surcharge applied.");
-        }
-    }
-
-    return { domesticBase, domesticSurcharge, truckType, warnings };
-};
-
 
 import { UPS_EXACT_RATES, UPS_RANGE_RATES } from "@/config/ups_tariff";
 
@@ -360,8 +279,11 @@ export const calculateUpsCosts = (
 // --- Main Orchestrator ---
 
 export const calculateQuote = (input: QuoteInput): QuoteResult => {
+  const isEmax = input.overseasCarrier === 'EMAX';
+  const volumetricDivisor = isEmax ? 6000 : 5000;
+
   // 1. Calculate Item Costs (Packing, Surge, Weights)
-  const itemResult = calculateItemCosts(input.items, input.packingType, input.manualPackingCost);
+  const itemResult = calculateItemCosts(input.items, input.packingType, input.manualPackingCost, volumetricDivisor);
   
   let packingFumigationCost = 0;
   if (input.packingType !== PackingType.NONE) {
@@ -385,18 +307,6 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
     userWarnings.push("High Volumetric Weight Detected (>20% over actual). Consider Repacking.");
   }
 
-  // 3. Domestic Costs
-  const totalItemsCount = input.items.reduce((acc, i) => acc + i.quantity, 0);
-  const domesticResult = calculateDomesticCosts(
-    itemResult.totalActualWeight, 
-    itemResult.totalCBM, 
-    input.domesticRegionCode, 
-    input.isJejuPickup, 
-    input.manualDomesticCost,
-    totalItemsCount
-  );
-  userWarnings.push(...domesticResult.warnings);
-
   // 4. UPS Costs
   const upsResult = calculateUpsCosts(billableWeight, input.destinationCountry, input.fscPercent);
   const upsTotal = upsResult.upsBase + upsResult.upsFsc + upsResult.upsWarRisk + itemResult.upsSurgeCost;
@@ -408,12 +318,11 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   }
 
   // 6. Totals
-  const domesticTotal = domesticResult.domesticBase + domesticResult.domesticSurcharge;
-  const totalCostAmount = domesticTotal + packingTotal + finalHandlingFee + upsTotal + destDuty;
+  const totalCostAmount = packingTotal + finalHandlingFee + upsTotal + destDuty;
   
   let quoteBasisCost = 0;
   if ([Incoterm.EXW, Incoterm.FOB].includes(input.incoterm)) {
-     quoteBasisCost = domesticTotal + packingTotal + finalHandlingFee;
+     quoteBasisCost = packingTotal + finalHandlingFee;
      userWarnings.push("Collect Term: International Freight calculated for reference but may be billed to Consignee/Partner.");
   } else {
      quoteBasisCost = totalCostAmount;
@@ -453,12 +362,12 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
     billableWeight,
     appliedZone: upsResult.appliedZone,
     transitTime: upsResult.transitTime,
-    domesticTruckType: domesticResult.truckType,
-    isFreightMode: domesticResult.truckType.includes("Truck"),
+    domesticTruckType: 'N/A',
+    isFreightMode: false,
     warnings: userWarnings,
     breakdown: {
-      domesticBase: domesticResult.domesticBase,
-      domesticSurcharge: domesticResult.domesticSurcharge,
+      domesticBase: 0,
+      domesticSurcharge: 0,
       packingMaterial: itemResult.packingMaterialCost,
       packingLabor: itemResult.packingLaborCost,
       packingFumigation: packingFumigationCost,
