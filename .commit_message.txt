@@ -1,1 +1,1 @@
-🔧 fix: TypeScript 컴파일 에러 7건 수정 (중복 import, 누락 props, 미사용 prop 제거)
+📝 chore: CLAUDE.md 생성 (프로젝트 아키텍처, 개발 명령어, 비즈니스 로직 가이드)
