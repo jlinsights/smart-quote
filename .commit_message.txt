@@ -1,1 +1,1 @@
-🔧 refactor: FinancialSection 자동 fetch 제거 → Exchange Rate, FSC, Target Margin 순수 매뉴얼 입력으로 전환
+⚡ fix: 견적 계산을 백엔드 API → 프론트엔드 useMemo 즉시 계산으로 전환, "Updating..." 무한 로딩 해결

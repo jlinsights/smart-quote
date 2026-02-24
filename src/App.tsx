@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { QuoteInput, QuoteResult, Incoterm, PackingType } from './types';
 import { generatePDF } from '@/lib/pdfService';
-import { fetchQuote } from '@/api/quoteApi';
+import { calculateQuote } from '@/features/quote/services/calculationService';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { QuoteHistoryPage } from '@/features/history/components/QuoteHistoryPage';
 import { SaveQuoteButton } from '@/features/quote/components/SaveQuoteButton';
@@ -39,26 +39,15 @@ const App: React.FC = () => {
   };
 
   const [input, setInput] = useState<QuoteInput>(initialInput);
-  const [result, setResult] = useState<QuoteResult | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await fetchQuote(input);
-        setResult(data);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to calculate quote. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
+  // Instant frontend calculation — pure function, no API dependency
+  const result = useMemo<QuoteResult | null>(() => {
+    try {
+      return calculateQuote(input);
+    } catch (err) {
+      console.error('Calculation error:', err);
+      return null;
+    }
   }, [input]);
 
   const handleMarginChange = (newMargin: number) => {
@@ -247,17 +236,6 @@ const App: React.FC = () => {
         </footer>
       </div>
 
-      {isLoading && (
-        <div className="fixed top-20 right-4 bg-jways-600 text-white px-4 py-2 rounded-lg shadow-lg text-xs font-bold z-50 flex items-center animate-pulse">
-          <div className="w-2 h-2 bg-white rounded-full mr-2 animate-bounce"></div>
-          Updating...
-        </div>
-      )}
-      {error && (
-        <div className="fixed top-20 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg text-xs font-bold z-50">
-          {error}
-        </div>
-      )}
     </div>
   );
 };
