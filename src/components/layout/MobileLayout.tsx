@@ -88,7 +88,7 @@ export const MobileLayout: React.FC<Props> = ({
               <div>
                  <div className="mb-6">
                     <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Shipment Configuration</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Enter cargo details to generate domestic (ez) and overseas (UPS) integrated quote.</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Enter cargo details to generate overseas (UPS, DHL, E-MAX) integrated quote.</p>
                  </div>
                  
                  <InputSection input={input} onChange={setInput} isMobileView={true} effectiveMarginPercent={result?.profitMargin} />
