@@ -1,6 +1,6 @@
 import React from 'react';
 import { QuoteDetail } from '@/types';
-import { X, Package, MapPin, DollarSign, TrendingUp, Truck } from 'lucide-react';
+import { X, Package, DollarSign, TrendingUp } from 'lucide-react';
 
 interface Props {
   quote: QuoteDetail;

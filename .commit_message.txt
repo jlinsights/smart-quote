@@ -1,1 +1,1 @@
-📝 chore: CLAUDE.md 생성 (프로젝트 아키텍처, 개발 명령어, 비즈니스 로직 가이드)
+🔧 fix: ESLint 오류 3건 수정 (ts-expect-error 설명 추가, 미사용 import 제거)

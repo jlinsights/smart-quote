@@ -1,6 +1,6 @@
 import { QuoteInput, QuoteResult, QuoteDetail, QuoteListResponse, QuoteListParams } from "@/types";
 
-// @ts-expect-error
+// @ts-expect-error -- Vite injects import.meta.env at build time
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export class QuoteApiError extends Error {
