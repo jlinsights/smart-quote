@@ -3,15 +3,16 @@ module Calculators
     include Constants::Rates
     include Constants::BusinessRules
 
-    def self.call(items:, packing_type:, manual_packing_cost: nil, volumetric_divisor: 5000)
-      new(items, packing_type, manual_packing_cost, volumetric_divisor).call
+    def self.call(items:, packing_type:, manual_packing_cost: nil, volumetric_divisor: 5000, carrier: 'UPS')
+      new(items, packing_type, manual_packing_cost, volumetric_divisor, carrier).call
     end
 
-    def initialize(items, packing_type, manual_packing_cost, volumetric_divisor)
+    def initialize(items, packing_type, manual_packing_cost, volumetric_divisor, carrier)
       @items = items
       @packing_type = packing_type
       @manual_packing_cost = manual_packing_cost
       @volumetric_divisor = volumetric_divisor
+      @carrier = carrier
     end
 
     def call
@@ -47,18 +48,22 @@ module Calculators
           end
         end
 
-        quantity.times do |q|
-          surge_result = Calculators::SurgeCost.call(
-            length: l, 
-            width: w, 
-            height: h, 
-            weight: weight, 
-            packing_type: @packing_type, 
-            item_index: index
-          )
-          ups_surge_cost += surge_result[:surge_cost]
-          if q == 0
-            warnings.concat(surge_result[:warnings])
+        # Surge charges are UPS-specific (AHS, Large Package, Over Max).
+        # DHL and EMAX have different surcharge structures not modeled here.
+        if @carrier == 'UPS'
+          quantity.times do |q|
+            surge_result = Calculators::SurgeCost.call(
+              length: l,
+              width: w,
+              height: h,
+              weight: weight,
+              packing_type: @packing_type,
+              item_index: index
+            )
+            ups_surge_cost += surge_result[:surge_cost]
+            if q == 0
+              warnings.concat(surge_result[:warnings])
+            end
           end
         end
 

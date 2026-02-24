@@ -49,24 +49,32 @@ describe('calculationService', () => {
   // --- Zone Mapping Tests ---
 
   describe('determineUpsZone', () => {
-    it('maps US to North America zone', () => {
-      expect(determineUpsZone('US')).toEqual({ rateKey: 'C7', label: 'North America' });
+    it('maps US to Z5 (CA/US)', () => {
+      expect(determineUpsZone('US')).toEqual({ rateKey: 'Z5', label: 'CA/US' });
     });
 
-    it('maps CN to China/Taiwan zone', () => {
-      expect(determineUpsZone('CN')).toEqual({ rateKey: 'C3', label: 'China/Taiwan' });
+    it('maps CN to Z1 (SG/TW/MO/CN)', () => {
+      expect(determineUpsZone('CN')).toEqual({ rateKey: 'Z1', label: 'SG/TW/MO/CN' });
     });
 
-    it('maps JP to Japan/SE Asia zone', () => {
-      expect(determineUpsZone('JP')).toEqual({ rateKey: 'C4', label: 'Japan/SE Asia 1' });
+    it('maps JP to Z2 (JP/VN)', () => {
+      expect(determineUpsZone('JP')).toEqual({ rateKey: 'Z2', label: 'JP/VN' });
     });
 
-    it('maps HK to Hong Kong/Others zone', () => {
-      expect(determineUpsZone('HK')).toEqual({ rateKey: 'C11', label: 'Hong Kong/Others' });
+    it('maps HK to Z10 (HK)', () => {
+      expect(determineUpsZone('HK')).toEqual({ rateKey: 'Z10', label: 'HK' });
     });
 
-    it('maps unknown country to Rest of World (C10)', () => {
-      expect(determineUpsZone('XX')).toEqual({ rateKey: 'C10', label: 'Rest of World' });
+    it('maps TH to Z3 (TH/PH)', () => {
+      expect(determineUpsZone('TH')).toEqual({ rateKey: 'Z3', label: 'TH/PH' });
+    });
+
+    it('maps SG to Z1 (not Z2)', () => {
+      expect(determineUpsZone('SG')).toEqual({ rateKey: 'Z1', label: 'SG/TW/MO/CN' });
+    });
+
+    it('maps unknown country to Rest of World (Z10)', () => {
+      expect(determineUpsZone('XX')).toEqual({ rateKey: 'Z10', label: 'Rest of World' });
     });
   });
 

@@ -18,10 +18,8 @@ module Calculators
       
       fsc_rate = (@fsc_percent || 0).to_f / 100
       dhl_fsc = dhl_base * fsc_rate
-      # DHL has its own war risk or peak fees, but for simplicity we will map it assuming the same param if needed or 0 if it's strictly included.
-      # The user's system charges 5% War Risk for UPS. Does DHL have it? The PDF didn't explicitly show WAR_RISK, 
-      # but let's assume it applies the same standard Constant if they are all identical or just 0 for DHL for now.
-      # We will keep it exactly identical to UPS for now the `dhl_war_risk` so the frontend doesn't break, maybe set it to 0.
+      # DHL Emergency Situation Surcharge (ESS) — using same 5% rate as UPS war risk.
+      # Update this constant when DHL publishes different ESS rates.
       dhl_war_risk = dhl_base * Constants::Rates::WAR_RISK_SURCHARGE_RATE
 
       {
@@ -29,7 +27,7 @@ module Calculators
         intl_fsc: dhl_fsc,
         intl_war_risk: dhl_war_risk,
         applied_zone: zone_info[:label],
-        transit_time: 'DHL E-MAX'
+        transit_time: 'DHL Express 3-7 Days'
       }
     end
 

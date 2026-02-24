@@ -1,1 +1,1 @@
-✨ feat: 멀티캐리어 견적 계산 구현 (DHL/EMAX 추가, 타입 리팩토링, 데드코드 제거)
+🔧 fix: UPS zone 키 Z1-Z10 정렬 + 백엔드 요율 동기화 + mapBreakdown 테스트 추가

@@ -20,7 +20,8 @@ class QuoteCalculator
       items: @input[:items],
       packing_type: @input[:packingType] || 'NONE',
       manual_packing_cost: @input[:manualPackingCost],
-      volumetric_divisor: volumetric_divisor
+      volumetric_divisor: volumetric_divisor,
+      carrier: carrier
     )
 
     packing_fumigation_cost = 0
@@ -42,6 +43,11 @@ class QuoteCalculator
 
     if item_result[:total_packed_volumetric_weight] > item_result[:total_actual_weight] * 1.2
       user_warnings << "High Volumetric Weight Detected (>20% over actual). Consider Repacking."
+    end
+
+    # EMAX only services CN/VN routes from Korea
+    if carrier == 'EMAX' && !['CN', 'VN'].include?(@input[:destinationCountry])
+      user_warnings << "EMAX only services China (CN) and Vietnam (VN). Using VN fallback rate — verify with carrier."
     end
 
     # 3. Domestic Costs (Removed per User Request)

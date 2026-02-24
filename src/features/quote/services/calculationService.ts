@@ -50,38 +50,41 @@ export const calculateCBM = (l: number, w: number, h: number) => {
 };
 
 export const determineUpsZone = (country: string): { rateKey: string; label: string } => {
-   // Mapping based on "수출 EXPRESS SAVER" Tariff (2025)
-   
-   // C3: China (South Excluded), Macau, Taiwan
-   if (['CN', 'MO', 'TW'].includes(country)) return { rateKey: 'C3', label: 'China/Taiwan' };
+   // Aligned with backend Calculators::UpsZone (Z1-Z10)
 
-   // C4: Japan, Vietnam, Singapore, Malaysia, Philippines
-   if (['JP', 'VN', 'SG', 'MY', 'PH'].includes(country)) return { rateKey: 'C4', label: 'Japan/SE Asia 1' };
+   // Z1: SG, TW, MO, CN
+   if (['SG', 'TW', 'MO', 'CN'].includes(country)) return { rateKey: 'Z1', label: 'SG/TW/MO/CN' };
 
-   // C5: Brunei, Indonesia
-   if (['BN', 'ID'].includes(country)) return { rateKey: 'C5', label: 'Indonesia/Brunei' };
+   // Z2: JP, VN
+   if (['JP', 'VN'].includes(country)) return { rateKey: 'Z2', label: 'JP/VN' };
 
-   // C6: Australia, India, New Zealand
-   if (['AU', 'IN', 'NZ'].includes(country)) return { rateKey: 'C6', label: 'Australia/India' };
+   // Z3: TH, PH
+   if (['TH', 'PH'].includes(country)) return { rateKey: 'Z3', label: 'TH/PH' };
 
-   // C7: USA, Canada, Mexico, Puerto Rico
-   if (['US', 'CA', 'MX', 'PR'].includes(country)) return { rateKey: 'C7', label: 'North America' };
+   // Z4: AU, IN
+   if (['AU', 'IN'].includes(country)) return { rateKey: 'Z4', label: 'AU/IN' };
 
-   // C8: Major EU (BE, CZ, GB, FR, DE, IT, MC, NL)
-   if (['BE', 'CZ', 'GB', 'FR', 'DE', 'IT', 'MC', 'NL', 'ES'].includes(country)) return { rateKey: 'C8', label: 'Europe (Major)' };
+   // Z5: CA, US
+   if (['CA', 'US'].includes(country)) return { rateKey: 'Z5', label: 'CA/US' };
 
-   // C9: Other EU (AT, DK, FI, GR, IE, NO, PT)
-   if (['AT', 'DK', 'FI', 'GR', 'IE', 'NO', 'PT', 'SE', 'CH'].includes(country)) return { rateKey: 'C9', label: 'Europe (Other)' };
+   // Z6: ES, IT, GB, FR
+   if (['ES', 'IT', 'GB', 'FR'].includes(country)) return { rateKey: 'Z6', label: 'ES/IT/GB/FR' };
 
-   // C10: Rest of World Group 1 (Middle East, S.America)
-   // Sample: AR, BH, BR, KH, CL, CO, EG, IL, JO, LB...
-   if (['AR', 'BH', 'BR', 'KH', 'CL', 'CO', 'EG', 'IL', 'JO', 'LB', 'TR', 'SA', 'ZA', 'AE'].includes(country)) return { rateKey: 'C10', label: 'Middle East/S.America' };
+   // Z7: DK, NO, SE, FI, DE, NL, BE, IE, CH, AT, PT, CZ, PL, HU, RO, BG
+   if (['DK', 'NO', 'SE', 'FI', 'DE', 'NL', 'BE', 'IE', 'CH', 'AT', 'PT', 'CZ', 'PL', 'HU', 'RO', 'BG'].includes(country))
+     return { rateKey: 'Z7', label: 'EEU/DK/NO' };
 
-   // C11: Hong Kong, Albania... (Seems mix of Others)
-   if (['HK', 'AL'].includes(country)) return { rateKey: 'C11', label: 'Hong Kong/Others' };
+   // Z8: AR, BR, CL, CO, AE, TR
+   if (['AR', 'BR', 'CL', 'CO', 'AE', 'TR'].includes(country)) return { rateKey: 'Z8', label: 'S.Am/AE/TR' };
 
-   // Default catch-all (Expensive Zone)
-   return { rateKey: 'C10', label: 'Rest of World' };
+   // Z9: ZA, EG, BH, IL, JO, LB, SA, PK
+   if (['ZA', 'EG', 'BH', 'IL', 'JO', 'LB', 'SA', 'PK'].includes(country)) return { rateKey: 'Z9', label: 'Africa/ME/PK' };
+
+   // Z10: HK (+ default)
+   if (['HK'].includes(country)) return { rateKey: 'Z10', label: 'HK' };
+
+   // Default catch-all
+   return { rateKey: 'Z10', label: 'Rest of World' };
 };
 
 export const calculateItemSurge = (
@@ -142,7 +145,7 @@ export const calculateItemSurge = (
     return { surgeCost, warnings };
 };
 
-export const calculateItemCosts = (items: CargoItem[], packingType: PackingType, manualPackingCost?: number, volumetricDivisor: number = 5000): ItemCalculationResult => {
+export const calculateItemCosts = (items: CargoItem[], packingType: PackingType, manualPackingCost?: number, volumetricDivisor: number = 5000, carrier: string = 'UPS'): ItemCalculationResult => {
   let totalActualWeight = 0;
   let totalPackedVolumetricWeight = 0;
   let totalCBM = 0;
@@ -159,27 +162,30 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
 
     // Packing impact
     if (packingType !== PackingType.NONE) {
-      l += 10; 
-      w += 10; 
+      l += 10;
+      w += 10;
       h += 15;
-      weight = weight * PACKING_WEIGHT_BUFFER + PACKING_WEIGHT_ADDITION; 
-      
+      weight = weight * PACKING_WEIGHT_BUFFER + PACKING_WEIGHT_ADDITION;
+
       const surfaceAreaM2 = (2 * (l*w + l*h + w*h)) / 10000;
       packingMaterialCost += surfaceAreaM2 * PACKING_MATERIAL_BASE_COST * item.quantity;
       packingLaborCost += PACKING_LABOR_UNIT_COST * item.quantity;
-      
+
       if (packingType === PackingType.VACUUM) {
          packingLaborCost *= 1.5;
       }
     }
-    
-    // Surge Logic
-    for (let q = 0; q < item.quantity; q++) {
-        const surgeResult = calculateItemSurge(l, w, h, weight, packingType, index);
-        surgeCost += surgeResult.surgeCost;
-        if (q === 0) {
-            warnings.push(...surgeResult.warnings);
-        }
+
+    // Surge charges are UPS-specific (AHS, Large Package, Over Max).
+    // DHL and EMAX have different surcharge structures not modeled here.
+    if (carrier === 'UPS') {
+      for (let q = 0; q < item.quantity; q++) {
+          const surgeResult = calculateItemSurge(l, w, h, weight, packingType, index);
+          surgeCost += surgeResult.surgeCost;
+          if (q === 0) {
+              warnings.push(...surgeResult.warnings);
+          }
+      }
     }
 
     totalActualWeight += weight * item.quantity;
@@ -372,7 +378,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const volumetricDivisor = isEmax ? 6000 : 5000;
 
   // 1. Calculate Item Costs (Packing, Surge, Weights)
-  const itemResult = calculateItemCosts(input.items, input.packingType, input.manualPackingCost, volumetricDivisor);
+  const itemResult = calculateItemCosts(input.items, input.packingType, input.manualPackingCost, volumetricDivisor, carrier);
 
   let packingFumigationCost = 0;
   if (input.packingType !== PackingType.NONE) {
@@ -394,6 +400,11 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
 
   if (itemResult.totalPackedVolumetricWeight > itemResult.totalActualWeight * 1.2) {
     userWarnings.push("High Volumetric Weight Detected (>20% over actual). Consider Repacking.");
+  }
+
+  // EMAX only services CN/VN routes from Korea
+  if (carrier === 'EMAX' && !['CN', 'VN'].includes(input.destinationCountry)) {
+    userWarnings.push("EMAX only services China (CN) and Vietnam (VN). Using VN fallback rate — verify with carrier.");
   }
 
   // 3. Carrier Costs (routing by carrier)
