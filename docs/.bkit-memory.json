@@ -1,15 +1,16 @@
 {
-  "sessionCount": 2,
+  "sessionCount": 3,
   "lastSession": {
-    "startedAt": "2026-02-24T08:04:53.113Z",
+    "startedAt": "2026-02-24T08:22:21.232Z",
     "platform": "claude",
     "level": "Dynamic"
   },
   "activeFeatures": {
     "calculate-quote": {
-      "phase": "plan",
+      "phase": "design",
       "startedAt": "2026-02-24",
-      "planDoc": "docs/01-plan/features/calculate-quote.plan.md"
+      "planDoc": "docs/01-plan/features/calculate-quote.plan.md",
+      "designDoc": "docs/02-design/features/calculate-quote.design.md"
     }
   }
 }
