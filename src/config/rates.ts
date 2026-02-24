@@ -29,3 +29,4 @@ export const DEFAULT_FSC_PERCENT = 30.25;
 export const UPS_FSC_URL = "https://www.ups.com/kr/ko/support/shipping-support/shipping-costs-rates/fuel-surcharges.page";
 export const NAVER_EXCHANGE_RATE_URL = "https://finance.naver.com/marketindex/exchangeDetail.naver?marketindexCd=FX_USDKRW";
 export const UPS_RATES_HUB_URL = "https://www.ups.com/kr/ko/support/shipping-support/shipping-costs-rates";
+export const DHL_FSC_URL = "https://www.dhl.com/kr-ko/home/our-divisions/express/customer-support/shipping-advice/fuel-surcharge.html";

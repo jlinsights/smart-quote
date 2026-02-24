@@ -1,6 +1,6 @@
 import React from 'react';
 import { QuoteInput } from '@/types';
-import { UPS_FSC_URL } from '@/config/rates';
+import { UPS_FSC_URL, DHL_FSC_URL } from '@/config/rates';
 import { TrendingUp, ExternalLink } from 'lucide-react';
 import { inputStyles } from './input-styles';
 
@@ -24,15 +24,26 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
              <TrendingUp className="w-4 h-4 mr-2 text-jways-600 dark:text-jways-400" />
              Financial Factors
          </h3>
-         <a
-             href={UPS_FSC_URL}
-             target="_blank"
-             rel="noopener noreferrer"
-             className="text-[10px] sm:text-xs text-gray-500 hover:text-blue-600 flex items-center transition-colors"
-             title="Check Official UPS FSC"
-         >
-             UPS FSC <ExternalLink className="w-3 h-3 ml-1" />
-         </a>
+         <div className="flex items-center gap-3">
+             <a
+                 href={UPS_FSC_URL}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="text-[10px] sm:text-xs text-gray-500 hover:text-blue-600 flex items-center transition-colors"
+                 title="Check Official UPS FSC"
+             >
+                 UPS FSC <ExternalLink className="w-3 h-3 ml-1" />
+             </a>
+             <a
+                 href={DHL_FSC_URL}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="text-[10px] sm:text-xs text-gray-500 hover:text-yellow-600 flex items-center transition-colors"
+                 title="Check Official DHL Fuel Surcharge"
+             >
+                 DHL FSC <ExternalLink className="w-3 h-3 ml-1" />
+             </a>
+         </div>
       </div>
       <div className={financialGrid}>
          <div>

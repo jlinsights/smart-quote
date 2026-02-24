@@ -1,1 +1,1 @@
-🔧 refactor: Surge 자동계산 비활성화 → 수동 입력 전환 (manualSurgeCost), 향후 재활성화 가능하도록 코드 보존
+🔧 refactor: FinancialSection 자동 fetch 제거 → Exchange Rate, FSC, Target Margin 순수 매뉴얼 입력으로 전환
