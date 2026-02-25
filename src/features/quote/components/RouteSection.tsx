@@ -53,7 +53,7 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
           <div>
             <label className={lc}>Origin Country</label>
             <div className={`${ic} bg-gray-50 dark:bg-gray-600 text-gray-700 dark:text-gray-200 cursor-default flex items-center`}>
-                <span className="mr-1.5">🇰🇷</span> South Korea (KR)
+                <span className="mr-1.5">🇰🇷</span> South Korea
             </div>
           </div>
 
