@@ -6,7 +6,6 @@ import {
   CargoItem
 } from "@/types";
 import {
-  WAR_RISK_SURCHARGE_RATE,
   HANDLING_FEE,
   FUMIGATION_FEE,
   SURGE_RATES,
@@ -247,7 +246,7 @@ export const calculateUpsCosts = (
 
     const fscRate = (fscPercent || 0) / 100;
     const intlFsc = intlBase * fscRate;
-    const intlWarRisk = intlBase * WAR_RISK_SURCHARGE_RATE;
+    const intlWarRisk = 0;
 
     return {
       intlBase,
@@ -285,7 +284,7 @@ export const calculateDhlCosts = (
 
   const fscRate = (fscPercent || 0) / 100;
   const intlFsc = intlBase * fscRate;
-  const intlWarRisk = intlBase * WAR_RISK_SURCHARGE_RATE;
+  const intlWarRisk = 0;
 
   return {
     intlBase,
@@ -389,7 +388,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
 
   // 6. Margin & Revenue (USD-based)
   const exchangeRate = input.exchangeRate || DEFAULT_EXCHANGE_RATE;
-  const safeMarginUSD = Math.max(input.marginUSD ?? 50, 0);
+  const safeMarginUSD = Math.max(input.marginUSD ?? 40, 0);
   const marginKRW = safeMarginUSD * exchangeRate;
 
   const targetRevenue = quoteBasisCost + marginKRW;

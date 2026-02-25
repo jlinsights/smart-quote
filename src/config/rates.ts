@@ -5,7 +5,7 @@ export const SURGE_RATES = {
     OVER_MAX: 1200000     // Over Maximum Limits (Penalty)
 };
 
-export const HANDLING_FEE = 35000; 
+export const HANDLING_FEE = 0; 
 export const FUMIGATION_FEE = 30000;
 export const WAR_RISK_SURCHARGE_RATE = 0.05; // 5%
 export const PACKING_MATERIAL_BASE_COST = 15000; // per m2

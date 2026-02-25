@@ -104,6 +104,21 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
           </div>
 
           <div>
+            <label className={lc}>Shipping Mode</label>
+            <div className="relative">
+                <select
+                value={input.shippingMode || 'Door-to-Door'}
+                onChange={(e) => onFieldChange('shippingMode', e.target.value as QuoteInput['shippingMode'])}
+                className={`${ic} appearance-none`}
+                >
+                  <option value="Door-to-Door">Door-to-Door</option>
+                  <option value="Door-to-Airport">Door-to-Airport</option>
+                </select>
+                {selectChevron}
+            </div>
+          </div>
+
+          <div className="hidden">
             <label className={lc}>Incoterms</label>
             <div className="relative">
                 <select
@@ -117,8 +132,8 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
             </div>
           </div>
 
-          {/* Incoterm description */}
-          <div className="flex items-center">
+          {/* Incoterm description (hidden) */}
+          <div className="hidden items-center">
             <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-1">
               <span className="font-semibold text-gray-600 dark:text-gray-300">{input.incoterm}</span>
               {' — '}

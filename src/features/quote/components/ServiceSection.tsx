@@ -54,7 +54,7 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
         </div>
 
         <div>
-          <label className={lc}>Surge / AHS Fee (KRW)</label>
+          <label className={lc}>Surge / AHS / War Risk Fee (KRW)</label>
           <div className="relative">
               <input
                   type="number"

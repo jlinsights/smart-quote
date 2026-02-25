@@ -43,7 +43,7 @@ describe('pdfService', () => {
             incoterm: Incoterm.DAP,
             packingType: PackingType.NONE,
             items: [{ id: '1', width: 40, length: 50, height: 40, weight: 15, quantity: 1 }],
-            marginUSD: 50,
+            marginUSD: 40,
             dutyTaxEstimate: 0,
             exchangeRate: 1300,
             fscPercent: 15,

@@ -48,7 +48,7 @@ export const MobileLayout: React.FC<Props> = ({
              <img 
                src={isDarkMode ? "/goodman-gls-logo-dark.png" : "/goodman-gls-logo.png"} 
                alt="Goodman GLS" 
-               className="h-8 sm:h-10 w-auto object-contain" 
+               className="hidden h-8 sm:h-10 w-auto object-contain" 
              />
           </div>
           

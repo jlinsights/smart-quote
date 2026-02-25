@@ -15,12 +15,13 @@ const INITIAL_INPUT: QuoteInput = {
   originCountry: 'KR',
   destinationCountry: 'US',
   destinationZip: '',
+  shippingMode: 'Door-to-Door',
   incoterm: Incoterm.DAP,
   packingType: PackingType.NONE,
   items: [
     { id: '1', width: 10, length: 10, height: 10, weight: 1, quantity: 1 }
   ],
-  marginUSD: 50,
+  marginUSD: 40,
   dutyTaxEstimate: 0,
   exchangeRate: 1300,
   fscPercent: 30,
@@ -113,7 +114,7 @@ const App: React.FC = () => {
                 <img
                   src={isDarkMode ? "/goodman-gls-logo-dark.png" : "/goodman-gls-logo.png"}
                   alt="Goodman GLS"
-                  className="h-8 sm:h-10 w-auto object-contain"
+                  className="hidden h-8 sm:h-10 w-auto object-contain"
                 />
                 <div>
                   <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">

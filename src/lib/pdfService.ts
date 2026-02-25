@@ -46,7 +46,7 @@ const drawShipmentDetails = (doc: jsPDF, input: QuoteInput, yPos: number): numbe
   doc.text(`Origin: ${input.originCountry}`, MARGIN_X, yPos);
   doc.text(`Destination: ${countryLabel} (${input.destinationZip})`, 110, yPos);
   yPos = nextLine(yPos);
-  doc.text(`Incoterm: ${input.incoterm}`, MARGIN_X, yPos);
+  doc.text(`Shipping Mode: ${input.shippingMode || 'Door-to-Door'}`, MARGIN_X, yPos);
   doc.text(`Packing: ${input.packingType}`, 110, yPos);
   return nextLine(yPos, 15);
 };
@@ -121,7 +121,7 @@ const drawCostBreakdown = (doc: jsPDF, result: QuoteResult, yPos: number): numbe
   if (result.breakdown.intlSurge > 0) {
       doc.setTextColor(...COLORS.WARNING);
       doc.setFontSize(9);
-      doc.text(`  ↳ Includes Demand/Surge Fees: ${formatKRW(result.breakdown.intlSurge)}`, MARGIN_X, yPos);
+      doc.text(`  ↳ Includes Demand/Surge/War Risk Fees: ${formatKRW(result.breakdown.intlSurge)}`, MARGIN_X, yPos);
       doc.setFontSize(FONTS.SIZE_NORMAL);
       doc.setTextColor(0);
       yPos = nextLine(yPos);
@@ -140,7 +140,7 @@ const drawCostBreakdown = (doc: jsPDF, result: QuoteResult, yPos: number): numbe
   return nextLine(yPos, 6);
 };
 
-const drawQuoteSummary = (doc: jsPDF, result: QuoteResult, yPos: number): number => {
+const drawQuoteSummary = (doc: jsPDF, input: QuoteInput, result: QuoteResult, yPos: number): number => {
   doc.setDrawColor(...COLORS.PRIMARY);
   doc.setLineWidth(0.5);
   doc.line(MARGIN_X, yPos, 190, yPos);
@@ -169,7 +169,7 @@ const drawQuoteSummary = (doc: jsPDF, result: QuoteResult, yPos: number): number
   const isDhl = result.appliedZone.includes('DHL') || result.transitTime.includes('DHL');
   const carrierName = isEmax ? 'E-MAX' : (isDhl ? 'DHL' : 'UPS');
 
-  doc.text(`Service Level: ${carrierName} International (Door-to-Door)`, MARGIN_X, yPos);
+  doc.text(`Service Level: ${carrierName} International (${input.shippingMode || 'Door-to-Door'})`, MARGIN_X, yPos);
   yPos = nextLine(yPos);
   doc.text(`Applied Zone: ${result.appliedZone}`, MARGIN_X, yPos);
   yPos = nextLine(yPos);
@@ -213,7 +213,7 @@ export const generatePDF = (input: QuoteInput, result: QuoteResult, referenceNo?
   yPos = drawShipmentDetails(doc, input, yPos);
   yPos = drawCargoManifest(doc, input.items, result, yPos);
   yPos = drawCostBreakdown(doc, result, yPos);
-  yPos = drawQuoteSummary(doc, result, yPos);
+  yPos = drawQuoteSummary(doc, input, result, yPos);
   drawWarnings(doc, result.warnings, yPos);
   
   drawFooter(doc);

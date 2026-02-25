@@ -28,6 +28,7 @@ export enum Incoterm {
     destinationCountry: string;
     destinationZip: string;
     incoterm: Incoterm;
+    shippingMode?: 'Door-to-Door' | 'Door-to-Airport';
     packingType: PackingType;
     items: CargoItem[];
     marginUSD: number; // Target margin in USD (e.g. 50.00)

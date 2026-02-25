@@ -72,7 +72,7 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose }) => {
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
               <Field label="Origin" value={quote.originCountry} />
               <Field label="Destination" value={`${quote.destinationCountry} ${quote.destinationZip || ''}`} />
-              <Field label="Incoterm" value={quote.incoterm} />
+              <Field label="Shipping Mode" value={quote.incoterm === 'DAP' ? 'Door-to-Door' : quote.incoterm} />
               <Field label="Packing" value={quote.packingType} />
               <Field label="Zone" value={quote.appliedZone || '-'} />
               <Field label="Exchange Rate" value={`${quote.exchangeRate.toLocaleString()} KRW/USD`} />

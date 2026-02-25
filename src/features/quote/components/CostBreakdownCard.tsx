@@ -111,7 +111,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                                 </div>
                             )}
                             {result.breakdown.intlWarRisk > 0 && (
-                                <div className="flex justify-between">
+                                <div className="hidden justify-between">
                                     <span>War Risk (5%)</span>
                                     <span>{formatCurrency(result.breakdown.intlWarRisk)}</span>
                                 </div>
@@ -120,7 +120,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                                 <div className="flex justify-between text-amber-600 dark:text-amber-500">
                                     <div className="flex items-center">
                                         <BoxSelect className="w-3 h-3 mr-1" />
-                                        <span>Demand/Surge</span>
+                                        <span>Demand/Surge/War Risk</span>
                                     </div>
                                     <span>{formatCurrency(result.breakdown.intlSurge)}</span>
                                 </div>
@@ -174,9 +174,14 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                         <span className="font-bold">+ {formatCurrency(result.profitAmount)}</span>
                     </div>
                     
-                    <div className="flex justify-between items-center text-jways-900 dark:text-jways-100 font-extrabold text-lg pt-3 border-t border-jways-200 dark:border-jways-700/50">
-                        <span>Final Quote Price</span>
-                        <span>{formatCurrency(result.totalQuoteAmount)}</span>
+                    <div className="flex justify-between items-center pt-3 border-t border-jways-200 dark:border-jways-700/50">
+                        <span className="text-jways-900 dark:text-jways-100 font-extrabold text-lg">Final Quote Price</span>
+                        <div className="flex flex-col items-end">
+                            <span className="text-jways-900 dark:text-jways-100 font-extrabold text-lg">{formatCurrency(result.totalQuoteAmount)}</span>
+                            <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-0.5">
+                                (approx. ${result.totalQuoteAmountUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
