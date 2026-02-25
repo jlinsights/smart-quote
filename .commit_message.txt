@@ -1,1 +1,1 @@
-🔧 fix: code-quality-fixes 구현 — DHL/UPS 요율표 정정, FE/BE 필드명 통일(intl*), 데드코드 제거, 모달 접근성, CSV cleanup, 국가옵션 확장, 테스트 추가
+📝 docs: 한국어 사용자 매뉴얼 작성 — 견적 계산/저장/이력관리/PDF 다운로드 전체 기능 가이드

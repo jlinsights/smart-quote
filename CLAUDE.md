@@ -14,7 +14,7 @@ npm run dev          # Dev server on http://localhost:5173
 npm run build        # tsc + vite build
 npm run lint         # ESLint (--max-warnings 0)
 npm run test         # Vitest in watch mode
-npx vitest run       # Run tests once (7 files, 69 tests)
+npx vitest run       # Run tests once (7 files, 68 tests)
 npx tsc --noEmit     # Type check only
 ```
 
@@ -45,19 +45,22 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
     types.ts                   # All shared TypeScript types & enums
     config/                    # Rate tables, business rules, UI constants
       ups_tariff.ts            # UPS Z1-Z10 rate tables (synced with backend)
-      dhl_tariff.ts            # DHL zone rate tables
-      emax_tariff.ts           # EMAX zone rate tables
+      dhl_tariff.ts            # DHL Z1-Z8 rate tables (synced with backend)
+      emax_tariff.ts           # EMAX per-country rate tables
       rates.ts                 # KRW cost constants (packing, labor, handling)
       business-rules.ts        # Thresholds (margin warning, weight limits)
-      zones.ts                 # Country groupings per carrier
+      options.ts               # Country options, carrier options
     features/
       quote/
         components/            # CargoSection, RouteSection, FinancialSection, ResultSection, SaveQuoteButton, etc.
-        services/              # calculationService.ts (mirrored calculation logic)
+        services/              # calculationService.ts (mirrored calculation logic, lookupCarrierRate)
       history/
         components/            # QuoteHistoryPage, QuoteHistoryTable, QuoteSearchBar, QuotePagination, QuoteDetailModal
-    components/layout/         # DesktopLayout, MobileLayout, NavigationTabs
-    lib/pdfService.ts          # jsPDF-based PDF generation
+        constants.ts           # Shared constants (STATUS_COLORS)
+    components/layout/         # MobileLayout, NavigationTabs
+    lib/
+      format.ts                # Shared currency/number formatters (formatKRW, formatUSD, formatNum, etc.)
+      pdfService.ts            # jsPDF-based PDF generation (optional referenceNo pass-through)
 smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL)
   app/services/
     quote_calculator.rb        # Main orchestrator
@@ -81,7 +84,7 @@ Frontend (`src/features/quote/services/calculationService.ts`) and backend (`sma
 
 ### Calculation Pipeline
 1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L*W*H / 5000 for UPS & DHL, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
-2. **Carrier Costs** - Zone lookup (country -> zone code), exact rate table (0.5-20kg in 0.5kg steps) or range rate (>20kg per-kg), FSC% surcharge, war risk (5%)
+2. **Carrier Costs** - Zone lookup (country -> zone code), shared `lookupCarrierRate()` engine (exact table 0.5-20kg -> range table >20kg -> fallback), FSC% surcharge, war risk (5%)
 3. **Margin** - `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
 
@@ -127,7 +130,7 @@ GET    /api/v1/quotes/export      # CSV download
 
 - **Frontend**: Vitest + @testing-library/react, jsdom environment, setup in `src/test/setup.ts`
   - Tests use `vitest/globals` (no imports needed for `describe`, `it`, `expect`)
-  - 7 test files, 70 tests: calculationService (36), SaveQuoteButton (9), QuoteHistoryTable (7), QuoteSearchBar (7), QuotePagination (6), quoteApi (4), pdfService (1)
+  - 7 test files, 68 tests: calculationService (36), SaveQuoteButton (9), QuoteHistoryTable (7), QuoteSearchBar (7), QuotePagination (6), quoteApi (4), pdfService (1) — note: some test counts may shift as tests are added/removed
 - **Backend**: RSpec + FactoryBot + Shoulda Matchers, factories in `spec/factories/`
 
 ## Deployment
