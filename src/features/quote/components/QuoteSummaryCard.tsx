@@ -1,6 +1,7 @@
 import React from 'react';
 import { QuoteResult } from '@/types';
 import { Anchor, FileDown } from 'lucide-react';
+import { formatKRW, formatUSD } from '@/lib/format';
 import { resultStyles } from './result-styles';
 
 interface Props {
@@ -9,8 +10,7 @@ interface Props {
 }
 
 export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf }) => {
-  const formatCurrency = (val: number) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(val);
-  const formatUSD = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+  const formatCurrency = formatKRW;
 
   return (
       <div className={resultStyles.mainQuoteCardClass}>

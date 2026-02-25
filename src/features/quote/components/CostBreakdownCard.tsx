@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { QuoteResult } from '@/types';
 import { Calculator, Edit3, PackageCheck, HelpCircle, X, Plane, BoxSelect, TrendingUp, Info } from 'lucide-react';
 import { UI_TEXT } from '@/config/text';
+import { formatKRW } from '@/lib/format';
 import { resultStyles } from './result-styles';
 
 interface Props {
@@ -15,7 +16,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
   const [showPackingInfo, setShowPackingInfo] = useState(false);
   const { cardClass } = resultStyles;
 
-  const formatCurrency = (val: number) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(val);
+  const formatCurrency = formatKRW;
 
   const packingCost = result.breakdown.packingMaterial + result.breakdown.packingLabor + result.breakdown.packingFumigation + result.breakdown.handlingFees;
   const carrierTotalCost = result.breakdown.intlBase + result.breakdown.intlFsc + result.breakdown.intlWarRisk + result.breakdown.intlSurge;

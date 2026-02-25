@@ -7,6 +7,26 @@ import { QuoteHistoryPage } from '@/features/history/components/QuoteHistoryPage
 import { SaveQuoteButton } from '@/features/quote/components/SaveQuoteButton';
 import { NavigationTabs, AppView } from '@/components/layout/NavigationTabs';
 import { Moon, Sun, Smartphone, RotateCcw, Zap } from 'lucide-react';
+import { formatKRW, formatUSDInt } from '@/lib/format';
+import { InputSection } from '@/features/quote/components/InputSection';
+import { ResultSection } from '@/features/quote/components/ResultSection';
+
+const INITIAL_INPUT: QuoteInput = {
+  originCountry: 'KR',
+  destinationCountry: 'US',
+  destinationZip: '',
+  incoterm: Incoterm.DAP,
+  packingType: PackingType.NONE,
+  items: [
+    { id: '1', width: 10, length: 10, height: 10, weight: 1, quantity: 1 }
+  ],
+  marginUSD: 50,
+  dutyTaxEstimate: 0,
+  exchangeRate: 1300,
+  fscPercent: 30,
+  overseasCarrier: 'UPS',
+  manualPackingCost: undefined
+};
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>('calculator');
@@ -21,24 +41,7 @@ const App: React.FC = () => {
     }
   }, [isDarkMode]);
 
-  const initialInput: QuoteInput = {
-    originCountry: 'KR',
-    destinationCountry: 'US',
-    destinationZip: '',
-    incoterm: Incoterm.DAP,
-    packingType: PackingType.NONE,
-    items: [
-      { id: '1', width: 10, length: 10, height: 10, weight: 1, quantity: 1 }
-    ],
-    marginUSD: 50,
-    dutyTaxEstimate: 0,
-    exchangeRate: 1300,
-    fscPercent: 30,
-    overseasCarrier: 'UPS',
-    manualPackingCost: undefined
-  };
-
-  const [input, setInput] = useState<QuoteInput>(initialInput);
+  const [input, setInput] = useState<QuoteInput>(INITIAL_INPUT);
 
   // Instant frontend calculation — pure function, no API dependency
   const result = useMemo<QuoteResult | null>(() => {
@@ -60,7 +63,7 @@ const App: React.FC = () => {
 
   const handleReset = () => {
     if (confirm('Are you sure you want to reset the quote?')) {
-      setInput(initialInput);
+      setInput(INITIAL_INPUT);
     }
   };
 
@@ -213,10 +216,10 @@ const App: React.FC = () => {
                     <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Estimate</p>
                     <div className="flex items-baseline space-x-1">
                       <p className="text-xl font-bold text-jways-700 dark:text-jways-400">
-                        {new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(result.totalQuoteAmount)}
+                        {formatKRW(result.totalQuoteAmount)}
                       </p>
                       <span className="text-xs text-gray-400 dark:text-gray-500">
-                        ({new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(result.totalQuoteAmountUSD)})
+                        ({formatUSDInt(result.totalQuoteAmountUSD)})
                       </span>
                     </div>
                   </div>
@@ -244,9 +247,5 @@ const App: React.FC = () => {
     </div>
   );
 };
-
-// Re-import components used directly in the calculator view within App
-import { InputSection } from '@/features/quote/components/InputSection';
-import { ResultSection } from '@/features/quote/components/ResultSection';
 
 export default App;

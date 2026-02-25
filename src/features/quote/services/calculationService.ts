@@ -1,13 +1,13 @@
-import { 
-  QuoteInput, 
-  QuoteResult, 
-  PackingType, 
+import {
+  QuoteInput,
+  QuoteResult,
+  PackingType,
   Incoterm,
   CargoItem
 } from "@/types";
-import { 
-  WAR_RISK_SURCHARGE_RATE, 
-  HANDLING_FEE, 
+import {
+  WAR_RISK_SURCHARGE_RATE,
+  HANDLING_FEE,
   FUMIGATION_FEE,
   SURGE_RATES,
   DEFAULT_EXCHANGE_RATE,
@@ -19,12 +19,14 @@ import {
   PACKING_WEIGHT_BUFFER,
   PACKING_WEIGHT_ADDITION
 } from "@/config/business-rules";
+import { UPS_EXACT_RATES, UPS_RANGE_RATES } from "@/config/ups_tariff";
+import { DHL_EXACT_RATES, DHL_RANGE_RATES } from "@/config/dhl_tariff";
+import { EMAX_RATES, EMAX_HANDLING_CHARGE } from "@/config/emax_tariff";
 
 // --- Types for Internal Calculations ---
 interface ItemCalculationResult {
   totalActualWeight: number;
   totalPackedVolumetricWeight: number;
-  totalCBM: number;
   packingMaterialCost: number;
   packingLaborCost: number;
   surgeCost: number;
@@ -43,10 +45,6 @@ interface CarrierCostResult {
 
 export const calculateVolumetricWeight = (l: number, w: number, h: number, divisor: number = 5000) => {
   return (Math.ceil(l) * Math.ceil(w) * Math.ceil(h)) / divisor;
-};
-
-export const calculateCBM = (l: number, w: number, h: number) => {
-  return (l * w * h) / 1000000;
 };
 
 export const determineUpsZone = (country: string): { rateKey: string; label: string } => {
@@ -87,17 +85,19 @@ export const determineUpsZone = (country: string): { rateKey: string; label: str
    return { rateKey: 'Z10', label: 'Rest of World' };
 };
 
+// Retained for future reactivation of carrier surge auto-calculation.
+// Currently tested but not called in production code path.
 export const calculateItemSurge = (
-  l: number, 
-  w: number, 
-  h: number, 
-  weight: number, 
+  l: number,
+  w: number,
+  h: number,
+  weight: number,
   packingType: PackingType,
   itemIndex: number
 ): { surgeCost: number; warnings: string[] } => {
     let surgeCost = 0;
     const warnings: string[] = [];
-    
+
     const sortedDims = [l, w, h].sort((a, b) => b - a);
     const longest = sortedDims[0];
     const secondLongest = sortedDims[1];
@@ -110,13 +110,13 @@ export const calculateItemSurge = (
         surgeCost += SURGE_RATES.OVER_MAX;
         warnings.push(`Box #${itemIndex + 1}: Exceeds Max Limits (L>${SURGE_THRESHOLDS.MAX_LIMIT_LENGTH_CM}cm or >70kg). Heavy penalty applied.`);
         packageSurgeApplied = true;
-    } 
+    }
     else if (actualGirth > SURGE_THRESHOLDS.LPS_LENGTH_GIRTH_CM) {
         surgeCost += SURGE_RATES.LARGE_PACKAGE;
         surgeReason = "Large Package (L+Girth > 300cm)";
         packageSurgeApplied = true;
     }
-    
+
     if (!packageSurgeApplied || surgeReason.includes("Large Package")) {
         if (weight > SURGE_THRESHOLDS.AHS_WEIGHT_KG) {
              surgeCost += SURGE_RATES.AHS_WEIGHT;
@@ -145,11 +145,48 @@ export const calculateItemSurge = (
     return { surgeCost, warnings };
 };
 
+// --- Common Rate Lookup for UPS/DHL ---
+const roundToHalf = (num: number) => Math.ceil(num * 2) / 2;
+
+type ExactRateTable = Record<string, Record<number, number>>;
+type RangeRateEntry = { min: number; max: number; rates: Record<string, number> };
+
+const lookupCarrierRate = (
+  billableWeight: number,
+  zoneKey: string,
+  exactRates: ExactRateTable,
+  rangeRates: RangeRateEntry[]
+): number => {
+  const lookupWeight = roundToHalf(billableWeight);
+  const zoneRates = exactRates[zoneKey];
+
+  if (zoneRates && zoneRates[lookupWeight]) {
+    return zoneRates[lookupWeight];
+  }
+
+  const range = rangeRates.find(r => billableWeight >= r.min && billableWeight <= r.max);
+  if (range && range.rates[zoneKey]) {
+    return Math.ceil(billableWeight) * range.rates[zoneKey];
+  }
+
+  if (zoneRates) {
+    const weights = Object.keys(zoneRates).map(Number).sort((a, b) => a - b);
+    const found = weights.find(w => w >= lookupWeight);
+    if (found) return zoneRates[found];
+
+    const nextRange = rangeRates.find(r => r.min <= Math.ceil(billableWeight));
+    if (nextRange && nextRange.rates[zoneKey]) {
+      return Math.ceil(billableWeight) * nextRange.rates[zoneKey];
+    }
+  }
+
+  return 0;
+};
+
 // Surge auto-calc disabled; manual surge input applies to all carriers via calculateQuote().
 export const calculateItemCosts = (items: CargoItem[], packingType: PackingType, manualPackingCost?: number, volumetricDivisor: number = 5000): ItemCalculationResult => {
   let totalActualWeight = 0;
   let totalPackedVolumetricWeight = 0;
-  let totalCBM = 0;
   let packingMaterialCost = 0;
   let packingLaborCost = 0;
   const surgeCost = 0;
@@ -182,7 +219,6 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
 
     totalActualWeight += weight * item.quantity;
     totalPackedVolumetricWeight += calculateVolumetricWeight(l, w, h, volumetricDivisor) * item.quantity;
-    totalCBM += calculateCBM(l, w, h) * item.quantity;
   });
 
   // Manual Override Logic
@@ -194,7 +230,6 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
   return {
     totalActualWeight,
     totalPackedVolumetricWeight,
-    totalCBM,
     packingMaterialCost,
     packingLaborCost,
     surgeCost,
@@ -202,62 +237,13 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
   };
 };
 
-import { UPS_EXACT_RATES, UPS_RANGE_RATES } from "@/config/ups_tariff";
-
 export const calculateUpsCosts = (
   billableWeight: number,
   country: string,
   fscPercent: number
 ): CarrierCostResult => {
     const zoneInfo = determineUpsZone(country);
-    const zoneKey = zoneInfo.rateKey;
-
-    let intlBase = 0;
-
-    // Helper to round up to nearest 0.5
-    const roundToHalf = (num: number) => Math.ceil(num * 2) / 2;
-
-    // Logic:
-    // 1. Check Exact Rates (usually up to 20kg)
-    // 2. Check Range Rates (usually > 20kg, e.g. 21-1000kg)
-
-    const lookupWeight = roundToHalf(billableWeight);
-    const zoneRates = UPS_EXACT_RATES[zoneKey];
-
-    // Check if exact match exists
-    if (zoneRates && zoneRates[lookupWeight]) {
-        intlBase = zoneRates[lookupWeight];
-    } else {
-        // If not in exact rates, check Range Rates.
-        const range = UPS_RANGE_RATES.find(r => billableWeight >= r.min && billableWeight <= r.max);
-
-        if (range) {
-             const rates = range.rates as Record<string, number>;
-             if (rates[zoneKey]) {
-                 const perKgRate = rates[zoneKey];
-                 const multiplierWeight = Math.ceil(billableWeight);
-                 intlBase = multiplierWeight * perKgRate;
-             }
-        } else {
-             // Fallback logic
-             if (zoneRates) {
-                 const weights = Object.keys(zoneRates).map(Number).sort((a, b) => a - b);
-                 const found = weights.find(w => w >= lookupWeight);
-                 if (found) {
-                     intlBase = zoneRates[found];
-                 } else {
-                     // Check next range if exact fails
-                     const nextRange = UPS_RANGE_RATES.find(r => r.min <= Math.ceil(billableWeight));
-                     if (nextRange) {
-                         const rates = nextRange.rates as Record<string, number>;
-                         if (rates[zoneKey]) {
-                             intlBase = Math.ceil(billableWeight) * rates[zoneKey];
-                         }
-                     }
-                 }
-             }
-        }
-    }
+    const intlBase = lookupCarrierRate(billableWeight, zoneInfo.rateKey, UPS_EXACT_RATES, UPS_RANGE_RATES as RangeRateEntry[]);
 
     const fscRate = (fscPercent || 0) / 100;
     const intlFsc = intlBase * fscRate;
@@ -275,11 +261,8 @@ export const calculateUpsCosts = (
 
 // --- DHL Calculator ---
 
-import { DHL_EXACT_RATES, DHL_RANGE_RATES } from "@/config/dhl_tariff";
-import { EMAX_RATES, EMAX_HANDLING_CHARGE } from "@/config/emax_tariff";
-
 export const determineDhlZone = (country: string): { rateKey: string; label: string } => {
-  if (['CN', 'HK', 'MO', 'SG', 'TW'].includes(country)) return { rateKey: 'Z1', label: 'CN/HK/SG/TW' };
+  if (['CN', 'HK', 'MO', 'SG', 'TW'].includes(country)) return { rateKey: 'Z1', label: 'China/HK/SG/TW' };
   if (['JP'].includes(country)) return { rateKey: 'Z2', label: 'Japan' };
   if (['PH', 'TH'].includes(country)) return { rateKey: 'Z3', label: 'PH/TH' };
   if (['VN', 'IN'].includes(country)) return { rateKey: 'Z4', label: 'VN/IN' };
@@ -287,7 +270,8 @@ export const determineDhlZone = (country: string): { rateKey: string; label: str
   if (['US', 'CA'].includes(country)) return { rateKey: 'Z6', label: 'US/CA' };
   if (['GB', 'FR', 'DE', 'IT', 'ES', 'DK', 'NL', 'BE', 'CH', 'FI', 'SE', 'NO', 'AT', 'PT', 'IE', 'MC', 'CZ', 'PL', 'HU', 'RO', 'BG'].includes(country))
     return { rateKey: 'Z7', label: 'Europe' };
-  // Z8 = default
+  if (['BR', 'AR', 'CL', 'CO', 'ZA', 'EG', 'AE', 'TR', 'BH', 'IL', 'JO', 'LB', 'SA', 'PK'].includes(country))
+    return { rateKey: 'Z8', label: 'S.Am/Africa/ME' };
   return { rateKey: 'Z8', label: 'Rest of World' };
 };
 
@@ -297,38 +281,7 @@ export const calculateDhlCosts = (
   fscPercent: number
 ): CarrierCostResult => {
   const zoneInfo = determineDhlZone(country);
-  const zoneKey = zoneInfo.rateKey;
-  let intlBase = 0;
-
-  const roundToHalf = (num: number) => Math.ceil(num * 2) / 2;
-  const lookupWeight = roundToHalf(billableWeight);
-  const zoneRates = DHL_EXACT_RATES[zoneKey];
-
-  if (zoneRates && zoneRates[lookupWeight]) {
-    intlBase = zoneRates[lookupWeight];
-  } else {
-    const range = DHL_RANGE_RATES.find(r => billableWeight >= r.min && billableWeight <= r.max);
-    if (range) {
-      const rates = range.rates as Record<string, number>;
-      if (rates[zoneKey]) {
-        intlBase = Math.ceil(billableWeight) * rates[zoneKey];
-      }
-    } else if (zoneRates) {
-      const weights = Object.keys(zoneRates).map(Number).sort((a, b) => a - b);
-      const found = weights.find(w => w >= lookupWeight);
-      if (found) {
-        intlBase = zoneRates[found];
-      } else {
-        const nextRange = DHL_RANGE_RATES.find(r => r.min <= Math.ceil(billableWeight));
-        if (nextRange) {
-          const rates = nextRange.rates as Record<string, number>;
-          if (rates[zoneKey]) {
-            intlBase = Math.ceil(billableWeight) * rates[zoneKey];
-          }
-        }
-      }
-    }
-  }
+  const intlBase = lookupCarrierRate(billableWeight, zoneInfo.rateKey, DHL_EXACT_RATES, DHL_RANGE_RATES as RangeRateEntry[]);
 
   const fscRate = (fscPercent || 0) / 100;
   const intlFsc = intlBase * fscRate;

@@ -1,15 +1,3 @@
-export const ZONE_BASE_RATES: Record<string, number> = {
-  'Zone 1': 4500,  // JP
-  'Zone 2': 5500,  // CN (North/East)
-  'Zone 3': 6000,  // SG, VN, HK
-  'Zone 4': 8500,  // AU, NZ
-  'Zone 5': 5800,  // CN (South)
-  'Zone 6': 9200,  // US (West)
-  'Zone 7': 10500, // US (East/Central), EU (DE, GB, FR)
-  'Zone 8': 12000, // Middle East, Africa
-  'Zone 9': 13500, // South America, Others
-};
-
 export const SURGE_RATES = {
     AHS_WEIGHT: 40000,    // Additional Handling (Weight)
     AHS_DIMENSION: 35000, // Additional Handling (Dimensions)

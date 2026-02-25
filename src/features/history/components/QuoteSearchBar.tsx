@@ -1,13 +1,7 @@
 import React from 'react';
 import { QuoteStatus } from '@/types';
 import { Search, X, Filter } from 'lucide-react';
-
-const STATUS_COLORS: Record<QuoteStatus, string> = {
-  draft: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
-  sent: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-  accepted: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-  rejected: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
-};
+import { STATUS_COLORS } from '@/features/history/constants';
 
 const STATUS_OPTIONS: QuoteStatus[] = ['draft', 'sent', 'accepted', 'rejected'];
 

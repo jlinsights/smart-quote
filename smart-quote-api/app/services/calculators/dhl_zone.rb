@@ -10,7 +10,7 @@ module Calculators
 
     def call
       # Zone 1: 중국, 홍콩, 싱가포르
-      return result('Z1', 'China/HK/SG') if %w[CN HK MO SG TW].include?(@country)
+      return result('Z1', 'China/HK/SG/TW') if %w[CN HK MO SG TW].include?(@country)
 
       # Zone 2: 일본
       return result('Z2', 'Japan') if %w[JP].include?(@country)

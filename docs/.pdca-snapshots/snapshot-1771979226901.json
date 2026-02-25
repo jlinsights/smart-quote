@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-02-25T00:27:06.900Z",
+  "reason": "compaction",
+  "status": {
+    "version": "2.0",
+    "lastUpdated": "2026-02-24T09:30:00.000Z",
+    "activeFeatures": [],
+    "primaryFeature": null,
+    "features": {
+      "Save-Quote": {
+        "phase": "archived",
+        "planDoc": "docs/archive/2026-02/Save-Quote/Save-Quote.plan.md",
+        "designDoc": "docs/archive/2026-02/Save-Quote/Save-Quote.design.md",
+        "analysisDoc": "docs/archive/2026-02/Save-Quote/Save-Quote.analysis.md",
+        "reportDoc": "docs/archive/2026-02/Save-Quote/Save-Quote.report.md",
+        "startedAt": "2026-02-24",
+        "completedAt": "2026-02-24",
+        "archivedAt": "2026-02-24",
+        "archivedTo": "docs/archive/2026-02/Save-Quote/",
+        "matchRate": 92,
+        "iterations": 0
+      }
+    },
+    "pipeline": {
+      "currentPhase": 1,
+      "level": "Dynamic",
+      "phaseHistory": []
+    },
+    "session": {
+      "startedAt": "2026-02-24T08:04:53.096Z",
+      "onboardingCompleted": false,
+      "lastActivity": "2026-02-24T09:30:00.000Z"
+    },
+    "history": []
+  }
+}

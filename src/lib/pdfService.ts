@@ -2,6 +2,7 @@ import { jsPDF } from "jspdf";
 import { QuoteInput, QuoteResult } from "@/types";
 import { COUNTRY_OPTIONS } from "@/config/options";
 import { PDF_LAYOUT } from "@/config/ui-constants";
+import { formatKRW, formatUSD, formatNum } from './format';
 
 const { COLORS, FONTS, MARGIN_X, LINE_HEIGHT } = PDF_LAYOUT;
 
@@ -19,11 +20,12 @@ const drawHeader = (doc: jsPDF, yPos: number): number => {
   return nextLine(yPos, 15);
 };
 
-const drawMetaData = (doc: jsPDF, yPos: number): number => {
+const drawMetaData = (doc: jsPDF, yPos: number, referenceNo?: string): number => {
   doc.setFontSize(FONTS.SIZE_NORMAL);
   doc.setTextColor(0);
   doc.text(`Date: ${new Date().toLocaleDateString()}`, MARGIN_X, yPos);
-  doc.text(`Quote Ref: JW-${Math.random().toString(36).substr(2, 6).toUpperCase()}`, 150, yPos);
+  const ref = referenceNo || 'DRAFT';
+  doc.text(`Quote Ref: ${ref}`, 150, yPos);
   return nextLine(yPos, 10);
 };
 
@@ -78,9 +80,9 @@ const drawCargoManifest = (doc: jsPDF, items: QuoteInput['items'], result: Quote
 
   yPos = nextLine(yPos, 5);
   doc.setFont("helvetica", "bold");
-  doc.text(`Total Actual Weight: ${new Intl.NumberFormat('ko-KR').format(result.totalActualWeight)} kg`, 100, yPos);
+  doc.text(`Total Actual Weight: ${formatNum(result.totalActualWeight)} kg`, 100, yPos);
   yPos = nextLine(yPos);
-  doc.text(`Billable Weight: ${new Intl.NumberFormat('ko-KR').format(result.billableWeight)} kg`, 100, yPos);
+  doc.text(`Billable Weight: ${formatNum(result.billableWeight)} kg`, 100, yPos);
   
   return nextLine(yPos, 15);
 };
@@ -94,7 +96,7 @@ const drawCostBreakdown = (doc: jsPDF, result: QuoteResult, yPos: number): numbe
   doc.setFontSize(FONTS.SIZE_NORMAL);
   doc.setFont("helvetica", "normal");
   
-  const formatKRW = (val: number) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(val);
+  // formatKRW imported from @/lib/format
 
   // Domestic (Removed)
 
@@ -152,11 +154,11 @@ const drawQuoteSummary = (doc: jsPDF, result: QuoteResult, yPos: number): number
 
   doc.setFontSize(24);
   doc.setTextColor(0);
-  doc.text(new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(result.totalQuoteAmount), MARGIN_X, yPos);
-  
+  doc.text(formatKRW(result.totalQuoteAmount), MARGIN_X, yPos);
+
   doc.setFontSize(FONTS.SIZE_SUBHEADER);
   doc.setTextColor(...COLORS.TEXT_LIGHT);
-  doc.text(`(approx. ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(result.totalQuoteAmountUSD)})`, 100, yPos);
+  doc.text(`(approx. ${formatUSD(result.totalQuoteAmountUSD)})`, 100, yPos);
   
   yPos = nextLine(yPos, 15);
 
@@ -202,12 +204,12 @@ const drawFooter = (doc: jsPDF) => {
 };
 
 
-export const generatePDF = (input: QuoteInput, result: QuoteResult) => {
+export const generatePDF = (input: QuoteInput, result: QuoteResult, referenceNo?: string) => {
   const doc = new jsPDF();
   let yPos = 20;
 
   yPos = drawHeader(doc, yPos);
-  yPos = drawMetaData(doc, yPos);
+  yPos = drawMetaData(doc, yPos, referenceNo);
   yPos = drawShipmentDetails(doc, input, yPos);
   yPos = drawCargoManifest(doc, input.items, result, yPos);
   yPos = drawCostBreakdown(doc, result, yPos);

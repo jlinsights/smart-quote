@@ -1,13 +1,8 @@
 import React from 'react';
-import { QuoteSummary, QuoteStatus } from '@/types';
+import { QuoteSummary } from '@/types';
 import { Eye, Trash2 } from 'lucide-react';
-
-const STATUS_COLORS: Record<QuoteStatus, string> = {
-  draft: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
-  sent: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-  accepted: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-  rejected: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
-};
+import { formatNum } from '@/lib/format';
+import { STATUS_COLORS } from '@/features/history/constants';
 
 interface Props {
   quotes: QuoteSummary[];
@@ -73,7 +68,7 @@ export const QuoteHistoryTable: React.FC<Props> = ({
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right font-medium text-gray-900 dark:text-white tabular-nums">
-                  {new Intl.NumberFormat('ko-KR').format(q.totalQuoteAmount)}
+                  {formatNum(q.totalQuoteAmount)}
                 </td>
                 <td className="px-4 py-3 text-right text-gray-500 dark:text-gray-400 tabular-nums text-xs">
                   ${q.totalQuoteAmountUsd.toLocaleString('en-US', { minimumFractionDigits: 2 })}

@@ -105,5 +105,5 @@ export const UPS_EXACT_RATES: Record<string, Record<number, number>> = {
 };
 
 export const UPS_RANGE_RATES = [
-  { min: 21, max: 9999, rates: { 'Z1': 6232, 'Z2': 6574, 'Z3': 7372, 'Z4': 10070, 'Z5': 11096, 'Z6': 15960, 'Z7': 16454, 'Z8': 23408, 'Z9': 23446, 'Z10': 6270 } },
+  { min: 20.5, max: 99999, rates: { 'Z1': 6232, 'Z2': 6574, 'Z3': 7372, 'Z4': 10070, 'Z5': 11096, 'Z6': 15960, 'Z7': 16454, 'Z8': 23408, 'Z9': 23446, 'Z10': 6270 } },
 ];

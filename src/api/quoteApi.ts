@@ -12,10 +12,10 @@ export function mapBreakdown(raw: any): CostBreakdown {
     packingLabor: raw.packingLabor ?? 0,
     packingFumigation: raw.packingFumigation ?? 0,
     handlingFees: raw.handlingFees ?? 0,
-    intlBase: raw.upsBase ?? raw.intlBase ?? 0,
-    intlFsc: raw.upsFsc ?? raw.intlFsc ?? 0,
-    intlWarRisk: raw.upsWarRisk ?? raw.intlWarRisk ?? 0,
-    intlSurge: raw.upsSurge ?? raw.intlSurge ?? 0,
+    intlBase: raw.intlBase ?? raw.upsBase ?? 0,
+    intlFsc: raw.intlFsc ?? raw.upsFsc ?? 0,
+    intlWarRisk: raw.intlWarRisk ?? raw.upsWarRisk ?? 0,
+    intlSurge: raw.intlSurge ?? raw.upsSurge ?? 0,
     destDuty: raw.destDuty ?? 0,
     totalCost: raw.totalCost ?? 0,
   };
@@ -72,8 +72,8 @@ export const listQuotes = async (
   params: QuoteListParams = {}
 ): Promise<QuoteListResponse> => {
   const searchParams = new URLSearchParams();
-  if (params.page) searchParams.set('page', String(params.page));
-  if (params.perPage) searchParams.set('per_page', String(params.perPage));
+  if (params.page != null) searchParams.set('page', String(params.page));
+  if (params.perPage != null) searchParams.set('per_page', String(params.perPage));
   if (params.q) searchParams.set('q', params.q);
   if (params.destinationCountry) searchParams.set('destination_country', params.destinationCountry);
   if (params.dateFrom) searchParams.set('date_from', params.dateFrom);
@@ -115,9 +115,12 @@ export const exportQuotesCsv = async (
 
   const blob = await response.blob();
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `quotes-${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  try {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `quotes-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 };

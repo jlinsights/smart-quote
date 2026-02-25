@@ -1,5 +1,6 @@
 import React from 'react';
 import { QuoteResult } from '@/types';
+import { formatNumDec } from '@/lib/format';
 import { resultStyles } from './result-styles';
 
 interface Props {
@@ -7,7 +8,7 @@ interface Props {
 }
 
 export const KeyMetricsGrid: React.FC<Props> = ({ result }) => {
-  const formatNum = (val: number) => new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1 }).format(val);
+  const formatNum = formatNumDec;
   const { metricCardClass } = resultStyles;
 
   return (

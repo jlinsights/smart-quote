@@ -14,9 +14,6 @@ export enum Incoterm {
     VACUUM = 'VACUUM'
   }
   
-  // Changed from Enum to string type to support A-T codes dynamically
-  export type DomesticRegionCode = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T';
-  
   export interface CargoItem {
     id: string;
     width: number; // cm

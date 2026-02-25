@@ -9,4 +9,3 @@ export const SURGE_THRESHOLDS = {
 
 export const PACKING_WEIGHT_BUFFER = 1.1; // 10% weight increase
 export const PACKING_WEIGHT_ADDITION = 10; // 10kg addition per item
-export const INITIAL_MARGIN = 15; // Target 15%

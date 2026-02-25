@@ -3,6 +3,7 @@ import { QuoteInput, QuoteResult } from '@/types';
 import { InputSection } from '@/features/quote/components/InputSection';
 import { ResultSection } from '@/features/quote/components/ResultSection';
 import { Moon, Sun, Monitor, RotateCcw } from 'lucide-react';
+import { formatKRW, formatUSDInt } from '@/lib/format';
 
 interface Props {
   isDarkMode: boolean;
@@ -117,10 +118,10 @@ export const MobileLayout: React.FC<Props> = ({
                   <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Estimate</p>
                   <div className="flex items-baseline space-x-1">
                       <p className="text-xl font-bold text-jways-700 dark:text-jways-400">
-                          {new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(result.totalQuoteAmount)}
+                          {formatKRW(result.totalQuoteAmount)}
                       </p>
                       <span className="text-xs text-gray-400 dark:text-gray-500">
-                          ({new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(result.totalQuoteAmountUSD)})
+                          ({formatUSDInt(result.totalQuoteAmountUSD)})
                       </span>
                   </div>
                   </div>

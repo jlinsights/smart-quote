@@ -117,7 +117,7 @@ export const DHL_EXACT_RATES: Record<string, Record<number, number>> = {
 };
 
 export const DHL_RANGE_RATES = [
-  { min: 30.1, max: 70, rates: { 'Z1': 7752, 'Z2': 8398, 'Z3': 10526, 'Z4': 12122, 'Z5': 12502, 'Z6': 18810, 'Z7': 21242, 'Z8': 27208 } },
-  { min: 70.1, max: 300, rates: { 'Z1': 7752, 'Z2': 8398, 'Z3': 10526, 'Z4': 12122, 'Z5': 12502, 'Z6': 18810, 'Z7': 21242, 'Z8': 27208 } },
-  { min: 300.1, max: 99999, rates: { 'Z1': 7752, 'Z2': 8398, 'Z3': 10526, 'Z4': 12122, 'Z5': 12502, 'Z6': 18810, 'Z7': 21242, 'Z8': 27208 } },
+  // All tiers share same per-kg rate as of 2026-02 tariff.
+  // Split into tiers if DHL updates with differentiated rates.
+  { min: 30.1, max: 99999, rates: { 'Z1': 7752, 'Z2': 8398, 'Z3': 10526, 'Z4': 12122, 'Z5': 12502, 'Z6': 18810, 'Z7': 21242, 'Z8': 27208 } },
 ];

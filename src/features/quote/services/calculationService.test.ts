@@ -1,49 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import {
-  calculateItemSurge,
   determineUpsZone,
   determineDhlZone,
   calculateDhlCosts,
   calculateEmaxCosts,
+  calculateUpsCosts,
   calculateQuote,
 } from './calculationService';
 import { PackingType, Incoterm, QuoteInput } from '@/types';
-import { SURGE_RATES, WAR_RISK_SURCHARGE_RATE } from '@/config/rates';
+import { WAR_RISK_SURCHARGE_RATE } from '@/config/rates';
 import { DHL_EXACT_RATES } from '@/config/dhl_tariff';
 
 describe('calculationService', () => {
-
-  describe('calculateItemSurge', () => {
-    it('should return no surge cost for a standard small package', () => {
-      const result = calculateItemSurge(30, 30, 30, 10, PackingType.NONE, 0);
-      expect(result.surgeCost).toBe(0);
-      expect(result.warnings).toHaveLength(0);
-    });
-
-    it('should apply AHS Weight surge for package > 25kg', () => {
-      const result = calculateItemSurge(30, 30, 30, 30, PackingType.NONE, 0);
-      expect(result.surgeCost).toBe(SURGE_RATES.AHS_WEIGHT);
-      expect(result.warnings[0]).toContain('AHS Weight');
-    });
-
-    it('should apply AHS Dimension surge for Length > 122cm', () => {
-      const result = calculateItemSurge(130, 30, 30, 10, PackingType.NONE, 0);
-      expect(result.surgeCost).toBe(SURGE_RATES.AHS_DIMENSION);
-      expect(result.warnings[0]).toContain('AHS Dim');
-    });
-
-    it('should apply Large Package Surcharge logic correctly', () => {
-      const result = calculateItemSurge(100, 60, 60, 20, PackingType.NONE, 0);
-      expect(result.surgeCost).toBe(SURGE_RATES.LARGE_PACKAGE);
-      expect(result.warnings[0]).toContain('Large Package');
-    });
-
-    it('should apply heavy penalty for Over Max Limits', () => {
-      const result = calculateItemSurge(50, 50, 50, 75, PackingType.NONE, 0);
-      expect(result.surgeCost).toBe(SURGE_RATES.OVER_MAX);
-      expect(result.warnings[0]).toContain('Exceeds Max Limits');
-    });
-  });
 
   // --- Zone Mapping Tests ---
 
@@ -83,7 +51,7 @@ describe('calculationService', () => {
     });
 
     it('maps CN to Z1', () => {
-      expect(determineDhlZone('CN')).toEqual({ rateKey: 'Z1', label: 'CN/HK/SG/TW' });
+      expect(determineDhlZone('CN')).toEqual({ rateKey: 'Z1', label: 'China/HK/SG/TW' });
     });
 
     it('maps US to Z6', () => {
@@ -94,8 +62,27 @@ describe('calculationService', () => {
       expect(determineDhlZone('DE')).toEqual({ rateKey: 'Z7', label: 'Europe' });
     });
 
+    it('maps BR to Z8 (S.Am/Africa/ME)', () => {
+      expect(determineDhlZone('BR')).toEqual({ rateKey: 'Z8', label: 'S.Am/Africa/ME' });
+    });
+
+    it('maps AE to Z8 (S.Am/Africa/ME)', () => {
+      expect(determineDhlZone('AE')).toEqual({ rateKey: 'Z8', label: 'S.Am/Africa/ME' });
+    });
+
     it('falls back to Z8 for unknown country', () => {
       expect(determineDhlZone('XX')).toEqual({ rateKey: 'Z8', label: 'Rest of World' });
+    });
+  });
+
+  // --- UPS Cost Tests ---
+
+  describe('calculateUpsCosts', () => {
+    it('uses range rate for 20.3kg (boundary test)', () => {
+      // 20.3kg > 20kg exact table max → should use range rate
+      // ceil(20.3) = 21, 21 * Z5 per-kg rate (11096) = 233016
+      const result = calculateUpsCosts(20.3, 'US', 0);
+      expect(result.intlBase).toBe(21 * 11096);
     });
   });
 

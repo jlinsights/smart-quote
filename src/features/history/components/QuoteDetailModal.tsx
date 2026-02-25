@@ -1,6 +1,7 @@
 import React from 'react';
 import { QuoteDetail } from '@/types';
 import { X, Package, DollarSign, TrendingUp } from 'lucide-react';
+import { formatNum } from '@/lib/format';
 
 interface Props {
   quote: QuoteDetail;
@@ -8,10 +9,18 @@ interface Props {
 }
 
 export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose }) => {
-  const fmt = (n: number) => new Intl.NumberFormat('ko-KR').format(n);
+  const fmt = formatNum;
+
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
@@ -20,7 +29,7 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose }) => {
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-2xl">
           <div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">{quote.referenceNo}</h3>
+            <h3 id="modal-title" className="text-lg font-bold text-gray-900 dark:text-white">{quote.referenceNo}</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Created {new Date(quote.createdAt).toLocaleString('ko-KR')}
             </p>
@@ -181,7 +190,7 @@ const BreakdownRow: React.FC<{ label: string; value: number }> = ({ label, value
   return (
     <div className="flex justify-between text-gray-600 dark:text-gray-300">
       <span>{label}</span>
-      <span className="tabular-nums">{new Intl.NumberFormat('ko-KR').format(value)} KRW</span>
+      <span className="tabular-nums">{formatNum(value)} KRW</span>
     </div>
   );
 };

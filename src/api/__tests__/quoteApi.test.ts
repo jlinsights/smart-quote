@@ -42,7 +42,7 @@ describe('mapBreakdown', () => {
     expect(result.intlSurge).toBe(0);
   });
 
-  it('prefers old field names (upsBase) over new when both present', () => {
+  it('prefers new field names (intlBase) over old when both present', () => {
     const raw = {
       upsBase: 100000,
       intlBase: 120000,
@@ -50,8 +50,8 @@ describe('mapBreakdown', () => {
       intlFsc: 36000,
     };
     const result = mapBreakdown(raw);
-    expect(result.intlBase).toBe(100000);
-    expect(result.intlFsc).toBe(30000);
+    expect(result.intlBase).toBe(120000);
+    expect(result.intlFsc).toBe(36000);
   });
 
   it('defaults missing fields to 0', () => {
