@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { QuoteResult } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Calculator, Edit3, PackageCheck, HelpCircle, X, Plane, BoxSelect, TrendingUp, Info } from 'lucide-react';
 import { UI_TEXT } from '@/config/text';
 import { formatKRW } from '@/lib/format';
@@ -16,6 +17,7 @@ interface Props {
 export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange, onMarginChange, marginUSD, hideMargin }) => {
   const [showPackingInfo, setShowPackingInfo] = useState(false);
   const { cardClass } = resultStyles;
+  const { t } = useLanguage();
 
   const formatCurrency = formatKRW;
 
@@ -28,7 +30,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
         <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 flex justify-between items-center transition-colors">
             <h3 className="font-bold text-gray-700 dark:text-gray-200 flex items-center text-sm">
                 <Calculator className="w-4 h-4 mr-2 text-jways-500" />
-                Cost Breakdown
+                {t('quote.logisticsCost')}
             </h3>
             <span className="text-[10px] font-bold px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-gray-600 dark:text-gray-300 uppercase tracking-wide">Internal</span>
         </div>
@@ -149,14 +151,14 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
 
             {/* 2. Margin & Final Price */}
             <div>
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Pricing Strategy</h4>
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{t('quote.pricingStrategy')}</h4>
                 <div className="bg-jways-50 dark:bg-jways-900/20 p-4 rounded-xl space-y-3 border border-jways-100 dark:border-jways-800/30">
                      
                      {!hideMargin && (
                      <div className="flex justify-between items-center text-green-700 dark:text-green-400">
                         <div className="flex items-center">
                             <TrendingUp className="w-4 h-4 mr-2 flex-shrink-0" />
-                            <span className="mr-2 font-medium">Margin</span>
+                            <span className="mr-2 font-medium">{t('quote.margin')}</span>
 
                             {/* Interactive Margin Input (USD) */}
                             <div className="relative rounded-md shadow-sm w-28">
@@ -178,11 +180,11 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                     )}
                     
                     <div className={`flex justify-between items-center pt-3 ${hideMargin ? '' : 'border-t border-jways-200 dark:border-jways-700/50'}`}>
-                        <span className="text-jways-900 dark:text-jways-100 font-extrabold text-lg">Final Quote Price</span>
+                        <span className="text-jways-900 dark:text-jways-100 font-extrabold text-lg">{t('quote.finalPrice')}</span>
                         <div className="flex flex-col items-end">
                             <span className="text-jways-900 dark:text-jways-100 font-extrabold text-lg">{formatCurrency(result.totalQuoteAmount)}</span>
                             <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-0.5">
-                                (approx. ${result.totalQuoteAmountUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                                ({t('quote.approx')} ${result.totalQuoteAmountUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
                             </span>
                         </div>
                     </div>

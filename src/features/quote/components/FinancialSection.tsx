@@ -1,5 +1,6 @@
 import React from 'react';
 import { QuoteInput } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { UPS_FSC_URL, DHL_FSC_URL, NAVER_EXCHANGE_RATE_URL } from '@/config/rates';
 import { TrendingUp, ExternalLink } from 'lucide-react';
 import { inputStyles } from './input-styles';
@@ -15,6 +16,7 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
   const { inputClass, labelClass, grayCardClass } = inputStyles;
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
+  const { t } = useLanguage();
 
   const financialGrid = `grid grid-cols-1 ${!isMobileView ? 'sm:grid-cols-3' : 'grid-cols-2'} gap-3`;
 
@@ -27,7 +29,7 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
       <div className="flex items-center justify-between mb-4">
          <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider flex items-center">
              <TrendingUp className="w-4 h-4 mr-2 text-jways-600 dark:text-jways-400" />
-             Financial Factors
+             {t('calc.section.financial')}
          </h3>
          <div className="flex items-center gap-3">
              <a

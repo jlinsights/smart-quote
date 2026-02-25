@@ -1,5 +1,6 @@
 import React from 'react';
 import { QuoteInput, PackingType, Incoterm } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { inputStyles } from './input-styles';
 
 interface Props {
@@ -13,10 +14,11 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
   const grid = twoColGrid(isMobileView);
+  const { t } = useLanguage();
 
   return (
     <div className={cardClass}>
-      <h3 className={sectionTitleClass}>Value Added Services</h3>
+      <h3 className={sectionTitleClass}>{t('calc.section.service')}</h3>
       <div className={grid}>
         <div>
           <label className={lc}>Special Packing</label>

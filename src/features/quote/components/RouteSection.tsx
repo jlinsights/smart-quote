@@ -1,5 +1,6 @@
 import React from 'react';
 import { QuoteInput, Incoterm } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { COUNTRY_OPTIONS, INCOTERM_OPTIONS } from '@/config/options';
 import { inputStyles } from './input-styles';
 
@@ -39,6 +40,7 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
   const grid = twoColGrid(isMobileView);
+  const { t } = useLanguage();
 
   const zipHint = ZIP_HINTS[input.destinationCountry] || { placeholder: 'Zip / Postal Code' };
 
@@ -46,19 +48,19 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
     <div className={cardClass}>
         <h3 className={sectionTitleClass}>
             <span className="w-2 h-2 bg-jways-500 rounded-full mr-2"></span>
-            Route & Terms
+            {t('calc.section.route')}
         </h3>
         <div className={grid}>
 
           <div>
-            <label className={lc}>Origin Country</label>
+            <label className={lc}>{t('calc.label.origin')}</label>
             <div className={`${ic} bg-gray-50 dark:bg-gray-600 text-gray-700 dark:text-gray-200 cursor-default flex items-center`}>
                 <span className="mr-1.5">🇰🇷</span> South Korea
             </div>
           </div>
 
           <div>
-            <label className={lc}>Destination Country</label>
+            <label className={lc}>{t('calc.label.destination')}</label>
             <div className="relative">
                 <select
                 value={input.destinationCountry}
@@ -74,7 +76,7 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
           </div>
 
           <div>
-            <label className={lc}>Dest. Zip Code</label>
+            <label className={lc}>{t('calc.label.zip')}</label>
             <input
               type="text"
               value={input.destinationZip}
@@ -88,7 +90,7 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
           </div>
 
           <div>
-            <label className={lc}>Overseas Carrier</label>
+            <label className={lc}>{t('calc.label.carrier')}</label>
             <div className="relative">
                 <select
                 value={input.overseasCarrier || 'UPS'}
@@ -104,7 +106,7 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
           </div>
 
           <div>
-            <label className={lc}>Shipping Mode</label>
+            <label className={lc}>{t('calc.label.mode')}</label>
             <div className="relative">
                 <select
                 value={input.shippingMode || 'Door-to-Door'}

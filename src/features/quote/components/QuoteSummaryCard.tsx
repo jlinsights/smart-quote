@@ -1,5 +1,6 @@
 import React from 'react';
 import { QuoteResult } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Anchor, FileDown } from 'lucide-react';
 import { formatKRW, formatUSD } from '@/lib/format';
 import { resultStyles } from './result-styles';
@@ -11,6 +12,7 @@ interface Props {
 
 export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf }) => {
   const formatCurrency = formatKRW;
+  const { t } = useLanguage();
 
   return (
       <div className={resultStyles.mainQuoteCardClass}>
@@ -20,11 +22,11 @@ export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf }) => 
         
         <div className="relative z-10">
             <div className="flex justify-between items-start mb-2">
-                <h2 className="text-jways-200 text-xs font-bold tracking-widest uppercase mt-1">Total Estimated Quote</h2>
+                <h2 className="text-jways-200 text-xs font-bold tracking-widest uppercase mt-1">{t('calc.totalEstimate')}</h2>
                 <button 
                     onClick={onDownloadPdf}
                     className="flex items-center space-x-1 bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1.5 rounded-lg backdrop-blur-sm transition-colors border border-white/10"
-                    title="Download Quote PDF"
+                    title={t('quote.downloadPdf')}
                 >
                     <FileDown className="w-3.5 h-3.5" />
                     <span>PDF</span>

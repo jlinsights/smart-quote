@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CargoItem } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Package, Plus, Box, Trash2, Copy } from 'lucide-react';
 import { SURGE_THRESHOLDS } from '@/config/business-rules';
 import { inputStyles } from './input-styles';
@@ -60,6 +61,7 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
   const [unitSystem, setUnitSystem] = useState<UnitSystem>('metric');
   const { inputClass, cardClass } = inputStyles;
   const ic = inputClass(isMobileView);
+  const { t } = useLanguage();
 
   const dimLabel = unitSystem === 'metric' ? 'cm' : 'in';
   const wtLabel = unitSystem === 'metric' ? 'kg' : 'lb';
@@ -118,7 +120,7 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
       <div className="flex justify-between items-center mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
           <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center">
               <Package className="w-4 h-4 mr-2" />
-              Cargo Details
+              {t('calc.section.cargo')}
           </h3>
           <div className="flex items-center gap-2">
               <div className="inline-flex rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden text-xs">
