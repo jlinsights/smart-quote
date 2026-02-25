@@ -5,17 +5,14 @@
     "platform": "claude",
     "level": "Dynamic"
   },
-  "activeFeatures": {
-    "code-quality-fixes": {
-      "phase": "completed",
-      "startedAt": "2026-02-25",
-      "planDoc": "docs/01-plan/features/code-quality-fixes.plan.md",
-      "designDoc": "docs/02-design/features/code-quality-fixes.design.md",
-      "analysisDoc": "docs/03-analysis/code-quality-fixes.analysis.md",
-      "matchRate": 97
-    }
-  },
+  "activeFeatures": {},
   "archivedFeatures": {
+    "code-quality-fixes": {
+      "archivedAt": "2026-02-25",
+      "archivedTo": "docs/archive/2026-02/code-quality-fixes/",
+      "matchRate": 97,
+      "iterations": 0
+    },
     "calculate-quote": {
       "archivedAt": "2026-02-24",
       "archivedTo": "docs/archive/2026-02/calculate-quote/",
