@@ -27,8 +27,10 @@ export const LoginPage: React.FC = () => {
          const storedUserStr = localStorage.getItem('smartQuoteCurrentUser');
          const userRole = storedUserStr ? JSON.parse(storedUserStr).role : 'user';
 
-         if (from === '/' || from === '/login') {
-             navigate(userRole === 'admin' ? '/admin' : '/dashboard', { replace: true });
+         const defaultDest = userRole === 'admin' ? '/admin' : '/dashboard';
+
+         if (from === '/' || from === '/login' || from === '/dashboard') {
+             navigate(defaultDest, { replace: true });
          } else {
              navigate(from, { replace: true });
          }

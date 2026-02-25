@@ -44,7 +44,7 @@ export const LandingPage: React.FC = () => {
         <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 transition-colors duration-200">
           <img
             className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
-            src="https://images.unsplash.com/photo-1436491865332-7a61ce651c8e?auto=format&fit=crop&w=2000&q=80"
+            src="https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=2000&q=80"
             alt="Air freight logistics and cargo plane"
           />
           <div className="absolute inset-0 bg-jways-900/10 dark:bg-jways-900/40 mix-blend-multiply transition-colors duration-200"></div>
