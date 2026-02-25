@@ -80,13 +80,15 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
 Frontend (`src/features/quote/services/calculationService.ts`) and backend (`smart-quote-api/app/services/`) implement **identical** calculation logic. The frontend runs calculations instantly for UI responsiveness; the Rails API is the source of truth for saved quotes.
 
 ### Calculation Pipeline
-1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L*W*H / 5000 for UPS, /6000 for EMAX), packing material/labor, surge charges (UPS-only)
+1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L*W*H / 5000 for UPS, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
 2. **Carrier Costs** - Zone lookup (country -> zone code), exact rate table (0.5-20kg in 0.5kg steps) or range rate (>20kg per-kg), FSC% surcharge, war risk (5%)
 3. **Margin** - `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
 
-### Surge Logic (UPS-specific)
-Priority order: Over Max (>70kg or length >274cm) -> Large Package (girth >300cm) -> AHS Weight (>25kg) -> AHS Dimension (longest >122cm or second >76cm) -> AHS Packing (wood/skid)
+### Surge Charges (All Carriers)
+Manual surge input (`manualSurgeCost`) applies to UPS, DHL, and EMAX equally. Reflected in `breakdown.intlSurge` and cost breakdown UI. Auto-calculation is disabled; users enter surge fees manually.
+
+UPS auto-calc reference (currently disabled): Over Max (>70kg or length >274cm) -> Large Package (girth >300cm) -> AHS Weight (>25kg) -> AHS Dimension (longest >122cm or second >76cm) -> AHS Packing (wood/skid)
 
 ### UPS Zone Mapping (Z1-Z10)
 Z1: SG/TW/MO/CN, Z2: JP/VN, Z3: TH/PH, Z4: AU/IN, Z5: CA/US, Z6: ES/IT/GB/FR, Z7: DK/NO/SE/FI/DE/NL/BE/IE/CH/AT/PT/CZ/PL/HU/RO/BG, Z8: AR/BR/CL/CO/AE/TR, Z9: ZA/EG/BH/IL/JO/LB/SA/PK, Z10: HK+default
@@ -125,7 +127,7 @@ GET    /api/v1/quotes/export      # CSV download
 
 - **Frontend**: Vitest + @testing-library/react, jsdom environment, setup in `src/test/setup.ts`
   - Tests use `vitest/globals` (no imports needed for `describe`, `it`, `expect`)
-  - 7 test files, 69 tests: calculationService (35), SaveQuoteButton (9), QuoteHistoryTable (7), QuoteSearchBar (7), QuotePagination (6), quoteApi (4), pdfService (1)
+  - 7 test files, 70 tests: calculationService (36), SaveQuoteButton (9), QuoteHistoryTable (7), QuoteSearchBar (7), QuotePagination (6), quoteApi (4), pdfService (1)
 - **Backend**: RSpec + FactoryBot + Shoulda Matchers, factories in `spec/factories/`
 
 ## Deployment

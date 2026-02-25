@@ -145,7 +145,7 @@ export const calculateItemSurge = (
     return { surgeCost, warnings };
 };
 
-// NOTE: carrier param removed while surge auto-calc is disabled. Add it back when reactivating.
+// Surge auto-calc disabled; manual surge input applies to all carriers via calculateQuote().
 export const calculateItemCosts = (items: CargoItem[], packingType: PackingType, manualPackingCost?: number, volumetricDivisor: number = 5000): ItemCalculationResult => {
   let totalActualWeight = 0;
   let totalPackedVolumetricWeight = 0;
@@ -177,17 +177,8 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
       }
     }
 
-    // Surge/AHS auto-calculation disabled — currently suspended by carriers.
-    // Manual surge input is available via QuoteInput.manualSurgeCost.
-    // To reactivate: add carrier param back to this function, add index to forEach,
-    // change surgeCost to let, and uncomment:
-    // if (carrier === 'UPS') {
-    //   for (let q = 0; q < item.quantity; q++) {
-    //       const surgeResult = calculateItemSurge(l, w, h, weight, packingType, index);
-    //       surgeCost += surgeResult.surgeCost;
-    //       if (q === 0) { warnings.push(...surgeResult.warnings); }
-    //   }
-    // }
+    // Surge/AHS auto-calculation disabled — manual input via QuoteInput.manualSurgeCost.
+    // Applies to all carriers (UPS, DHL, EMAX). See calculateQuote() for integration.
 
     totalActualWeight += weight * item.quantity;
     totalPackedVolumetricWeight += calculateVolumetricWeight(l, w, h, volumetricDivisor) * item.quantity;
@@ -422,7 +413,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
       break;
   }
 
-  // Surge: use manual input (0 by default since auto-calc is disabled)
+  // Surge: manual input for all carriers (UPS, DHL, EMAX)
   const surgeCost = input.manualSurgeCost ?? 0;
   const intlTotal = carrierResult.intlBase + carrierResult.intlFsc + carrierResult.intlWarRisk + surgeCost;
 

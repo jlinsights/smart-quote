@@ -63,13 +63,13 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
                   value={input.manualSurgeCost ?? ''}
                   onChange={(e) => onFieldChange('manualSurgeCost', e.target.value === '' ? undefined : Number(e.target.value))}
                   className={ic}
-                  placeholder="0 (currently suspended)"
+                  placeholder="0"
                   inputMode="numeric"
                   autoComplete="off"
               />
           </div>
           <p className="mt-1 text-[10px] text-gray-400">
-              AHS/Large Package/Over Max surcharges. Enter if applicable — auto-calc suspended.
+              Carrier surcharges (AHS, Large Package, Peak Season, etc.). Applied to all carriers.
           </p>
         </div>
 

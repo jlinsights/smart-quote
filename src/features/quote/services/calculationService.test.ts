@@ -255,5 +255,18 @@ describe('calculationService', () => {
       });
       expect(result.breakdown.intlSurge).toBe(30000);
     });
+
+    it('manual surge cost works for EMAX too', () => {
+      const result = calculateQuote({
+        ...baseInput,
+        overseasCarrier: 'EMAX',
+        destinationCountry: 'CN',
+        manualSurgeCost: 20000,
+      });
+      expect(result.breakdown.intlSurge).toBe(20000);
+      expect(result.totalCostAmount).toBeGreaterThan(
+        calculateQuote({ ...baseInput, overseasCarrier: 'EMAX', destinationCountry: 'CN' }).totalCostAmount
+      );
+    });
   });
 });

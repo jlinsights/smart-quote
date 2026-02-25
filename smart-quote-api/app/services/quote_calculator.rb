@@ -71,7 +71,7 @@ class QuoteCalculator
                         )
                       end
 
-    # Surge: use manual input (auto-calc suspended, may be reactivated later)
+    # Surge: manual input for all carriers (UPS, DHL, EMAX)
     surge_cost = @input[:manualSurgeCost] || 0
     overseas_total = overseas_result[:intl_base] + overseas_result[:intl_fsc] + overseas_result[:intl_war_risk] + surge_cost
 

@@ -18,7 +18,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
   const formatCurrency = (val: number) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(val);
 
   const packingCost = result.breakdown.packingMaterial + result.breakdown.packingLabor + result.breakdown.packingFumigation + result.breakdown.handlingFees;
-  const upsTotalCost = result.breakdown.intlBase + result.breakdown.intlFsc + result.breakdown.intlWarRisk + result.breakdown.intlSurge;
+  const carrierTotalCost = result.breakdown.intlBase + result.breakdown.intlFsc + result.breakdown.intlWarRisk + result.breakdown.intlSurge;
   const totalInternalCost = result.totalCostAmount;
 
   return (
@@ -94,7 +94,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                                 <span>Intl. Freight ({result.carrier === 'EMAX' ? 'E-MAX' : result.carrier})</span>
                             </div>
                             <div className="text-right">
-                                <span className="block font-medium">{formatCurrency(upsTotalCost)}</span>
+                                <span className="block font-medium">{formatCurrency(carrierTotalCost)}</span>
                             </div>
                         </div>
                         {/* Sub-breakdown: Base / FSC / War Risk / Surge */}

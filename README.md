@@ -17,12 +17,11 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 ### Multi-Carrier Quoting (UPS, DHL, EMAX)
 
 - **Zone-based pricing**: Country-to-zone mapping (Z1-Z10 for UPS, Z1-Z9 for DHL, zones for EMAX) with exact rate tables (0.5-20kg in 0.5kg steps) and range rates (>20kg per-kg)
-- **Surcharges**: FSC% fuel surcharge, war risk (5%), carrier-specific surge fees
-- **UPS Surge Logic** (priority order): Over Max (>70kg or length >274cm) → Large Package (girth >300cm) → AHS Weight (>25kg) → AHS Dimension (longest >122cm or second >76cm) → AHS Packing (wood/skid)
+- **Surcharges**: FSC% fuel surcharge, war risk (5%), manual surge fees (applied to all carriers)
 
 ### Calculation Pipeline
 
-1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L×W×H / 5000 for UPS, /6000 for EMAX), packing material/labor, surge charges
+1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L×W×H / 5000 for UPS, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
 2. **Carrier Costs** - Zone lookup → rate table → FSC → war risk
 3. **Margin** - `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB)
@@ -92,7 +91,7 @@ npm run dev          # Dev server on http://localhost:5173
 npm run build        # Production build (tsc + vite)
 npm run lint         # ESLint (--max-warnings 0)
 npm run test         # Vitest watch mode
-npx vitest run       # Run tests once (7 files, 69 tests)
+npx vitest run       # Run tests once (7 files, 70 tests)
 ```
 
 ### Backend (from `smart-quote-api/`)

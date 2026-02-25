@@ -1,1 +1,1 @@
-📝 docs: README.md & CLAUDE.md 업데이트 - 멀티캐리어 구조, UPS Z1-Z10, 히스토리 기능, 테스트 현황 반영
+🔧 fix: Surge 요금 전 캐리어(UPS/DHL/EMAX) 공통 적용 — UI 라벨 수정, EMAX 테스트 추가, README/CLAUDE.md 전면 업데이트
