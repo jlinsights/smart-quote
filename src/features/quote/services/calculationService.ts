@@ -246,12 +246,10 @@ export const calculateUpsCosts = (
 
     const fscRate = (fscPercent || 0) / 100;
     const intlFsc = intlBase * fscRate;
-    const intlWarRisk = 0;
-
     return {
       intlBase,
       intlFsc,
-      intlWarRisk,
+      intlWarRisk: 0,
       appliedZone: zoneInfo.label,
       transitTime: '3-5 Business Days'
     };
@@ -284,12 +282,10 @@ export const calculateDhlCosts = (
 
   const fscRate = (fscPercent || 0) / 100;
   const intlFsc = intlBase * fscRate;
-  const intlWarRisk = 0;
-
   return {
     intlBase,
     intlFsc,
-    intlWarRisk,
+    intlWarRisk: 0,
     appliedZone: zoneInfo.label,
     transitTime: '3-7 Business Days (DHL)',
   };

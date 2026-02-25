@@ -11,9 +11,10 @@ interface Props {
   onPackingCostChange: (newCost: number) => void;
   onDownloadPdf: () => void;
   marginUSD: number;
+  hideMargin?: boolean;
 }
 
-export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onPackingCostChange, onDownloadPdf, marginUSD }) => {
+export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onPackingCostChange, onDownloadPdf, marginUSD, hideMargin }) => {
   return (
     <div className="space-y-6 sticky top-6">
       <QuoteSummaryCard result={result} onDownloadPdf={onDownloadPdf} />
@@ -24,6 +25,7 @@ export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onPacki
         onPackingCostChange={onPackingCostChange}
         onMarginChange={onMarginChange}
         marginUSD={marginUSD}
+        hideMargin={hideMargin}
       />
     </div>
   );

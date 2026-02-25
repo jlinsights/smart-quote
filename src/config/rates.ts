@@ -7,7 +7,6 @@ export const SURGE_RATES = {
 
 export const HANDLING_FEE = 0; 
 export const FUMIGATION_FEE = 30000;
-export const WAR_RISK_SURCHARGE_RATE = 0.05; // 5%
 export const PACKING_MATERIAL_BASE_COST = 15000; // per m2
 export const PACKING_LABOR_UNIT_COST = 50000; // per item
 

@@ -8,7 +8,6 @@ import {
   calculateQuote,
 } from './calculationService';
 import { PackingType, Incoterm, QuoteInput } from '@/types';
-import { WAR_RISK_SURCHARGE_RATE } from '@/config/rates';
 import { DHL_EXACT_RATES } from '@/config/dhl_tariff';
 
 describe('calculationService', () => {
@@ -93,7 +92,7 @@ describe('calculationService', () => {
       const result = calculateDhlCosts(1, 'CN', 0);
       expect(result.intlBase).toBe(60914);
       expect(result.intlFsc).toBe(0);
-      expect(result.intlWarRisk).toBe(60914 * WAR_RISK_SURCHARGE_RATE);
+      expect(result.intlWarRisk).toBe(0);
     });
 
     it('returns correct exact rate for DHL Z6 at 5kg', () => {
@@ -112,9 +111,9 @@ describe('calculationService', () => {
       expect(result.intlFsc).toBeCloseTo(60914 * 0.30, 0);
     });
 
-    it('applies war risk correctly', () => {
+    it('war risk is disabled (returns 0)', () => {
       const result = calculateDhlCosts(1, 'CN', 0);
-      expect(result.intlWarRisk).toBeCloseTo(60914 * 0.05, 0);
+      expect(result.intlWarRisk).toBe(0);
     });
   });
 
@@ -169,7 +168,7 @@ describe('calculationService', () => {
       expect(result.carrier).toBe('UPS');
       expect(result.breakdown.intlBase).toBeGreaterThan(0);
       expect(result.breakdown.intlFsc).toBeGreaterThan(0);
-      expect(result.breakdown.intlWarRisk).toBeGreaterThan(0);
+      expect(result.breakdown.intlWarRisk).toBe(0);
       expect(result.totalQuoteAmount).toBeGreaterThan(0);
       expect(result.totalCostAmount).toBeGreaterThan(0);
     });

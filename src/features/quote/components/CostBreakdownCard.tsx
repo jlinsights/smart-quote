@@ -10,9 +10,10 @@ interface Props {
   onPackingCostChange: (newCost: number) => void;
   onMarginChange: (newMargin: number) => void;
   marginUSD: number;
+  hideMargin?: boolean;
 }
 
-export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange, onMarginChange, marginUSD }) => {
+export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange, onMarginChange, marginUSD, hideMargin }) => {
   const [showPackingInfo, setShowPackingInfo] = useState(false);
   const { cardClass } = resultStyles;
 
@@ -151,6 +152,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                 <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Pricing Strategy</h4>
                 <div className="bg-jways-50 dark:bg-jways-900/20 p-4 rounded-xl space-y-3 border border-jways-100 dark:border-jways-800/30">
                      
+                     {!hideMargin && (
                      <div className="flex justify-between items-center text-green-700 dark:text-green-400">
                         <div className="flex items-center">
                             <TrendingUp className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -173,8 +175,9 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                         </div>
                         <span className="font-bold">+ {formatCurrency(result.profitAmount)}</span>
                     </div>
+                    )}
                     
-                    <div className="flex justify-between items-center pt-3 border-t border-jways-200 dark:border-jways-700/50">
+                    <div className={`flex justify-between items-center pt-3 ${hideMargin ? '' : 'border-t border-jways-200 dark:border-jways-700/50'}`}>
                         <span className="text-jways-900 dark:text-jways-100 font-extrabold text-lg">Final Quote Price</span>
                         <div className="flex flex-col items-end">
                             <span className="text-jways-900 dark:text-jways-100 font-extrabold text-lg">{formatCurrency(result.totalQuoteAmount)}</span>
