@@ -1,15 +1,16 @@
 {
-  "sessionCount": 5,
+  "sessionCount": 6,
   "lastSession": {
-    "startedAt": "2026-02-24T22:29:44.772Z",
+    "startedAt": "2026-02-25T00:19:11.996Z",
     "platform": "claude",
     "level": "Dynamic"
   },
   "activeFeatures": {
     "code-quality-fixes": {
-      "phase": "plan",
+      "phase": "design",
       "startedAt": "2026-02-25",
-      "planDoc": "docs/01-plan/features/code-quality-fixes.plan.md"
+      "planDoc": "docs/01-plan/features/code-quality-fixes.plan.md",
+      "designDoc": "docs/02-design/features/code-quality-fixes.design.md"
     }
   },
   "archivedFeatures": {
