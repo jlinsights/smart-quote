@@ -19,8 +19,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // In a real application, this would be handled by a secure backend database.
 // For this frontend implementation, we use localStorage to mock user records.
-const ADMIN_EMAIL = 'admin@goodmangls.com';
-const ADMIN_PASSWORD = 'password';
+const PREDEFINED_ADMINS = [
+  { email: 'ceo@goodmangls.com', password: 'password', role: 'admin' },
+  { email: 'ken.jeon@goodmangls.com', password: 'password', role: 'admin' },
+  { email: 'jaehong.lim@goodmangls.com', password: 'password', role: 'admin' }
+];
 
 const MOCK_USERS_KEY = 'smartQuoteMockUsers';
 const CURRENT_USER_KEY = 'smartQuoteCurrentUser';
@@ -30,10 +33,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Initialize admin user if empty
+    // Initialize predefined admin users
     const usersData = localStorage.getItem(MOCK_USERS_KEY);
-    if (!usersData) {
-      localStorage.setItem(MOCK_USERS_KEY, JSON.stringify([{ email: ADMIN_EMAIL, password: ADMIN_PASSWORD, role: 'admin' }]));
+    const users = usersData ? JSON.parse(usersData) : [];
+    
+    let updated = false;
+    PREDEFINED_ADMINS.forEach(admin => {
+      const existingUser = users.find((u: User) => u.email === admin.email);
+      if (!existingUser) {
+        users.push(admin);
+        updated = true;
+      } else if (existingUser.role !== 'admin') {
+        existingUser.role = 'admin';
+        updated = true;
+      }
+    });
+
+    if (updated || !usersData) {
+      localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(users));
     }
 
     const storedUser = localStorage.getItem(CURRENT_USER_KEY);
