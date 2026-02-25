@@ -88,7 +88,7 @@ const App: React.FC = () => {
     setIsMobileView,
     input,
     setInput,
-    result: result!,
+    result,
     onMarginChange: handleMarginChange,
     onPackingCostChange: handlePackingCostChange,
     onDownloadPdf: handleDownloadPdf,

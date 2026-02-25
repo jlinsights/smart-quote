@@ -11,7 +11,7 @@ interface Props {
   setIsMobileView: (isMobile: boolean) => void;
   input: QuoteInput;
   setInput: React.Dispatch<React.SetStateAction<QuoteInput>>;
-  result: QuoteResult;
+  result: QuoteResult | null;
   onMarginChange: (val: number) => void;
   onPackingCostChange: (val: number) => void;
   onDownloadPdf: () => void;

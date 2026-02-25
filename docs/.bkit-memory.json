@@ -5,7 +5,13 @@
     "platform": "claude",
     "level": "Dynamic"
   },
-  "activeFeatures": {},
+  "activeFeatures": {
+    "code-quality-fixes": {
+      "phase": "plan",
+      "startedAt": "2026-02-25",
+      "planDoc": "docs/01-plan/features/code-quality-fixes.plan.md"
+    }
+  },
   "archivedFeatures": {
     "calculate-quote": {
       "archivedAt": "2026-02-24",

@@ -1,1 +1,1 @@
-🔧 fix: Surge 전 캐리어 공통 적용, DHL 용적중량 5000 문서 반영 — UI/코드/테스트/README/CLAUDE.md 업데이트
+🔒 fix(critical): .env gitignore 추가, GEMINI_API_KEY 클라이언트 노출 제거, result! non-null assertion 제거
