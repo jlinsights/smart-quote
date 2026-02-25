@@ -1,1 +1,1 @@
-🔧 fix: Surge 요금 전 캐리어(UPS/DHL/EMAX) 공통 적용 — UI 라벨 수정, EMAX 테스트 추가, README/CLAUDE.md 전면 업데이트
+🔧 fix: Surge 전 캐리어 공통 적용, DHL 용적중량 5000 문서 반영 — UI/코드/테스트/README/CLAUDE.md 업데이트

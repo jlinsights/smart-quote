@@ -80,7 +80,7 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
 Frontend (`src/features/quote/services/calculationService.ts`) and backend (`smart-quote-api/app/services/`) implement **identical** calculation logic. The frontend runs calculations instantly for UI responsiveness; the Rails API is the source of truth for saved quotes.
 
 ### Calculation Pipeline
-1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L*W*H / 5000 for UPS, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
+1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L*W*H / 5000 for UPS & DHL, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
 2. **Carrier Costs** - Zone lookup (country -> zone code), exact rate table (0.5-20kg in 0.5kg steps) or range rate (>20kg per-kg), FSC% surcharge, war risk (5%)
 3. **Margin** - `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support

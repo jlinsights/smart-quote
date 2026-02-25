@@ -21,7 +21,7 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 
 ### Calculation Pipeline
 
-1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L×W×H / 5000 for UPS, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
+1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L×W×H / 5000 for UPS & DHL, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
 2. **Carrier Costs** - Zone lookup → rate table → FSC → war risk
 3. **Margin** - `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB)
