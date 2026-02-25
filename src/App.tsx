@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import QuoteCalculator from './pages/QuoteCalculator';
 import { LoginPage } from './pages/LoginPage';
+import { SignUpPage } from './pages/SignUpPage';
+import { LandingPage } from './pages/LandingPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -10,17 +12,29 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* Public Route - External Quotes without Margin Breakdown */}
-          <Route path="/" element={<QuoteCalculator isPublic={true} />} />
+          {/* Public Landing Page */}
+          <Route path="/" element={<LandingPage />} />
 
-          {/* Login Route */}
+          {/* Authentication Routes */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
 
-          {/* Internal Dashboard Route - Protected */}
+          {/* User & Client Route - External Quotes without Margin Breakdown */}
+          {/* Admin can also access this to see how it looks to clients */}
           <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
+                <QuoteCalculator isPublic={true} />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Internal Admin Route - Protected strictly for Admin */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requireAdmin={true}>
                 <QuoteCalculator isPublic={false} />
               </ProtectedRoute>
             }

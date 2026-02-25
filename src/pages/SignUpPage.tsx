@@ -1,46 +1,36 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LogIn } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
-export const LoginPage: React.FC = () => {
+export const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   
-  const { login } = useAuth();
+  const { signup } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const from = location.state?.from?.pathname || '/dashboard';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (email.trim() && password.trim()) {
-      const success = login(email.trim(), password.trim());
-      if (success) {
-         // The AuthContext now stores user role. 
-         // Let App.tsx or ProtectedRoute handle redirect logic based on user.role instead of forcing it here, 
-         // BUT if they came from '/' we might want to direct them safely.
-         // If they were trying to go to /admin and are admin, ProtectedRoute will let them in.
-         
-         // To be safe, let's look at the stored user role from localStorage since state might not be fully updated
-         // in this exact synchronous tick if we rely on context directly, although context is synchronous enough.
-         const storedUserStr = localStorage.getItem('smartQuoteCurrentUser');
-         const userRole = storedUserStr ? JSON.parse(storedUserStr).role : 'user';
+    if (password !== confirmPassword) {
+        setError("Passwords do not match.");
+        return;
+    }
 
-         if (from === '/' || from === '/login') {
-             navigate(userRole === 'admin' ? '/admin' : '/dashboard', { replace: true });
-         } else {
-             navigate(from, { replace: true });
-         }
+    if (email.trim() && password.trim()) {
+      const success = signup(email.trim(), password.trim());
+      if (success) {
+         // Normal users always go to dashboard
+         navigate('/dashboard', { replace: true });
       } else {
-        setError('Invalid email or password.');
+        setError('Email already exists or invalid data.');
       }
     } else {
-      setError('Please enter both email and password.');
+      setError('Please fill out all fields.');
     }
   };
 
@@ -52,11 +42,11 @@ export const LoginPage: React.FC = () => {
         </Link>
         <div className="flex justify-center">
             <div className="w-16 h-16 bg-jways-600 rounded-full flex items-center justify-center">
-                <LogIn className="w-8 h-8 text-white" />
+                <ShieldCheck className="w-8 h-8 text-white" />
             </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Sign in to your account
+          Create an account
         </h2>
       </div>
 
@@ -77,7 +67,6 @@ export const LoginPage: React.FC = () => {
                   id="email"
                   name="email"
                   type="email"
-                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -96,10 +85,26 @@ export const LoginPage: React.FC = () => {
                   id="password"
                   name="password"
                   type="password"
-                  autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-jways-500 focus:border-jways-500 sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                Confirm Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-jways-500 focus:border-jways-500 sm:text-sm"
                 />
               </div>
@@ -110,16 +115,16 @@ export const LoginPage: React.FC = () => {
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-jways-600 hover:bg-jways-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-jways-500 transition-colors"
               >
-                Sign in
+                Sign Up
               </button>
             </div>
           </form>
-          
+
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link to="/signup" className="font-medium text-jways-600 hover:text-jways-500">
-                Sign up
+              Already have an account?{' '}
+              <Link to="/login" className="font-medium text-jways-600 hover:text-jways-500">
+                Log in
               </Link>
             </p>
           </div>
