@@ -21,7 +21,7 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white dark:bg-jways-900 border-b border-gray-100 dark:border-jways-800 transition-colors duration-200">
+    <nav className="bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0 flex items-center">
@@ -36,7 +36,7 @@ export const Header: React.FC = () => {
             {/* Language Toggle */}
             <button
               onClick={handleLanguageToggle}
-              className="p-2 text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-jways-400 hover:bg-gray-50 dark:hover:bg-jways-800 rounded-lg flex items-center space-x-1 transition-all"
+              className="p-2 text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-jways-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg flex items-center space-x-1 transition-all"
               title={language === 'en' ? 'Switch to Korean' : 'Switch to English'}
             >
               <Globe className="w-5 h-5" />
@@ -46,13 +46,13 @@ export const Header: React.FC = () => {
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
-              className="p-2 text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-jways-400 hover:bg-gray-50 dark:hover:bg-jways-800 rounded-lg transition-all"
+              className="p-2 text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-jways-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all"
               title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
               {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            <div className="w-px h-6 bg-gray-200 dark:bg-jways-700 mx-2"></div>
+            <div className="w-px h-6 bg-gray-200 dark:bg-gray-800 mx-2"></div>
 
             {/* Auth Buttons */}
             {isAuthenticated ? (
@@ -66,7 +66,7 @@ export const Header: React.FC = () => {
                     </span>
                  </div>
                  {user?.role === 'admin' && (
-                    <Link to="/admin" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-white bg-jways-50 dark:bg-jways-800 px-3 py-1.5 rounded-md transition-colors hidden sm:block">
+                    <Link to="/admin" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-white bg-jways-50 dark:bg-gray-900 px-3 py-1.5 rounded-md transition-colors hidden sm:block">
                       {t('nav.admin')}
                     </Link>
                  )}

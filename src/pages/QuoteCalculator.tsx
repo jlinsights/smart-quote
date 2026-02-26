@@ -100,18 +100,18 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const containerClass = "min-h-screen font-sans transition-colors duration-200";
 
   return (
-    <div className="bg-gray-50 dark:bg-jways-900 min-h-screen font-sans transition-colors duration-200">
+    <div className="bg-gray-50 dark:bg-gray-950 min-h-screen font-sans transition-colors duration-200">
       {/* Unified App Header */}
       <Header />
 
       <div className={containerClass}>
         {/* Calculator Sub-Header / Action Bar */}
-        <div className="bg-white dark:bg-jways-800 border-b border-gray-200 dark:border-jways-700 sticky top-0 z-40 transition-colors duration-200 shadow-sm">
+        <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40 transition-colors duration-200 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="h-14 flex items-center justify-between w-full">
               <div className="flex items-center space-x-2 sm:space-x-4">
                 {!isPublic && <NavigationTabs currentView={currentView} onViewChange={setCurrentView} />}
-                
+
                 {currentView === 'calculator' && result && !isPublic && (
                   <div className="hidden sm:block">
                     <SaveQuoteButton input={input} result={result} onSaved={handleQuoteSaved} />
@@ -120,7 +120,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
               </div>
 
               <div className="flex items-center space-x-2 sm:space-x-4">
-                <div className="hidden md:flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-jways-700 px-3 py-1 rounded-full">
+                <div className="hidden md:flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
                   <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
                   <span>Lightning Quote System</span>
                 </div>
@@ -128,7 +128,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                 {currentView === 'calculator' && (
                   <button
                     onClick={handleReset}
-                    className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-red-500 dark:text-gray-400 dark:hover:bg-jways-700 dark:hover:text-red-400 transition-colors"
+                    className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-red-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-red-400 transition-colors"
                     title={t('calc.resetQuote')}
                   >
                     <RotateCcw className="w-5 h-5" />
@@ -138,7 +138,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                 {currentView === 'calculator' && (
                   <button
                     onClick={() => setIsMobileView(!isMobileView)}
-                    className="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-jways-700 transition-colors"
+                    className="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
                     title="Switch to Mobile View"
                   >
                     {isMobileView ? (
@@ -199,7 +199,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
             {/* Sticky Bottom Bar (Mobile / Responsive) */}
             {result && !isMobileView && (
-              <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-jways-800/95 backdrop-blur-md border-t border-gray-200 dark:border-jways-700 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 safe-area-bottom">
+              <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 safe-area-bottom">
                 <div className="max-w-lg mx-auto flex justify-between items-center">
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">{t('calc.totalEstimate')}</p>
@@ -214,7 +214,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                   </div>
                   <button
                     onClick={scrollToResults}
-                    className="flex items-center bg-jways-600 text-white px-4 py-3 rounded-xl text-sm font-bold shadow-lg hover:bg-jways-700 active:scale-95 transition-all"
+                    className="flex items-center bg-jways-600 text-white px-4 py-3 rounded-xl text-sm font-bold shadow-lg shadow-jways-600/25 hover:bg-jways-500 active:scale-95 transition-all"
                   >
                     {t('calc.viewDetails')}
                   </button>
@@ -227,7 +227,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
         )}
 
         {/* Footer */}
-        <footer className="border-t border-gray-200 dark:border-jways-700 mt-0 py-8 bg-white dark:bg-jways-900/50 text-center transition-colors duration-200 hidden lg:block">
+        <footer className="border-t border-gray-100 dark:border-gray-800 mt-0 py-8 bg-white dark:bg-gray-950 text-center transition-colors duration-200 hidden lg:block">
           <p className="text-sm text-gray-400 dark:text-gray-500">&copy; 2025 Goodman GLS & J-Ways. {isPublic ? 'Smart Quote System.' : 'Internal Use Only.'}</p>
           <p className="text-xs text-gray-300 dark:text-gray-600 mt-1">System Version 2.1 | Data Updated: 2025.01.15</p>
         </footer>

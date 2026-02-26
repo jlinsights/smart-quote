@@ -15,8 +15,7 @@ const CustomerDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-jways-950 transition-colors duration-200">
-      {/* Unified App Header - consistent with /quote page */}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Welcome Banner */}
@@ -32,8 +31,8 @@ const CustomerDashboard: React.FC = () => {
 
           {/* Right Column: Recent Quotes & New Widgets */}
           <div className="lg:col-span-1 flex flex-col gap-6">
-            <div className="bg-white dark:bg-jways-800 rounded-2xl shadow-sm border border-gray-100 dark:border-jways-700 overflow-hidden transition-colors duration-200 flex-shrink-0">
-              <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 flex justify-between items-center">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-200 flex-shrink-0">
+              <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center">
                 <h3 className="font-bold text-gray-700 dark:text-gray-200 flex items-center text-sm">
                   <FileText className="w-4 h-4 mr-2 text-jways-500" />
                   {t('dashboard.recentQuotes')}
@@ -58,6 +57,15 @@ const CustomerDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-white dark:bg-gray-950 py-10 border-t border-gray-100 dark:border-gray-800 transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-gray-400 dark:text-gray-500 text-sm">
+            &copy; 2025 Goodman GLS & J-Ways. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
