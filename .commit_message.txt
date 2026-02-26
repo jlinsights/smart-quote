@@ -1,1 +1,1 @@
-🔧 fix: 기본 환율(KRW/USD) 디폴트값 1400으로 통일 (config/rates.ts + QuoteCalculator 초기값)
+🎨 style: 날씨 위젯 항공기/선박 아이콘 크기 w-3→w-5 확대 (날씨 아이콘과 동일 사이즈) + README/CLAUDE.md 전면 업데이트

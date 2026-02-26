@@ -94,8 +94,8 @@ export const WeatherWidget: React.FC = () => {
                             <div className="flex justify-between items-start mb-2">
                                 <span className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1">
                                   {weather.type === 'airport'
-                                    ? <Plane className="w-3 h-3 text-sky-500 shrink-0" />
-                                    : <Ship className="w-3 h-3 text-blue-500 shrink-0" />}
+                                    ? <Plane className="w-5 h-5 text-sky-500 shrink-0" />
+                                    : <Ship className="w-5 h-5 text-blue-500 shrink-0" />}
                                   {weather.port}
                                 </span>
                                 {getIcon(weather)}

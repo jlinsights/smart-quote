@@ -27,6 +27,20 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 3. **Margin** - USD-based margin added to cost, rounded up to nearest KRW 100
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
 
+### Dashboard & Widgets
+
+- **Customer Dashboard**: Landing page after login with welcome banner, recent quotes, and live widgets
+- **Exchange Rate Widget**: Real-time KRW rates for 6 currencies (USD, EUR, JPY, CNY, GBP, SGD) via open.er-api.com with localStorage caching, stale detection (6min threshold), visibility/online auto-refresh, and live indicator
+- **Weather Widget**: 47 global port/airport weather conditions via Open-Meteo API with paginated carousel
+- **Notice Widget**: Company announcements with paginated display
+- **Account Manager Widget**: Contact information for assigned logistics managers
+
+### Internationalization (i18n)
+
+- 4 languages: English, Korean, Chinese, Japanese
+- Context-based language switching with localStorage persistence
+- 390+ translation keys covering all UI strings
+
 ### Quote History & Management
 
 - Save quotes with auto-generated reference numbers (`SQ-YYYY-NNNN`), duplicate detection
@@ -43,44 +57,60 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 |-------|-------|
 | **Frontend** | React 19, TypeScript 5.8, Vite 6, Tailwind CSS |
 | **Backend** | Rails 8 API-only, Ruby 3.4, PostgreSQL |
-| **Testing** | Vitest + Testing Library (7 files, 68 tests), RSpec + FactoryBot (backend) |
+| **Testing** | Vitest + Testing Library (16 files, 138 tests), RSpec + FactoryBot (backend) |
 | **Deploy** | Vercel (frontend), Render.com (backend, Docker, Singapore) |
-| **Other** | jsPDF, Lucide React, Kaminari (pagination) |
+| **APIs** | open.er-api.com (exchange rates), Open-Meteo (weather), Supabase (auth) |
+| **Other** | jsPDF, Lucide React, React Router v6, Zustand |
 
 ## Project Structure
 
 ```
 /                              # Frontend
   src/
-    api/quoteApi.ts            # API client (fetch, VITE_API_URL)
-    types.ts                   # All TypeScript types & enums
+    api/                       # API clients
+      quoteApi.ts              # Rails backend client (VITE_API_URL)
+      exchangeRateApi.ts       # Exchange rate API (open.er-api.com, localStorage cache)
+      weatherApi.ts            # Open-Meteo weather API (47 ports/airports)
+      noticeApi.ts             # Notice/announcement API
+    types.ts                   # Core TypeScript types & enums
+    types/dashboard.ts         # Dashboard-specific types (ExchangeRate, PortWeather, etc.)
+    i18n/translations.ts       # 4-language translation dictionary (en/ko/cn/ja)
     config/                    # Rate tables, tariffs, business rules
       ups_tariff.ts            # UPS Z1-Z10 rates (synced with backend)
       dhl_tariff.ts            # DHL Z1-Z8 rates (synced with backend)
-      emax_tariff.ts           # EMAX per-country rates
-      rates.ts                 # KRW cost constants (packing, labor, handling)
-      business-rules.ts        # Thresholds (margin warning, weight limits)
-      options.ts               # Country options, carrier options
+      emax_tariff.ts           # EMAX per-country rates (CN, VN)
+      rates.ts                 # KRW cost constants, market defaults
+      business-rules.ts        # Surge thresholds, weight limits
+      options.ts               # Country/carrier dropdown options
+    contexts/                  # React Context providers
+      AuthContext.tsx           # Supabase auth state
+      LanguageContext.tsx       # i18n language selection
+      ThemeContext.tsx          # Dark/light mode
     features/
       quote/
-        components/            # CargoSection, RouteSection, FinancialSection, ResultSection, SaveQuoteButton, etc.
+        components/            # InputSection, ResultSection, SaveQuoteButton
+        components/widgets/    # ExchangeRateWidget, WeatherWidget, NoticeWidget, AccountManagerWidget
         services/              # calculationService.ts (mirrored calculation logic)
       history/
         components/            # QuoteHistoryPage, QuoteHistoryTable, QuoteSearchBar, QuotePagination, QuoteDetailModal
-        constants.ts           # Shared constants (STATUS_COLORS)
-    components/layout/         # MobileLayout, NavigationTabs
+      dashboard/
+        components/            # WelcomeBanner, QuoteHistoryCompact, WidgetError, WidgetSkeleton
+        hooks/                 # useExchangeRates, usePortWeather, useLogisticsNews
+    pages/                     # Route-level pages
+      LandingPage.tsx          # Public landing page (/)
+      LoginPage.tsx            # Auth login (/login)
+      SignUpPage.tsx            # Auth signup (/signup)
+      CustomerDashboard.tsx    # Dashboard with widgets (/dashboard)
+      QuoteCalculator.tsx      # Quote calculator (/quote, /admin)
+    components/layout/         # Header, MobileLayout, NavigationTabs
     lib/
-      format.ts                # Shared currency/number formatters (formatKRW, formatUSD, formatNum, etc.)
+      format.ts                # Currency/number formatters (formatKRW, formatUSD, etc.)
       pdfService.ts            # jsPDF-based PDF generation
 smart-quote-api/               # Backend (Rails 8 API)
   app/services/
     quote_calculator.rb        # Main calculator orchestrator
-    calculators/               # Individual calculators
-      ups_cost.rb, ups_zone.rb
-      dhl_cost.rb, dhl_zone.rb
-      emax_cost.rb
-      item_cost.rb, surge_cost.rb, domestic_cost.rb
-  lib/constants/               # Tariff tables (ups_tariff.rb, dhl_tariff.rb, emax_tariff.rb)
+    calculators/               # Individual calculators (ups, dhl, emax, item, surge, domestic)
+  lib/constants/               # Tariff tables (synced with frontend)
 ```
 
 ## Getting Started
@@ -98,7 +128,8 @@ npm run dev          # Dev server on http://localhost:5173
 npm run build        # Production build (tsc + vite)
 npm run lint         # ESLint (--max-warnings 0)
 npm run test         # Vitest watch mode
-npx vitest run       # Run tests once (7 files, 68 tests)
+npx vitest run       # Run tests once (16 files, 138 tests)
+npx tsc --noEmit     # Type check only
 ```
 
 ### Backend (from `smart-quote-api/`)
@@ -110,6 +141,17 @@ bin/rails server     # API on http://localhost:3000
 bundle exec rspec    # RSpec tests
 bin/rubocop          # Ruby linting
 ```
+
+### Routes
+
+| Route | Component | Access |
+|-------|-----------|--------|
+| `/` | LandingPage | Public |
+| `/login` | LoginPage | Public |
+| `/signup` | SignUpPage | Public |
+| `/dashboard` | CustomerDashboard | Protected |
+| `/quote` | QuoteCalculator (isPublic=true) | Protected |
+| `/admin` | QuoteCalculator (isPublic=false) | Admin only |
 
 ### API Endpoints
 
@@ -127,6 +169,17 @@ GET    /api/v1/quotes/export      # CSV download
 | Variable | Purpose | Default |
 |----------|---------|---------|
 | `VITE_API_URL` | Backend API base URL | `http://localhost:3000` |
+| `VITE_SUPABASE_URL` | Supabase project URL | - |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon key | - |
+
+## Market Defaults
+
+| Setting | Value |
+|---------|-------|
+| Default Exchange Rate (KRW/USD) | 1,400 |
+| Default FSC% | 30% |
+| Packing Material | 15,000 KRW/m² |
+| Packing Labor | 50,000 KRW/item |
 
 ---
 
