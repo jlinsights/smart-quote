@@ -56,7 +56,7 @@ describe('NoticeWidget', () => {
     render(<NoticeWidget />);
 
     expect(screen.getByText('Failed to load')).toBeInTheDocument();
-    expect(screen.getByText('widget.weather.retry')).toBeInTheDocument();
+    expect(screen.getByText('widget.common.retry')).toBeInTheDocument();
   });
 
   it('shows pagination controls when items exceed page size', () => {

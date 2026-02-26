@@ -10,3 +10,4 @@
 | Customer-Dashboard | 2026-02-26 | 95% | [plan](Customer-Dashboard/customer-dashboard.plan.md), [design](Customer-Dashboard/customer-dashboard.design.md), [analysis](Customer-Dashboard/customer-dashboard.analysis.md), [report](Customer-Dashboard/customer-dashboard.report.md) |
 | global-port-weather | 2026-02-26 | 97% | [plan](global-port-weather/global-port-weather.plan.md), [design](global-port-weather/global-port-weather.design.md), [analysis](global-port-weather/global-port-weather.analysis.md), [report](global-port-weather/global-port-weather.report.md) |
 | dashboard-enhancements | 2026-02-26 | 93% | [analysis](dashboard-enhancements/dashboard-enhancements.analysis.md), [report](dashboard-enhancements/dashboard-enhancements.report.md) |
+| widget-upgrades | 2026-02-26 | 98% | [analysis](widget-upgrades/widget-upgrades.analysis.md), [report](widget-upgrades/widget-upgrades.report.md) |

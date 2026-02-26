@@ -7,6 +7,8 @@ import { WelcomeBanner } from '@/features/dashboard/components/WelcomeBanner';
 import { QuoteHistoryCompact } from '@/features/dashboard/components/QuoteHistoryCompact';
 import { WeatherWidget } from '@/features/quote/components/widgets/WeatherWidget';
 import { NoticeWidget } from '@/features/quote/components/widgets/NoticeWidget';
+import { ExchangeRateWidget } from '@/features/quote/components/widgets/ExchangeRateWidget';
+import { AccountManagerWidget } from '@/features/quote/components/widgets/AccountManagerWidget';
 
 const CustomerDashboard: React.FC = () => {
   const { t } = useLanguage();
@@ -28,9 +30,9 @@ const CustomerDashboard: React.FC = () => {
             <NoticeWidget />
           </div>
 
-          {/* Right Column: Recent Quotes */}
-          <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-jways-800 rounded-2xl shadow-sm border border-gray-100 dark:border-jways-700 overflow-hidden transition-colors duration-200">
+          {/* Right Column: Recent Quotes & New Widgets */}
+          <div className="lg:col-span-1 flex flex-col gap-6">
+            <div className="bg-white dark:bg-jways-800 rounded-2xl shadow-sm border border-gray-100 dark:border-jways-700 overflow-hidden transition-colors duration-200 flex-shrink-0">
               <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 flex justify-between items-center">
                 <h3 className="font-bold text-gray-700 dark:text-gray-200 flex items-center text-sm">
                   <FileText className="w-4 h-4 mr-2 text-jways-500" />
@@ -44,6 +46,14 @@ const CustomerDashboard: React.FC = () => {
                 </button>
               </div>
               <QuoteHistoryCompact />
+            </div>
+
+            {/* Added Widgets to fill vertical space */}
+            <div className="flex-1 min-h-[300px]">
+              <ExchangeRateWidget />
+            </div>
+            <div className="flex-shrink-0">
+              <AccountManagerWidget />
             </div>
           </div>
         </div>

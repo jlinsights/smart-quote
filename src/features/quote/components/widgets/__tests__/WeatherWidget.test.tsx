@@ -142,7 +142,7 @@ describe('WeatherWidget', () => {
     render(<WeatherWidget />);
 
     expect(screen.getByText('Network error')).toBeInTheDocument();
-    expect(screen.getByText('widget.weather.retry')).toBeInTheDocument();
+    expect(screen.getByText('widget.common.retry')).toBeInTheDocument();
   });
 
   it('respects language context for labels', () => {

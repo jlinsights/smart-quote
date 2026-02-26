@@ -45,3 +45,35 @@ export interface LogisticsNewsResponse {
   items: LogisticsNews[];
   fetchedAt: string;
 }
+
+// Exchange Rate types
+export interface ExchangeRate {
+  currency: string;
+  code: string;
+  flag: string;
+  rate: number;
+  previousClose: number;
+  change: number;
+  changePercent: number;
+  trend: 'up' | 'down' | 'flat';
+}
+
+export interface ExchangeRateResponse {
+  result: string;
+  base_code: string;
+  time_last_update_utc: string;
+  rates: Record<string, number>;
+}
+
+// Account Manager types
+export interface AccountManager {
+  name: string;
+  nameKo: string;
+  role: string;
+  department: string;
+  phone: string;
+  mobile: string;
+  email: string;
+  available: boolean;
+  workingHours: string;
+}

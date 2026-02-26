@@ -94,6 +94,33 @@ export const translations: Record<Language, Record<string, string>> = {
     'dashboard.noQuotes': 'No quotes yet. Create your first quote!',
     'dashboard.createFirst': 'Create Quote',
     'dashboard.noNews': 'No logistics news available.',
+
+    // Widget Common
+    'widget.common.error': 'Failed to load data.',
+    'widget.common.retry': 'Retry',
+
+    // Exchange Rate Widget
+    'widget.exchange': 'Real-time Exchange Rates',
+    'widget.exchange.desc': 'Indicative rates (vs KRW)',
+    'widget.exchange.currency': 'Currency',
+    'widget.exchange.rate': 'Rate (KRW)',
+    'widget.exchange.change': 'Change',
+    'widget.exchange.refresh': 'Refresh rates',
+
+    // Account Manager Widget
+    'widget.manager': 'Your Account Manager',
+    'widget.manager.role.senior': 'Senior Logistics Consultant',
+    'widget.manager.role.ops': 'Operations Manager',
+    'widget.manager.role.customs': 'Customs & Compliance',
+    'widget.manager.dept.intl': 'International Freight Div.',
+    'widget.manager.dept.ops': 'Operations Div.',
+    'widget.manager.dept.customs': 'Customs Brokerage Div.',
+    'widget.manager.chat': '1:1 Chat',
+    'widget.manager.status.online': 'Online',
+    'widget.manager.status.offline': 'Offline',
+    'widget.manager.prev': 'Previous manager',
+    'widget.manager.next': 'Next manager',
+    'widget.manager.copy': 'Copy',
   },
   ko: {
      // Navigation / General
@@ -188,6 +215,33 @@ export const translations: Record<Language, Record<string, string>> = {
      'dashboard.noQuotes': '견적이 없습니다. 첫 견적을 만들어 보세요!',
      'dashboard.createFirst': '견적 만들기',
      'dashboard.noNews': '물류 뉴스가 없습니다.',
+
+     // Widget Common
+     'widget.common.error': '데이터를 불러오지 못했습니다.',
+     'widget.common.retry': '재시도',
+
+     // Exchange Rate Widget
+     'widget.exchange': '실시간 환율 정보',
+     'widget.exchange.desc': '참고용 기준환율 (KRW 대비)',
+     'widget.exchange.currency': '통화',
+     'widget.exchange.rate': '환율 (KRW)',
+     'widget.exchange.change': '변동',
+     'widget.exchange.refresh': '환율 새로고침',
+
+     // Account Manager Widget
+     'widget.manager': '전담 매니저',
+     'widget.manager.role.senior': '수석 물류 컨설턴트',
+     'widget.manager.role.ops': '운영 매니저',
+     'widget.manager.role.customs': '통관/컴플라이언스',
+     'widget.manager.dept.intl': '국제화물사업부',
+     'widget.manager.dept.ops': '운영사업부',
+     'widget.manager.dept.customs': '관세법인사업부',
+     'widget.manager.chat': '1:1 문의',
+     'widget.manager.status.online': '온라인',
+     'widget.manager.status.offline': '오프라인',
+     'widget.manager.prev': '이전 매니저',
+     'widget.manager.next': '다음 매니저',
+     'widget.manager.copy': '복사',
   },
   cn: {
     // Navigation / General
@@ -282,6 +336,33 @@ export const translations: Record<Language, Record<string, string>> = {
     'dashboard.noQuotes': '暂无报价，创建您的第一个报价！',
     'dashboard.createFirst': '创建报价',
     'dashboard.noNews': '暂无物流新闻。',
+
+    // Widget Common
+    'widget.common.error': '数据加载失败。',
+    'widget.common.retry': '重试',
+
+    // Exchange Rate Widget
+    'widget.exchange': '实时汇率',
+    'widget.exchange.desc': '参考汇率 (兑 KRW)',
+    'widget.exchange.currency': '货币',
+    'widget.exchange.rate': '汇率 (KRW)',
+    'widget.exchange.change': '变动',
+    'widget.exchange.refresh': '刷新汇率',
+
+    // Account Manager Widget
+    'widget.manager': '您的客户经理',
+    'widget.manager.role.senior': '高级物流顾问',
+    'widget.manager.role.ops': '运营经理',
+    'widget.manager.role.customs': '清关合规',
+    'widget.manager.dept.intl': '国际货运部',
+    'widget.manager.dept.ops': '运营部',
+    'widget.manager.dept.customs': '报关部',
+    'widget.manager.chat': '1对1咨询',
+    'widget.manager.status.online': '在线',
+    'widget.manager.status.offline': '离线',
+    'widget.manager.prev': '上一位经理',
+    'widget.manager.next': '下一位经理',
+    'widget.manager.copy': '复制',
   },
   ja: {
     // Navigation / General
@@ -376,5 +457,32 @@ export const translations: Record<Language, Record<string, string>> = {
     'dashboard.noQuotes': '見積がありません。最初の見積を作成しましょう！',
     'dashboard.createFirst': '見積作成',
     'dashboard.noNews': '物流ニュースはありません。',
+
+    // Widget Common
+    'widget.common.error': 'データの読み込みに失敗しました。',
+    'widget.common.retry': '再試行',
+
+    // Exchange Rate Widget
+    'widget.exchange': 'リアルタイム為替レート',
+    'widget.exchange.desc': '参考為替レート (対 KRW)',
+    'widget.exchange.currency': '通貨',
+    'widget.exchange.rate': 'レート (KRW)',
+    'widget.exchange.change': '変動',
+    'widget.exchange.refresh': 'レート更新',
+
+    // Account Manager Widget
+    'widget.manager': '担当マネージャー',
+    'widget.manager.role.senior': 'シニア物流コンサルタント',
+    'widget.manager.role.ops': 'オペレーションマネージャー',
+    'widget.manager.role.customs': '通関・コンプライアンス',
+    'widget.manager.dept.intl': '国際貨物事業部',
+    'widget.manager.dept.ops': 'オペレーション事業部',
+    'widget.manager.dept.customs': '通関事業部',
+    'widget.manager.chat': '1:1チャット',
+    'widget.manager.status.online': 'オンライン',
+    'widget.manager.status.offline': 'オフライン',
+    'widget.manager.prev': '前のマネージャー',
+    'widget.manager.next': '次のマネージャー',
+    'widget.manager.copy': 'コピー',
   },
 };

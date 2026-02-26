@@ -1,1 +1,1 @@
-🧪 test: Gap 분석 테스트 보완 — NoticeWidget 자동회전/네비게이션 4건, WeatherWidget airport 아이콘 1건, weatherApi type 2건 (101→107 tests)
+✨ feat: 환율 위젯 실시간 반영 — 탭 복귀/네트워크 복구 시 자동 갱신, localStorage 캐싱으로 실제 변동률 계산, Live/Stale 인디케이터 추가

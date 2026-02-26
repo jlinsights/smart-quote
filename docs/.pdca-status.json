@@ -1,9 +1,23 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-02-26T19:05:00.000Z",
+  "lastUpdated": "2026-02-26T19:30:00.000Z",
   "activeFeatures": [],
   "primaryFeature": null,
   "features": {
+    "widget-upgrades": {
+      "phase": "archived",
+      "planDoc": null,
+      "designDoc": null,
+      "analysisDoc": "docs/archive/2026-02/widget-upgrades/widget-upgrades.analysis.md",
+      "reportDoc": "docs/archive/2026-02/widget-upgrades/widget-upgrades.report.md",
+      "startedAt": "2026-02-26",
+      "completedAt": "2026-02-26",
+      "archivedAt": "2026-02-26",
+      "archivedTo": "docs/archive/2026-02/widget-upgrades/",
+      "matchRate": 98,
+      "iterations": 1,
+      "note": "Post-hoc PDCA. 98% match rate after 1 iteration. All Medium gaps resolved. 133 tests passing."
+    },
     "dashboard-enhancements": {
       "phase": "archived",
       "planDoc": null,
