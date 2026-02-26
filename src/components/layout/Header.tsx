@@ -26,8 +26,7 @@ export const Header: React.FC = () => {
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center">
-              <img src="/goodman-gls-logo.png" alt="Goodman GLS" className="h-8 w-auto bg-white rounded-sm" />
-              <span className="ml-3 text-xl font-bold text-gray-900 dark:text-white tracking-tight">
+              <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
                  {t('nav.smartQuote')}
               </span>
             </Link>
