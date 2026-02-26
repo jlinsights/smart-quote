@@ -10,9 +10,10 @@ interface Props {
   onChange: (newInput: QuoteInput) => void;
   isMobileView?: boolean;
   effectiveMarginPercent?: number;
+  hideMargin?: boolean;
 }
 
-export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = false, effectiveMarginPercent }) => {
+export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = false, effectiveMarginPercent, hideMargin }) => {
 
   const updateField = <K extends keyof QuoteInput>(key: K, value: QuoteInput[K]) => {
     onChange({ ...input, [key]: value });
@@ -27,7 +28,7 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
       <RouteSection input={input} onFieldChange={updateField} isMobileView={isMobileView} />
       <CargoSection items={input.items} onChange={handleCargoChange} isMobileView={isMobileView} />
       <ServiceSection input={input} onFieldChange={updateField} isMobileView={isMobileView} />
-      <FinancialSection input={input} onFieldChange={updateField} isMobileView={isMobileView} effectiveMarginPercent={effectiveMarginPercent} />
+      <FinancialSection input={input} onFieldChange={updateField} isMobileView={isMobileView} effectiveMarginPercent={effectiveMarginPercent} hideMargin={hideMargin} />
     </div>
   );
 };

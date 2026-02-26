@@ -69,6 +69,14 @@ export const translations = {
     'quote.margin': 'Margin',
     'quote.finalPrice': 'Final Quote Price',
     'quote.approx': 'approx.',
+     // Widgets
+     'widget.weather': 'Global Port Weather & Alerts',
+     'widget.weather.desc': 'Real-time weather impacts operations.',
+     'widget.notice': 'Logistics Insights & Notices',
+     'widget.notice.1.title': '[Urgent] Port strike expected in US West Coast',
+     'widget.notice.2.title': 'Q1 2025 UPS/DHL Surcharge update',
+     'widget.notice.3.title': 'Early Bird discount event for EU routes',
+     'widget.notice.more': 'View All Notices'
   },
   ko: {
      // Navigation / General
@@ -138,5 +146,14 @@ export const translations = {
      'quote.margin': '마진 (Margin)',
      'quote.finalPrice': '최종 견적가',
      'quote.approx': '약',
+
+     // Widgets
+     'widget.weather': '글로벌 주요 항구 기상 및 알람',
+     'widget.weather.desc': '실시간 기상 상황에 따라 운송 지연이 발생할 수 있습니다.',
+     'widget.notice': '물류 인사이트 및 공지사항',
+     'widget.notice.1.title': '[긴급] 미 서안 항만 파업 예상 안내',
+     'widget.notice.2.title': '2025년 1분기 UPS 및 DHL 유류할증료 업데이트',
+     'widget.notice.3.title': '유럽행 신규 콘솔 오픈 및 얼리버드 혜택',
+     'widget.notice.more': '공지사항 전체보기'
   }
 };

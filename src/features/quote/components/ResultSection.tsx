@@ -4,6 +4,8 @@ import { QuoteSummaryCard } from './QuoteSummaryCard';
 import { WarningAlerts } from './WarningAlerts';
 import { KeyMetricsGrid } from './KeyMetricsGrid';
 import { CostBreakdownCard } from './CostBreakdownCard';
+import { WeatherWidget } from './widgets/WeatherWidget';
+import { NoticeWidget } from './widgets/NoticeWidget';
 
 interface Props {
   result: QuoteResult;
@@ -20,13 +22,21 @@ export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onPacki
       <QuoteSummaryCard result={result} onDownloadPdf={onDownloadPdf} />
       <WarningAlerts warnings={result.warnings} />
       <KeyMetricsGrid result={result} />
-      <CostBreakdownCard
-        result={result}
-        onPackingCostChange={onPackingCostChange}
-        onMarginChange={onMarginChange}
-        marginUSD={marginUSD}
-        hideMargin={hideMargin}
-      />
+      
+      {!hideMargin ? (
+        <CostBreakdownCard
+          result={result}
+          onPackingCostChange={onPackingCostChange}
+          onMarginChange={onMarginChange}
+          marginUSD={marginUSD}
+          hideMargin={hideMargin}
+        />
+      ) : (
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <WeatherWidget />
+          <NoticeWidget />
+        </div>
+      )}
     </div>
   );
 };
