@@ -68,7 +68,7 @@ export const QuoteSearchBar: React.FC<Props> = ({
             <button
               key={s}
               onClick={() => onStatusFilter(activeStatus === s ? undefined : s)}
-              className={`px-3 py-1 text-xs font-medium rounded-full capitalize transition-colors ${
+              className={`px-4 py-2 sm:px-3 sm:py-1 text-sm sm:text-xs font-medium rounded-full capitalize transition-colors ${
                 activeStatus === s
                   ? STATUS_COLORS[s]
                   : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -80,9 +80,9 @@ export const QuoteSearchBar: React.FC<Props> = ({
           {hasActiveFilters && (
             <button
               onClick={onClearFilters}
-              className="flex items-center gap-1 px-2 py-1 text-xs text-red-500 hover:text-red-700 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-2 sm:px-2 sm:py-1 text-sm sm:text-xs text-red-500 hover:text-red-700 transition-colors"
             >
-              <X className="w-3 h-3" />
+              <X className="w-4 h-4 sm:w-3 sm:h-3" />
               Clear all
             </button>
           )}

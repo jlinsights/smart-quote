@@ -93,10 +93,10 @@ export const NoticeWidget: React.FC = () => {
                     <button
                       type="button"
                       onClick={prevPage}
-                      className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-jways-600 text-gray-400 dark:text-gray-500 transition-colors"
+                      className="p-2 sm:p-1 rounded-full hover:bg-gray-200 dark:hover:bg-jways-600 text-gray-400 dark:text-gray-500 transition-colors"
                       aria-label="Previous page"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="w-5 h-5 sm:w-4 sm:h-4" />
                     </button>
                     <div className="flex gap-1.5">
                       {Array.from({ length: totalPages }, (_, i) => (
@@ -116,10 +116,10 @@ export const NoticeWidget: React.FC = () => {
                     <button
                       type="button"
                       onClick={nextPage}
-                      className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-jways-600 text-gray-400 dark:text-gray-500 transition-colors"
+                      className="p-2 sm:p-1 rounded-full hover:bg-gray-200 dark:hover:bg-jways-600 text-gray-400 dark:text-gray-500 transition-colors"
                       aria-label="Next page"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-5 h-5 sm:w-4 sm:h-4" />
                     </button>
                   </div>
                 )}

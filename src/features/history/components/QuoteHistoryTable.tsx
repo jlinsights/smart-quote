@@ -87,17 +87,17 @@ export const QuoteHistoryTable: React.FC<Props> = ({
                   <div className="flex items-center justify-center gap-1">
                     <button
                       onClick={() => onView(q.id)}
-                      className="p-1.5 rounded-md text-gray-400 hover:text-jways-600 hover:bg-jways-50 dark:hover:bg-jways-900/20 transition-colors"
+                      className="p-2.5 sm:p-1.5 rounded-md text-gray-400 hover:text-jways-600 hover:bg-jways-50 dark:hover:bg-jways-900/20 transition-colors"
                       title="View detail"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-5 h-5 sm:w-4 sm:h-4" />
                     </button>
                     <button
                       onClick={() => onDelete(q.id, q.referenceNo)}
-                      className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                      className="p-2.5 sm:p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                       title="Delete"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-5 h-5 sm:w-4 sm:h-4" />
                     </button>
                   </div>
                 </td>

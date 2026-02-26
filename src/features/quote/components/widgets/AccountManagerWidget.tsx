@@ -93,20 +93,20 @@ export const AccountManagerWidget: React.FC = () => {
           <div className="flex items-center gap-1">
             <button
               onClick={goPrev}
-              className="p-1 text-gray-400 hover:text-jways-600 dark:hover:text-jways-400 transition-colors"
+              className="p-2.5 sm:p-1 text-gray-400 hover:text-jways-600 dark:hover:text-jways-400 transition-colors"
               aria-label={t('widget.manager.prev')}
             >
-              <ChevronLeft className="w-3.5 h-3.5" />
+              <ChevronLeft className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
             </button>
-            <span className="text-[10px] text-gray-400 dark:text-gray-500 tabular-nums min-w-[28px] text-center">
+            <span className="text-xs sm:text-[10px] text-gray-400 dark:text-gray-500 tabular-nums min-w-[28px] text-center">
               {currentIdx + 1} / {totalManagers}
             </span>
             <button
               onClick={goNext}
-              className="p-1 text-gray-400 hover:text-jways-600 dark:hover:text-jways-400 transition-colors"
+              className="p-2.5 sm:p-1 text-gray-400 hover:text-jways-600 dark:hover:text-jways-400 transition-colors"
               aria-label={t('widget.manager.next')}
             >
-              <ChevronRight className="w-3.5 h-3.5" />
+              <ChevronRight className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
             </button>
           </div>
         )}
@@ -142,15 +142,15 @@ export const AccountManagerWidget: React.FC = () => {
           <p className="text-xs text-jways-600 dark:text-jways-400 font-medium">
             {t(manager.role)}
           </p>
-          <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+          <p className="text-xs sm:text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
             {t(manager.department)}
           </p>
         </div>
 
         {/* Working hours */}
         <div className="flex items-center gap-1.5 mb-4">
-          <Clock className="w-3 h-3 text-gray-400 dark:text-gray-500" />
-          <span className="text-[10px] text-gray-400 dark:text-gray-500">
+          <Clock className="w-4 h-4 sm:w-3 sm:h-3 text-gray-400 dark:text-gray-500" />
+          <span className="text-xs sm:text-[10px] text-gray-400 dark:text-gray-500">
             {manager.workingHours}
           </span>
           <span
@@ -240,13 +240,13 @@ function ContactRow({
           e.preventDefault();
           onCopy();
         }}
-        className="opacity-60 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity ml-2 p-1 text-gray-400 hover:text-jways-500"
+        className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity ml-2 p-2 sm:p-1 text-gray-400 hover:text-jways-500"
         aria-label={t('widget.manager.copy')}
       >
         {copied ? (
-          <Check className="w-3 h-3 text-green-500" />
+          <Check className="w-4 h-4 sm:w-3 sm:h-3 text-green-500" />
         ) : (
-          <Copy className="w-3 h-3" />
+          <Copy className="w-4 h-4 sm:w-3 sm:h-3" />
         )}
       </button>
     </div>

@@ -94,9 +94,9 @@ describe('AccountManagerWidget', () => {
     });
   });
 
-  it('shows copy button visible on touch (opacity-60)', () => {
+  it('shows copy button visible on mobile (opacity-100)', () => {
     render(<AccountManagerWidget />);
     const copyButtons = screen.getAllByLabelText('widget.manager.copy');
-    expect(copyButtons[0]).toHaveClass('opacity-60');
+    expect(copyButtons[0]).toHaveClass('opacity-100');
   });
 });

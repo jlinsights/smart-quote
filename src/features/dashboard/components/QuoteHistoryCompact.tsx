@@ -63,7 +63,7 @@ export const QuoteHistoryCompact: React.FC = () => {
             <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
               → {quote.destinationCountry}
             </span>
-            <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${statusColor[quote.status] || statusColor.draft}`}>
+            <span className={`text-xs sm:text-[10px] uppercase font-bold px-2 sm:px-1.5 py-1 sm:py-0.5 rounded ${statusColor[quote.status] || statusColor.draft}`}>
               {quote.status}
             </span>
           </div>
@@ -71,7 +71,7 @@ export const QuoteHistoryCompact: React.FC = () => {
             <span className="text-sm font-semibold text-gray-900 dark:text-white">
               {formatKRW(quote.totalQuoteAmount)}
             </span>
-            <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+            <ArrowRight className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-gray-400" />
           </div>
         </div>
       ))}
