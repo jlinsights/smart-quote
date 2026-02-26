@@ -75,7 +75,7 @@ describe('fetchExchangeRates', () => {
       ok: true,
       json: () => Promise.resolve({ result: 'error', 'error-type': 'unsupported-code' }),
     }));
-    await expect(fetchExchangeRates()).rejects.toThrow('Exchange rate API returned error');
+    await expect(fetchExchangeRates()).rejects.toThrow('Exchange rate API: missing rates data or KRW base');
   });
 
   it('handles zero rate gracefully', async () => {
