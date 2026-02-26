@@ -32,7 +32,7 @@ export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onPacki
           hideMargin={hideMargin}
         />
       ) : (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-6">
           <WeatherWidget />
           <NoticeWidget />
         </div>

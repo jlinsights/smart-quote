@@ -1,5 +1,5 @@
 import { fetchWithRetry } from '@/lib/fetchWithRetry';
-import type { ExchangeRate, ExchangeRateResponse } from '@/types/dashboard';
+import type { ExchangeRate } from '@/types/dashboard';
 
 // Target currencies relevant for international logistics (KRW base)
 const TARGET_CURRENCIES: { currency: string; code: string; flag: string }[] = [
@@ -37,30 +37,34 @@ function savePreviousRates(rates: Record<string, number>) {
 }
 
 /**
- * Fetch exchange rates from ExchangeRate-API (free tier, 1500 req/month).
- * Returns rates as "1 foreign currency = X KRW".
+ * Fetch exchange rates from openexchangerates.org.
+ * Requires VITE_OPEN_EXCHANGE_APP_ID in .env.
+ * API returns USD base rates, which are then converted to KRW base.
  * Uses localStorage to cache previous rates for real change calculation.
  */
 export async function fetchExchangeRates(): Promise<ExchangeRate[]> {
   return fetchWithRetry(async () => {
-    // Free API: https://open.er-api.com/v6/latest/KRW
-    const res = await fetch('https://open.er-api.com/v6/latest/KRW');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const appId = (import.meta as any).env.VITE_OPEN_EXCHANGE_APP_ID;
+    if (!appId) {
+      throw new Error('OpenExchangeRates API require VITE_OPEN_EXCHANGE_APP_ID in .env');
+    }
+
+    const res = await fetch(`https://openexchangerates.org/api/latest.json?app_id=${appId}`);
     if (!res.ok) throw new Error(`Exchange rate API error: ${res.status}`);
 
-    const data: ExchangeRateResponse = await res.json();
-    if (data.result !== 'success') throw new Error('Exchange rate API returned error');
-
+    const data = await res.json();
     const conversionRates = data.rates;
-    if (!conversionRates) throw new Error('Exchange rate API: missing rates data');
+    if (!conversionRates || !conversionRates.KRW) throw new Error('Exchange rate API: missing rates data or KRW base');
 
     const cached = getPreviousRates();
-
-    // Build current inverted rates for caching
     const currentInverted: Record<string, number> = {};
+    const krwRate = conversionRates.KRW; // 1 USD = X KRW
 
     const result = TARGET_CURRENCIES.map(({ currency, code, flag }) => {
-      const ratePerKRW = conversionRates[currency];
-      if (!ratePerKRW || ratePerKRW === 0) {
+      const rateInUSD = conversionRates[currency]; // 1 USD = Y Currency
+      
+      if (!rateInUSD || rateInUSD === 0) {
         return {
           currency,
           code,
@@ -72,8 +76,11 @@ export async function fetchExchangeRates(): Promise<ExchangeRate[]> {
           trend: 'flat' as const,
         };
       }
-      // Convert: 1 KRW = X foreign → invert to get "1 foreign = Y KRW"
-      const rate = Math.round((1 / ratePerKRW) * 100) / 100;
+      
+      // Calculate: 1 Currency = (KRW / Currency) KRW
+      // e.g., 1 EUR = 1400 / 0.92 = 1521.74 KRW
+      // For USD, conversionRates.USD is 1, so 1 USD = 1400 / 1 = 1400 KRW
+      const rate = Math.round((krwRate / rateInUSD) * 100) / 100;
       currentInverted[currency] = rate;
 
       // Use cached previous rate for real change calculation

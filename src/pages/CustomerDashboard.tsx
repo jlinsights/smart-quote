@@ -9,6 +9,7 @@ import { WeatherWidget } from '@/features/quote/components/widgets/WeatherWidget
 import { NoticeWidget } from '@/features/quote/components/widgets/NoticeWidget';
 import { ExchangeRateWidget } from '@/features/quote/components/widgets/ExchangeRateWidget';
 import { AccountManagerWidget } from '@/features/quote/components/widgets/AccountManagerWidget';
+import { ExchangeRateCalculatorWidget } from '@/features/quote/components/widgets/ExchangeRateCalculatorWidget';
 
 const CustomerDashboard: React.FC = () => {
   const { t } = useLanguage();
@@ -23,15 +24,10 @@ const CustomerDashboard: React.FC = () => {
 
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: Weather + News */}
-          <div className="lg:col-span-2 space-y-0">
-            <WeatherWidget />
-            <NoticeWidget />
-          </div>
-
-          {/* Right Column: Recent Quotes & New Widgets */}
-          <div className="lg:col-span-1 flex flex-col gap-6">
-            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-200 flex-shrink-0">
+          {/* Left Column: Recent Quotes + Weather + News */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Recent Quotes */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-200">
               <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center">
                 <h3 className="font-bold text-gray-700 dark:text-gray-200 flex items-center text-sm">
                   <FileText className="w-4 h-4 mr-2 text-jways-500" />
@@ -47,10 +43,22 @@ const CustomerDashboard: React.FC = () => {
               <QuoteHistoryCompact />
             </div>
 
+            <WeatherWidget />
+            <NoticeWidget />
+          </div>
+
+          {/* Right Column: New Widgets */}
+          <div className="lg:col-span-1 flex flex-col gap-6">
+
             {/* Added Widgets to fill vertical space */}
             <div className="flex-1 min-h-[300px]">
               <ExchangeRateWidget />
             </div>
+            
+            <div className="flex-shrink-0">
+              <ExchangeRateCalculatorWidget />
+            </div>
+
             <div className="flex-shrink-0">
               <AccountManagerWidget />
             </div>

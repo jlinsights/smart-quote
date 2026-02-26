@@ -106,6 +106,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'widget.exchange.rate': 'Rate (KRW)',
     'widget.exchange.change': 'Change',
     'widget.exchange.refresh': 'Refresh rates',
+    'widget.calculator': 'Currency Calculator',
+    'common.amount': 'Amount',
+    'common.from': 'From',
+    'common.to': 'To',
 
     // Account Manager Widget
     'widget.manager': 'Your Account Manager',
@@ -227,6 +231,10 @@ export const translations: Record<Language, Record<string, string>> = {
      'widget.exchange.rate': '환율 (KRW)',
      'widget.exchange.change': '변동',
      'widget.exchange.refresh': '환율 새로고침',
+     'widget.calculator': '편리한 환율 계산기',
+     'common.amount': '금액',
+     'common.from': '보내는 통화',
+     'common.to': '받는 통화',
 
      // Account Manager Widget
      'widget.manager': '전담 매니저',
@@ -348,6 +356,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'widget.exchange.rate': '汇率 (KRW)',
     'widget.exchange.change': '变动',
     'widget.exchange.refresh': '刷新汇率',
+    'widget.calculator': '汇率计算器',
+    'common.amount': '金额',
+    'common.from': '转换自',
+    'common.to': '转换至',
 
     // Account Manager Widget
     'widget.manager': '您的客户经理',
@@ -469,6 +481,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'widget.exchange.rate': 'レート (KRW)',
     'widget.exchange.change': '変動',
     'widget.exchange.refresh': 'レート更新',
+    'widget.calculator': '為替計算機',
+    'common.amount': '金額',
+    'common.from': '送金元通貨',
+    'common.to': '受取通貨',
 
     // Account Manager Widget
     'widget.manager': '担当マネージャー',

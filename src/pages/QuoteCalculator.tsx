@@ -13,6 +13,7 @@ import { ResultSection } from '@/features/quote/components/ResultSection';
 import { Header } from '@/components/layout/Header';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useExchangeRates } from '@/features/dashboard/hooks/useExchangeRates';
 
 const INITIAL_INPUT: QuoteInput = {
   originCountry: 'KR',
@@ -40,6 +41,19 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const { t } = useLanguage();
 
   const [input, setInput] = useState<QuoteInput>(INITIAL_INPUT);
+  const [hasSetInitialRate, setHasSetInitialRate] = useState(false);
+
+  const { data: exchangeRates } = useExchangeRates();
+
+  React.useEffect(() => {
+    if (!hasSetInitialRate && exchangeRates.length > 0) {
+      const usdRate = exchangeRates.find((r: { currency: string; rate: number }) => r.currency === 'USD')?.rate;
+      if (usdRate && usdRate > 0) {
+        setInput(prev => ({ ...prev, exchangeRate: usdRate }));
+        setHasSetInitialRate(true);
+      }
+    }
+  }, [exchangeRates, hasSetInitialRate]);
 
   // Instant frontend calculation — pure function, no API dependency
   const result = useMemo<QuoteResult | null>(() => {
