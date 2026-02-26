@@ -21,7 +21,7 @@ export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onPacki
     <div className="space-y-6 sticky top-6">
       <QuoteSummaryCard result={result} onDownloadPdf={onDownloadPdf} />
       <WarningAlerts warnings={result.warnings} />
-      <KeyMetricsGrid result={result} />
+      <KeyMetricsGrid result={result} hideMargin={hideMargin} />
       
       {!hideMargin ? (
         <CostBreakdownCard

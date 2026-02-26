@@ -1,6 +1,6 @@
-export type Language = 'en' | 'ko';
+export type Language = 'en' | 'ko' | 'cn' | 'ja';
 
-export const translations = {
+export const translations: Record<Language, Record<string, string>> = {
   en: {
     // Navigation / General
     'nav.smartQuote': 'Smart Quote',
@@ -9,7 +9,7 @@ export const translations = {
     'nav.logout': 'Log Out',
     'nav.dashboard': 'Dashboard',
     'nav.admin': 'Admin Panel',
-    
+
     // Landing Page
     'landing.title.main': 'Global logistics quoting',
     'landing.title.sub': 'made lightning fast.',
@@ -21,7 +21,7 @@ export const translations = {
     'landing.accurateBreakdown.desc': 'Detailed view of FSC, customs duties, packing logistics, and origin/destination fees.',
     'landing.verifiedCarriers': 'Verified Carriers',
     'landing.verifiedCarriers.desc': 'Quotes based on authentic structures from premium logistics partners.',
-    
+
     // Auth Pages
     'auth.email': 'Email address',
     'auth.password': 'Password',
@@ -69,14 +69,31 @@ export const translations = {
     'quote.margin': 'Margin',
     'quote.finalPrice': 'Final Quote Price',
     'quote.approx': 'approx.',
-     // Widgets
-     'widget.weather': 'Global Port Weather & Alerts',
-     'widget.weather.desc': 'Real-time weather impacts operations.',
-     'widget.notice': 'Logistics Insights & Notices',
-     'widget.notice.1.title': '[Urgent] Port strike expected in US West Coast',
-     'widget.notice.2.title': 'Q1 2025 UPS/DHL Surcharge update',
-     'widget.notice.3.title': 'Early Bird discount event for EU routes',
-     'widget.notice.more': 'View All Notices'
+
+    // Widgets
+    'widget.weather': 'Global Port Weather & Alerts',
+    'widget.weather.desc': 'Real-time weather impacts operations.',
+    'widget.weather.loading': 'Loading weather data...',
+    'widget.weather.error': 'Failed to load weather data.',
+    'widget.weather.retry': 'Retry',
+    'widget.weather.lastUpdated': 'Last updated',
+    'widget.notice': 'Logistics Insights & Notices',
+    'widget.notice.loading': 'Loading logistics news...',
+    'widget.notice.error': 'Unable to load news',
+    'widget.notice.retry': 'Retry',
+    'widget.notice.1.title': '[Urgent] Port strike expected in US West Coast',
+    'widget.notice.2.title': 'Q1 2025 UPS/DHL Surcharge update',
+    'widget.notice.3.title': 'Early Bird discount event for EU routes',
+    'widget.notice.more': 'View All Notices',
+
+    // Dashboard
+    'dashboard.welcome': 'Welcome',
+    'dashboard.newQuote': 'New Quote',
+    'dashboard.recentQuotes': 'Recent Quotes',
+    'dashboard.viewAll': 'View All',
+    'dashboard.noQuotes': 'No quotes yet. Create your first quote!',
+    'dashboard.createFirst': 'Create Quote',
+    'dashboard.noNews': 'No logistics news available.',
   },
   ko: {
      // Navigation / General
@@ -86,7 +103,7 @@ export const translations = {
      'nav.logout': '로그아웃',
      'nav.dashboard': '대시보드',
      'nav.admin': '관리자 패널',
-     
+
      // Landing Page
      'landing.title.main': '글로벌 물류 견적,',
      'landing.title.sub': '가장 빠르고 정확하게.',
@@ -98,7 +115,7 @@ export const translations = {
      'landing.accurateBreakdown.desc': '유류할증료(FSC), 관세, 포장 물류비, 출발지/도착지 수수료의 상세 내역을 제공합니다.',
      'landing.verifiedCarriers': '검증된 운송사 파트너',
      'landing.verifiedCarriers.desc': '프리미엄 물류 파트너의 실제 운임 구조를 바탕으로 한 견적입니다.',
-     
+
      // Auth Pages
      'auth.email': '이메일 주소',
      'auth.password': '비밀번호',
@@ -114,14 +131,14 @@ export const translations = {
      'auth.emailExists': '이미 존재하는 이메일이거나 데이터가 유효하지 않습니다.',
      'auth.fillAll': '모든 필드를 입력해주세요.',
      'auth.backHome': '← 홈으로 돌아가기',
- 
+
      // Calculator - Headers
      'calc.shipmentConfig': '화물 배송 설정',
      'calc.shipmentConfigDesc': '화물 세부 정보를 입력하여 해외 통합 견적(UPS, DHL, E-MAX)을 생성합니다.',
      'calc.totalEstimate': '총 예상 견적',
      'calc.viewDetails': '상세 정보 보기',
      'calc.resetQuote': '견적 초기화',
- 
+
      // Calculator - Sections
      'calc.section.route': '경로 및 배송조건',
      'calc.section.cargo': '화물 상세설정',
@@ -150,10 +167,214 @@ export const translations = {
      // Widgets
      'widget.weather': '글로벌 주요 항구 기상 및 알람',
      'widget.weather.desc': '실시간 기상 상황에 따라 운송 지연이 발생할 수 있습니다.',
+     'widget.weather.loading': '기상 데이터 로딩 중...',
+     'widget.weather.error': '기상 데이터를 불러오지 못했습니다.',
+     'widget.weather.retry': '재시도',
+     'widget.weather.lastUpdated': '최종 업데이트',
      'widget.notice': '물류 인사이트 및 공지사항',
+     'widget.notice.loading': '물류 뉴스 로딩 중...',
+     'widget.notice.error': '뉴스를 불러올 수 없습니다',
+     'widget.notice.retry': '재시도',
      'widget.notice.1.title': '[긴급] 미 서안 항만 파업 예상 안내',
      'widget.notice.2.title': '2025년 1분기 UPS 및 DHL 유류할증료 업데이트',
      'widget.notice.3.title': '유럽행 신규 콘솔 오픈 및 얼리버드 혜택',
-     'widget.notice.more': '공지사항 전체보기'
-  }
+     'widget.notice.more': '공지사항 전체보기',
+
+     // Dashboard
+     'dashboard.welcome': '환영합니다',
+     'dashboard.newQuote': '새 견적',
+     'dashboard.recentQuotes': '최근 견적',
+     'dashboard.viewAll': '전체 보기',
+     'dashboard.noQuotes': '견적이 없습니다. 첫 견적을 만들어 보세요!',
+     'dashboard.createFirst': '견적 만들기',
+     'dashboard.noNews': '물류 뉴스가 없습니다.',
+  },
+  cn: {
+    // Navigation / General
+    'nav.smartQuote': '智能报价',
+    'nav.login': '登录',
+    'nav.signup': '注册',
+    'nav.logout': '退出',
+    'nav.dashboard': '仪表盘',
+    'nav.admin': '管理面板',
+
+    // Landing Page
+    'landing.title.main': '全球物流报价，',
+    'landing.title.sub': '快速精准。',
+    'landing.subtitle': '即时计算包含UPS、DHL、E-MAX集成运费、税费和特殊费用的可靠运输报价。',
+    'landing.getStarted': '开始使用',
+    'landing.instantQuotes': '即时报价',
+    'landing.instantQuotes.desc': '利用实时变量即时计算门到门和门到机场的费率。',
+    'landing.accurateBreakdown': '精确费用明细',
+    'landing.accurateBreakdown.desc': 'FSC、关税、包装物流费和始发地/目的地费用的详细分解。',
+    'landing.verifiedCarriers': '认证承运商',
+    'landing.verifiedCarriers.desc': '基于优质物流合作伙伴真实运费结构的报价。',
+
+    // Auth Pages
+    'auth.email': '电子邮件',
+    'auth.password': '密码',
+    'auth.confirmPassword': '确认密码',
+    'auth.signin': '登录',
+    'auth.signup': '注册',
+    'auth.signinTitle': '登录您的账户',
+    'auth.signupTitle': '创建账户',
+    'auth.noAccount': '没有账户？',
+    'auth.haveAccount': '已有账户？',
+    'auth.invalidCredentials': '邮箱或密码错误。',
+    'auth.passwordsNotMatch': '密码不匹配。',
+    'auth.emailExists': '邮箱已存在或数据无效。',
+    'auth.fillAll': '请填写所有字段。',
+    'auth.backHome': '← 返回首页',
+
+    // Calculator - Headers
+    'calc.shipmentConfig': '货物配置',
+    'calc.shipmentConfigDesc': '输入货物详情以生成海外（UPS、DHL、E-MAX）综合报价。',
+    'calc.totalEstimate': '总估算',
+    'calc.viewDetails': '查看详情',
+    'calc.resetQuote': '重置报价',
+
+    // Calculator - Sections
+    'calc.section.route': '路线和条款',
+    'calc.section.cargo': '货物详情',
+    'calc.section.service': '增值服务',
+    'calc.section.financial': '财务因素',
+    'calc.label.origin': '始发国',
+    'calc.label.destination': '目的国',
+    'calc.label.zip': '目的地邮编',
+    'calc.label.carrier': '海外承运商',
+    'calc.label.mode': '运输方式',
+
+    // Cost Breakdown
+    'quote.summary': '报价摘要',
+    'quote.downloadPdf': '下载PDF',
+    'quote.origin': '始发地',
+    'quote.destination': '目的地',
+    'quote.logisticsCost': '物流成本',
+    'quote.originCost': '始发地费用',
+    'quote.overseasFreight': '海外运费',
+    'quote.destinationCost': '目的地费用',
+    'quote.pricingStrategy': '定价策略',
+    'quote.margin': '利润',
+    'quote.finalPrice': '最终报价',
+    'quote.approx': '约',
+
+    // Widgets
+    'widget.weather': '全球港口天气与预警',
+    'widget.weather.desc': '实时天气影响运营。',
+    'widget.weather.loading': '天气数据加载中...',
+    'widget.weather.error': '天气数据加载失败。',
+    'widget.weather.retry': '重试',
+    'widget.weather.lastUpdated': '最后更新',
+    'widget.notice': '物流动态与通知',
+    'widget.notice.loading': '物流新闻加载中...',
+    'widget.notice.error': '无法加载新闻',
+    'widget.notice.retry': '重试',
+    'widget.notice.1.title': '[紧急] 美国西海岸港口罢工预警',
+    'widget.notice.2.title': '2025年Q1 UPS/DHL附加费更新',
+    'widget.notice.3.title': '欧洲航线早鸟折扣活动',
+    'widget.notice.more': '查看全部通知',
+
+    // Dashboard
+    'dashboard.welcome': '欢迎',
+    'dashboard.newQuote': '新报价',
+    'dashboard.recentQuotes': '最近报价',
+    'dashboard.viewAll': '查看全部',
+    'dashboard.noQuotes': '暂无报价，创建您的第一个报价！',
+    'dashboard.createFirst': '创建报价',
+    'dashboard.noNews': '暂无物流新闻。',
+  },
+  ja: {
+    // Navigation / General
+    'nav.smartQuote': 'スマート見積',
+    'nav.login': 'ログイン',
+    'nav.signup': '新規登録',
+    'nav.logout': 'ログアウト',
+    'nav.dashboard': 'ダッシュボード',
+    'nav.admin': '管理パネル',
+
+    // Landing Page
+    'landing.title.main': 'グローバル物流見積、',
+    'landing.title.sub': '最速で正確に。',
+    'landing.subtitle': 'UPS、DHL、E-MAX連携、税金、特別料金を含む信頼できる配送見積をすぐに計算します。',
+    'landing.getStarted': '始める',
+    'landing.instantQuotes': '即時見積',
+    'landing.instantQuotes.desc': 'リアルタイム変数を使用してDoor-to-DoorおよびDoor-to-Air料金を即座に計算します。',
+    'landing.accurateBreakdown': '正確な費用内訳',
+    'landing.accurateBreakdown.desc': 'FSC、関税、梱包物流費、発送元/配送先手数料の詳細な内訳を提供します。',
+    'landing.verifiedCarriers': '認定キャリア',
+    'landing.verifiedCarriers.desc': 'プレミアム物流パートナーの実際の運賃構造に基づいた見積です。',
+
+    // Auth Pages
+    'auth.email': 'メールアドレス',
+    'auth.password': 'パスワード',
+    'auth.confirmPassword': 'パスワード確認',
+    'auth.signin': 'ログイン',
+    'auth.signup': '登録',
+    'auth.signinTitle': 'アカウントにログイン',
+    'auth.signupTitle': 'アカウント作成',
+    'auth.noAccount': 'アカウントをお持ちでないですか？',
+    'auth.haveAccount': '既にアカウントをお持ちですか？',
+    'auth.invalidCredentials': 'メールまたはパスワードが正しくありません。',
+    'auth.passwordsNotMatch': 'パスワードが一致しません。',
+    'auth.emailExists': 'メールが既に存在するか、データが無効です。',
+    'auth.fillAll': 'すべてのフィールドを入力してください。',
+    'auth.backHome': '← ホームに戻る',
+
+    // Calculator - Headers
+    'calc.shipmentConfig': '貨物設定',
+    'calc.shipmentConfigDesc': '貨物の詳細を入力して海外（UPS、DHL、E-MAX）統合見積を生成します。',
+    'calc.totalEstimate': '合計見積',
+    'calc.viewDetails': '詳細を表示',
+    'calc.resetQuote': '見積リセット',
+
+    // Calculator - Sections
+    'calc.section.route': 'ルートと条件',
+    'calc.section.cargo': '貨物詳細',
+    'calc.section.service': '付加サービス',
+    'calc.section.financial': '財務要素',
+    'calc.label.origin': '発送元国',
+    'calc.label.destination': '配送先国',
+    'calc.label.zip': '配送先郵便番号',
+    'calc.label.carrier': '海外キャリア',
+    'calc.label.mode': '配送モード',
+
+    // Cost Breakdown
+    'quote.summary': '見積概要',
+    'quote.downloadPdf': 'PDFダウンロード',
+    'quote.origin': '発送元',
+    'quote.destination': '配送先',
+    'quote.logisticsCost': '物流コスト',
+    'quote.originCost': '発送元費用',
+    'quote.overseasFreight': '海外運賃',
+    'quote.destinationCost': '配送先費用',
+    'quote.pricingStrategy': '価格戦略',
+    'quote.margin': 'マージン',
+    'quote.finalPrice': '最終見積価格',
+    'quote.approx': '約',
+
+    // Widgets
+    'widget.weather': 'グローバル港湾天気とアラート',
+    'widget.weather.desc': 'リアルタイム天気が運営に影響します。',
+    'widget.weather.loading': '天気データ読み込み中...',
+    'widget.weather.error': '天気データの読み込みに失敗しました。',
+    'widget.weather.retry': '再試行',
+    'widget.weather.lastUpdated': '最終更新',
+    'widget.notice': '物流インサイトとお知らせ',
+    'widget.notice.loading': '物流ニュース読み込み中...',
+    'widget.notice.error': 'ニュースを読み込めません',
+    'widget.notice.retry': '再試行',
+    'widget.notice.1.title': '[緊急] 米西海岸港湾ストライキ予想',
+    'widget.notice.2.title': '2025年Q1 UPS/DHL追加料金更新',
+    'widget.notice.3.title': '欧州ルート早期割引イベント',
+    'widget.notice.more': 'すべてのお知らせを見る',
+
+    // Dashboard
+    'dashboard.welcome': 'ようこそ',
+    'dashboard.newQuote': '新規見積',
+    'dashboard.recentQuotes': '最近の見積',
+    'dashboard.viewAll': 'すべて表示',
+    'dashboard.noQuotes': '見積がありません。最初の見積を作成しましょう！',
+    'dashboard.createFirst': '見積作成',
+    'dashboard.noNews': '物流ニュースはありません。',
+  },
 };

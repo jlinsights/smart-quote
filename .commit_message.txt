@@ -1,1 +1,1 @@
-🗑️ remove: UPS/DHL war risk(5%) 계산 로직 및 상수 완전 제거
+🧪 test: Gap 분석 테스트 보완 — NoticeWidget 자동회전/네비게이션 4건, WeatherWidget airport 아이콘 1건, weatherApi type 2건 (101→107 tests)

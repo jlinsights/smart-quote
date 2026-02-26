@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import QuoteCalculator from './pages/QuoteCalculator';
+import CustomerDashboard from './pages/CustomerDashboard';
 import { LoginPage } from './pages/LoginPage';
 import { SignUpPage } from './pages/SignUpPage';
 import { LandingPage } from './pages/LandingPage';
@@ -23,10 +24,19 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpPage />} />
 
-              {/* User & Client Route - External Quotes without Margin Breakdown */}
-              {/* Admin can also access this to see how it looks to clients */}
+              {/* Customer Dashboard - Weather, News, Recent Quotes */}
               <Route
                 path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <CustomerDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Public Quote Calculator (no margin breakdown) */}
+              <Route
+                path="/quote"
                 element={
                   <ProtectedRoute>
                     <QuoteCalculator isPublic={true} />
