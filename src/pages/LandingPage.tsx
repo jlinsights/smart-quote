@@ -43,7 +43,8 @@ export const LandingPage: React.FC = () => {
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight leading-[1.1]">
-                <span className="text-white">{t('landing.title.main')}</span>{' '}
+                <span className="text-white">{t('landing.title.main')}</span>
+                <br />
                 <span className="bg-gradient-to-r from-jways-400 to-cyan-400 bg-clip-text text-transparent">
                   {t('landing.title.sub')}
                 </span>
