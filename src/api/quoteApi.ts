@@ -12,6 +12,7 @@ export function mapBreakdown(raw: any): CostBreakdown {
     packingLabor: raw.packingLabor ?? 0,
     packingFumigation: raw.packingFumigation ?? 0,
     handlingFees: raw.handlingFees ?? 0,
+    pickupInSeoul: raw.pickupInSeoul ?? 0,
     intlBase: raw.intlBase ?? raw.upsBase ?? 0,
     intlFsc: raw.intlFsc ?? raw.upsFsc ?? 0,
     intlWarRisk: raw.intlWarRisk ?? raw.upsWarRisk ?? 0,

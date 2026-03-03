@@ -69,6 +69,7 @@ describe('pdfService', () => {
                 packingLabor: 5000,
                 packingFumigation: 0,
                 handlingFees: 0,
+                pickupInSeoul: 0,
                 intlBase: 50000,
                 intlFsc: 10000,
                 intlWarRisk: 0,

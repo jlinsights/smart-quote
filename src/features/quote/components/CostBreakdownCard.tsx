@@ -90,6 +90,17 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                         )}
                     </div>
 
+                    {/* Pick-up in Seoul (Conditional) */}
+                    {result.breakdown.pickupInSeoul > 0 && (
+                        <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
+                            <div className="flex items-center">
+                                <BoxSelect className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+                                <span>Pick-up in Seoul</span>
+                            </div>
+                            <span className="font-medium">{formatCurrency(result.breakdown.pickupInSeoul)}</span>
+                        </div>
+                    )}
+
                     {/* Overseas Carrier */}
                     <div className="flex flex-col space-y-1">
                         <div className="flex justify-between items-start text-gray-700 dark:text-gray-300">

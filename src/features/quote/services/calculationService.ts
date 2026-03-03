@@ -371,8 +371,11 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
     destDuty = input.dutyTaxEstimate;
   }
 
+  // 4a. Extra Pick-up in Seoul cost
+  const pickupInSeoul = input.pickupInSeoulCost ?? 0;
+
   // 5. Totals
-  const totalCostAmount = packingTotal + finalHandlingFee + intlTotal + destDuty;
+  const totalCostAmount = packingTotal + finalHandlingFee + intlTotal + destDuty + pickupInSeoul;
 
   let quoteBasisCost = 0;
   if ([Incoterm.EXW, Incoterm.FOB].includes(input.incoterm)) {
@@ -420,6 +423,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
       packingLabor: itemResult.packingLaborCost,
       packingFumigation: packingFumigationCost,
       handlingFees: finalHandlingFee,
+      pickupInSeoul,
       intlBase: carrierResult.intlBase,
       intlFsc: carrierResult.intlFsc,
       intlWarRisk: carrierResult.intlWarRisk,

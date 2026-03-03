@@ -41,6 +41,7 @@ const mockResult: QuoteResult = {
     packingLabor: 0,
     packingFumigation: 0,
     handlingFees: 0,
+    pickupInSeoul: 0,
     intlBase: 50000,
     intlFsc: 5000,
     intlWarRisk: 2500,

@@ -42,6 +42,7 @@ export enum Incoterm {
     // Manual Overrides
     manualPackingCost?: number; // Optional manual override for packing & docs
     manualSurgeCost?: number; // Optional manual surge/AHS cost (auto-calc disabled)
+    pickupInSeoulCost?: number; // Extra cost for pick-up in Seoul (KRW)
   }
   
   export interface CostBreakdown {
@@ -49,6 +50,7 @@ export enum Incoterm {
     packingLabor: number;
     packingFumigation: number;
     handlingFees: number; // Customs, Docs
+    pickupInSeoul: number; // Extra cost for pick-up in Seoul (KRW)
     intlBase: number; // Carrier base rate (UPS/DHL/EMAX)
     intlFsc: number; // Fuel Surcharge (0 for EMAX)
     intlWarRisk: number; // War risk surcharge (0 for EMAX)
