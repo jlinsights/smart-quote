@@ -16,39 +16,18 @@ import type { AccountManager } from '@/types/dashboard';
 
 const MANAGERS: AccountManager[] = [
   {
-    name: 'Alex Kim',
-    nameKo: '김진수',
-    role: 'widget.manager.role.senior',
-    department: 'widget.manager.dept.intl',
-    phone: '+82-2-1234-5678',
-    mobile: '+82-10-9876-5432',
-    email: 'alex.kim@jways.com',
-    available: true,
-    workingHours: '09:00 – 18:00 KST',
-  },
-  {
-    name: 'Sarah Park',
-    nameKo: '박서연',
+    name: 'Charlie Lee',
+    nameKo: '이창희',
     role: 'widget.manager.role.ops',
     department: 'widget.manager.dept.ops',
-    phone: '+82-2-1234-5679',
-    mobile: '+82-10-1234-5678',
-    email: 'sarah.park@jways.com',
+    phone: '+82-2-6961-5763',
+    mobile: '+82-10-2620-7048',
+    email: 'ch.lee@jways.co.kr',
     available: true,
-    workingHours: '09:00 – 18:00 KST',
-  },
-  {
-    name: 'David Lee',
-    nameKo: '이동현',
-    role: 'widget.manager.role.customs',
-    department: 'widget.manager.dept.customs',
-    phone: '+82-2-1234-5680',
-    mobile: '+82-10-5555-6666',
-    email: 'david.lee@jways.com',
-    available: false,
     workingHours: '09:00 – 18:00 KST',
   },
 ];
+
 
 function isWorkingHours(): boolean {
   const now = new Date();
