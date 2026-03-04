@@ -20,9 +20,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // In a real application, this would be handled by a secure backend database.
 // For this frontend implementation, we use localStorage to mock user records.
 const PREDEFINED_ADMINS = [
-  { email: 'ceo@goodmangls.com', password: 'password', role: 'admin' },
-  { email: 'ken.jeon@goodmangls.com', password: 'password', role: 'admin' },
-  { email: 'jaehong.lim@goodmangls.com', password: 'password', role: 'admin' }
+  { email: 'ceo@goodmangls.com',        password: 'password', role: 'admin' },
+  { email: 'ken.jeon@goodmangls.com',   password: 'password', role: 'admin' },
+  { email: 'jaehong.lim@goodmangls.com',password: 'password', role: 'admin' },
+  { email: 'charlie@goodmangls.com',    password: 'password', role: 'admin' },
+  { email: 'ch.lee@jways.co.kr',        password: 'password', role: 'admin' },
 ];
 
 const MOCK_USERS_KEY = 'smartQuoteMockUsers';
