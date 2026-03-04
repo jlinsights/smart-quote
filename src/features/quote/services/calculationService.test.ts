@@ -157,9 +157,9 @@ describe('calculationService', () => {
       incoterm: Incoterm.DAP,
       packingType: PackingType.NONE,
       items: [{ id: '1', width: 30, length: 40, height: 30, weight: 10, quantity: 1 }],
-      marginUSD: 40,
+      marginPercent: 15,
       dutyTaxEstimate: 0,
-      exchangeRate: 1430,
+      exchangeRate: 1300,
       fscPercent: 30,
     };
 

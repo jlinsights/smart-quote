@@ -1,1 +1,1 @@
-⚡ perf: 번들 코드 스플리팅 — React.lazy 라우트 분할 + manualChunks 벤더 분리 (1,126KB → 419KB)
+🧪 test: CustomerDashboard 테스트 act() 경고 수정 — 비동기 렌더를 await act(async () => {}) 로 래핑

@@ -1,27 +1,25 @@
 import React, { useState } from 'react';
 import { QuoteResult } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Calculator, Edit3, PackageCheck, HelpCircle, X, Plane, BoxSelect, TrendingUp, Info } from 'lucide-react';
+import { Calculator, PackageCheck, HelpCircle, X, Plane, BoxSelect, TrendingUp, Info } from 'lucide-react';
 import { UI_TEXT } from '@/config/text';
 import { formatKRW } from '@/lib/format';
 import { resultStyles } from './result-styles';
 
 interface Props {
   result: QuoteResult;
-  onPackingCostChange: (newCost: number) => void;
   onMarginChange: (newMargin: number) => void;
-  marginUSD: number;
+  marginPercent: number;
   hideMargin?: boolean;
 }
 
-export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange, onMarginChange, marginUSD, hideMargin }) => {
+export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, marginPercent, hideMargin }) => {
   const [showPackingInfo, setShowPackingInfo] = useState(false);
   const { cardClass } = resultStyles;
   const { t } = useLanguage();
 
   const formatCurrency = formatKRW;
 
-  const packingCost = result.breakdown.packingMaterial + result.breakdown.packingLabor + result.breakdown.packingFumigation + result.breakdown.handlingFees;
   const carrierTotalCost = result.breakdown.intlBase + result.breakdown.intlFsc + result.breakdown.intlWarRisk + result.breakdown.intlSurge;
   const totalInternalCost = result.totalCostAmount;
 
@@ -56,18 +54,12 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                                     <HelpCircle className="w-3.5 h-3.5" />
                                 </button>
                             </div>
-                            <div className="text-right flex items-center">
-                                {/* Manual Input for Packing Cost */}
-                                <div className="relative">
-                                    <input
-                                        type="number"
-                                        value={packingCost}
-                                        onChange={(e) => onPackingCostChange(Number(e.target.value))}
-                                        className="w-24 text-right text-sm font-medium border-b border-gray-300 dark:border-gray-600 bg-transparent focus:border-jways-500 focus:ring-0 p-0 pr-1 hover:border-gray-400 transition-colors"
-                                    />
-                                    <Edit3 className="w-3 h-3 text-gray-300 absolute -right-4 top-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </div>
-                            </div>
+                            <span className="font-medium">{formatCurrency(
+                                result.breakdown.packingMaterial + 
+                                result.breakdown.packingLabor + 
+                                result.breakdown.packingFumigation + 
+                                result.breakdown.handlingFees
+                            )}</span>
                         </div>
 
                         {/* Packing Info Box */}
@@ -171,18 +163,18 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onPackingCostChange
                             <TrendingUp className="w-4 h-4 mr-2 flex-shrink-0" />
                             <span className="mr-2 font-medium">{t('quote.margin')}</span>
 
-                            {/* Interactive Margin Input (USD) */}
+                            {/* Interactive Margin Input (%) */}
                             <div className="relative rounded-md shadow-sm w-28">
-                                <div className="pointer-events-none absolute inset-y-0 left-0 pl-2 flex items-center text-gray-500 text-xs">$</div>
                                 <input
                                     type="number"
                                     min="0"
-                                    step="any"
-                                    value={marginUSD}
+                                    step="0.1"
+                                    value={marginPercent}
                                     onChange={(e) => onMarginChange(Number(e.target.value))}
-                                    className="focus:ring-jways-500 focus:border-jways-500 block w-full text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white pl-5 pr-2 py-1.5 text-right font-bold"
+                                    className="focus:ring-jways-500 focus:border-jways-500 block w-full text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white pr-6 py-1.5 text-right font-bold"
                                     inputMode="decimal"
                                 />
+                                <div className="pointer-events-none absolute inset-y-0 right-0 pr-2 flex items-center text-gray-500 text-xs">%</div>
                             </div>
                             <span className="ml-2 text-xs text-gray-400">({result.profitMargin}%)</span>
                         </div>

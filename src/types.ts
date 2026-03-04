@@ -31,7 +31,7 @@ export enum Incoterm {
     shippingMode?: 'Door-to-Door' | 'Door-to-Airport';
     packingType: PackingType;
     items: CargoItem[];
-    marginUSD: number; // Target margin in USD (e.g. 50.00)
+    marginPercent: number; // Target margin in % (e.g. 15 for 15%)
     dutyTaxEstimate: number; // For DDP only
     
     // Market Variables

@@ -8,9 +8,10 @@ import { resultStyles } from './result-styles';
 interface Props {
   result: QuoteResult;
   onDownloadPdf: () => void;
+  isKorean?: boolean;
 }
 
-export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf }) => {
+export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf, isKorean = true }) => {
   const formatCurrency = formatKRW;
   const { t } = useLanguage();
 
@@ -35,10 +36,14 @@ export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf }) => 
             
             <div className="flex flex-col mb-5">
                 <div className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">
-                    {formatCurrency(result.totalQuoteAmount)}
+                    {isKorean ? formatCurrency(result.totalQuoteAmount) : formatUSD(result.totalQuoteAmountUSD)}
                 </div>
                 <div className="text-lg text-jways-300 font-light mt-1 flex items-center">
-                    <span className="opacity-70 mr-2">≈</span> {formatUSD(result.totalQuoteAmountUSD)} <span className="text-xs ml-1 opacity-50">USD</span>
+                    {isKorean ? (
+                      <><span className="opacity-70 mr-2">≈</span> {formatUSD(result.totalQuoteAmountUSD)} <span className="text-xs ml-1 opacity-50">USD</span></>
+                    ) : (
+                      <><span className="opacity-70 mr-2">≈</span> {formatCurrency(result.totalQuoteAmount)} <span className="text-xs ml-1 opacity-50">KRW</span></>
+                    )}
                 </div>
             </div>
             

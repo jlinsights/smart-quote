@@ -10,25 +10,24 @@ import { NoticeWidget } from './widgets/NoticeWidget';
 interface Props {
   result: QuoteResult;
   onMarginChange: (newMargin: number) => void;
-  onPackingCostChange: (newCost: number) => void;
   onDownloadPdf: () => void;
-  marginUSD: number;
+  marginPercent: number;
   hideMargin?: boolean;
+  isKorean?: boolean;
 }
 
-export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onPackingCostChange, onDownloadPdf, marginUSD, hideMargin }) => {
+export const ResultSection: React.FC<Props> = ({ result, onMarginChange, onDownloadPdf, marginPercent, hideMargin, isKorean = true }) => {
   return (
     <div className="space-y-6 sticky top-6">
-      <QuoteSummaryCard result={result} onDownloadPdf={onDownloadPdf} />
+      <QuoteSummaryCard result={result} onDownloadPdf={onDownloadPdf} isKorean={isKorean} />
       <WarningAlerts warnings={result.warnings} />
       <KeyMetricsGrid result={result} hideMargin={hideMargin} />
       
       {!hideMargin ? (
         <CostBreakdownCard
           result={result}
-          onPackingCostChange={onPackingCostChange}
           onMarginChange={onMarginChange}
-          marginUSD={marginUSD}
+          marginPercent={marginPercent}
           hideMargin={hideMargin}
         />
       ) : (

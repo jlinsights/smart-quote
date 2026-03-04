@@ -38,11 +38,11 @@ export const ORIGIN_COUNTRY_OPTIONS = [
 
 export const INCOTERM_OPTIONS = Object.values(Incoterm);
 
-export const SEOUL_PICKUP_ZONES: { districts: string[]; cost: number }[] = [
-  { districts: ['강서', '양천', '마포'],                           cost: 30000 },
-  { districts: ['구로', '금천', '관악', '동작', '영등포'],         cost: 35000 },
-  { districts: ['은평', '서대문', '종로', '중구', '용산'],         cost: 40000 },
-  { districts: ['강남', '서초', '송파'],                           cost: 45000 },
-  { districts: ['동대문', '성동', '광진', '강동'],                 cost: 45000 },
-  { districts: ['강북', '도봉', '노원', '중랑'],                   cost: 55000 },
+export const SEOUL_PICKUP_ZONES: { districts: string[]; districtsEn: string[]; cost: number }[] = [
+  { districts: ['강서', '양천', '마포'],                           districtsEn: ['Gangseo', 'Yangcheon', 'Mapo'],                       cost: 30000 },
+  { districts: ['구로', '금천', '관악', '동작', '영등포'],         districtsEn: ['Guro', 'Geumcheon', 'Gwanak', 'Dongjak', 'Yeongdeungpo'], cost: 35000 },
+  { districts: ['은평', '서대문', '종로', '중구', '용산'],         districtsEn: ['Eunpyeong', 'Seodaemun', 'Jongno', 'Jung-gu', 'Yongsan'], cost: 40000 },
+  { districts: ['강남', '서초', '송파'],                           districtsEn: ['Gangnam', 'Seocho', 'Songpa'],                        cost: 45000 },
+  { districts: ['동대문', '성동', '광진', '강동'],                 districtsEn: ['Dongdaemun', 'Seongdong', 'Gwangjin', 'Gangdong'],    cost: 45000 },
+  { districts: ['강북', '도봉', '노원', '중랑'],                   districtsEn: ['Gangbuk', 'Dobong', 'Nowon', 'Jungnang'],             cost: 55000 },
 ];

@@ -5,12 +5,15 @@ export type UserRole = 'admin' | 'user';
 export interface User {
   email: string;
   role: UserRole;
+  company?: string;
+  name?: string;
+  nationality?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password?: string) => boolean;
-  signup: (email: string, password?: string) => boolean;
+  signup: (email: string, password?: string, company?: string, name?: string, nationality?: string) => boolean;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -75,7 +78,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const foundUser = users.find((u: User & { password?: string }) => u.email === email && u.password === password);
     
     if (foundUser) {
-        const authUser: User = { email: foundUser.email, role: foundUser.role };
+        const authUser: User = { 
+          email: foundUser.email, 
+          role: foundUser.role,
+          company: foundUser.company,
+          name: foundUser.name,
+          nationality: foundUser.nationality
+        };
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(authUser));
         setUser(authUser);
         return true;
@@ -83,7 +92,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   };
 
-  const signup = (email: string, password?: string): boolean => {
+  const signup = (
+    email: string,
+    password?: string,
+    company?: string,
+    name?: string,
+    nationality?: string
+  ): boolean => {
     const usersData = localStorage.getItem(MOCK_USERS_KEY);
     const users = usersData ? JSON.parse(usersData) : [];
     
@@ -93,11 +108,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Create new external user
-    const newUser = { email, password, role: 'user' };
+    const newUser = { email, password, role: 'user', company, name, nationality };
     users.push(newUser);
     localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(users));
 
-    const authUser: User = { email: newUser.email, role: newUser.role as UserRole };
+    const authUser: User = { 
+        email: newUser.email, 
+        role: newUser.role as UserRole,
+        company: newUser.company,
+        name: newUser.name,
+        nationality: newUser.nationality
+    };
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(authUser));
     setUser(authUser);
     return true;

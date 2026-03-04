@@ -15,7 +15,8 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
   const grid = twoColGrid(isMobileView);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEn = language === 'en';
 
   return (
     <div className={cardClass}>
@@ -79,20 +80,27 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
         <div>
           <label className={lc}>{t('calc.service.pickup.label')}</label>
           <div className="relative">
-              <input
-                  type="number"
-                  step="1000"
-                  min="0"
-                  value={input.pickupInSeoulCost ?? ''}
-                  onChange={(e) => onFieldChange('pickupInSeoulCost', e.target.value === '' ? undefined : Number(e.target.value))}
-                  className={ic}
-                  placeholder="0"
-                  inputMode="numeric"
-                  autoComplete="off"
-              />
+            <select
+              value={input.pickupInSeoulCost ?? ''}
+              onChange={(e) => onFieldChange('pickupInSeoulCost', e.target.value === '' ? undefined : Number(e.target.value))}
+              className={`${ic} appearance-none`}
+            >
+              <option value="">— {t('calc.service.pickup.none')} —</option>
+              {SEOUL_PICKUP_ZONES.map((zone, i) => (
+                <option key={i} value={zone.cost}>
+                  {isEn
+                    ? `${zone.districtsEn.join(', ')} — ${zone.cost.toLocaleString()} KRW`
+                    : `${zone.districts.join(', ')} — ${zone.cost.toLocaleString()}원`
+                  }
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
           </div>
           <p className="mt-1 text-[10px] text-gray-400">
-              {t('calc.service.pickup.hint')}
+            {t('calc.service.pickup.hint')}
           </p>
           {/* 혼적 입고 기준 */}
           <div className="mt-2 rounded-md bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 px-3 py-2 text-[10px] text-blue-700 dark:text-blue-300 leading-relaxed">
@@ -112,14 +120,19 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
               <tbody>
                 {SEOUL_PICKUP_ZONES.map((zone, i) => (
                   <tr key={i} className="border-t border-gray-100 dark:border-gray-600 odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700">
-                    <td className="px-2 py-1 text-gray-700 dark:text-gray-300">{zone.districts.join(', ')}</td>
-                    <td className="px-2 py-1 text-right font-medium text-gray-800 dark:text-gray-200">{zone.cost.toLocaleString()}원</td>
+                    <td className="px-2 py-1 text-gray-700 dark:text-gray-300">
+                      {isEn ? zone.districtsEn.join(', ') : zone.districts.join(', ')}
+                    </td>
+                    <td className="px-2 py-1 text-right font-medium text-gray-800 dark:text-gray-200">
+                      {isEn ? `${zone.cost.toLocaleString()} KRW` : `${zone.cost.toLocaleString()}원`}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
+
 
         {input.incoterm === Incoterm.DDP && (
           <div>

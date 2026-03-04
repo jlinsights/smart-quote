@@ -13,17 +13,13 @@ interface Props {
   hideMargin?: boolean;
 }
 
-export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobileView, effectiveMarginPercent, hideMargin }) => {
+export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobileView, hideMargin }) => {
   const { inputClass, labelClass, grayCardClass } = inputStyles;
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
   const { t } = useLanguage();
 
   const financialGrid = `grid grid-cols-1 ${!isMobileView ? 'sm:grid-cols-3' : 'grid-cols-2'} gap-3`;
-
-  const derivedMarginPercent = effectiveMarginPercent != null
-    ? `${effectiveMarginPercent.toFixed(1)}%`
-    : '—';
 
   return (
     <div className={grayCardClass}>
@@ -102,25 +98,22 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
              </div>
          </div>
          {!hideMargin && (
-             <div className={isMobileView ? "col-span-2" : ""}>
-                 <label className={lc}>Target Margin (USD)</label>
+             <div>
+                 <label className={lc}>Target Margin (%)</label>
                  <div className="relative rounded-lg shadow-sm">
-                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                         <span className="text-gray-500 sm:text-sm font-bold">$</span>
-                     </div>
                      <input
-                     type="number"
-                     step="any"
-                     min="0"
-                     value={input.marginUSD}
-                     onChange={(e) => onFieldChange('marginUSD', Number(e.target.value))}
-                     className={`${ic} pl-8 pr-16`}
-                     placeholder="50"
-                     inputMode="decimal"
-                     autoComplete="off"
+                         type="number"
+                         step="0.1"
+                         min="0"
+                         value={input.marginPercent}
+                         onChange={(e) => onFieldChange('marginPercent', Number(e.target.value))}
+                         className={`${ic} pr-16`}
+                         placeholder="15"
+                         inputMode="decimal"
+                         autoComplete="off"
                      />
                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                         <span className="text-xs text-gray-400 font-medium">{derivedMarginPercent}</span>
+                         <span className="text-gray-500 sm:text-sm font-bold">%</span>
                      </div>
                  </div>
              </div>

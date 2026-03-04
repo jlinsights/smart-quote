@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import CustomerDashboard from '../CustomerDashboard';
 
@@ -43,23 +43,23 @@ function renderDashboard() {
 }
 
 describe('CustomerDashboard', () => {
-  it('renders welcome banner with user email', () => {
-    renderDashboard();
+  it('renders welcome banner with user email', async () => {
+    await act(async () => { renderDashboard(); });
     expect(screen.getByText('test@example.com')).toBeInTheDocument();
   });
 
-  it('renders weather widget section', () => {
-    renderDashboard();
+  it('renders weather widget section', async () => {
+    await act(async () => { renderDashboard(); });
     expect(screen.getByText('widget.weather')).toBeInTheDocument();
   });
 
-  it('renders notice widget section', () => {
-    renderDashboard();
+  it('renders notice widget section', async () => {
+    await act(async () => { renderDashboard(); });
     expect(screen.getByText('widget.notice')).toBeInTheDocument();
   });
 
   it('renders quote history section with empty state', async () => {
-    renderDashboard();
+    await act(async () => { renderDashboard(); });
     expect(screen.getByText('dashboard.recentQuotes')).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByText('dashboard.noQuotes')).toBeInTheDocument();

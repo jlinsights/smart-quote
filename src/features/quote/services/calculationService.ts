@@ -385,19 +385,27 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
      quoteBasisCost = totalCostAmount;
   }
 
-  // 6. Margin & Revenue (USD-based)
+  // 6. Margin & Revenue (% based)
   const exchangeRate = input.exchangeRate || DEFAULT_EXCHANGE_RATE;
-  const safeMarginUSD = Math.max(input.marginUSD ?? 40, 0);
-  const marginKRW = safeMarginUSD * exchangeRate;
-
-  const targetRevenue = quoteBasisCost + marginKRW;
-  const marginAmount = marginKRW;
-  const totalQuoteAmount = Math.ceil(targetRevenue / 100) * 100;
+  
+  // Calculate target revenue based on margin percentage
+  // Target Revenue = Cost / (1 - Margin/100) 
+  // e.g. 15% margin -> Revenue = Cost / 0.85
+  const safeMarginPercent = Math.max(input.marginPercent ?? 15, 0);
+  
+  let targetRevenue = quoteBasisCost;
+  // Prevent division by zero if margin is set to 100% or higher
+  if (safeMarginPercent < 100) {
+     targetRevenue = quoteBasisCost / (1 - (safeMarginPercent / 100));
+  }
+  
+  const marginAmount = targetRevenue - quoteBasisCost;
+  const totalQuoteAmount = Math.ceil(targetRevenue / 100) * 100; // Round up to nearest 100 KRW
   const totalQuoteAmountUSD = totalQuoteAmount / exchangeRate;
 
-  // Derive effective margin % for display
-  const effectiveMarginPercent = targetRevenue > 0
-    ? (marginKRW / targetRevenue) * 100
+  // Derive effective margin % for display (recalculated after rounding)
+  const effectiveMarginPercent = totalQuoteAmount > 0
+    ? ((totalQuoteAmount - quoteBasisCost) / totalQuoteAmount) * 100
     : 0;
 
   if (effectiveMarginPercent < 10) {

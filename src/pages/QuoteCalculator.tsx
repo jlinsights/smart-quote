@@ -10,9 +10,11 @@ import { Smartphone, RotateCcw, Zap } from 'lucide-react';
 import { formatKRW, formatUSDInt } from '@/lib/format';
 import { InputSection } from '@/features/quote/components/InputSection';
 import { ResultSection } from '@/features/quote/components/ResultSection';
+import { UserManagementWidget } from '@/features/admin/components/UserManagementWidget';
 import { Header } from '@/components/layout/Header';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useExchangeRates } from '@/features/dashboard/hooks/useExchangeRates';
 
 const INITIAL_INPUT: QuoteInput = {
@@ -25,7 +27,7 @@ const INITIAL_INPUT: QuoteInput = {
   items: [
     { id: '1', width: 10, length: 10, height: 10, weight: 1, quantity: 1 }
   ],
-  marginUSD: 40,
+  marginPercent: 15,
   dutyTaxEstimate: 0,
   exchangeRate: 1400,
   fscPercent: 30,
@@ -39,6 +41,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   
   const { isDarkMode, toggleDarkMode } = useTheme();
   const { t } = useLanguage();
+  const { user } = useAuth();
 
   const [input, setInput] = useState<QuoteInput>(INITIAL_INPUT);
   const [hasSetInitialRate, setHasSetInitialRate] = useState(false);
@@ -65,12 +68,30 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
     }
   }, [input]);
 
-  const handleMarginChange = (newMargin: number) => {
-    setInput((prev: QuoteInput) => ({ ...prev, marginUSD: newMargin }));
-  };
+  const hasManuallyChangedMargin = React.useRef(false);
 
-  const handlePackingCostChange = (newCost: number) => {
-    setInput((prev: QuoteInput) => ({ ...prev, manualPackingCost: newCost }));
+  // Adjust default margin based on nationality and billable weight
+  React.useEffect(() => {
+    if (result && !hasManuallyChangedMargin.current) {
+       const isKorean = user?.nationality === 'South Korea' || !user?.nationality;
+       const weight = result.billableWeight;
+       let defaultMargin = input.marginPercent;
+
+       if (isKorean) {
+         defaultMargin = weight >= 20 ? 19 : 24;
+       } else {
+         defaultMargin = weight >= 20 ? 24 : 32;
+       }
+
+       if (input.marginPercent !== defaultMargin) {
+         setInput(prev => ({ ...prev, marginPercent: defaultMargin }));
+       }
+    }
+  }, [result, user?.nationality, input.marginPercent]);
+
+  const handleMarginChange = (newMargin: number) => {
+    hasManuallyChangedMargin.current = true;
+    setInput((prev: QuoteInput) => ({ ...prev, marginPercent: newMargin }));
   };
 
   const handleReset = () => {
@@ -105,7 +126,6 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
     setInput,
     result,
     onMarginChange: handleMarginChange,
-    onPackingCostChange: handlePackingCostChange,
     onDownloadPdf: handleDownloadPdf,
     onReset: handleReset,
     scrollToResults
@@ -194,16 +214,21 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                       <p className="text-sm text-gray-500 dark:text-gray-400">{t('calc.shipmentConfigDesc')}</p>
                     </div>
                     <InputSection input={input} onChange={setInput} isMobileView={false} effectiveMarginPercent={result?.profitMargin} hideMargin={isPublic} />
+                    {!isPublic && user?.email === 'jaehong.lim@goodmangls.com' && (
+                      <div className="mt-8">
+                        <UserManagementWidget />
+                      </div>
+                    )}
                   </div>
                     <div className="lg:col-span-5" id="result-section">
                     {result && (
                       <ResultSection
                         result={result}
-                        onMarginChange={handleMarginChange}
-                        onPackingCostChange={handlePackingCostChange}
-                        onDownloadPdf={handleDownloadPdf}
-                        marginUSD={input.marginUSD}
                         hideMargin={isPublic}
+                        onMarginChange={handleMarginChange}
+                        onDownloadPdf={handleDownloadPdf}
+                        marginPercent={input.marginPercent}
+                        isKorean={user?.nationality === 'South Korea' || !user?.nationality}
                       />
                     )}
                   </div>
@@ -218,12 +243,25 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">{t('calc.totalEstimate')}</p>
                     <div className="flex items-baseline space-x-1">
-                      <p className="text-xl font-bold text-jways-700 dark:text-jways-400">
-                        {formatKRW(result.totalQuoteAmount)}
-                      </p>
-                      <span className="text-xs text-gray-400 dark:text-gray-500">
-                        ({formatUSDInt(result.totalQuoteAmountUSD)})
-                      </span>
+                      {(user?.nationality === 'South Korea' || !user?.nationality) ? (
+                        <>
+                          <p className="text-xl font-bold text-jways-700 dark:text-jways-400">
+                            {formatKRW(result.totalQuoteAmount)}
+                          </p>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">
+                            ({formatUSDInt(result.totalQuoteAmountUSD)})
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-xl font-bold text-jways-700 dark:text-jways-400">
+                            {formatUSDInt(result.totalQuoteAmountUSD)}
+                          </p>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">
+                            (≈ {formatKRW(result.totalQuoteAmount)})
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <button

@@ -14,7 +14,6 @@ interface Props {
   setInput: React.Dispatch<React.SetStateAction<QuoteInput>>;
   result: QuoteResult | null;
   onMarginChange: (val: number) => void;
-  onPackingCostChange: (val: number) => void;
   onDownloadPdf: () => void;
   onReset: () => void;
   scrollToResults: () => void;
@@ -29,7 +28,6 @@ export const MobileLayout: React.FC<Props> = ({
   setInput,
   result,
   onMarginChange,
-  onPackingCostChange,
   onDownloadPdf,
   onReset
 }) => {
@@ -101,9 +99,8 @@ export const MobileLayout: React.FC<Props> = ({
                   <ResultSection
                     result={result}
                     onMarginChange={onMarginChange}
-                    onPackingCostChange={onPackingCostChange}
                     onDownloadPdf={onDownloadPdf}
-                    marginUSD={input.marginUSD}
+                    marginPercent={input.marginPercent}
                   />
                  )}
               </div>

@@ -12,6 +12,9 @@ const dotGridStyle: React.CSSProperties = {
 };
 
 export const SignUpPage: React.FC = () => {
+  const [company, setCompany] = useState('');
+  const [name, setName] = useState('');
+  const [nationality, setNationality] = useState('South Korea');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -30,8 +33,8 @@ export const SignUpPage: React.FC = () => {
         return;
     }
 
-    if (email.trim() && password.trim()) {
-      const success = signup(email.trim(), password.trim());
+    if (email.trim() && password.trim() && company.trim() && name.trim() && nationality.trim()) {
+      const success = signup(email.trim(), password.trim(), company.trim(), name.trim(), nationality.trim());
       if (success) {
          navigate('/dashboard', { replace: true });
       } else {
@@ -80,6 +83,61 @@ export const SignUpPage: React.FC = () => {
                   {error}
                 </div>
               )}
+
+              <div>
+                <label htmlFor="company" className="block text-sm font-medium text-gray-300 mb-1.5">
+                  {t('auth.company')}
+                </label>
+                <input
+                  id="company"
+                  name="company"
+                  type="text"
+                  required
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-jways-500/50 focus:border-jways-500/50 text-sm transition-colors"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    {t('auth.name')}
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-jways-500/50 focus:border-jways-500/50 text-sm transition-colors"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="nationality" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    {t('auth.nationality')}
+                  </label>
+                  <select
+                    id="nationality"
+                    name="nationality"
+                    required
+                    value={nationality}
+                    onChange={(e) => setNationality(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-jways-500/50 focus:border-jways-500/50 text-sm transition-colors appearance-none"
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.75rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem' }}
+                  >
+                    <option value="South Korea" className="bg-gray-800 text-white">🇰🇷 South Korea</option>
+                    <option value="United States" className="bg-gray-800 text-white">🇺🇸 United States</option>
+                    <option value="China" className="bg-gray-800 text-white">🇨🇳 China</option>
+                    <option value="Japan" className="bg-gray-800 text-white">🇯🇵 Japan</option>
+                    <option value="Vietnam" className="bg-gray-800 text-white">🇻🇳 Vietnam</option>
+                    <option value="Taiwan" className="bg-gray-800 text-white">🇹🇼 Taiwan</option>
+                    <option value="Singapore" className="bg-gray-800 text-white">🇸🇬 Singapore</option>
+                    <option value="Other" className="bg-gray-800 text-white">🌍 Other</option>
+                  </select>
+                </div>
+              </div>
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1.5">
