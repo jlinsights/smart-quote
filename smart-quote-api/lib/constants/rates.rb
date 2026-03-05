@@ -46,10 +46,10 @@ module Constants
 
     HANDLING_FEE = 35000
     FUMIGATION_FEE = 30000
-    WAR_RISK_SURCHARGE_RATE = 0.05
+    WAR_RISK_SURCHARGE_RATE = 0  # DEC-006: War risk surcharge removed
     PACKING_MATERIAL_BASE_COST = 15000
     PACKING_LABOR_UNIT_COST = 50000
-    DEFAULT_EXCHANGE_RATE = 1430
+    DEFAULT_EXCHANGE_RATE = 1400
     DEFAULT_FSC_PERCENT = 30
     UPS_FSC_URL = "https://www.ups.com/kr/ko/support/shipping-support/shipping-costs-rates/fuel-surcharges.page"
     NAVER_EXCHANGE_RATE_URL = "https://finance.naver.com/marketindex/exchangeDetail.naver?marketindexCd=FX_USDKRW"

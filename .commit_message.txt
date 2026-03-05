@@ -1,1 +1,1 @@
-🧪 fix: AccountManagerWidget 테스트를 Charlie Lee 담당자 정보로 업데이트
+🔧 fix: 백엔드 마진 계산을 프론트엔드와 동일한 %-기반 공식으로 통일 (marginUSD→marginPercent)

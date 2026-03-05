@@ -92,18 +92,23 @@ class QuoteCalculator
       quote_basis_cost = total_cost_amount
     end
 
-    # 7. Margin & Revenue (USD-based)
+    # 7. Margin & Revenue (%-based, aligned with frontend calculationService.ts)
     exchange_rate = @input[:exchangeRate] || DEFAULT_EXCHANGE_RATE
-    safe_margin_usd = [(@input[:marginUSD] || 50).to_f, 0].max
-    margin_krw = safe_margin_usd * exchange_rate
+    safe_margin_percent = [(@input[:marginPercent] || 15).to_f, 0].max
 
-    target_revenue = quote_basis_cost + margin_krw
-    margin_amount = margin_krw
+    # Revenue = Cost / (1 - margin%/100)
+    target_revenue = if safe_margin_percent < 100
+                       quote_basis_cost / (1 - (safe_margin_percent / 100.0))
+                     else
+                       quote_basis_cost
+                     end
+
+    margin_amount = target_revenue - quote_basis_cost
     total_quote_amount = (target_revenue / 100.0).ceil * 100
     total_quote_amount_usd = total_quote_amount / exchange_rate.to_f
 
-    # Derive effective margin %
-    effective_margin_percent = target_revenue > 0 ? (margin_krw / target_revenue) * 100 : 0
+    # Derive effective margin % (recalculated after rounding)
+    effective_margin_percent = total_quote_amount > 0 ? ((total_quote_amount - quote_basis_cost) / total_quote_amount.to_f) * 100 : 0
 
     if effective_margin_percent < 10
       user_warnings << "Low Margin Alert: Profit margin is below 10%. Approval required."

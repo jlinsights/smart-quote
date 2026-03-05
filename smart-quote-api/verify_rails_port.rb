@@ -11,7 +11,7 @@ input = {
   packingType: 'NONE',
   incoterm: 'DAP',
   domesticRegionCode: 'A',
-  marginUSD: 50
+  marginPercent: 15
 }
 
 begin

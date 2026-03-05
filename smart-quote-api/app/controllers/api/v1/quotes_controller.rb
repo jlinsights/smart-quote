@@ -102,7 +102,16 @@ module Api
       private
 
       def clean_params
-        params.permit!.to_h.except(:controller, :action, :format, :notes)
+        params.permit(
+          :originCountry, :destinationCountry, :destinationZip,
+          :domesticRegionCode, :isJejuPickup,
+          :incoterm, :packingType,
+          :marginPercent, :dutyTaxEstimate,
+          :exchangeRate, :fscPercent,
+          :manualDomesticCost, :manualPackingCost, :manualSurgeCost,
+          :overseasCarrier,
+          items: [:id, :name, :quantity, :weight, :length, :width, :height]
+        ).to_h
       end
 
       def input_attributes(input)
@@ -114,7 +123,7 @@ module Api
           is_jeju_pickup: input["isJejuPickup"] || input[:isJejuPickup] || false,
           incoterm: input["incoterm"] || input[:incoterm],
           packing_type: input["packingType"] || input[:packingType] || "NONE",
-          margin_percent: input["marginUSD"] || input[:marginUSD] || 50,
+          margin_percent: input["marginPercent"] || input[:marginPercent] || 15,
           duty_tax_estimate: input["dutyTaxEstimate"] || input[:dutyTaxEstimate] || 0,
           exchange_rate: input["exchangeRate"] || input[:exchangeRate],
           fsc_percent: input["fscPercent"] || input[:fscPercent],
