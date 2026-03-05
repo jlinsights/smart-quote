@@ -16,7 +16,7 @@ export const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,7 +34,7 @@ export const LoginPage: React.FC = () => {
       try {
         const result = await login(email.trim(), password.trim());
         if (result.success) {
-          const userRole = user?.role || 'user';
+          const userRole = result.user?.role || 'user';
           const defaultDest = userRole === 'admin' ? '/admin' : '/dashboard';
 
           if (from === '/' || from === '/login' || from === '/dashboard') {

@@ -1,1 +1,1 @@
-🔐 feat: JWT 인증 하드닝 완료 — 백엔드 JWT + 프론트엔드 AuthContext 리라이트 (mock 제거)
+🐛 fix: 로그인 실패 3건 수정 — LoginPage 타이밍 버그, .env localhost 전환, admin 비밀번호 리셋

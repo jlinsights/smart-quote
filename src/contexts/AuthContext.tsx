@@ -14,6 +14,7 @@ export interface User {
 interface AuthResult {
   success: boolean;
   error?: string;
+  user?: User;
 }
 
 interface AuthContextType {
@@ -66,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const data = await res.json();
         localStorage.setItem(TOKEN_KEY, data.token);
         setUser(data.user);
-        return { success: true };
+        return { success: true, user: data.user };
       }
 
       const body = await res.json().catch(() => ({}));
@@ -97,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const data = await res.json();
         localStorage.setItem(TOKEN_KEY, data.token);
         setUser(data.user);
-        return { success: true };
+        return { success: true, user: data.user };
       }
 
       const body = await res.json().catch(() => ({}));
