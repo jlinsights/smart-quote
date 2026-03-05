@@ -28,22 +28,16 @@
 | Kaminari | latest | Pagination |
 | csv | stdlib | CSV export |
 
-## Serverless Functions (Vercel)
-| File | Purpose |
-|------|---------|
-| api/exchange-rate.ts | Real-time USD/KRW exchange rate via Naver Finance |
-| api/fsc.ts | UPS Fuel Surcharge scraping |
-
-## External APIs (Planned - Dashboard Widgets)
-| API | Purpose |
-|-----|---------|
-| Open-Meteo | Global port weather conditions & alerts |
-| RSS-to-JSON | Logistics industry news feed aggregation |
+## External APIs (Active)
+| API | Endpoint | Purpose |
+|-----|----------|---------|
+| open.er-api.com | `/v6/latest/KRW` | Exchange rates (KRW base, 6 currencies) |
+| Open-Meteo | `api.open-meteo.com/v1/forecast` | Port/airport weather (47 locations) |
 
 ## Infrastructure
 | Service | Purpose |
 |---------|---------|
-| Vercel | Frontend hosting + serverless functions |
+| Vercel | Frontend hosting (smart-quote-main.vercel.app) |
 | Render | Rails API hosting + PostgreSQL (Singapore region) |
 
 ## Configuration
@@ -55,27 +49,29 @@
 | .eslintrc.cjs | max-warnings: 0 enforcement |
 | render.yaml | Backend infrastructure as code (Docker, Singapore) |
 
-## Scripts
-| File | Purpose |
-|------|---------|
-| scripts/generate_tariff.py | Python script to generate tariff data (historical, may not exist in current tree) |
-| scripts/verify_rates.ts | TypeScript rate verification tool (historical, may not exist in current tree) |
-
 ## Project Structure
 ```
 smart-quote-main/
 ├── src/                          # Frontend (React 19 + TypeScript)
-│   ├── api/quoteApi.ts           # API client (fetch-based, VITE_API_URL)
-│   ├── types.ts                  # Shared types & enums
-│   ├── config/                   # Rate tables (UPS/DHL/EMAX), business rules, options
+│   ├── api/                      # API clients (quoteApi, exchangeRateApi, weatherApi, noticeApi)
+│   ├── types.ts                  # Core types & enums (QuoteInput, QuoteResult, Incoterm)
+│   ├── types/dashboard.ts        # Dashboard types (ExchangeRate, PortWeather, etc.)
+│   ├── i18n/translations.ts      # 4-language dictionary (en/ko/cn/ja, 390+ keys)
+│   ├── config/                   # Rate tables (UPS/DHL/EMAX), business rules, ports, options
 │   ├── contexts/                 # AuthContext, LanguageContext, ThemeContext
 │   ├── features/
-│   │   ├── quote/                # Calculator components + calculationService
-│   │   └── history/              # Quote history table, search, pagination, detail modal
+│   │   ├── quote/
+│   │   │   ├── components/       # InputSection, ResultSection, SaveQuoteButton
+│   │   │   ├── components/widgets/  # ExchangeRate, Weather, Notice, AccountManager, Calculator
+│   │   │   └── services/         # calculationService.ts (mirrored calculation logic)
+│   │   ├── history/              # QuoteHistoryPage, Table, SearchBar, Pagination, DetailModal
+│   │   ├── dashboard/
+│   │   │   ├── components/       # WelcomeBanner, QuoteHistoryCompact, WidgetError, WidgetSkeleton
+│   │   │   └── hooks/            # useExchangeRates, usePortWeather, useLogisticsNews
+│   │   └── admin/                # UserManagementWidget (scaffolded)
 │   ├── components/layout/        # Header, MobileLayout, NavigationTabs
-│   ├── pages/                    # LandingPage, LoginPage, QuoteCalculator
-│   └── lib/                      # format.ts (currency), pdfService.ts
-├── api/                          # Vercel serverless functions
+│   ├── pages/                    # LandingPage, LoginPage, SignUpPage, CustomerDashboard, QuoteCalculator
+│   └── lib/                      # format.ts, pdfService.ts, fetchWithRetry.ts
 ├── smart-quote-api/              # Rails 8 API backend
 │   ├── app/controllers/api/v1/   # QuotesController (6 REST endpoints)
 │   ├── app/services/             # QuoteCalculator + Calculators::*

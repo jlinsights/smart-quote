@@ -2,14 +2,14 @@
 
 ## Pitch
 
-Smart Quote System is an international logistics quoting platform for **Goodman GLS & J-Ways** that enables operations staff and external customers to instantly calculate accurate shipping costs across UPS, DHL, and EMAX carriers, with real-time cost breakdowns, margin analysis, and quote persistence.
+Smart Quote System is an international logistics quoting platform for **Goodman GLS & J-Ways** that enables operations staff and external customers to instantly calculate accurate shipping costs across UPS, DHL, and EMAX carriers, with real-time cost breakdowns, margin analysis, and quote persistence. The customer dashboard provides logistics intelligence including live exchange rates, port weather conditions, and industry news.
 
 ## Users
 
 ### Primary Customers
 
 - **Internal Operations Staff (via /admin)**: Goodman GLS / J-Ways logistics coordinators who generate, manage, and analyze quotes daily
-- **External Customers (via /dashboard)**: Clients who need self-service quote generation, shipment tracking insights, and logistics intelligence
+- **External Customers (via /dashboard)**: Clients who need self-service quote generation, live exchange rates, port weather, and logistics intelligence
 
 ### User Personas
 
@@ -23,7 +23,7 @@ Smart Quote System is an international logistics quoting platform for **Goodman 
 - **Role:** Import/Export Manager at client company
 - **Context:** Needs competitive shipping quotes for international shipments from Korea
 - **Pain Points:** Waiting for manual quotes from forwarders, no visibility into cost breakdown, lack of real-time logistics intelligence
-- **Goals:** Self-service instant quotes, understand cost components, stay informed on port conditions and logistics news
+- **Goals:** Self-service instant quotes, understand cost components, stay informed on port conditions and exchange rates
 
 **Sales Manager** (35-50)
 - **Role:** Business Development at J-Ways
@@ -43,13 +43,13 @@ International shipping quotes require looking up zone-specific carrier rates, ca
 
 External customers must contact operations staff and wait for email quotes, creating bottlenecks and poor customer experience.
 
-**Our Solution:** Customer-facing /dashboard with self-service quoting, plus real-time port weather alerts and logistics news to provide added value beyond basic quoting.
+**Our Solution:** Customer-facing /dashboard with self-service quoting, plus real-time port weather alerts, exchange rates, and logistics news to provide added value beyond basic quoting.
 
 ### Lack of Logistics Intelligence
 
-Customers and operators lack real-time visibility into port conditions, weather disruptions, and industry news that affect shipping decisions.
+Customers and operators lack real-time visibility into port conditions, exchange rates, and industry news that affect shipping decisions.
 
-**Our Solution:** Dashboard widgets integrating Open-Meteo weather API for major port conditions and RSS-to-JSON feeds for logistics news and alerts.
+**Our Solution:** Dashboard widgets integrating Open-Meteo weather API for 47 port/airport conditions, open.er-api.com for live exchange rates (6 currencies), and curated logistics news.
 
 ## Differentiators
 
@@ -63,7 +63,7 @@ Unlike API-dependent tools that require network round-trips, Smart Quote runs id
 
 ### Integrated Logistics Intelligence
 
-Unlike pure quoting tools, the customer dashboard provides real-time port weather conditions (Open-Meteo) and logistics industry news (RSS feeds), giving customers actionable context alongside their quotes.
+Unlike pure quoting tools, the customer dashboard provides real-time exchange rates with change tracking, port weather conditions for 47 global locations (Open-Meteo), and curated logistics industry news, giving customers actionable context alongside their quotes.
 
 ## Key Features
 
@@ -72,7 +72,7 @@ Unlike pure quoting tools, the customer dashboard provides real-time port weathe
 - **Multi-Carrier Calculation:** UPS (Z1-Z10), DHL (Z1-Z8), EMAX (CN/VN flat rate) with instant comparison
 - **Packing & Volumetric Weight:** Dimension padding, carrier-specific divisors (5000/6000), actual vs volumetric comparison
 - **Incoterm Handling:** EXW/FOB/CNF/CIF/DAP/DDP with collect-term warnings and duty calculation
-- **Margin Protection:** Real-time margin slider with <10% low-margin alerts, USD-based margin with KRW conversion
+- **Margin Protection:** Real-time margin slider with <10% low-margin alerts, %-based margin calculation
 - **Surge Charges:** Manual surge input applicable to all carriers equally
 
 ### Data & Export
@@ -82,10 +82,14 @@ Unlike pure quoting tools, the customer dashboard provides real-time port weathe
 - **PDF Export:** Branded jsPDF output with shipment details, cargo manifest, cost breakdown, warnings
 - **CSV Export:** Bulk download with configurable filters
 
-### Customer Dashboard (Planned)
+### Customer Dashboard
 
-- **Global Port Weather & Alerts:** Real-time weather conditions at major ports via Open-Meteo API
-- **Logistics Insights & Notices:** Industry news and disruption alerts via RSS-to-JSON integration
+- **Live Exchange Rates:** 6 currencies (USD, EUR, JPY, CNY, GBP, SGD) with change tracking and staleness detection
+- **Exchange Rate Calculator:** Interactive currency conversion tool
+- **Global Port Weather:** Real-time weather conditions at 47 ports/airports via Open-Meteo API
+- **Logistics Notices:** Curated industry news and disruption alerts
+- **Account Manager:** Contact information for assigned logistics coordinator
+- **Recent Quotes:** Compact quote history with navigation to full history
 
 ### Domestic Logistics (Backend Service)
 
@@ -93,8 +97,8 @@ Unlike pure quoting tools, the customer dashboard provides real-time port weathe
 
 ### Platform
 
-- **Authentication:** Frontend email/password login with localStorage mock, role-based access (user/admin). Backend JWT auth planned in Phase 2.
+- **Authentication:** Frontend email/password login with localStorage mock, role-based access (user/admin/member). Backend JWT auth partially integrated.
 - **User Registration:** Self-service sign-up page (/signup) for external customer onboarding
-- **Internationalization:** 2 languages implemented (en/ko). Chinese (cn) and Japanese (ja) planned for Phase 1.
+- **Internationalization:** 4 languages (en/ko/cn/ja) with 390+ translation keys
 - **Dark Mode:** Class-based Tailwind dark mode with localStorage persistence
 - **Mobile Responsive:** Separate mobile layout with stacked sections and sticky result bar

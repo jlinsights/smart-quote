@@ -108,12 +108,12 @@ Carrier rate tables (UPS, DHL, EMAX) stored as TypeScript/Ruby constants, not in
 
 ### Rationale
 
-Rates change annually. Code-level storage provides version control audit trail, easy diffing, and synchronized frontend/backend updates. Phase 3 roadmap includes migration to database with admin UI.
+Rates change annually. Code-level storage provides version control audit trail, easy diffing, and synchronized frontend/backend updates. Phase 2 roadmap includes migration to database with admin UI.
 
 ### Consequences
 
 **Positive:** Full version control, easy synchronization, no DB dependency for rates
-**Negative:** Requires code deployment for rate updates (until Phase 3)
+**Negative:** Requires code deployment for rate updates (until Phase 2)
 
 ---
 
@@ -152,7 +152,7 @@ Remove war risk surcharge (5%) calculation from UPS and DHL carrier cost functio
 
 ### Context
 
-War risk surcharge was implemented but determined to be unnecessary for current business requirements. The constant `WAR_RISK_SURCHARGE_RATE` was removed from rates.ts and all related test expectations updated.
+War risk surcharge was implemented but determined to be unnecessary for current business requirements.
 
 ### Rationale
 
@@ -163,40 +163,62 @@ Simplifies cost breakdown, reduces confusion for operators, and aligns with curr
 **Positive:** Cleaner cost breakdown, fewer moving parts in calculation
 **Negative:** If war risk surcharge is re-introduced by carriers, logic must be re-added
 
-**Note:** The `intlWarRisk` field is retained in `CostBreakdown` interface and API response with value `0` for schema compatibility. The calculation constant and logic were fully removed.
+**Note:** The `intlWarRisk` field is retained in `CostBreakdown` interface and API response with value `0` for schema compatibility.
 
 ---
 
 ## 2026-02-26: Customer Dashboard with Logistics Intelligence
 
 **ID:** DEC-007
-**Status:** Proposed
+**Status:** Accepted (Implemented)
 **Category:** Product
 **Stakeholders:** Product Owner, Tech Lead
 
 ### Decision
 
-Build customer-facing /dashboard page with Global Port Weather & Alerts (Open-Meteo) and Logistics Insights & Notices (RSS-to-JSON) widgets alongside customer-specific quote access.
+Build customer-facing /dashboard page with live exchange rates, port weather, logistics news, account manager info, and exchange rate calculator alongside customer-specific quote access.
 
 ### Context
 
-External customers need self-service quoting capability plus real-time logistics intelligence that adds value beyond basic rate lookup. Internal operations will continue using /admin.
+External customers need self-service quoting capability plus real-time logistics intelligence that adds value beyond basic rate lookup.
 
-### Alternatives Considered
+### Implementation
 
-1. **Quote-only customer portal**
-   - Pros: Simpler to build, focused scope
-   - Cons: Commoditized offering, no differentiation from competitors
-
-2. **Full logistics management platform**
-   - Pros: Comprehensive solution, higher stickiness
-   - Cons: Massive scope, long development cycle, outside core competency
+- CustomerDashboard.tsx with responsive 3-column grid layout
+- ExchangeRateWidget: open.er-api.com with 5-min polling, staleness detection, localStorage caching
+- WeatherWidget: Open-Meteo API for 47 global ports/airports with paginated carousel
+- NoticeWidget: Curated logistics news (static data, RSS integration planned)
+- AccountManagerWidget: Charlie Lee contact info
+- ExchangeRateCalculatorWidget: Interactive currency conversion
+- QuoteHistoryCompact: Recent quotes with navigation
 
 ### Rationale
 
-Adding weather and news widgets provides meaningful differentiation with moderate development effort. Open-Meteo is free and reliable; RSS-to-JSON services are lightweight and maintainable.
+Adding intelligence widgets provides meaningful differentiation with moderate development effort. Open-Meteo is free and reliable; exchange rate API is free tier (1500 req/month).
 
 ### Consequences
 
 **Positive:** Customer stickiness, differentiated offering, low-cost external APIs
 **Negative:** Additional API integrations to maintain, need for real-time data reliability monitoring
+
+---
+
+## 2026-03-01: Margin Calculation Unification (marginPercent)
+
+**ID:** DEC-008
+**Status:** Accepted
+**Category:** Technical
+**Stakeholders:** Tech Lead
+
+### Decision
+
+Unify backend margin calculation to use %-based formula matching frontend: `revenue = cost / (1 - margin%)`, replacing previous USD-based margin input.
+
+### Context
+
+Frontend and backend had divergent margin calculation approaches (marginUSD vs marginPercent), causing inconsistencies in saved quotes.
+
+### Consequences
+
+**Positive:** Frontend and backend now produce identical results
+**Negative:** None significant

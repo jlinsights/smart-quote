@@ -1,1 +1,1 @@
-🔧 fix: 백엔드 마진 계산을 프론트엔드와 동일한 %-기반 공식으로 통일 (marginUSD→marginPercent)
+📝 docs: Agent OS 제품 문서를 현재 코드베이스 상태에 맞게 전면 업데이트 (대시보드/i18n/인증/API 반영)

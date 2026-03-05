@@ -4,67 +4,67 @@
 
 The following features have been implemented and are production-ready:
 
+### Core Quoting Engine
 - [x] **Multi-Carrier Calculation Engine** - UPS (Z1-Z10), DHL (Z1-Z8), EMAX (CN/VN flat rate) with instant frontend computation
 - [x] **Packing & Volumetric Weight** - Dimension padding (+10/+10/+15cm), carrier-specific divisor (5000 for UPS/DHL, 6000 for EMAX)
 - [x] **Incoterm Support** - EXW, FOB, CNF, CIF, DAP, DDP with collect-term warnings and duty handling
-- [x] **Margin Protection** - Low margin alerts (<10%), USD-based margin with KRW conversion, real-time slider
+- [x] **Margin Protection** - Low margin alerts (<10%), %-based margin calculation (marginPercent), real-time slider
 - [x] **Manual Surge Charges** - Manual input applicable to all 3 carriers equally
+- [x] **Mirrored Calculation** - Identical logic on frontend (TypeScript) and backend (Ruby)
+
+### Data & Export
 - [x] **Quote Persistence** - PostgreSQL storage with auto-generated reference numbers (SQ-YYYY-NNNN)
 - [x] **Quote History & Search** - Paginated list with filters (destination, status, date range, text search), detail modal
 - [x] **PDF Export** - Branded jsPDF with route, manifest, breakdown, warnings, footer
 - [x] **CSV Export** - Bulk download via GET /api/v1/quotes/export with filters
-- [x] **Authentication (Frontend Mock)** - Email/password login with localStorage persistence, role-based access (user/admin). Backend auth (JWT, bcrypt) is Phase 2.
-- [x] **User Registration** - Self-service sign-up page (/signup) for external customers with user role
-- [x] **Internationalization (2 of 4)** - English and Korean (en/ko) implemented. Chinese (cn) and Japanese (ja) planned but not yet added.
-- [x] **Domestic Cost Calculator** - Domestic pickup cost with truck tier logic (1t-11t), A-T region codes, Jeju island surcharge (backend service exists, currently disabled in orchestrator)
+
+### Customer Dashboard
+- [x] **Customer Dashboard Page** - /dashboard with responsive grid layout, role-based routing
+- [x] **Welcome Banner** - Personalized greeting with user info
+- [x] **Recent Quotes Widget** - QuoteHistoryCompact with quick navigation to full history
+- [x] **Exchange Rate Widget** - Live rates from open.er-api.com (USD, EUR, JPY, CNY, GBP, SGD) with change tracking
+- [x] **Exchange Rate Calculator Widget** - Interactive currency conversion tool
+- [x] **Port Weather Widget** - Open-Meteo API for 47 global ports/airports with paginated carousel
+- [x] **Notice Widget** - Curated logistics news with paginated display
+- [x] **Account Manager Widget** - Contact info display for assigned manager (Charlie Lee)
+
+### Platform
+- [x] **Authentication (Frontend Mock)** - localStorage-based with predefined admin accounts and self-service signup
+- [x] **User Registration** - Self-service sign-up page (/signup) for external customers
+- [x] **Internationalization (4 languages)** - English, Korean, Chinese, Japanese (en/ko/cn/ja) with 390+ translation keys
 - [x] **Dark Mode** - Class-based Tailwind dark mode with localStorage persistence
 - [x] **Mobile Responsive** - Separate mobile layout with stacked sections and sticky result bar
 - [x] **Landing Page** - Public marketing page with feature cards and CTA
-- [x] **Rails API** - 6 REST endpoints (calculate, create, list, show, delete, export) with RSpec tests
-- [x] **Mirrored Calculation** - Identical logic on frontend (TypeScript) and backend (Ruby)
-- [x] **Exchange Rate & FSC** - Vercel serverless functions for real-time USD/KRW and UPS FSC
+
+### Backend & Infrastructure
+- [x] **Rails 8 API** - 6 REST endpoints (calculate, create, list, show, delete, export) with JWT auth + RSpec tests
+- [x] **Domestic Cost Calculator** - Truck tier logic (1t-11t), A-T region codes, Jeju surcharge (backend service, currently disabled)
 - [x] **Deployment** - Vercel (frontend) + Render (Rails API + PostgreSQL, Singapore region)
 
-## Phase 1: Customer Dashboard
+### Testing
+- [x] **Frontend Tests** - 16 test files, 138 tests (Vitest + Testing Library)
+- [x] **Backend Tests** - RSpec + FactoryBot integration tests
 
-**Goal:** Provide external customers with a self-service portal featuring quoting and logistics intelligence
-**Success Criteria:** Customer-facing /dashboard operational with live weather and news widgets
-
-### Features
-
-- [ ] Customer dashboard page (/dashboard) with dedicated layout and role-based routing `M`
-- [ ] Global Port Weather & Alerts widget — replace mock data with Open-Meteo API (component scaffolded at `src/features/quote/components/widgets/WeatherWidget.tsx`) `M`
-- [ ] Logistics Insights & Notices widget — replace mock data with RSS-to-JSON API (component scaffolded at `src/features/quote/components/widgets/NoticeWidget.tsx`) `M`
-- [ ] Customer-specific quote history view (filtered by user) `S`
-- [ ] Dashboard layout with responsive grid for widgets `S`
-- [ ] Chinese (cn) and Japanese (ja) translation files for i18n completion `S`
-
-### Dependencies
-
-- Open-Meteo API access (free, no API key required)
-- RSS-to-JSON service selection and endpoint configuration
-- Auth role differentiation between admin and customer views
-
-## Phase 2: Security & Authentication Hardening
+## Phase 1: Security & Authentication Hardening
 
 **Goal:** Production-grade security for multi-tenant customer access
-**Success Criteria:** JWT-based auth with proper session management, API rate limiting
+**Status:** Partially started (Rails JWT auth exists, frontend still mock)
 
 ### Features
 
-- [ ] JWT token authentication (replace localStorage email) `L`
+- [ ] Replace frontend localStorage mock auth with real Supabase or Rails JWT integration `L`
 - [ ] API rate limiting and request throttling `M`
 - [ ] CORS policy hardening for production domains `S`
-- [ ] Password hashing and secure credential storage (Rails has_secure_password) `M`
 - [ ] Session expiry and refresh token flow `M`
 - [ ] Audit logging for quote operations `S`
+- [ ] Admin user management UI (scaffolded at `UserManagementWidget.tsx`) `M`
 
 ### Dependencies
 
-- Phase 1 dashboard completion (customer access patterns defined)
+- Frontend auth context refactoring (remove PREDEFINED_ADMINS)
 - SSL/TLS certificate configuration on Render
 
-## Phase 3: Rate Management Admin
+## Phase 2: Rate Management Admin
 
 **Goal:** Admin UI for managing carrier rate tables without code deployments
 **Success Criteria:** Operations staff can update UPS/DHL/EMAX rates via /admin interface
@@ -84,10 +84,9 @@ The following features have been implemented and are production-ready:
 - Database migration for rate tables (move from code constants to DB)
 - Admin role verification in Rails API
 
-## Phase 4: Enhanced Features (As Needed)
+## Phase 3: Enhanced Features (As Needed)
 
 **Goal:** Extended capabilities based on business requirements
-**Success Criteria:** Features deployed as requested by stakeholders
 
 ### Features
 
@@ -100,8 +99,8 @@ The following features have been implemented and are production-ready:
 
 ### Dependencies
 
-- Phase 2 security hardening (customer data protection)
-- Phase 3 rate management (for analytics data)
+- Phase 1 security hardening (customer data protection)
+- Phase 2 rate management (for analytics data)
 
 ## Effort Scale
 
