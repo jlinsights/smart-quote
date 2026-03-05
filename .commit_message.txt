@@ -1,1 +1,1 @@
-📝 docs: auth-hardening PDCA Plan 문서 생성 및 Agent OS 제품 문서 업데이트
+📝 docs: auth-hardening PDCA Design 문서 생성 (API 계약, DB 스키마, 구현 상세)
