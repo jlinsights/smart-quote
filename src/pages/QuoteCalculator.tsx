@@ -78,10 +78,8 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
        const weight = result.billableWeight;
        let defaultMargin = input.marginPercent;
 
-       // Per-user overrides (flat margin regardless of weight)
-       if (email === 'ibas@inter-airsea.co.kr') {
-         defaultMargin = 24;
-       } else if (isKorean) {
+       // Per-user overrides: treat ibas@inter-airsea.co.kr as Korean (19% ≥20kg, 24% <20kg)
+       if (email === 'ibas@inter-airsea.co.kr' || isKorean) {
          defaultMargin = weight >= 20 ? 19 : 24;
        } else {
          defaultMargin = weight >= 20 ? 24 : 32;
