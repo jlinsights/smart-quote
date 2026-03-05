@@ -70,14 +70,18 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
   const hasManuallyChangedMargin = React.useRef(false);
 
-  // Adjust default margin based on nationality and billable weight
+  // Adjust default margin based on user email, nationality and billable weight
   React.useEffect(() => {
     if (result && !hasManuallyChangedMargin.current) {
+       const email = user?.email;
        const isKorean = user?.nationality === 'South Korea' || !user?.nationality;
        const weight = result.billableWeight;
        let defaultMargin = input.marginPercent;
 
-       if (isKorean) {
+       // Per-user overrides (flat margin regardless of weight)
+       if (email === 'ibas@inter-airsea.co.kr') {
+         defaultMargin = 24;
+       } else if (isKorean) {
          defaultMargin = weight >= 20 ? 19 : 24;
        } else {
          defaultMargin = weight >= 20 ? 24 : 32;
@@ -87,7 +91,8 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
          setInput(prev => ({ ...prev, marginPercent: defaultMargin }));
        }
     }
-  }, [result, user?.nationality, input.marginPercent]);
+  }, [result, user?.nationality, user?.email, input.marginPercent]);
+
 
   const handleMarginChange = (newMargin: number) => {
     hasManuallyChangedMargin.current = true;
