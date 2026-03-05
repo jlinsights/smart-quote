@@ -21,27 +21,34 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const from = location.state?.from?.pathname || '/dashboard';
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     if (email.trim() && password.trim()) {
-      const success = login(email.trim(), password.trim());
-      if (success) {
-         const storedUserStr = localStorage.getItem('smartQuoteCurrentUser');
-         const userRole = storedUserStr ? JSON.parse(storedUserStr).role : 'user';
+      setIsLoading(true);
+      try {
+        const success = await login(email.trim(), password.trim());
+        if (success) {
+          const storedUserStr = localStorage.getItem('smartQuoteCurrentUser');
+          const userRole = storedUserStr ? JSON.parse(storedUserStr).role : 'user';
 
-         const defaultDest = userRole === 'admin' ? '/admin' : '/dashboard';
+          const defaultDest = userRole === 'admin' ? '/admin' : '/dashboard';
 
-         if (from === '/' || from === '/login' || from === '/dashboard') {
-             navigate(defaultDest, { replace: true });
-         } else {
-             navigate(from, { replace: true });
-         }
-      } else {
-        setError(t('auth.invalidCredentials'));
+          if (from === '/' || from === '/login' || from === '/dashboard') {
+            navigate(defaultDest, { replace: true });
+          } else {
+            navigate(from, { replace: true });
+          }
+        } else {
+          setError(t('auth.invalidCredentials'));
+        }
+      } finally {
+        setIsLoading(false);
       }
     } else {
       setError(t('auth.fillAll'));
@@ -122,7 +129,8 @@ export const LoginPage: React.FC = () => {
 
               <button
                 type="submit"
-                className="w-full py-3 px-4 bg-jways-600 hover:bg-jways-500 text-white text-sm font-semibold rounded-xl shadow-lg shadow-jways-600/25 hover:shadow-jways-500/30 transition-all duration-200"
+                disabled={isLoading}
+                className="w-full py-3 px-4 bg-jways-600 hover:bg-jways-500 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-lg shadow-jways-600/25 hover:shadow-jways-500/30 transition-all duration-200"
               >
                 {t('auth.signin')}
               </button>

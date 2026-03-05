@@ -30,8 +30,14 @@ export class QuoteApiError extends Error {
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = localStorage.getItem('smartQuoteToken');
+  const headers: HeadersInit = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { ...headers, ...(options?.headers || {}) },
     ...options,
   });
 
@@ -61,11 +67,12 @@ export const fetchQuote = async (input: QuoteInput): Promise<QuoteResult> => {
 
 export const saveQuote = async (
   input: QuoteInput,
-  notes?: string
+  notes?: string,
+  result?: QuoteResult
 ): Promise<QuoteDetail> => {
   return request<QuoteDetail>('/api/v1/quotes', {
     method: 'POST',
-    body: JSON.stringify({ ...input, notes }),
+    body: JSON.stringify({ ...input, ...result, notes }),
   });
 };
 

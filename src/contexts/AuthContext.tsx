@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type UserRole = 'admin' | 'user';
+export type UserRole = 'admin' | 'user' | 'member';
 
 export interface User {
+  id?: number;
   email: string;
   role: UserRole;
   company?: string;
@@ -12,13 +13,16 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password?: string) => boolean;
-  signup: (email: string, password?: string, company?: string, name?: string, nationality?: string) => boolean;
+  login: (email: string, password?: string) => Promise<boolean>;
+  signup: (email: string, password?: string, company?: string, name?: string, nationality?: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// @ts-expect-error - vite injects env
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 // In a real application, this would be handled by a secure backend database.
 // For this frontend implementation, we use localStorage to mock user records.
@@ -58,6 +62,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(users));
     }
 
+    // Auto-migrate legacy local storage users to Rails Database (one-time sync)
+    if (users.length > 0 && !localStorage.getItem('smartQuoteUsersMigratedToRails')) {
+      fetch(`${API_URL}/api/v1/auth/sync_legacy_users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ users })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          console.log(`Successfully migrated ${data.migrated_count} local users to Rails DB!`);
+          localStorage.setItem('smartQuoteUsersMigratedToRails', 'true');
+        }
+      })
+      .catch(err => console.error("Failed to migrate users to Rails DB:", err));
+    }
+
+
     const storedUser = localStorage.getItem(CURRENT_USER_KEY);
     if (storedUser) {
       try {
@@ -70,62 +92,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsInitialized(true);
   }, []);
 
-  const login = (email: string, password?: string): boolean => {
-    const usersData = localStorage.getItem(MOCK_USERS_KEY);
-    const users = usersData ? JSON.parse(usersData) : [];
-    
-    // Check credentials
-    const foundUser = users.find((u: User & { password?: string }) => u.email === email && u.password === password);
-    
-    if (foundUser) {
-        const authUser: User = { 
-          email: foundUser.email, 
-          role: foundUser.role,
-          company: foundUser.company,
-          name: foundUser.name,
-          nationality: foundUser.nationality
-        };
-        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(authUser));
-        setUser(authUser);
+  const login = async (email: string, password?: string): Promise<boolean> => {
+    try {
+      const res = await fetch(`${API_URL}/api/v1/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('smartQuoteToken', data.token);
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(data.user));
+        setUser(data.user);
         return true;
+      }
+    } catch (e) {
+      console.error(e);
     }
     return false;
   };
 
-  const signup = (
+  const signup = async (
     email: string,
     password?: string,
     company?: string,
     name?: string,
     nationality?: string
-  ): boolean => {
-    const usersData = localStorage.getItem(MOCK_USERS_KEY);
-    const users = usersData ? JSON.parse(usersData) : [];
-    
-    const exists = users.find((u: User & { password?: string }) => u.email === email);
-    if (exists) {
-        return false; // User already exists
+  ): Promise<boolean> => {
+    try {
+      const res = await fetch(`${API_URL}/api/v1/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, password_confirmation: password, company, name, nationality })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('smartQuoteToken', data.token);
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(data.user));
+        setUser(data.user);
+        return true;
+      }
+    } catch (e) {
+      console.error(e);
     }
-
-    // Create new external user
-    const newUser = { email, password, role: 'user', company, name, nationality };
-    users.push(newUser);
-    localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(users));
-
-    const authUser: User = { 
-        email: newUser.email, 
-        role: newUser.role as UserRole,
-        company: newUser.company,
-        name: newUser.name,
-        nationality: newUser.nationality
-    };
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(authUser));
-    setUser(authUser);
-    return true;
+    return false;
   };
 
   const logout = () => {
     localStorage.removeItem(CURRENT_USER_KEY);
+    localStorage.removeItem('smartQuoteToken');
     setUser(null);
   };
 

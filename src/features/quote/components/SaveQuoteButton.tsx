@@ -34,7 +34,7 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
 
     setState('saving');
     try {
-      const detail = await saveQuote(input, notes || undefined);
+      const detail = await saveQuote(input, notes || undefined, result || undefined);
       setSavedRefNo(detail.referenceNo);
       setLastSavedHash(inputHash);
       setState('saved');

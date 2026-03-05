@@ -24,7 +24,7 @@ export const SignUpPage: React.FC = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -34,10 +34,14 @@ export const SignUpPage: React.FC = () => {
     }
 
     if (email.trim() && password.trim() && company.trim() && name.trim() && nationality.trim()) {
-      const success = signup(email.trim(), password.trim(), company.trim(), name.trim(), nationality.trim());
-      if (success) {
-         navigate('/dashboard', { replace: true });
-      } else {
+      try {
+        const success = await signup(email.trim(), password.trim(), company.trim(), name.trim(), nationality.trim());
+        if (success) {
+           navigate('/dashboard', { replace: true });
+        } else {
+          setError(t('auth.emailExists'));
+        }
+      } catch {
         setError(t('auth.emailExists'));
       }
     } else {
