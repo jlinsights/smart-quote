@@ -78,8 +78,16 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
        const weight = result.billableWeight;
        let defaultMargin = input.marginPercent;
 
-       // Per-user overrides: treat ibas@inter-airsea.co.kr as Korean (19% ≥20kg, 24% <20kg)
-       if (email === 'ibas@inter-airsea.co.kr' || isKorean) {
+       // ── Per-user flat overrides (weight-independent) ──
+       // Add new entries here: email → fixed margin %
+       const FLAT_MARGIN_OVERRIDES: Record<string, number> = {
+         'admin@yslogic.co.kr': 19,  // 용성종합물류: flat 19% regardless of WT
+       };
+
+       if (email && FLAT_MARGIN_OVERRIDES[email] !== undefined) {
+         defaultMargin = FLAT_MARGIN_OVERRIDES[email];
+       } else if (email === 'ibas@inter-airsea.co.kr' || isKorean) {
+         // (주)인터블루에어엔씨 → same as Korean nationality rules
          defaultMargin = weight >= 20 ? 19 : 24;
        } else {
          defaultMargin = weight >= 20 ? 24 : 32;
@@ -90,6 +98,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
        }
     }
   }, [result, user?.nationality, user?.email, input.marginPercent]);
+
 
 
   const handleMarginChange = (newMargin: number) => {
