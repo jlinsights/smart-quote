@@ -1,5 +1,4 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { AccountManagerWidget } from '../AccountManagerWidget';
 
 vi.mock('@/contexts/LanguageContext', () => ({
@@ -11,40 +10,16 @@ describe('AccountManagerWidget', () => {
 
   it('renders first manager by default', () => {
     render(<AccountManagerWidget />);
-    expect(screen.getByText('Alex Kim')).toBeInTheDocument();
-    expect(screen.getByText('widget.manager.role.senior')).toBeInTheDocument();
-    expect(screen.getByText('widget.manager.dept.intl')).toBeInTheDocument();
+    expect(screen.getByText('Charlie Lee')).toBeInTheDocument();
+    expect(screen.getByText('widget.manager.role.ops')).toBeInTheDocument();
+    expect(screen.getByText('widget.manager.dept.ops')).toBeInTheDocument();
   });
 
   it('shows contact details with phone, mobile, and email', () => {
     render(<AccountManagerWidget />);
-    expect(screen.getByText('+82-2-1234-5678')).toBeInTheDocument();
-    expect(screen.getByText('+82-10-9876-5432')).toBeInTheDocument();
-    expect(screen.getByText('alex.kim@jways.com')).toBeInTheDocument();
-  });
-
-  it('navigates to next manager via button', async () => {
-    const user = userEvent.setup();
-    render(<AccountManagerWidget />);
-
-    expect(screen.getByText('Alex Kim')).toBeInTheDocument();
-    expect(screen.getByText('1 / 3')).toBeInTheDocument();
-
-    await user.click(screen.getByLabelText('widget.manager.next'));
-
-    expect(screen.getByText('Sarah Park')).toBeInTheDocument();
-    expect(screen.getByText('2 / 3')).toBeInTheDocument();
-  });
-
-  it('navigates to previous manager via button', async () => {
-    const user = userEvent.setup();
-    render(<AccountManagerWidget />);
-
-    // Go to previous (wraps to last)
-    await user.click(screen.getByLabelText('widget.manager.prev'));
-
-    expect(screen.getByText('David Lee')).toBeInTheDocument();
-    expect(screen.getByText('3 / 3')).toBeInTheDocument();
+    expect(screen.getByText('+82-2-6961-5763')).toBeInTheDocument();
+    expect(screen.getByText('+82-10-2620-7048')).toBeInTheDocument();
+    expect(screen.getByText('ch.lee@jways.co.kr')).toBeInTheDocument();
   });
 
   it('shows working hours', () => {
@@ -54,7 +29,6 @@ describe('AccountManagerWidget', () => {
 
   it('shows online/offline status badge', () => {
     render(<AccountManagerWidget />);
-    // Should show either Online or Offline depending on current time
     const statusBadge = screen.getByText(/widget\.manager\.status\.(online|offline)/);
     expect(statusBadge).toBeInTheDocument();
   });
@@ -66,14 +40,14 @@ describe('AccountManagerWidget', () => {
 
   it('renders email as mailto link', () => {
     render(<AccountManagerWidget />);
-    const emailLink = screen.getByText('alex.kim@jways.com').closest('a');
-    expect(emailLink).toHaveAttribute('href', 'mailto:alex.kim@jways.com');
+    const emailLink = screen.getByText('ch.lee@jways.co.kr').closest('a');
+    expect(emailLink).toHaveAttribute('href', 'mailto:ch.lee@jways.co.kr');
   });
 
   it('renders phone as tel link', () => {
     render(<AccountManagerWidget />);
-    const phoneLink = screen.getByText('+82-2-1234-5678').closest('a');
-    expect(phoneLink).toHaveAttribute('href', 'tel:+82212345678');
+    const phoneLink = screen.getByText('+82-2-6961-5763').closest('a');
+    expect(phoneLink).toHaveAttribute('href', 'tel:+82269615763');
   });
 
   it('copies contact info to clipboard on copy button click', async () => {
@@ -90,7 +64,7 @@ describe('AccountManagerWidget', () => {
     fireEvent.click(copyButtons[0]);
 
     await waitFor(() => {
-      expect(writeText).toHaveBeenCalledWith('+82-2-1234-5678');
+      expect(writeText).toHaveBeenCalledWith('+82-2-6961-5763');
     });
   });
 

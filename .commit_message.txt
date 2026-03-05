@@ -1,1 +1,1 @@
-🧪 test: CustomerDashboard 테스트 act() 경고 수정 — 비동기 렌더를 await act(async () => {}) 로 래핑
+🧪 fix: AccountManagerWidget 테스트를 Charlie Lee 담당자 정보로 업데이트
