@@ -3,7 +3,11 @@ require "csv"
 module Api
   module V1
     class QuotesController < ApplicationController
-      # POST /api/v1/quotes/calculate (existing - unchanged)
+      include JwtAuthenticatable
+
+      before_action :authenticate_user!, except: [ :calculate ]
+
+      # POST /api/v1/quotes/calculate (public - stateless)
       def calculate
         input = clean_params
         result = QuoteCalculator.call(input)
@@ -15,7 +19,7 @@ module Api
         input = clean_params
         result = QuoteCalculator.call(input)
 
-        quote = Quote.new(
+        quote = current_user.quotes.new(
           **input_attributes(input),
           **result_attributes(result),
           items: input["items"] || input[:items],
@@ -33,7 +37,7 @@ module Api
 
       # GET /api/v1/quotes
       def index
-        quotes = Quote.recent
+        quotes = scoped_quotes
                       .search_text(params[:q])
                       .by_destination(params[:destination_country])
                       .by_date_range(params[:date_from], params[:date_to])
@@ -54,7 +58,7 @@ module Api
 
       # GET /api/v1/quotes/:id
       def show
-        quote = Quote.find(params[:id])
+        quote = scoped_quotes.find(params[:id])
         render json: quote_detail(quote)
       rescue ActiveRecord::RecordNotFound
         render json: { error: { code: "NOT_FOUND", message: "Quote not found" } }, status: :not_found
@@ -62,7 +66,7 @@ module Api
 
       # DELETE /api/v1/quotes/:id
       def destroy
-        Quote.find(params[:id]).destroy
+        scoped_quotes.find(params[:id]).destroy
         head :no_content
       rescue ActiveRecord::RecordNotFound
         render json: { error: { code: "NOT_FOUND", message: "Quote not found" } }, status: :not_found
@@ -70,7 +74,7 @@ module Api
 
       # GET /api/v1/quotes/export.csv
       def export
-        quotes = Quote.recent
+        quotes = scoped_quotes
                       .search_text(params[:q])
                       .by_destination(params[:destination_country])
                       .by_date_range(params[:date_from], params[:date_to])
@@ -101,6 +105,14 @@ module Api
 
       private
 
+      def scoped_quotes
+        if current_user.role == "admin"
+          Quote.recent
+        else
+          current_user.quotes.recent
+        end
+      end
+
       def clean_params
         params.permit(
           :originCountry, :destinationCountry, :destinationZip,
@@ -110,7 +122,7 @@ module Api
           :exchangeRate, :fscPercent,
           :manualDomesticCost, :manualPackingCost, :manualSurgeCost,
           :overseasCarrier,
-          items: [:id, :name, :quantity, :weight, :length, :width, :height]
+          items: [ :id, :name, :quantity, :weight, :length, :width, :height ]
         ).to_h
       end
 

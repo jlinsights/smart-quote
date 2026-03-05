@@ -102,7 +102,7 @@ describe('SaveQuoteButton', () => {
     await userEvent.click(screen.getByText('Save Quote'));
     await userEvent.click(screen.getByRole('button', { name: /save/i }));
 
-    expect(saveQuote).toHaveBeenCalledWith(mockInput, undefined);
+    expect(saveQuote).toHaveBeenCalledWith(mockInput, undefined, mockResult);
   });
 
   it('shows Saved! with reference number after successful save', async () => {

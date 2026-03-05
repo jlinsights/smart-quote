@@ -4,7 +4,7 @@ import CustomerDashboard from '../CustomerDashboard';
 
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
-    user: { email: 'test@example.com', role: 'user' },
+    user: { id: 1, email: 'test@example.com', role: 'user' },
     isAuthenticated: true,
     logout: vi.fn(),
   }),

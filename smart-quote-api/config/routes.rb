@@ -3,6 +3,12 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      # Auth (public)
+      post "auth/register", to: "auth#register"
+      post "auth/login",    to: "auth#login"
+      get  "auth/me",       to: "auth#me"
+
+      # Quotes (protected, except calculate)
       post "quotes/calculate", to: "quotes#calculate"
       get "quotes/export", to: "quotes#export"
       resources :quotes, only: [ :index, :show, :create, :destroy ]

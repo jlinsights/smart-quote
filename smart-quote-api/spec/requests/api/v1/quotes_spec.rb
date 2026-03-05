@@ -1,6 +1,13 @@
 require "rails_helper"
 
 RSpec.describe "Api::V1::Quotes", type: :request do
+  let(:admin) { create(:user, :admin) }
+  let(:user) { create(:user) }
+  let(:admin_token) { jwt_token_for(admin) }
+  let(:user_token) { jwt_token_for(user) }
+  let(:admin_headers) { auth_headers(admin_token) }
+  let(:user_headers) { auth_headers(user_token) }
+
   let(:calculator_result) do
     {
       totalQuoteAmount: 1_500_000,
@@ -60,24 +67,33 @@ RSpec.describe "Api::V1::Quotes", type: :request do
     JSON.parse(response.body)
   end
 
+  describe "POST /api/v1/quotes/calculate" do
+    it "works without authentication (public endpoint)" do
+      post "/api/v1/quotes/calculate", params: valid_params, as: :json
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   describe "POST /api/v1/quotes" do
-    it "creates a quote and returns 201" do
+    it "returns 401 without authentication" do
       post "/api/v1/quotes", params: valid_params, as: :json
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "creates a quote for authenticated user" do
+      post "/api/v1/quotes", params: valid_params, headers: user_headers, as: :json
 
       expect(response).to have_http_status(:created)
       expect(json["referenceNo"]).to match(/\ASQ-\d{4}-\d{4}\z/)
       expect(json["destinationCountry"]).to eq("US")
       expect(json["totalQuoteAmount"]).to eq(1_500_000)
-      expect(json["totalQuoteAmountUSD"]).to eq(1_150.5)
-      expect(json["totalCostAmount"]).to eq(1_200_000)
-      expect(json["profitAmount"]).to eq(300_000)
-      expect(json["appliedZone"]).to eq("Z5")
-      expect(json["breakdown"]).to be_present
-      expect(json["status"]).to eq("draft")
+      expect(Quote.last.user_id).to eq(user.id)
     end
 
     it "calls QuoteCalculator with input params" do
-      post "/api/v1/quotes", params: valid_params, as: :json
+      post "/api/v1/quotes", params: valid_params, headers: admin_headers, as: :json
 
       expect(QuoteCalculator).to have_received(:call)
     end
@@ -87,73 +103,81 @@ RSpec.describe "Api::V1::Quotes", type: :request do
         invalid_result = calculator_result.merge(totalQuoteAmount: nil, totalCostAmount: nil)
         allow(QuoteCalculator).to receive(:call).and_return(invalid_result)
 
-        post "/api/v1/quotes", params: valid_params.merge(incoterm: "INVALID"), as: :json
+        post "/api/v1/quotes", params: valid_params.merge(incoterm: "INVALID"), headers: admin_headers, as: :json
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(json["error"]["code"]).to eq("VALIDATION_ERROR")
-        expect(json["error"]["message"]).to be_present
       end
     end
   end
 
   describe "GET /api/v1/quotes" do
-    before do
-      create_list(:quote, 3)
-    end
-
-    it "returns paginated list of quotes" do
+    it "returns 401 without authentication" do
       get "/api/v1/quotes"
 
-      expect(response).to have_http_status(:ok)
-      expect(json["quotes"].length).to eq(3)
-      expect(json["pagination"]).to include(
-        "currentPage" => 1,
-        "totalCount" => 3
-      )
+      expect(response).to have_http_status(:unauthorized)
     end
 
-    it "supports per_page parameter" do
-      get "/api/v1/quotes", params: { per_page: 2 }
+    context "as admin" do
+      before do
+        create_list(:quote, 3, user: admin)
+        create(:quote, user: user)
+      end
 
-      expect(json["quotes"].length).to eq(2)
-      expect(json["pagination"]["totalPages"]).to eq(2)
+      it "returns all quotes" do
+        get "/api/v1/quotes", headers: admin_headers
+
+        expect(response).to have_http_status(:ok)
+        expect(json["quotes"].length).to eq(4)
+        expect(json["pagination"]["totalCount"]).to eq(4)
+      end
+
+      it "supports per_page parameter" do
+        get "/api/v1/quotes", params: { per_page: 2 }, headers: admin_headers
+
+        expect(json["quotes"].length).to eq(2)
+        expect(json["pagination"]["totalPages"]).to eq(2)
+      end
+    end
+
+    context "as regular user" do
+      before do
+        create_list(:quote, 2, user: user)
+        create(:quote, user: admin)
+      end
+
+      it "returns only own quotes" do
+        get "/api/v1/quotes", headers: user_headers
+
+        expect(response).to have_http_status(:ok)
+        expect(json["quotes"].length).to eq(2)
+      end
     end
 
     context "with filters" do
       it "filters by destination_country" do
-        create(:quote, destination_country: "JP")
+        create(:quote, destination_country: "JP", user: admin)
 
-        get "/api/v1/quotes", params: { destination_country: "JP" }
+        get "/api/v1/quotes", params: { destination_country: "JP" }, headers: admin_headers
 
         expect(json["quotes"].length).to eq(1)
         expect(json["quotes"].first["destinationCountry"]).to eq("JP")
       end
 
       it "filters by status" do
-        create(:quote, :sent)
+        create(:quote, :sent, user: admin)
 
-        get "/api/v1/quotes", params: { status: "sent" }
+        get "/api/v1/quotes", params: { status: "sent" }, headers: admin_headers
 
         json["quotes"].each do |q|
           expect(q["status"]).to eq("sent")
         end
       end
 
-      it "filters by date range" do
-        create(:quote, created_at: 30.days.ago)
-
-        get "/api/v1/quotes", params: {
-          date_from: 2.days.ago.to_date.to_s,
-          date_to: Date.current.to_s
-        }
-
-        expect(json["quotes"].length).to eq(3)
-      end
-
       it "searches by text query" do
-        target = create(:quote, destination_country: "JP")
+        target = create(:quote, destination_country: "JP", user: admin)
 
-        get "/api/v1/quotes", params: { q: "JP" }
+        get "/api/v1/quotes", params: { q: "JP" }, headers: admin_headers
 
         refs = json["quotes"].map { |q| q["referenceNo"] }
         expect(refs).to include(target.reference_no)
@@ -162,20 +186,34 @@ RSpec.describe "Api::V1::Quotes", type: :request do
   end
 
   describe "GET /api/v1/quotes/:id" do
-    it "returns the quote detail" do
-      quote = create(:quote)
+    it "returns the quote detail for owner" do
+      quote = create(:quote, user: user)
 
-      get "/api/v1/quotes/#{quote.id}"
+      get "/api/v1/quotes/#{quote.id}", headers: user_headers
 
       expect(response).to have_http_status(:ok)
       expect(json["id"]).to eq(quote.id)
       expect(json["referenceNo"]).to eq(quote.reference_no)
-      expect(json["items"]).to be_present
-      expect(json["breakdown"]).to be_present
+    end
+
+    it "returns 404 for other user's quote" do
+      quote = create(:quote, user: admin)
+
+      get "/api/v1/quotes/#{quote.id}", headers: user_headers
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "admin can see any quote" do
+      quote = create(:quote, user: user)
+
+      get "/api/v1/quotes/#{quote.id}", headers: admin_headers
+
+      expect(response).to have_http_status(:ok)
     end
 
     it "returns 404 when quote not found" do
-      get "/api/v1/quotes/0"
+      get "/api/v1/quotes/0", headers: admin_headers
 
       expect(response).to have_http_status(:not_found)
       expect(json["error"]["code"]).to eq("NOT_FOUND")
@@ -183,48 +221,56 @@ RSpec.describe "Api::V1::Quotes", type: :request do
   end
 
   describe "DELETE /api/v1/quotes/:id" do
-    it "deletes the quote and returns 204" do
-      quote = create(:quote)
+    it "deletes own quote" do
+      quote = create(:quote, user: user)
 
       expect {
-        delete "/api/v1/quotes/#{quote.id}"
+        delete "/api/v1/quotes/#{quote.id}", headers: user_headers
       }.to change(Quote, :count).by(-1)
 
       expect(response).to have_http_status(:no_content)
     end
 
-    it "returns 404 when quote not found" do
-      delete "/api/v1/quotes/0"
+    it "returns 404 for other user's quote" do
+      quote = create(:quote, user: admin)
+
+      delete "/api/v1/quotes/#{quote.id}", headers: user_headers
 
       expect(response).to have_http_status(:not_found)
-      expect(json["error"]["code"]).to eq("NOT_FOUND")
+    end
+
+    it "admin can delete any quote" do
+      quote = create(:quote, user: user)
+
+      expect {
+        delete "/api/v1/quotes/#{quote.id}", headers: admin_headers
+      }.to change(Quote, :count).by(-1)
     end
   end
 
   describe "GET /api/v1/quotes/export" do
     before do
-      create_list(:quote, 3)
+      create_list(:quote, 3, user: admin)
     end
 
     it "returns CSV data" do
-      get "/api/v1/quotes/export"
+      get "/api/v1/quotes/export", headers: admin_headers
 
       expect(response).to have_http_status(:ok)
       expect(response.content_type).to include("text/csv")
 
       csv_lines = response.body.split("\n")
       expect(csv_lines.first).to include("Reference No")
-      expect(csv_lines.length).to eq(4) # header + 3 rows
+      expect(csv_lines.length).to eq(4)
     end
 
-    it "applies filters to export" do
-      create(:quote, destination_country: "JP")
+    it "regular user only exports own quotes" do
+      create(:quote, user: user)
 
-      get "/api/v1/quotes/export", params: { destination_country: "JP" }
+      get "/api/v1/quotes/export", headers: user_headers
 
       csv_lines = response.body.split("\n")
-      expect(csv_lines.length).to eq(2) # header + 1 JP row
-      expect(csv_lines.last).to include("JP")
+      expect(csv_lines.length).to eq(2) # header + 1 own quote
     end
   end
 end

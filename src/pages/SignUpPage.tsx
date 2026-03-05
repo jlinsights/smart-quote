@@ -35,11 +35,11 @@ export const SignUpPage: React.FC = () => {
 
     if (email.trim() && password.trim() && company.trim() && name.trim() && nationality.trim()) {
       try {
-        const success = await signup(email.trim(), password.trim(), company.trim(), name.trim(), nationality.trim());
-        if (success) {
+        const result = await signup(email.trim(), password.trim(), company.trim(), name.trim(), nationality.trim());
+        if (result.success) {
            navigate('/dashboard', { replace: true });
         } else {
-          setError(t('auth.emailExists'));
+          setError(result.error || t('auth.emailExists'));
         }
       } catch {
         setError(t('auth.emailExists'));

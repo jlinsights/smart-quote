@@ -1,1 +1,1 @@
-📝 docs: auth-hardening PDCA Design 문서 생성 (API 계약, DB 스키마, 구현 상세)
+🔐 feat: JWT 인증 하드닝 완료 — 백엔드 JWT + 프론트엔드 AuthContext 리라이트 (mock 제거)

@@ -1,5 +1,6 @@
 FactoryBot.define do
   factory :quote do
+    user
     sequence(:reference_no) { |n| "SQ-#{Time.current.year}-#{n.to_s.rjust(4, '0')}" }
     origin_country { "KR" }
     destination_country { "US" }

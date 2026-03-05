@@ -16,7 +16,7 @@ export const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,11 +32,9 @@ export const LoginPage: React.FC = () => {
     if (email.trim() && password.trim()) {
       setIsLoading(true);
       try {
-        const success = await login(email.trim(), password.trim());
-        if (success) {
-          const storedUserStr = localStorage.getItem('smartQuoteCurrentUser');
-          const userRole = storedUserStr ? JSON.parse(storedUserStr).role : 'user';
-
+        const result = await login(email.trim(), password.trim());
+        if (result.success) {
+          const userRole = user?.role || 'user';
           const defaultDest = userRole === 'admin' ? '/admin' : '/dashboard';
 
           if (from === '/' || from === '/login' || from === '/dashboard') {
@@ -45,7 +43,7 @@ export const LoginPage: React.FC = () => {
             navigate(from, { replace: true });
           }
         } else {
-          setError(t('auth.invalidCredentials'));
+          setError(result.error || t('auth.invalidCredentials'));
         }
       } finally {
         setIsLoading(false);

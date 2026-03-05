@@ -1,4 +1,6 @@
 class Quote < ApplicationRecord
+  belongs_to :user, optional: true
+
   VALID_INCOTERMS = %w[EXW FOB C&F CIF DAP DDP].freeze
   VALID_PACKING_TYPES = %w[NONE WOODEN_BOX SKID VACUUM].freeze
   VALID_STATUSES = %w[draft sent accepted rejected].freeze
