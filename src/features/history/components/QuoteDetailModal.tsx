@@ -1,15 +1,37 @@
-import React from 'react';
-import { QuoteDetail } from '@/types';
-import { X, Package, DollarSign, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { QuoteDetail, QuoteStatus } from '@/types';
+import { X, Package, DollarSign, TrendingUp, Copy } from 'lucide-react';
 import { formatNum } from '@/lib/format';
+import { updateQuoteStatus } from '@/api/quoteApi';
+import { STATUS_COLORS } from '../constants';
 
 interface Props {
   quote: QuoteDetail;
   onClose: () => void;
+  onDuplicate?: (quote: QuoteDetail) => void;
+  onStatusChange?: (id: number, newStatus: QuoteStatus) => void;
 }
 
-export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose }) => {
+const STATUS_FLOW: QuoteStatus[] = ['draft', 'sent', 'accepted', 'rejected'];
+
+export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate, onStatusChange }) => {
   const fmt = formatNum;
+  const [currentStatus, setCurrentStatus] = useState<QuoteStatus>(quote.status);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleStatusChange = async (newStatus: QuoteStatus) => {
+    if (newStatus === currentStatus) return;
+    setIsUpdating(true);
+    try {
+      await updateQuoteStatus(quote.id, newStatus);
+      setCurrentStatus(newStatus);
+      onStatusChange?.(quote.id, newStatus);
+    } catch {
+      // silently fail - user can retry
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -30,16 +52,46 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose }) => {
         <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-2xl">
           <div>
             <h3 id="modal-title" className="text-lg font-bold text-gray-900 dark:text-white">{quote.referenceNo}</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Created {new Date(quote.createdAt).toLocaleString('ko-KR')}
-            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Created {new Date(quote.createdAt).toLocaleString('ko-KR')}
+              </p>
+              <div className="flex items-center gap-1">
+                {STATUS_FLOW.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => handleStatusChange(s)}
+                    disabled={isUpdating}
+                    className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize transition-all ${
+                      s === currentStatus
+                        ? `${STATUS_COLORS[s]} ring-1 ring-current`
+                        : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-50 dark:bg-gray-700/30 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    } ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {onDuplicate && (
+              <button
+                onClick={() => onDuplicate(quote)}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-jways-600 hover:text-jways-700 bg-jways-50 hover:bg-jways-100 dark:text-jways-400 dark:hover:text-jways-300 dark:bg-jways-900/30 dark:hover:bg-jways-900/50 transition-colors"
+                title="Duplicate this quote"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                Duplicate
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         <div className="px-6 py-5 space-y-6">

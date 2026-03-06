@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { QuoteInput, QuoteResult, Incoterm, PackingType } from '../types';
+import { QuoteInput, QuoteResult, QuoteDetail, Incoterm, PackingType } from '../types';
 import { generatePDF } from '@/lib/pdfService';
 import { calculateQuote } from '@/features/quote/services/calculationService';
 import { MobileLayout } from '@/components/layout/MobileLayout';
@@ -104,6 +104,25 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const handleMarginChange = (newMargin: number) => {
     hasManuallyChangedMargin.current = true;
     setInput((prev: QuoteInput) => ({ ...prev, marginPercent: newMargin }));
+  };
+
+  const handleDuplicate = (quote: QuoteDetail) => {
+    const duplicatedInput: QuoteInput = {
+      originCountry: quote.originCountry || 'KR',
+      destinationCountry: quote.destinationCountry,
+      destinationZip: quote.destinationZip || '',
+      incoterm: (quote.incoterm as Incoterm) || Incoterm.DAP,
+      packingType: (quote.packingType as PackingType) || PackingType.NONE,
+      items: quote.items.map((item, i) => ({ ...item, id: String(i + 1) })),
+      marginPercent: quote.marginPercent,
+      dutyTaxEstimate: quote.dutyTaxEstimate,
+      exchangeRate: quote.exchangeRate,
+      fscPercent: quote.fscPercent,
+      manualPackingCost: quote.manualPackingCost ?? undefined,
+    };
+    setInput(duplicatedInput);
+    hasManuallyChangedMargin.current = true;
+    setCurrentView('calculator');
   };
 
   const handleReset = () => {
@@ -236,9 +255,11 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                     {result && (
                       <ResultSection
                         result={result}
+                        input={input}
                         hideMargin={isPublic}
                         onMarginChange={handleMarginChange}
                         onDownloadPdf={handleDownloadPdf}
+                        onSwitchCarrier={(carrier) => setInput(prev => ({ ...prev, overseasCarrier: carrier }))}
                         marginPercent={input.marginPercent}
                         isKorean={user?.nationality === 'South Korea' || !user?.nationality}
                       />
@@ -287,7 +308,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
             )}
           </>
         ) : (
-          <QuoteHistoryPage />
+          <QuoteHistoryPage onDuplicate={handleDuplicate} />
         )}
 
         {/* Footer */}

@@ -2,8 +2,9 @@ import React from 'react';
 import { QuoteInput } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { UPS_FSC_URL, DHL_FSC_URL, NAVER_EXCHANGE_RATE_URL } from '@/config/rates';
-import { TrendingUp, ExternalLink } from 'lucide-react';
+import { TrendingUp, ExternalLink, RefreshCw } from 'lucide-react';
 import { inputStyles } from './input-styles';
+import { useExchangeRates } from '@/features/dashboard/hooks/useExchangeRates';
 
 interface Props {
   input: QuoteInput;
@@ -18,6 +19,15 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
   const { t } = useLanguage();
+  const { data: exchangeRates, loading: ratesLoading } = useExchangeRates();
+
+  const liveUsdRate = exchangeRates.find((r) => r.currency === 'USD');
+
+  const applyLiveRate = () => {
+    if (liveUsdRate && liveUsdRate.rate > 0) {
+      onFieldChange('exchangeRate', Math.round(liveUsdRate.rate * 100) / 100);
+    }
+  };
 
   const financialGrid = `grid grid-cols-1 ${!isMobileView ? 'sm:grid-cols-3' : 'grid-cols-2'} gap-3`;
 
@@ -71,11 +81,23 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
                      min="1"
                      value={input.exchangeRate}
                      onChange={(e) => { const v = Number(e.target.value); onFieldChange('exchangeRate', isNaN(v) || v < 1 ? 1 : v); }}
-                     className={`${ic} pl-8`}
+                     className={`${ic} pl-8 pr-20`}
                      placeholder="1430"
                      inputMode="decimal"
                      autoComplete="off"
                  />
+                 {liveUsdRate && (
+                   <button
+                     type="button"
+                     onClick={applyLiveRate}
+                     disabled={ratesLoading}
+                     className="absolute inset-y-0 right-0 flex items-center gap-1 px-2 text-[10px] font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                     title={`Apply live rate: ₩${liveUsdRate.rate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                   >
+                     <RefreshCw className={`w-3 h-3 ${ratesLoading ? 'animate-spin' : ''}`} />
+                     <span className="hidden sm:inline">LIVE</span>
+                   </button>
+                 )}
              </div>
          </div>
          <div>

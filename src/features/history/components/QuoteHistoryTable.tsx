@@ -1,8 +1,18 @@
 import React from 'react';
 import { QuoteSummary } from '@/types';
-import { Eye, Trash2 } from 'lucide-react';
+import { Eye, Trash2, Clock } from 'lucide-react';
 import { formatNum } from '@/lib/format';
 import { STATUS_COLORS } from '@/features/history/constants';
+
+const QUOTE_VALIDITY_DAYS = 7;
+
+function getExpiryInfo(createdAt: string) {
+  const created = new Date(createdAt);
+  const expiry = new Date(created.getTime() + QUOTE_VALIDITY_DAYS * 24 * 60 * 60 * 1000);
+  const now = new Date();
+  const daysLeft = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  return { daysLeft, expired: daysLeft <= 0 };
+}
 
 interface Props {
   quotes: QuoteSummary[];
@@ -59,8 +69,23 @@ export const QuoteHistoryTable: React.FC<Props> = ({
                 <td className="px-4 py-3 font-mono text-xs font-medium text-gray-900 dark:text-white">
                   {q.referenceNo}
                 </td>
-                <td className="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs">
-                  {new Date(q.createdAt).toLocaleDateString('ko-KR')}
+                <td className="px-4 py-3 text-xs">
+                  <div className="text-gray-500 dark:text-gray-400">
+                    {new Date(q.createdAt).toLocaleDateString('ko-KR')}
+                  </div>
+                  {q.status === 'draft' || q.status === 'sent' ? (() => {
+                    const { daysLeft, expired } = getExpiryInfo(q.createdAt);
+                    return (
+                      <div className={`flex items-center gap-0.5 mt-0.5 text-[10px] font-medium ${
+                        expired ? 'text-red-500 dark:text-red-400' :
+                        daysLeft <= 2 ? 'text-amber-500 dark:text-amber-400' :
+                        'text-gray-400 dark:text-gray-500'
+                      }`}>
+                        <Clock className="w-2.5 h-2.5" />
+                        {expired ? 'Expired' : `${daysLeft}d left`}
+                      </div>
+                    );
+                  })() : null}
                 </td>
                 <td className="px-4 py-3">
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">

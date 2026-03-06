@@ -101,6 +101,18 @@ export const getQuote = async (id: number): Promise<QuoteDetail> => {
   return { ...raw, breakdown: mapBreakdown(raw.breakdown) };
 };
 
+export const updateQuoteStatus = async (
+  id: number,
+  status: 'draft' | 'sent' | 'accepted' | 'rejected',
+  notes?: string
+): Promise<QuoteDetail> => {
+  const raw = await request<QuoteDetail & { breakdown: unknown }>(`/api/v1/quotes/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status, ...(notes !== undefined ? { notes } : {}) }),
+  });
+  return { ...raw, breakdown: mapBreakdown(raw.breakdown) };
+};
+
 export const deleteQuote = async (id: number): Promise<void> => {
   return request<void>(`/api/v1/quotes/${id}`, { method: 'DELETE' });
 };
