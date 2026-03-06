@@ -22,6 +22,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<AuthResult>;
   signup: (email: string, password: string, company?: string, name?: string, nationality?: string) => Promise<AuthResult>;
   logout: () => void;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<AuthResult>;
   isAuthenticated: boolean;
 }
 
@@ -110,11 +111,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   }, []);
 
+  const updatePassword = useCallback(async (currentPassword: string, newPassword: string): Promise<AuthResult> => {
+    try {
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (!token) throw new Error('No token found');
+
+      const res = await fetch(`${API_URL}/api/v1/auth/password`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          current_password: currentPassword, 
+          password: newPassword,
+          password_confirmation: newPassword
+        }),
+      });
+
+      if (res.ok) {
+        return { success: true };
+      }
+
+      const body = await res.json().catch(() => ({}));
+      return { success: false, error: body?.error || body?.errors?.[0] || 'Password update failed' };
+    } catch {
+      return { success: false, error: 'Network error' };
+    }
+  }, []);
+
   if (isLoading) return null;
 
   return (
     <AuthContext.Provider value={{
-      user, login, signup, logout,
+      user, login, signup, logout, updatePassword,
       isAuthenticated: !!user,
     }}>
       {children}

@@ -38,6 +38,22 @@ module Api
         render json: user_json(current_user)
       end
 
+      # POST /api/v1/auth/promote — one-time admin promotion (secret-protected)
+      def promote
+        secret = ENV["ADMIN_PROMOTE_SECRET"]
+        if secret.blank? || params[:secret] != secret
+          return render json: { error: "Forbidden" }, status: :forbidden
+        end
+
+        user = User.find_by(email: params[:email]&.downcase&.strip)
+        if user.nil?
+          return render json: { error: "User not found" }, status: :not_found
+        end
+
+        user.update!(role: "admin")
+        render json: { message: "#{user.email} promoted to admin", role: user.role }
+      end
+
       private
 
       def register_params

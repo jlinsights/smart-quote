@@ -1,1 +1,1 @@
-🛡️ fix: 프론트엔드 입력값 검증·접근성 강화, jsPDF 지연 로딩 (vendor-pdf 357KB 별도 청크), 전체 Phase 1-4 완료
+🚫 chore: EMAX 캐리어 옵션 숨김 (UPS/DHL만 운영)
