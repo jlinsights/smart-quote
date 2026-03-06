@@ -112,9 +112,9 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
     }
   };
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     if (result) {
-      generatePDF(input, result);
+      await generatePDF(input, result);
     }
   };
 

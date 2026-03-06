@@ -1,1 +1,1 @@
-🔧 fix: Render 배포 실패 수정 — production DB를 단일 DATABASE_URL로 변경, solid_* → in-memory 어댑터 전환, ESLint/테스트 수정
+🛡️ fix: 프론트엔드 입력값 검증·접근성 강화, jsPDF 지연 로딩 (vendor-pdf 357KB 별도 청크), 전체 Phase 1-4 완료

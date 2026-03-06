@@ -99,11 +99,13 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
 
   const updateItem = (index: number, field: keyof CargoItem, value: number) => {
     const newItems = [...items];
+    const safeValue = Math.max(0, isNaN(value) ? 0 : value);
+    const clamped = field === 'quantity' ? Math.max(1, Math.round(safeValue)) : safeValue;
     const isDim = field === 'length' || field === 'width' || field === 'height';
     const isWeight = field === 'weight';
-    const internalValue = isDim ? toInternal(value, unitSystem, 'dim')
-      : isWeight ? toInternal(value, unitSystem, 'weight')
-      : value;
+    const internalValue = isDim ? toInternal(clamped, unitSystem, 'dim')
+      : isWeight ? toInternal(clamped, unitSystem, 'weight')
+      : clamped;
     newItems[index] = { ...newItems[index], [field]: internalValue };
     onChange(newItems);
   };
@@ -123,9 +125,10 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
               {t('calc.section.cargo')}
           </h3>
           <div className="flex items-center gap-2">
-              <div className="inline-flex rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden text-xs">
+              <div className="inline-flex rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden text-xs" role="group" aria-label="Unit system">
                 <button
                   onClick={() => setUnitSystem('metric')}
+                  aria-pressed={unitSystem === 'metric'}
                   className={`px-2.5 py-1 font-medium transition-colors ${
                     unitSystem === 'metric'
                       ? 'bg-jways-600 text-white'
@@ -136,6 +139,7 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
                 </button>
                 <button
                   onClick={() => setUnitSystem('imperial')}
+                  aria-pressed={unitSystem === 'imperial'}
                   className={`px-2.5 py-1 font-medium transition-colors ${
                     unitSystem === 'imperial'
                       ? 'bg-jways-600 text-white'
@@ -147,6 +151,7 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
               </div>
               <button
                   onClick={addItem}
+                  aria-label="Add cargo box"
                   className={addBoxBtnClass}
               >
                   <Plus className="w-3 h-3 mr-1" /> Add Box

@@ -70,7 +70,7 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
                      step="any"
                      min="1"
                      value={input.exchangeRate}
-                     onChange={(e) => onFieldChange('exchangeRate', Number(e.target.value))}
+                     onChange={(e) => { const v = Number(e.target.value); onFieldChange('exchangeRate', isNaN(v) || v < 1 ? 1 : v); }}
                      className={`${ic} pl-8`}
                      placeholder="1430"
                      inputMode="decimal"
@@ -86,7 +86,7 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
                      step="0.01"
                      min="0"
                      value={input.fscPercent}
-                     onChange={(e) => onFieldChange('fscPercent', Number(e.target.value))}
+                     onChange={(e) => { const v = Number(e.target.value); onFieldChange('fscPercent', isNaN(v) || v < 0 ? 0 : v); }}
                      className={`${ic} pr-8`}
                      placeholder="30.25"
                      inputMode="decimal"
@@ -106,7 +106,7 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
                          step="0.1"
                          min="0"
                          value={input.marginPercent}
-                         onChange={(e) => onFieldChange('marginPercent', Number(e.target.value))}
+                         onChange={(e) => { const v = Number(e.target.value); onFieldChange('marginPercent', isNaN(v) || v < 0 ? 0 : Math.min(v, 99.9)); }}
                          className={`${ic} pr-16`}
                          placeholder="15"
                          inputMode="decimal"

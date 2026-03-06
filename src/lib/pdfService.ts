@@ -1,4 +1,4 @@
-import { jsPDF } from "jspdf";
+import type { jsPDF } from "jspdf";
 import { QuoteInput, QuoteResult } from "@/types";
 import { COUNTRY_OPTIONS } from "@/config/options";
 import { PDF_LAYOUT } from "@/config/ui-constants";
@@ -204,8 +204,9 @@ const drawFooter = (doc: jsPDF) => {
 };
 
 
-export const generatePDF = (input: QuoteInput, result: QuoteResult, referenceNo?: string) => {
-  const doc = new jsPDF();
+export const generatePDF = async (input: QuoteInput, result: QuoteResult, referenceNo?: string) => {
+  const { jsPDF: JsPDF } = await import("jspdf");
+  const doc = new JsPDF();
   let yPos = 20;
 
   yPos = drawHeader(doc, yPos);

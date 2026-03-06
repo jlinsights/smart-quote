@@ -35,7 +35,7 @@ vi.mock('jspdf', () => {
 });
 
 describe('pdfService', () => {
-    it('should generate PDF and save it', () => {
+    it('should generate PDF and save it', async () => {
         const input: QuoteInput = {
             originCountry: 'KR',
             destinationCountry: 'US',
@@ -79,7 +79,7 @@ describe('pdfService', () => {
             }
         };
 
-        generatePDF(input, result);
+        await generatePDF(input, result);
 
         expect(mockSave).toHaveBeenCalledWith("jways_smart_quote.pdf");
         expect(mockText).toHaveBeenCalled();
