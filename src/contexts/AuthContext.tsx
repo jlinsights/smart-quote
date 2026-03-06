@@ -33,15 +33,12 @@ const TOKEN_KEY = 'smartQuoteToken';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem(TOKEN_KEY));
 
   // Validate existing token on mount
   useEffect(() => {
     const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
+    if (!token) return;
 
     fetch(`${API_URL}/api/v1/auth/me`, {
       headers: { 'Authorization': `Bearer ${token}` },

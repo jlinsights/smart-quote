@@ -1,1 +1,1 @@
-🐛 fix: 로그인 실패 3건 수정 — LoginPage 타이밍 버그, .env localhost 전환, admin 비밀번호 리셋
+🔧 fix: Render 배포 실패 수정 — production DB를 단일 DATABASE_URL로 변경, solid_* → in-memory 어댑터 전환, ESLint/테스트 수정
