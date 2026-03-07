@@ -5,6 +5,7 @@ import { UPS_FSC_URL, DHL_FSC_URL, NAVER_EXCHANGE_RATE_URL } from '@/config/rate
 import { TrendingUp, ExternalLink, RefreshCw } from 'lucide-react';
 import { inputStyles } from './input-styles';
 import { useExchangeRates } from '@/features/dashboard/hooks/useExchangeRates';
+import { useFscRates } from '@/features/dashboard/hooks/useFscRates';
 
 interface Props {
   input: QuoteInput;
@@ -20,12 +21,23 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
   const lc = labelClass(isMobileView);
   const { t } = useLanguage();
   const { data: exchangeRates, loading: ratesLoading } = useExchangeRates();
+  const { data: fscRates, loading: fscLoading } = useFscRates();
 
   const liveUsdRate = exchangeRates.find((r) => r.currency === 'USD');
 
   const applyLiveRate = () => {
     if (liveUsdRate && liveUsdRate.rate > 0) {
       onFieldChange('exchangeRate', Math.round(liveUsdRate.rate * 100) / 100);
+    }
+  };
+
+  const applyLiveFsc = () => {
+    if (fscRates && fscRates.rates) {
+      const carrier = input.overseasCarrier || 'UPS';
+      const rate = fscRates.rates[carrier as 'UPS' | 'DHL']?.international;
+      if (rate !== undefined) {
+        onFieldChange('fscPercent', rate);
+      }
     }
   };
 
@@ -109,14 +121,26 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
                      min="0"
                      value={input.fscPercent}
                      onChange={(e) => { const v = Number(e.target.value); onFieldChange('fscPercent', isNaN(v) || v < 0 ? 0 : v); }}
-                     className={`${ic} pr-8`}
+                     className={`${ic} pr-20`}
                      placeholder="30.25"
                      inputMode="decimal"
                      autoComplete="off"
                  />
-                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                 <span className="text-gray-500 sm:text-sm font-bold">%</span>
+                 <div className="pointer-events-none absolute inset-y-0 right-16 flex items-center">
+                   <span className="text-gray-500 sm:text-sm font-bold">%</span>
                  </div>
+                 {fscRates && (
+                   <button
+                     type="button"
+                     onClick={applyLiveFsc}
+                     disabled={fscLoading}
+                     className="absolute inset-y-0 right-0 flex items-center gap-1 px-2 text-[10px] font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                     title={`Apply latest FSC rate for ${input.overseasCarrier || 'UPS'}`}
+                   >
+                     <RefreshCw className={`w-3 h-3 ${fscLoading ? 'animate-spin' : ''}`} />
+                     <span className="hidden sm:inline">LIVE</span>
+                   </button>
+                 )}
              </div>
          </div>
          {!hideMargin && (

@@ -20,6 +20,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useExchangeRates } from '@/features/dashboard/hooks/useExchangeRates';
+import { useFscRates } from '@/features/dashboard/hooks/useFscRates';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 const INITIAL_INPUT: QuoteInput = {
@@ -51,8 +52,11 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
   const [input, setInput] = useState<QuoteInput>(INITIAL_INPUT);
   const [hasSetInitialRate, setHasSetInitialRate] = useState(false);
+  const [hasSetInitialFsc, setHasSetInitialFsc] = useState(false);
+  const [lastAutoFscCarrier, setLastAutoFscCarrier] = useState<string | null>(null);
 
   const { data: exchangeRates } = useExchangeRates();
+  const { data: fscRates } = useFscRates();
 
   React.useEffect(() => {
     if (!hasSetInitialRate && exchangeRates.length > 0) {
@@ -63,6 +67,20 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
       }
     }
   }, [exchangeRates, hasSetInitialRate]);
+
+  React.useEffect(() => {
+    if (fscRates && fscRates.rates) {
+      const carrier = input.overseasCarrier || 'UPS';
+      if (!hasSetInitialFsc || lastAutoFscCarrier !== carrier) {
+        const rate = fscRates.rates[carrier as 'UPS' | 'DHL']?.international;
+        if (rate !== undefined) {
+          setInput(prev => ({ ...prev, fscPercent: rate }));
+          setHasSetInitialFsc(true);
+          setLastAutoFscCarrier(carrier);
+        }
+      }
+    }
+  }, [fscRates, input.overseasCarrier, hasSetInitialFsc, lastAutoFscCarrier]);
 
   // Instant frontend calculation — pure function, no API dependency
   const result = useMemo<QuoteResult | null>(() => {
