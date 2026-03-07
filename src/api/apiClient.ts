@@ -29,7 +29,7 @@ export async function request<T>(path: string, options?: RequestInit): Promise<T
     const body = await response.json().catch(() => ({}));
     throw new ApiError(
       response.status,
-      body?.error?.message || `API Error: ${response.statusText}`
+      body?.error?.message || `API Error: ${response.status} ${response.statusText || 'Server Error'}`.trim()
     );
   }
 

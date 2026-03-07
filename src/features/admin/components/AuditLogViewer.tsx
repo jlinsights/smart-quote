@@ -72,7 +72,8 @@ export function AuditLogViewer() {
       setTotalPages(data.pagination.totalPages);
       setTotalCount(data.pagination.totalCount);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load audit logs');
+      const msg = err instanceof Error ? err.message : 'Failed to load audit logs';
+      setError(msg.includes('500') ? 'Server error — audit_logs table may not be migrated yet' : msg);
     } finally {
       setLoading(false);
     }

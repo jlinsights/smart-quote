@@ -1,1 +1,1 @@
-🔧 /quote 페이지: Member도 Save Quote + History 사용 가능, Margin은 admin만 표시
+🐛 API Error 메시지 개선: 빈 statusText 방지, Audit Log 500 에러 안내 메시지
