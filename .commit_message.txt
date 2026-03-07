@@ -1,1 +1,1 @@
-🎨 UI: 로그인 시 히어로 CTA 버튼 숨김, E-MAX 표시 제거 (pill badge, 견적카드, subtitle 4개 언어)
+🔔 Slack: Member 역할만 알림 전송, 회사/이메일 정보 표시, Margin 필드 제거

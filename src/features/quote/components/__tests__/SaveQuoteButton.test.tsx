@@ -7,6 +7,13 @@ vi.mock('@/api/quoteApi', () => ({
   saveQuote: vi.fn(),
 }));
 
+vi.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({
+    user: { id: 1, email: 'test@company.com', role: 'member', company: 'Test Corp', name: 'Test User' },
+    isAuthenticated: true,
+  }),
+}));
+
 import { saveQuote } from '@/api/quoteApi';
 
 const mockInput: QuoteInput = {

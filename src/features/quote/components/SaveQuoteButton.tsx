@@ -5,6 +5,7 @@ import { sendQuoteSlackNotification } from '@/lib/slackNotification';
 import { Save, Check, Loader2, ExternalLink } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Props {
   input: QuoteInput;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => {
+  const { user } = useAuth();
   const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [showNotes, setShowNotes] = useState(false);
   const [notes, setNotes] = useState('');
@@ -41,8 +43,12 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
       setShowNotes(false);
       setNotes('');
       toast('success', `Quote saved: ${detail.referenceNo}`);
-      if (result) {
-        sendQuoteSlackNotification(input, result, detail.referenceNo);
+      if (result && user?.role === 'member') {
+        sendQuoteSlackNotification(input, result, detail.referenceNo, {
+          name: user.name || user.email,
+          email: user.email,
+          company: user.company,
+        });
       }
       setTimeout(() => { setState('idle'); setSavedRefNo(null); }, 4000);
     } catch {
