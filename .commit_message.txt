@@ -1,1 +1,1 @@
-🔔 Slack: 중복 저장 시 알림 차단
+🔧 /quote 페이지: Member도 Save Quote + History 사용 가능, Margin은 admin만 표시

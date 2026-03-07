@@ -48,7 +48,10 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   
   const { isDarkMode, toggleDarkMode } = useTheme();
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const canSaveAndViewHistory = isAuthenticated && !isPublic;
+  const hideMargin = isPublic || user?.role === 'member';
 
   const [input, setInput] = useState<QuoteInput>(INITIAL_INPUT);
   const [hasSetInitialRate, setHasSetInitialRate] = useState(false);
@@ -197,9 +200,9 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="h-14 flex items-center justify-between w-full">
               <div className="flex items-center space-x-2 sm:space-x-4">
-                {!isPublic && <NavigationTabs currentView={currentView} onViewChange={setCurrentView} />}
+                {canSaveAndViewHistory && <NavigationTabs currentView={currentView} onViewChange={setCurrentView} />}
 
-                {currentView === 'calculator' && result && !isPublic && (
+                {currentView === 'calculator' && result && canSaveAndViewHistory && (
                   <div className="hidden sm:block">
                     <SaveQuoteButton input={input} result={result} onSaved={handleQuoteSaved} />
                   </div>
@@ -245,7 +248,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
             </div>
 
             {/* Mobile Save Button */}
-            {currentView === 'calculator' && result && !isPublic && (
+            {currentView === 'calculator' && result && canSaveAndViewHistory && (
               <div className="sm:hidden pb-3">
                 <SaveQuoteButton input={input} result={result} onSaved={handleQuoteSaved} />
               </div>
@@ -266,8 +269,8 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                       <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{t('calc.shipmentConfig')}</h2>
                       <p className="text-sm text-gray-500 dark:text-gray-400">{t('calc.shipmentConfigDesc')}</p>
                     </div>
-                    <InputSection input={input} onChange={setInput} isMobileView={false} effectiveMarginPercent={result?.profitMargin} hideMargin={isPublic} />
-                    {!isPublic && user?.role === 'admin' && (
+                    <InputSection input={input} onChange={setInput} isMobileView={false} effectiveMarginPercent={result?.profitMargin} hideMargin={hideMargin} />
+                    {isAdmin && (
                       <React.Suspense fallback={<div className="mt-8 space-y-6">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-32 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />)}</div>}>
                         <div className="mt-8 space-y-6">
                           <CustomerManagement />
@@ -284,7 +287,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                       <ResultSection
                         result={result}
                         input={input}
-                        hideMargin={isPublic}
+                        hideMargin={hideMargin}
                         onMarginChange={handleMarginChange}
                         onDownloadPdf={handleDownloadPdf}
                         onSwitchCarrier={(carrier) => setInput(prev => ({ ...prev, overseasCarrier: carrier }))}
@@ -341,7 +344,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
         {/* Footer */}
         <footer className="border-t border-gray-100 dark:border-gray-800 mt-0 py-8 bg-white dark:bg-gray-950 text-center transition-colors duration-200 hidden lg:block">
-          <p className="text-sm text-gray-400 dark:text-gray-400">&copy; 2025 Goodman GLS & J-Ways. {isPublic ? 'Smart Quote System.' : 'Internal Use Only.'}</p>
+          <p className="text-sm text-gray-400 dark:text-gray-400">&copy; 2025 Goodman GLS & J-Ways. {isAdmin ? 'Internal Use Only.' : 'Smart Quote System.'}</p>
           <p className="text-xs text-gray-300 dark:text-gray-600 mt-1">System Version 2.1 | Data Updated: 2025.01.15</p>
         </footer>
       </div>
