@@ -15,7 +15,11 @@ export const RateTableViewer: React.FC = () => {
   const exactRates = carrier === 'UPS' ? UPS_EXACT_RATES : DHL_EXACT_RATES;
   const rangeRates = carrier === 'UPS' ? UPS_RANGE_RATES : DHL_RANGE_RATES;
 
-  const zones = useMemo(() => Object.keys(exactRates).sort(), [exactRates]);
+  const zones = useMemo(() => {
+    return Object.keys(exactRates).sort((a, b) => 
+      a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+    );
+  }, [exactRates]);
 
   const exactWeights = useMemo(() => {
     const zone = exactRates[selectedZone];
