@@ -14,7 +14,7 @@ const dotGridStyle: React.CSSProperties = {
 export const SignUpPage: React.FC = () => {
   const [company, setCompany] = useState('');
   const [name, setName] = useState('');
-  const [nationality, setNationality] = useState('South Korea');
+  const [nationality, setNationality] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -33,7 +33,7 @@ export const SignUpPage: React.FC = () => {
         return;
     }
 
-    if (email.trim() && password.trim() && company.trim() && name.trim() && nationality.trim()) {
+    if (email.trim() && password.trim() && name.trim()) {
       try {
         const result = await signup(email.trim(), password.trim(), company.trim(), name.trim(), nationality.trim());
         if (result.success) {
@@ -96,10 +96,10 @@ export const SignUpPage: React.FC = () => {
                   id="company"
                   name="company"
                   type="text"
-                  required
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-jways-500/50 focus:border-jways-500/50 text-sm transition-colors"
+                  placeholder="Optional"
                 />
               </div>
 
@@ -125,12 +125,12 @@ export const SignUpPage: React.FC = () => {
                   <select
                     id="nationality"
                     name="nationality"
-                    required
                     value={nationality}
                     onChange={(e) => setNationality(e.target.value)}
                     className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-jways-500/50 focus:border-jways-500/50 text-sm transition-colors appearance-none"
                     style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.75rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem' }}
                   >
+                    <option value="" className="bg-gray-800 text-white">🌍 Select (Optional)</option>
                     <option value="South Korea" className="bg-gray-800 text-white">🇰🇷 South Korea</option>
                     <option value="United States" className="bg-gray-800 text-white">🇺🇸 United States</option>
                     <option value="China" className="bg-gray-800 text-white">🇨🇳 China</option>
