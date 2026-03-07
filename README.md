@@ -27,13 +27,15 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 3. **Margin** - USD-based margin added to cost, rounded up to nearest KRW 100
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
 
-### Dashboard & Widgets
+### Dashboard, Header & Widgets
 
 - **Customer Dashboard**: Landing page after login with welcome banner, recent quotes, and live widgets
+- **Global Header**: Context-aware navigation with dark mode/i18n toggles, and an integrated **Account Settings Modal** for password changes.
 - **Exchange Rate Widget**: Real-time KRW rates for 6 currencies (USD, EUR, JPY, CNY, GBP, SGD) via open.er-api.com with localStorage caching, stale detection (6min threshold), visibility/online auto-refresh, and live indicator
 - **Weather Widget**: 47 global port/airport weather conditions via Open-Meteo API with paginated carousel
-- **Notice Widget**: Company announcements with paginated display
+- **Notice Widget**: Company announcements and real-time logistics news RSS feed with paginated display
 - **Account Manager Widget**: Contact information for assigned logistics managers
+- **FSC Rates Widget (Admin)**: Tracks live DHL/UPS fuel surcharges with direct external verification links and manual override capabilities.
 
 ### Internationalization (i18n)
 
@@ -53,14 +55,14 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 
 ## Tech Stack
 
-| Layer | Stack |
-|-------|-------|
-| **Frontend** | React 19, TypeScript 5.8, Vite 6, Tailwind CSS |
-| **Backend** | Rails 8 API-only, Ruby 3.4, PostgreSQL |
-| **Testing** | Vitest + Testing Library (16 files, 138 tests), RSpec + FactoryBot (backend) |
-| **Deploy** | Vercel (frontend), Render.com (backend, Docker, Singapore) |
-| **APIs** | open.er-api.com (exchange rates), Open-Meteo (weather), Supabase (auth) |
-| **Other** | jsPDF, Lucide React, React Router v6, Zustand |
+| Layer        | Stack                                                                        |
+| ------------ | ---------------------------------------------------------------------------- |
+| **Frontend** | React 19, TypeScript 5.8, Vite 6, Tailwind CSS                               |
+| **Backend**  | Rails 8 API-only, Ruby 3.4, PostgreSQL                                       |
+| **Testing**  | Vitest + Testing Library (16 files, 138 tests), RSpec + FactoryBot (backend) |
+| **Deploy**   | Vercel (frontend), Render.com (backend, Docker, Singapore)                   |
+| **APIs**     | open.er-api.com (exchange rates), Open-Meteo (weather), Supabase (auth)      |
+| **Other**    | jsPDF, Lucide React, React Router v6, Zustand                                |
 
 ## Project Structure
 
@@ -102,7 +104,7 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
       SignUpPage.tsx            # Auth signup (/signup)
       CustomerDashboard.tsx    # Dashboard with widgets (/dashboard)
       QuoteCalculator.tsx      # Quote calculator (/quote, /admin)
-    components/layout/         # Header, MobileLayout, NavigationTabs
+    components/layout/         # Header, MobileLayout, NavigationTabs, AccountSettingsModal
     lib/
       format.ts                # Currency/number formatters (formatKRW, formatUSD, etc.)
       pdfService.ts            # jsPDF-based PDF generation
@@ -144,42 +146,51 @@ bin/rubocop          # Ruby linting
 
 ### Routes
 
-| Route | Component | Access |
-|-------|-----------|--------|
-| `/` | LandingPage | Public |
-| `/login` | LoginPage | Public |
-| `/signup` | SignUpPage | Public |
-| `/dashboard` | CustomerDashboard | Protected |
-| `/quote` | QuoteCalculator (isPublic=true) | Protected |
-| `/admin` | QuoteCalculator (isPublic=false) | Admin only |
+| Route        | Component                        | Access     |
+| ------------ | -------------------------------- | ---------- |
+| `/`          | LandingPage                      | Public     |
+| `/login`     | LoginPage                        | Public     |
+| `/signup`    | SignUpPage                       | Public     |
+| `/dashboard` | CustomerDashboard                | Protected  |
+| `/quote`     | QuoteCalculator (isPublic=true)  | Protected  |
+| `/admin`     | QuoteCalculator (isPublic=false) | Admin only |
 
 ### API Endpoints
 
 ```
 POST   /api/v1/quotes/calculate  # Stateless calculation
 POST   /api/v1/quotes            # Calculate + save
-GET    /api/v1/quotes             # List (page, per_page, q, destination_country, date_from, date_to, status)
-GET    /api/v1/quotes/:id         # Detail
-DELETE /api/v1/quotes/:id         # Delete
-GET    /api/v1/quotes/export      # CSV download
+GET    /api/v1/quotes            # List (page, per_page, q, destination_country, date_from, date_to, status)
+GET    /api/v1/quotes/:id        # Detail
+DELETE /api/v1/quotes/:id        # Delete
+GET    /api/v1/quotes/export     # CSV download
+
+# Authentication & Auth
+POST   /api/v1/auth/login        # JWT Login
+POST   /api/v1/auth/register     # Account creation
+PUT    /api/v1/auth/password     # Change Password (Requires Authenticated Token)
+
+# Core Admin Configuration
+GET    /api/v1/fsc/rates         # View Fuel Surcharges (DHL/UPS)
+POST   /api/v1/fsc/update        # Update global FSC% rates
 ```
 
 ## Environment Variables
 
-| Variable | Purpose | Default |
-|----------|---------|---------|
-| `VITE_API_URL` | Backend API base URL | `http://localhost:3000` |
-| `VITE_SUPABASE_URL` | Supabase project URL | - |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anon key | - |
+| Variable                 | Purpose              | Default                 |
+| ------------------------ | -------------------- | ----------------------- |
+| `VITE_API_URL`           | Backend API base URL | `http://localhost:3000` |
+| `VITE_SUPABASE_URL`      | Supabase project URL | -                       |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon key    | -                       |
 
 ## Market Defaults
 
-| Setting | Value |
-|---------|-------|
-| Default Exchange Rate (KRW/USD) | 1,400 |
-| Default FSC% | 30% |
-| Packing Material | 15,000 KRW/m² |
-| Packing Labor | 50,000 KRW/item |
+| Setting                         | Value           |
+| ------------------------------- | --------------- |
+| Default Exchange Rate (KRW/USD) | 1,400           |
+| Default FSC%                    | 30%             |
+| Packing Material                | 15,000 KRW/m²   |
+| Packing Labor                   | 50,000 KRW/item |
 
 ---
 

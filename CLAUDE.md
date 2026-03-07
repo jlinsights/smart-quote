@@ -9,6 +9,7 @@ Smart Quote System for **Goodman GLS & J-Ways** - an internal logistics quoting 
 ## Development Commands
 
 ### Frontend (React 19 + TypeScript 5.8 + Vite 6)
+
 ```bash
 npm run dev          # Dev server on http://localhost:5173
 npm run build        # tsc + vite build
@@ -19,6 +20,7 @@ npx tsc --noEmit     # Type check only
 ```
 
 ### Backend (Rails 8 API-only - from smart-quote-api/)
+
 ```bash
 bundle install           # Install gems
 bin/rails db:prepare     # Create + migrate DB
@@ -28,6 +30,7 @@ bin/rubocop              # Ruby linting
 ```
 
 ### Running a single test
+
 ```bash
 # Frontend
 npx vitest run src/features/quote/services/calculationService.test.ts
@@ -38,6 +41,7 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
 ## Architecture
 
 ### Monorepo Structure
+
 ```
 /                              # Frontend
   src/
@@ -98,6 +102,7 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
 ```
 
 ### Routing (src/App.tsx)
+
 ```
 /              → LandingPage (public)
 /login         → LoginPage (public)
@@ -111,28 +116,34 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
 Context providers wrap the app: `ThemeProvider > LanguageProvider > BrowserRouter > AuthProvider`
 
 ### Data Flow
+
 1. User edits input -> frontend `calculateQuote()` runs instantly via `useMemo` (no debounce, pure function)
 2. "Save Quote" -> `POST /api/v1/quotes` -> backend `QuoteCalculator.call(params)` recalculates + persists to PostgreSQL (ref: `SQ-YYYY-NNNN`)
 3. History tab -> `GET /api/v1/quotes` with pagination/search/filter params
 
 ### Mirrored Calculation Logic
+
 Frontend (`src/features/quote/services/calculationService.ts`) and backend (`smart-quote-api/app/services/`) implement **identical** calculation logic. The frontend runs calculations instantly for UI responsiveness; the Rails API is the source of truth for saved quotes.
 
 ### Calculation Pipeline
+
 1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L*W*H / 5000 for UPS & DHL, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
 2. **Carrier Costs** - Zone lookup (country -> zone code), shared `lookupCarrierRate()` engine (exact table 0.5-20kg -> range table >20kg -> fallback), FSC% surcharge
 3. **Margin** - `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
 
 ### Surge Charges (All Carriers)
+
 Manual surge input (`manualSurgeCost`) applies to UPS, DHL, and EMAX equally. Reflected in `breakdown.intlSurge` and cost breakdown UI. Auto-calculation is disabled; users enter surge fees manually.
 
 ### UPS Zone Mapping (Z1-Z10)
+
 Z1: SG/TW/MO/CN, Z2: JP/VN, Z3: TH/PH, Z4: AU/IN, Z5: CA/US, Z6: ES/IT/GB/FR, Z7: DK/NO/SE/FI/DE/NL/BE/IE/CH/AT/PT/CZ/PL/HU/RO/BG, Z8: AR/BR/CL/CO/AE/TR, Z9: ZA/EG/BH/IL/JO/LB/SA/PK, Z10: HK+default
 
 ## Dashboard Widgets
 
 ### ExchangeRateWidget
+
 - **API**: `open.er-api.com/v6/latest/KRW` (free tier, 1500 req/month, daily updates)
 - **Currencies**: USD, EUR, JPY, CNY, GBP, SGD
 - **Rate inversion**: API returns KRW→foreign (e.g., USD: 0.000701), code inverts to "1 USD = X KRW"
@@ -142,21 +153,30 @@ Z1: SG/TW/MO/CN, Z2: JP/VN, Z3: TH/PH, Z4: AU/IN, Z5: CA/US, Z6: ES/IT/GB/FR, Z7
 - **Live indicator**: Green pulse (fresh) / gray dot (stale) in widget header
 
 ### WeatherWidget
+
 - **API**: Open-Meteo (no API key required)
 - **Coverage**: 47 global ports/airports
 - **Hook**: `usePortWeather` with paginated carousel (8 ports per page)
 
 ### NoticeWidget / AccountManagerWidget
-- Static/mock data with paginated carousel display
+
+- NoticeWidget dynamically fetches real-time logistics news via a Vite proxy / edge function pulling from RSS feeds.
+- AccountManagerWidget displays static/mock contact information with a paginated carousel display
+
+### FscRateWidget (Admin)
+
+- Custom Admin widget located at `src/features/admin/components/FscRateWidget.tsx`.
+- Calls `GET /api/v1/fsc/rates` to display the actual tracked fuel surcharge percentages for UPS and DHL.
+- Displays external links for visual verification and provides a secure `update` mutation for overriding.
 
 ## External APIs
 
-| API | Endpoint | Purpose |
-|-----|----------|---------|
-| Rails Backend | `VITE_API_URL` (default localhost:3000) | Quote CRUD, persistence |
-| open.er-api.com | `/v6/latest/KRW` | Exchange rates (KRW base) |
-| Open-Meteo | `api.open-meteo.com/v1/forecast` | Port/airport weather |
-| Supabase | `VITE_SUPABASE_URL` | Authentication |
+| API             | Endpoint                                | Purpose                   |
+| --------------- | --------------------------------------- | ------------------------- |
+| Rails Backend   | `VITE_API_URL` (default localhost:3000) | Quote CRUD, persistence   |
+| open.er-api.com | `/v6/latest/KRW`                        | Exchange rates (KRW base) |
+| Open-Meteo      | `api.open-meteo.com/v1/forecast`        | Port/airport weather      |
+| Supabase        | `VITE_SUPABASE_URL`                     | Authentication            |
 
 ## i18n System
 
@@ -188,10 +208,19 @@ interface AccountManager { name, nameKo, role, department, phone, mobile, email,
 ```
 POST   /api/v1/quotes/calculate  # Stateless calculation
 POST   /api/v1/quotes            # Calculate + save
-GET    /api/v1/quotes             # List (page, per_page, q, destination_country, date_from, date_to, status)
-GET    /api/v1/quotes/:id         # Detail
-DELETE /api/v1/quotes/:id         # Delete
-GET    /api/v1/quotes/export      # CSV download
+GET    /api/v1/quotes            # List (page, per_page, q, destination_country, date_from, date_to, status)
+GET    /api/v1/quotes/:id        # Detail
+DELETE /api/v1/quotes/:id        # Delete
+GET    /api/v1/quotes/export     # CSV download
+
+# Authentication & Auth
+POST   /api/v1/auth/login        # JWT Login
+POST   /api/v1/auth/register     # Account creation
+PUT    /api/v1/auth/password     # Change Password (Requires Authenticated Token)
+
+# Core Admin Configuration
+GET    /api/v1/fsc/rates         # View Fuel Surcharges (DHL/UPS)
+POST   /api/v1/fsc/update        # Update global FSC% rates
 ```
 
 ## Configuration
