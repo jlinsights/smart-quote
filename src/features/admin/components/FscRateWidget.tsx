@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getFscRates, updateFscRate, FscRates } from '@/api/fscApi';
-import { Fuel, RefreshCw, Save, Loader2 } from 'lucide-react';
+import { Fuel, RefreshCw, Save, Loader2, ExternalLink } from 'lucide-react';
 
 export const FscRateWidget: React.FC = () => {
   const [data, setData] = useState<FscRates | null>(null);
@@ -45,6 +45,11 @@ export const FscRateWidget: React.FC = () => {
     }
   };
 
+  const carrierLinks = {
+    UPS: 'https://www.ups.com/kr/ko/support/shipping-support/shipping-costs-rates/fuel-surcharges.page',
+    DHL: 'https://mydhl.express.dhl/kr/ko/ship/surcharges.html',
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
       <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 flex items-center justify-between">
@@ -72,11 +77,23 @@ export const FscRateWidget: React.FC = () => {
           {(['UPS', 'DHL'] as const).map((carrier) => {
             const rates = data.rates[carrier];
             const isEditing = editingCarrier === carrier;
+            const link = carrierLinks[carrier];
 
             return (
               <div key={carrier} className="px-4 py-3">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-gray-900 dark:text-white">{carrier}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">{carrier}</span>
+                    <a 
+                      href={link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-gray-400 hover:text-jways-500 transition-colors"
+                      title={`${carrier} 공식 연료 할증료 페이지 열기`}
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
                   {isEditing ? (
                     <button
                       onClick={handleSave}
