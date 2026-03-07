@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Zap, TrendingUp, ShieldCheck, ArrowRight, Globe, Package, Truck } from 'lucide-react';
 import { Header } from '../components/layout/Header';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 /* ── tiny dot-grid SVG (inline, no extra file) ── */
 const dotGridStyle: React.CSSProperties = {
@@ -13,6 +14,7 @@ const dotGridStyle: React.CSSProperties = {
 
 export const LandingPage: React.FC = () => {
   const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-200">
@@ -38,7 +40,7 @@ export const LandingPage: React.FC = () => {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-jways-500" />
                 </span>
                 <span className="text-xs sm:text-sm font-medium text-jways-300 tracking-wide">
-                  UPS · DHL · E-MAX
+                  UPS · DHL
                 </span>
               </div>
 
@@ -54,22 +56,24 @@ export const LandingPage: React.FC = () => {
                 {t('landing.subtitle')}
               </p>
 
-              {/* CTAs */}
-              <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link
-                  to="/signup"
-                  className="group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-jways-600 hover:bg-jways-500 text-white text-base font-semibold rounded-xl shadow-lg shadow-jways-600/25 hover:shadow-jways-500/30 transition-all duration-200"
-                >
-                  {t('landing.getStarted')}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                </Link>
-                <Link
-                  to="/login"
-                  className="inline-flex items-center justify-center px-7 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-200 text-base font-semibold rounded-xl backdrop-blur-sm transition-all duration-200"
-                >
-                  {t('nav.login')}
-                </Link>
-              </div>
+              {/* CTAs – hidden when already logged in */}
+              {!isAuthenticated && (
+                <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                  <Link
+                    to="/signup"
+                    className="group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-jways-600 hover:bg-jways-500 text-white text-base font-semibold rounded-xl shadow-lg shadow-jways-600/25 hover:shadow-jways-500/30 transition-all duration-200"
+                  >
+                    {t('landing.getStarted')}
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center justify-center px-7 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-200 text-base font-semibold rounded-xl backdrop-blur-sm transition-all duration-200"
+                  >
+                    {t('nav.login')}
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* ── Right: Hero visual (floating cards) ── */}
@@ -91,7 +95,6 @@ export const LandingPage: React.FC = () => {
                   {[
                     { carrier: 'UPS', zone: 'Z5', amount: '₩487,200' },
                     { carrier: 'DHL', zone: 'Z4', amount: '₩512,800' },
-                    { carrier: 'E-MAX', zone: '—', amount: '₩398,500' },
                   ].map((row) => (
                     <div
                       key={row.carrier}

@@ -13,7 +13,7 @@ export const translations: Record<Language, Record<string, string>> = {
      // Landing Page
      'landing.title.main': '글로벌 물류 견적,',
      'landing.title.sub': '가장 빠르고 정확하게.',
-     'landing.subtitle': 'UPS, DHL, E-MAX 연동, 세금 및 특수 비용까지 포함된 신뢰할 수 있는 배송 견적을 즉시 계산하세요.',
+     'landing.subtitle': 'UPS, DHL 연동, 세금 및 특수 비용까지 포함된 신뢰할 수 있는 배송 견적을 즉시 계산하세요.',
      'landing.getStarted': '시작하기',
      'landing.instantQuotes': '즉각적인 견적 산출',
      'landing.instantQuotes.desc': '실시간 변수를 적용하여 Door-to-Door 및 Door-to-Airport 요금을 즉시 계산합니다.',
@@ -175,7 +175,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Landing Page
     'landing.title.main': 'Global Logistics Quotes,',
     'landing.title.sub': 'Fastest and Most Accurate.',
-    'landing.subtitle': 'Instantly calculate reliable shipping quotes including UPS, DHL, E-MAX integration, taxes, and special charges.',
+    'landing.subtitle': 'Instantly calculate reliable shipping quotes including UPS, DHL integration, taxes, and special charges.',
     'landing.getStarted': 'Get Started',
     'landing.instantQuotes': 'Instant Quotes',
     'landing.instantQuotes.desc': 'Instantly calculate Door-to-Door and Door-to-Airport rates using real-time variables.',
@@ -344,7 +344,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Landing Page
     'landing.title.main': '全球物流报价，',
     'landing.title.sub': '快速精准。',
-    'landing.subtitle': '即时计算包含UPS、DHL、E-MAX集成运费、税费和特殊费用的可靠运输报价。',
+    'landing.subtitle': '即时计算包含UPS、DHL集成运费、税费和特殊费用的可靠运输报价。',
     'landing.getStarted': '开始使用',
     'landing.instantQuotes': '即时报价',
     'landing.instantQuotes.desc': '利用实时变量即时计算门到门和门到机场的费率。',
@@ -494,7 +494,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Landing Page
     'landing.title.main': 'グローバル物流見積、',
     'landing.title.sub': '最速で正確に。',
-    'landing.subtitle': 'UPS、DHL、E-MAX連携、税金、特別料金を含む信頼できる配送見積をすぐに計算します。',
+    'landing.subtitle': 'UPS、DHL連携、税金、特別料金を含む信頼できる配送見積をすぐに計算します。',
     'landing.getStarted': '始める',
     'landing.instantQuotes': '即時見積',
     'landing.instantQuotes.desc': 'リアルタイム変数を使用してDoor-to-DoorおよびDoor-to-Air料金を即座に計算します。',
