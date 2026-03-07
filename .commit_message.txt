@@ -1,1 +1,1 @@
-🔔 Slack: Member 역할만 알림 전송, 회사/이메일 정보 표시, Margin 필드 제거
+🔔 Slack: Member 필드 회사명/이름/이메일 형식 변경, Margin 필드 복원

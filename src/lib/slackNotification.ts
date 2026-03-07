@@ -21,8 +21,8 @@ export const sendQuoteSlackNotification = async (
   const country = COUNTRY_OPTIONS.find(c => c.code === input.destinationCountry)?.name || input.destinationCountry;
   const carrier = input.overseasCarrier || 'UPS';
   const memberLine = member.company
-    ? `${member.name} (${member.company}) · ${member.email}`
-    : `${member.name} · ${member.email}`;
+    ? `${member.company} / ${member.name} / ${member.email}`
+    : `${member.name} / ${member.email}`;
 
   const blocks = [
     {
@@ -37,7 +37,7 @@ export const sendQuoteSlackNotification = async (
         { type: 'mrkdwn', text: `*Destination:*\n${country}` },
         { type: 'mrkdwn', text: `*Billable Weight:*\n${formatNum(result.billableWeight)} kg` },
         { type: 'mrkdwn', text: `*Total Quote:*\n${formatKRW(result.totalQuoteAmount)} (${formatUSD(result.totalQuoteAmountUSD)})` },
-        { type: 'mrkdwn', text: `*Zone:*\n${result.appliedZone}` },
+        { type: 'mrkdwn', text: `*Margin:*\n${result.profitMargin.toFixed(1)}%` },
       ],
     },
     {
