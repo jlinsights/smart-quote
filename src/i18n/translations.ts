@@ -43,7 +43,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
      // Calculator - Headers
      'calc.shipmentConfig': '화물 배송 설정',
-     'calc.shipmentConfigDesc': '화물 세부 정보를 입력하여 해외 통합 견적(UPS, DHL, E-MAX)을 생성합니다.',
+     'calc.shipmentConfigDesc': '화물 세부 정보를 입력하여 해외 통합 견적을 생성합니다.',
      'calc.totalEstimate': '총 예상 견적',
      'calc.viewDetails': '상세 정보 보기',
      'calc.resetQuote': '견적 초기화',
@@ -205,7 +205,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Calculator - Headers
     'calc.shipmentConfig': 'Shipment Configuration',
-    'calc.shipmentConfigDesc': 'Enter cargo details to generate an integrated international quote (UPS, DHL, E-MAX).',
+    'calc.shipmentConfigDesc': 'Enter cargo details to generate an integrated international quote.',
     'calc.totalEstimate': 'Total Estimated Quote',
     'calc.viewDetails': 'View Details',
     'calc.resetQuote': 'Reset Quote',
@@ -374,7 +374,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Calculator - Headers
     'calc.shipmentConfig': '货物配置',
-    'calc.shipmentConfigDesc': '输入货物详情以生成海外（UPS、DHL、E-MAX）综合报价。',
+    'calc.shipmentConfigDesc': '输入货物详情以生成海外综合报价。',
     'calc.totalEstimate': '总估算',
     'calc.viewDetails': '查看详情',
     'calc.resetQuote': '重置报价',
@@ -524,7 +524,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Calculator - Headers
     'calc.shipmentConfig': '貨物設定',
-    'calc.shipmentConfigDesc': '貨物の詳細を入力して海外（UPS、DHL、E-MAX）統合見積を生成します。',
+    'calc.shipmentConfigDesc': '貨物の詳細を入力して海外統合見積を生成します。',
     'calc.totalEstimate': '合計見積',
     'calc.viewDetails': '詳細を表示',
     'calc.resetQuote': '見積リセット',

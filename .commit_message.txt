@@ -1,1 +1,1 @@
-🐛 API Error 메시지 개선: 빈 statusText 방지, Audit Log 500 에러 안내 메시지
+🎨 UI: 헤더 아이콘 순서 변경(설정→다국어→다크모드→로그아웃), E-MAX 텍스트 제거, Audit Log admin 전용 확인
