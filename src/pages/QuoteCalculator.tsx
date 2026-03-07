@@ -11,6 +11,9 @@ import { formatKRW, formatUSDInt } from '@/lib/format';
 import { InputSection } from '@/features/quote/components/InputSection';
 import { ResultSection } from '@/features/quote/components/ResultSection';
 import { UserManagementWidget } from '@/features/admin/components/UserManagementWidget';
+import { CustomerManagement } from '@/features/admin/components/CustomerManagement';
+import { RateTableViewer } from '@/features/admin/components/RateTableViewer';
+import { FscRateWidget } from '@/features/admin/components/FscRateWidget';
 import { Header } from '@/components/layout/Header';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -246,7 +249,10 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                     </div>
                     <InputSection input={input} onChange={setInput} isMobileView={false} effectiveMarginPercent={result?.profitMargin} hideMargin={isPublic} />
                     {!isPublic && user?.email === 'jaehong.lim@goodmangls.com' && (
-                      <div className="mt-8">
+                      <div className="mt-8 space-y-6">
+                        <CustomerManagement />
+                        <FscRateWidget />
+                        <RateTableViewer />
                         <UserManagementWidget />
                       </div>
                     )}

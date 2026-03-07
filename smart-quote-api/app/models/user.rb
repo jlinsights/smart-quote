@@ -2,6 +2,7 @@ class User < ApplicationRecord
   has_secure_password
 
   has_many :quotes, dependent: :nullify
+  has_many :customers, dependent: :nullify
 
   validates :email, presence: true,
                     uniqueness: { case_sensitive: false },

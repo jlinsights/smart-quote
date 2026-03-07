@@ -25,7 +25,8 @@ module Api
           items: input["items"] || input[:items],
           breakdown: result[:breakdown],
           warnings: result[:warnings] || [],
-          notes: params[:notes]
+          notes: params[:notes],
+          customer_id: params[:customerId]
         )
 
         if quote.save
@@ -60,6 +61,45 @@ module Api
       def show
         quote = scoped_quotes.find(params[:id])
         render json: quote_detail(quote)
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: { code: "NOT_FOUND", message: "Quote not found" } }, status: :not_found
+      end
+
+      # PATCH /api/v1/quotes/:id (status update only)
+      def update
+        quote = scoped_quotes.find(params[:id])
+        permitted = params.permit(:status, :notes, :customer_id)
+
+        if permitted[:status].present?
+          unless %w[draft sent accepted rejected].include?(permitted[:status])
+            return render json: { error: { code: "INVALID_STATUS", message: "Invalid status" } }, status: :unprocessable_entity
+          end
+        end
+
+        if quote.update(permitted.to_h.transform_keys { |k| k.to_s.underscore })
+          render json: quote_detail(quote)
+        else
+          render json: { error: { code: "VALIDATION_ERROR", message: quote.errors.full_messages.join(", ") } }, status: :unprocessable_entity
+        end
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: { code: "NOT_FOUND", message: "Quote not found" } }, status: :not_found
+      end
+
+      # POST /api/v1/quotes/:id/send_email
+      def send_email
+        quote = scoped_quotes.find(params[:id])
+        email = params[:recipientEmail]
+        name = params[:recipientName] || "Customer"
+        message = params[:message]
+
+        unless email.present? && email.match?(URI::MailTo::EMAIL_REGEXP)
+          return render json: { error: { code: "INVALID_EMAIL", message: "Valid email required" } }, status: :unprocessable_entity
+        end
+
+        QuoteMailer.send_quote(quote, email, recipient_name: name, message: message).deliver_later
+        quote.update(status: "sent") if quote.status == "draft"
+
+        render json: { success: true, message: "Quote sent to #{email}" }
       rescue ActiveRecord::RecordNotFound
         render json: { error: { code: "NOT_FOUND", message: "Quote not found" } }, status: :not_found
       end
@@ -121,7 +161,7 @@ module Api
           :marginPercent, :dutyTaxEstimate,
           :exchangeRate, :fscPercent,
           :manualDomesticCost, :manualPackingCost, :manualSurgeCost,
-          :overseasCarrier,
+          :overseasCarrier, :customerId,
           items: [ :id, :name, :quantity, :weight, :length, :width, :height ]
         ).to_h
       end
@@ -168,6 +208,7 @@ module Api
           billableWeight: quote.billable_weight.to_f,
           domesticTruckType: quote.domestic_truck_type,
           status: quote.status,
+          customerName: quote.customer&.company_name,
           createdAt: quote.created_at.iso8601
         }
       end
@@ -205,7 +246,9 @@ module Api
           appliedZone: quote.applied_zone,
           domesticTruckType: quote.domestic_truck_type,
           warnings: quote.warnings,
-          breakdown: quote.breakdown
+          breakdown: quote.breakdown,
+          customerId: quote.customer_id,
+          customerName: quote.customer&.company_name
         }
       end
     end

@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { QuoteInput, QuoteResult } from '@/types';
 import { calculateQuote } from '@/features/quote/services/calculationService';
+import { generateComparisonPDF } from '@/lib/pdfService';
 import { formatKRW, formatUSDInt } from '@/lib/format';
-import { ArrowRightLeft, Check } from 'lucide-react';
+import { ArrowRightLeft, Check, FileDown } from 'lucide-react';
 
 interface Props {
   input: QuoteInput;
@@ -37,11 +38,25 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 flex items-center gap-2">
-        <ArrowRightLeft className="w-4 h-4 text-jways-500" />
-        <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
-          Carrier Comparison
-        </h4>
+      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <ArrowRightLeft className="w-4 h-4 text-jways-500" />
+          <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
+            Carrier Comparison
+          </h4>
+        </div>
+        <button
+          onClick={async () => {
+            const upsResult = currentCarrier === 'UPS' ? currentResult : altResult;
+            const dhlResult = currentCarrier === 'DHL' ? currentResult : altResult;
+            await generateComparisonPDF(input, upsResult, dhlResult);
+          }}
+          className="flex items-center gap-1 text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-300 transition-colors"
+          title="Download comparison PDF"
+        >
+          <FileDown className="w-3.5 h-3.5" />
+          PDF
+        </button>
       </div>
       <div className="grid grid-cols-2 divide-x divide-gray-100 dark:divide-gray-700">
         {/* Current carrier */}

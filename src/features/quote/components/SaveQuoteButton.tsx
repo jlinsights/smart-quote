@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { QuoteInput, QuoteResult } from '@/types';
 import { saveQuote } from '@/api/quoteApi';
+import { sendQuoteSlackNotification } from '@/lib/slackNotification';
 import { Save, Check, Loader2, ExternalLink } from 'lucide-react';
 
 interface Props {
@@ -40,6 +41,9 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
       setState('saved');
       setShowNotes(false);
       setNotes('');
+      if (result) {
+        sendQuoteSlackNotification(input, result, detail.referenceNo);
+      }
       setTimeout(() => { setState('idle'); setSavedRefNo(null); }, 4000);
     } catch {
       setShowNotes(false);

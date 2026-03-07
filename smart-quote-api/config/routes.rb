@@ -12,7 +12,18 @@ Rails.application.routes.draw do
       # Quotes (protected, except calculate)
       post "quotes/calculate", to: "quotes#calculate"
       get "quotes/export", to: "quotes#export"
-      resources :quotes, only: [ :index, :show, :create, :destroy ]
+      resources :quotes, only: [ :index, :show, :create, :update, :destroy ] do
+        member do
+          post :send_email
+        end
+      end
+
+      # Customers
+      resources :customers, only: [ :index, :show, :create, :update, :destroy ]
+
+      # FSC Rates
+      get "fsc/rates", to: "fsc#rates"
+      post "fsc/update", to: "fsc#update_rates"
     end
   end
 end

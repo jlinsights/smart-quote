@@ -204,6 +204,122 @@ const drawFooter = (doc: jsPDF) => {
 };
 
 
+/** Generate a side-by-side carrier comparison PDF (UPS vs DHL) */
+export const generateComparisonPDF = async (
+  input: QuoteInput,
+  upsResult: QuoteResult,
+  dhlResult: QuoteResult
+) => {
+  const { jsPDF: JsPDF } = await import("jspdf");
+  const doc = new JsPDF();
+  let yPos = 20;
+
+  // Header
+  yPos = drawHeader(doc, yPos);
+  doc.setFontSize(FONTS.SIZE_NORMAL);
+  doc.setTextColor(0);
+  doc.text(`Date: ${new Date().toLocaleDateString()}`, MARGIN_X, yPos);
+  doc.text('Carrier Comparison Report', 130, yPos);
+  yPos = nextLine(yPos, 10);
+
+  // Shipment info
+  yPos = drawShipmentDetails(doc, input, yPos);
+  yPos = drawCargoManifest(doc, input.items, upsResult, yPos);
+
+  // ── Comparison Table ──
+  doc.setFontSize(FONTS.SIZE_SUBHEADER);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(...COLORS.PRIMARY);
+  doc.text("Carrier Comparison", MARGIN_X, yPos);
+  yPos = nextLine(yPos, 10);
+
+  const colLeft = 70;
+  const colRight = 140;
+
+  // Table header
+  doc.setFillColor(...COLORS.BG_HEADER);
+  doc.rect(15, yPos - 5, 180, 10, 'F');
+  doc.setFontSize(FONTS.SIZE_NORMAL);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0);
+  doc.text("", MARGIN_X, yPos);
+  doc.text("UPS", colLeft, yPos, { align: 'center' });
+  doc.text("DHL", colRight, yPos, { align: 'center' });
+  yPos = nextLine(yPos, 8);
+
+  const compRow = (label: string, upsVal: string, dhlVal: string, highlight?: 'ups' | 'dhl') => {
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(80);
+    doc.text(label, MARGIN_X, yPos);
+    doc.setTextColor(0);
+    if (highlight === 'ups') doc.setFont("helvetica", "bold");
+    doc.text(upsVal, colLeft, yPos, { align: 'center' });
+    doc.setFont("helvetica", "normal");
+    if (highlight === 'dhl') doc.setFont("helvetica", "bold");
+    doc.text(dhlVal, colRight, yPos, { align: 'center' });
+    doc.setFont("helvetica", "normal");
+    yPos = nextLine(yPos);
+  };
+
+  const cheaper = upsResult.totalQuoteAmount <= dhlResult.totalQuoteAmount ? 'ups' : 'dhl';
+
+  compRow("Zone", upsResult.appliedZone, dhlResult.appliedZone);
+  compRow("Transit Time", upsResult.transitTime, dhlResult.transitTime);
+  compRow("Billable Weight", `${formatNum(upsResult.billableWeight)} kg`, `${formatNum(dhlResult.billableWeight)} kg`);
+  yPos = nextLine(yPos, 3);
+
+  // Cost rows
+  doc.setDrawColor(220);
+  doc.line(MARGIN_X, yPos - 2, 190, yPos - 2);
+  compRow("Packing & Handling",
+    formatKRW(upsResult.breakdown.packingMaterial + upsResult.breakdown.packingLabor + upsResult.breakdown.packingFumigation + upsResult.breakdown.handlingFees),
+    formatKRW(dhlResult.breakdown.packingMaterial + dhlResult.breakdown.packingLabor + dhlResult.breakdown.packingFumigation + dhlResult.breakdown.handlingFees)
+  );
+  compRow("Intl. Freight",
+    formatKRW(upsResult.breakdown.intlBase + upsResult.breakdown.intlFsc + upsResult.breakdown.intlWarRisk + upsResult.breakdown.intlSurge),
+    formatKRW(dhlResult.breakdown.intlBase + dhlResult.breakdown.intlFsc + dhlResult.breakdown.intlWarRisk + dhlResult.breakdown.intlSurge)
+  );
+  compRow("Total Cost", formatKRW(upsResult.breakdown.totalCost), formatKRW(dhlResult.breakdown.totalCost));
+  yPos = nextLine(yPos, 3);
+
+  // Total Quote (highlighted)
+  doc.setDrawColor(...COLORS.PRIMARY);
+  doc.setLineWidth(0.5);
+  doc.line(MARGIN_X, yPos - 2, 190, yPos - 2);
+  doc.setLineWidth(0.2);
+  yPos = nextLine(yPos, 2);
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0);
+  doc.text("Total Quote", MARGIN_X, yPos);
+  if (cheaper === 'ups') doc.setTextColor(...COLORS.PRIMARY);
+  doc.text(formatKRW(upsResult.totalQuoteAmount), colLeft, yPos, { align: 'center' });
+  doc.setTextColor(0);
+  if (cheaper === 'dhl') doc.setTextColor(...COLORS.PRIMARY);
+  doc.text(formatKRW(dhlResult.totalQuoteAmount), colRight, yPos, { align: 'center' });
+  yPos = nextLine(yPos);
+
+  doc.setFontSize(FONTS.SIZE_NORMAL);
+  doc.setTextColor(...COLORS.TEXT_LIGHT);
+  doc.text("USD", MARGIN_X + 23, yPos);
+  doc.text(formatUSD(upsResult.totalQuoteAmountUSD), colLeft, yPos, { align: 'center' });
+  doc.text(formatUSD(dhlResult.totalQuoteAmountUSD), colRight, yPos, { align: 'center' });
+  yPos = nextLine(yPos, 10);
+
+  // Savings note
+  const diff = Math.abs(upsResult.totalQuoteAmount - dhlResult.totalQuoteAmount);
+  if (diff > 0) {
+    doc.setFontSize(FONTS.SIZE_NORMAL);
+    doc.setTextColor(...COLORS.PRIMARY);
+    doc.setFont("helvetica", "bold");
+    const cheaperName = cheaper === 'ups' ? 'UPS' : 'DHL';
+    doc.text(`→ ${cheaperName} is ${formatKRW(diff)} cheaper (${formatUSD(diff / input.exchangeRate)})`, MARGIN_X, yPos);
+  }
+
+  drawFooter(doc);
+  doc.save("jways_carrier_comparison.pdf");
+};
+
 export const generatePDF = async (input: QuoteInput, result: QuoteResult, referenceNo?: string) => {
   const { jsPDF: JsPDF } = await import("jspdf");
   const doc = new JsPDF();

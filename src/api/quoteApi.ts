@@ -113,6 +113,18 @@ export const updateQuoteStatus = async (
   return { ...raw, breakdown: mapBreakdown(raw.breakdown) };
 };
 
+export const sendQuoteEmail = async (
+  id: number,
+  recipientEmail: string,
+  recipientName?: string,
+  message?: string
+): Promise<{ success: boolean; message: string }> => {
+  return request<{ success: boolean; message: string }>(`/api/v1/quotes/${id}/send_email`, {
+    method: 'POST',
+    body: JSON.stringify({ recipientEmail, recipientName, message }),
+  });
+};
+
 export const deleteQuote = async (id: number): Promise<void> => {
   return request<void>(`/api/v1/quotes/${id}`, { method: 'DELETE' });
 };
