@@ -92,6 +92,17 @@ RSpec.describe "Api::V1::Quotes", type: :request do
       expect(Quote.last.user_id).to eq(user.id)
     end
 
+    it "creates an audit log on quote creation" do
+      expect {
+        post "/api/v1/quotes", params: valid_params, headers: user_headers, as: :json
+      }.to change(AuditLog, :count).by(1)
+
+      log = AuditLog.last
+      expect(log.action).to eq("quote.created")
+      expect(log.resource_type).to eq("Quote")
+      expect(log.user_id).to eq(user.id)
+    end
+
     it "calls QuoteCalculator with input params" do
       post "/api/v1/quotes", params: valid_params, headers: admin_headers, as: :json
 
@@ -231,6 +242,18 @@ RSpec.describe "Api::V1::Quotes", type: :request do
       expect(response).to have_http_status(:no_content)
     end
 
+    it "creates an audit log on quote deletion" do
+      quote = create(:quote, user: user)
+
+      expect {
+        delete "/api/v1/quotes/#{quote.id}", headers: user_headers
+      }.to change(AuditLog, :count).by(1)
+
+      log = AuditLog.last
+      expect(log.action).to eq("quote.deleted")
+      expect(log.user_id).to eq(user.id)
+    end
+
     it "returns 404 for other user's quote" do
       quote = create(:quote, user: admin)
 
@@ -262,6 +285,16 @@ RSpec.describe "Api::V1::Quotes", type: :request do
       csv_lines = response.body.split("\n")
       expect(csv_lines.first).to include("Reference No")
       expect(csv_lines.length).to eq(4)
+    end
+
+    it "creates an audit log on export" do
+      expect {
+        get "/api/v1/quotes/export", headers: admin_headers
+      }.to change(AuditLog, :count).by(1)
+
+      log = AuditLog.last
+      expect(log.action).to eq("quote.exported")
+      expect(log.user_id).to eq(admin.id)
     end
 
     it "regular user only exports own quotes" do

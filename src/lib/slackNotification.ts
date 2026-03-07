@@ -2,7 +2,6 @@ import { QuoteInput, QuoteResult } from '@/types';
 import { COUNTRY_OPTIONS } from '@/config/options';
 import { formatKRW, formatUSD, formatNum } from './format';
 
-// @ts-expect-error -- Vite injects import.meta.env at build time
 const SLACK_WEBHOOK_URL = import.meta.env.VITE_SLACK_WEBHOOK_URL || '';
 
 export const sendQuoteSlackNotification = async (

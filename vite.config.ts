@@ -99,12 +99,14 @@ export default defineConfig({
     },
   },
   build: {
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom'],
           'vendor-router': ['react-router-dom'],
           'vendor-pdf': ['jspdf'],
+          'vendor-icons': ['lucide-react'],
         },
       },
     },

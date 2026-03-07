@@ -35,7 +35,9 @@ function App() {
                   path="/dashboard"
                   element={
                     <ProtectedRoute>
-                      <CustomerDashboard />
+                      <ErrorBoundary>
+                        <CustomerDashboard />
+                      </ErrorBoundary>
                     </ProtectedRoute>
                   }
                 />
@@ -45,7 +47,9 @@ function App() {
                   path="/quote"
                   element={
                     <ProtectedRoute>
-                      <QuoteCalculator isPublic={true} />
+                      <ErrorBoundary>
+                        <QuoteCalculator isPublic={true} />
+                      </ErrorBoundary>
                     </ProtectedRoute>
                   }
                 />
@@ -55,7 +59,9 @@ function App() {
                   path="/admin"
                   element={
                     <ProtectedRoute requireAdmin={true}>
-                      <QuoteCalculator isPublic={false} />
+                      <ErrorBoundary>
+                        <QuoteCalculator isPublic={false} />
+                      </ErrorBoundary>
                     </ProtectedRoute>
                   }
                 />
