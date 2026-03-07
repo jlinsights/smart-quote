@@ -12,6 +12,9 @@ module Api
         input = clean_params
         result = QuoteCalculator.call(input)
         render json: result
+      rescue StandardError => e
+        Rails.logger.error "[CALCULATE] #{e.class}: #{e.message}"
+        render json: { error: { code: "CALCULATION_ERROR", message: "Failed to calculate quote" } }, status: :unprocessable_entity
       end
 
       # POST /api/v1/quotes (calculate + save)
@@ -39,6 +42,7 @@ module Api
       # GET /api/v1/quotes
       def index
         quotes = scoped_quotes
+                      .includes(:customer)
                       .search_text(params[:q])
                       .by_destination(params[:destination_country])
                       .by_date_range(params[:date_from], params[:date_to])

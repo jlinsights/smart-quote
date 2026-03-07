@@ -10,7 +10,6 @@ import { NoticeWidget } from '@/features/quote/components/widgets/NoticeWidget';
 import { ExchangeRateWidget } from '@/features/quote/components/widgets/ExchangeRateWidget';
 import { AccountManagerWidget } from '@/features/quote/components/widgets/AccountManagerWidget';
 import { ExchangeRateCalculatorWidget } from '@/features/quote/components/widgets/ExchangeRateCalculatorWidget';
-import { AccountSettingsWidget } from '@/features/dashboard/components/AccountSettingsWidget';
 
 const CustomerDashboard: React.FC = () => {
   const { t } = useLanguage();
@@ -62,10 +61,6 @@ const CustomerDashboard: React.FC = () => {
 
             <div className="flex-shrink-0">
               <AccountManagerWidget />
-            </div>
-
-            <div className="flex-shrink-0 mt-6">
-              <AccountSettingsWidget />
             </div>
           </div>
         </div>

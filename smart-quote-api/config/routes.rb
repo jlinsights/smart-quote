@@ -21,6 +21,9 @@ Rails.application.routes.draw do
       # Customers
       resources :customers, only: [ :index, :show, :create, :update, :destroy ]
 
+      # Users (admin only)
+      resources :users, only: [ :index, :update, :destroy ]
+
       # FSC Rates
       get "fsc/rates", to: "fsc#rates"
       post "fsc/update", to: "fsc#update_rates"

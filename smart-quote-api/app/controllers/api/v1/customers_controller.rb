@@ -7,9 +7,14 @@ module Api
 
       # GET /api/v1/customers
       def index
-        customers = scoped_customers.search_text(params[:q]).recent
+        customers = scoped_customers
+                      .search_text(params[:q])
+                      .recent
+                      .left_joins(:quotes)
+                      .select("customers.*, COUNT(quotes.id) AS quotes_count_cache")
+                      .group("customers.id")
 
-        render json: customers.map { |c| customer_json(c) }
+        render json: customers.map { |c| customer_json(c, preloaded_count: true) }
       end
 
       # GET /api/v1/customers/:id
@@ -68,7 +73,7 @@ module Api
               .transform_keys { |k| k.to_s.underscore }
       end
 
-      def customer_json(customer, include_quotes: false)
+      def customer_json(customer, include_quotes: false, preloaded_count: false)
         json = {
           id: customer.id,
           companyName: customer.company_name,
@@ -78,7 +83,7 @@ module Api
           country: customer.country,
           address: customer.address,
           notes: customer.notes,
-          quoteCount: customer.quotes.count,
+          quoteCount: preloaded_count ? (customer.attributes["quotes_count_cache"] || 0).to_i : customer.quotes.count,
           createdAt: customer.created_at.iso8601,
           updatedAt: customer.updated_at.iso8601
         }

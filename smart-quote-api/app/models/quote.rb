@@ -1,5 +1,6 @@
 class Quote < ApplicationRecord
   belongs_to :user, optional: true
+  belongs_to :customer, optional: true
 
   VALID_INCOTERMS = %w[EXW FOB C&F CIF DAP DDP].freeze
   VALID_PACKING_TYPES = %w[NONE WOODEN_BOX SKID VACUUM].freeze
@@ -21,12 +22,18 @@ class Quote < ApplicationRecord
   scope :by_status, ->(status) { where(status: status) if status.present? }
   scope :by_date_range, ->(from, to) {
     scope = all
-    scope = scope.where("created_at >= ?", from) if from.present?
-    scope = scope.where("created_at <= ?", Date.parse(to.to_s).end_of_day) if to.present?
+    if from.present?
+      parsed_from = Date.parse(from.to_s) rescue nil
+      scope = scope.where("created_at >= ?", parsed_from) if parsed_from
+    end
+    if to.present?
+      parsed_to = Date.parse(to.to_s) rescue nil
+      scope = scope.where("created_at <= ?", parsed_to.end_of_day) if parsed_to
+    end
     scope
   }
   scope :search_text, ->(q) {
-    where("reference_no ILIKE :q OR destination_country ILIKE :q", q: "%#{q}%") if q.present?
+    where("reference_no ILIKE :q OR destination_country ILIKE :q", q: "%#{sanitize_sql_like(q)}%") if q.present?
   }
 
   before_validation :generate_reference_no, on: :create

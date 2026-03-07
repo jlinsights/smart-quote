@@ -21,7 +21,11 @@ module JwtAuthenticatable
     return nil if payload["exp"] < Time.current.to_i
 
     User.find_by(id: payload["user_id"])
-  rescue JWT::DecodeError, JWT::ExpiredSignature
+  rescue JWT::DecodeError => e
+    Rails.logger.warn "[AUTH] JWT decode failed: #{e.message} | IP: #{request.remote_ip}"
+    nil
+  rescue JWT::ExpiredSignature
+    Rails.logger.info "[AUTH] JWT expired | IP: #{request.remote_ip}"
     nil
   end
 
