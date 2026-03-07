@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Focus-visible ring for keyboard navigation accessibility */
+@layer base {
+  *:focus-visible {
+    @apply outline-none ring-2 ring-jways-500/50 ring-offset-1 ring-offset-white dark:ring-offset-gray-950;
+  }
+}
+
 /* Safe area padding for iOS notch/home indicator */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   body {

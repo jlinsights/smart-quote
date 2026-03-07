@@ -78,7 +78,7 @@ export const WeatherWidget: React.FC = () => {
                 {t('widget.weather')}
             </h3>
             {needsPagination && !loading && !error && (
-              <span className="text-[10px] text-gray-400 dark:text-gray-500">
+              <span className="text-[10px] text-gray-400 dark:text-gray-400">
                 {safePage + 1} / {totalPages}
               </span>
             )}
@@ -114,7 +114,7 @@ export const WeatherWidget: React.FC = () => {
                     <button
                       type="button"
                       onClick={prevPage}
-                      className="p-2 sm:p-1 rounded-full hover:bg-gray-100 dark:hover:bg-jways-700 text-gray-400 dark:text-gray-500 transition-colors"
+                      className="p-2 sm:p-1 rounded-full hover:bg-gray-100 dark:hover:bg-jways-700 text-gray-400 dark:text-gray-400 transition-colors"
                       aria-label="Previous page"
                     >
                       <ChevronLeft className="w-5 h-5 sm:w-4 sm:h-4" />
@@ -137,14 +137,14 @@ export const WeatherWidget: React.FC = () => {
                     <button
                       type="button"
                       onClick={nextPage}
-                      className="p-2 sm:p-1 rounded-full hover:bg-gray-100 dark:hover:bg-jways-700 text-gray-400 dark:text-gray-500 transition-colors"
+                      className="p-2 sm:p-1 rounded-full hover:bg-gray-100 dark:hover:bg-jways-700 text-gray-400 dark:text-gray-400 transition-colors"
                       aria-label="Next page"
                     >
                       <ChevronRight className="w-5 h-5 sm:w-4 sm:h-4" />
                     </button>
                   </div>
                 )}
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-3 text-center">
+                <p className="text-[10px] text-gray-400 dark:text-gray-400 mt-3 text-center">
                     * {t('widget.weather.desc')}
                 </p>
               </>

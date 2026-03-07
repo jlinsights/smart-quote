@@ -29,8 +29,108 @@ export const QuoteHistoryTable: React.FC<Props> = ({
   onView,
   onDelete,
 }) => {
+  const emptyMessage = hasActiveFilters
+    ? 'No quotes match your filters.'
+    : 'No quotes saved yet. Calculate a quote and save it!';
+
   return (
-    <div className="overflow-x-auto">
+    <div>
+      {/* Mobile card view */}
+      <div className="sm:hidden">
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="px-4 py-4 border-b border-gray-100 dark:border-gray-700/50 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="h-5 w-14 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="h-5 w-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="h-3 w-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="h-7 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              </div>
+            </div>
+          ))
+        ) : quotes.length === 0 ? (
+          <div className="px-4 py-12 text-center text-gray-400 dark:text-gray-400">
+            {emptyMessage}
+          </div>
+        ) : (
+          quotes.map((q) => {
+            const expiry = (q.status === 'draft' || q.status === 'sent') ? getExpiryInfo(q.createdAt) : null;
+            return (
+              <div
+                key={q.id}
+                className="px-4 py-3 border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors space-y-1.5"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs font-medium text-gray-900 dark:text-white">{q.referenceNo}</span>
+                  <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_COLORS[q.status]}`}>
+                    {q.status}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                    <span>{new Date(q.createdAt).toLocaleDateString('ko-KR')}</span>
+                    {expiry && (
+                      <span className={`flex items-center gap-0.5 text-[10px] font-medium ${
+                        expiry.expired ? 'text-red-500 dark:text-red-400' :
+                        expiry.daysLeft <= 2 ? 'text-amber-500 dark:text-amber-400' :
+                        'text-gray-400'
+                      }`}>
+                        <Clock className="w-2.5 h-2.5" />
+                        {expiry.expired ? 'Expired' : `${expiry.daysLeft}d left`}
+                      </span>
+                    )}
+                  </div>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                    {q.destinationCountry}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-gray-900 dark:text-white tabular-nums">
+                    {formatNum(q.totalQuoteAmount)}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
+                    ${q.totalQuoteAmountUsd.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs tabular-nums ${q.profitMargin >= 10 ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                    {q.profitMargin.toFixed(1)}%
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => onView(q.id)}
+                      className="p-2.5 rounded-md text-gray-400 hover:text-jways-600 hover:bg-jways-50 dark:hover:bg-jways-900/20 transition-colors"
+                      aria-label="View detail"
+                    >
+                      <Eye className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => onDelete(q.id, q.referenceNo)}
+                      className="p-2.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                      aria-label="Delete"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop table view */}
+      <div className="hidden sm:block overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
@@ -46,18 +146,24 @@ export const QuoteHistoryTable: React.FC<Props> = ({
         </thead>
         <tbody>
           {isLoading ? (
-            <tr>
-              <td colSpan={8} className="px-4 py-12 text-center text-gray-400 dark:text-gray-500">
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-jways-500 border-t-transparent rounded-full animate-spin" />
-                  Loading quotes...
-                </div>
-              </td>
-            </tr>
+            <>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-b border-gray-100 dark:border-gray-700/50">
+                  <td className="px-4 py-3"><div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" /></td>
+                  <td className="px-4 py-3"><div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" /></td>
+                  <td className="px-4 py-3"><div className="h-5 w-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" /></td>
+                  <td className="px-4 py-3"><div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse ml-auto" /></td>
+                  <td className="px-4 py-3"><div className="h-3 w-14 bg-gray-200 dark:bg-gray-700 rounded animate-pulse ml-auto" /></td>
+                  <td className="px-4 py-3"><div className="h-3 w-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse ml-auto" /></td>
+                  <td className="px-4 py-3"><div className="h-5 w-14 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse mx-auto" /></td>
+                  <td className="px-4 py-3"><div className="h-5 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mx-auto" /></td>
+                </tr>
+              ))}
+            </>
           ) : quotes.length === 0 ? (
             <tr>
-              <td colSpan={8} className="px-4 py-12 text-center text-gray-400 dark:text-gray-500">
-                {hasActiveFilters ? 'No quotes match your filters.' : 'No quotes saved yet. Calculate a quote and save it!'}
+              <td colSpan={8} className="px-4 py-12 text-center text-gray-400 dark:text-gray-400">
+                {emptyMessage}
               </td>
             </tr>
           ) : (
@@ -79,7 +185,7 @@ export const QuoteHistoryTable: React.FC<Props> = ({
                       <div className={`flex items-center gap-0.5 mt-0.5 text-[10px] font-medium ${
                         expired ? 'text-red-500 dark:text-red-400' :
                         daysLeft <= 2 ? 'text-amber-500 dark:text-amber-400' :
-                        'text-gray-400 dark:text-gray-500'
+                        'text-gray-400 dark:text-gray-400'
                       }`}>
                         <Clock className="w-2.5 h-2.5" />
                         {expired ? 'Expired' : `${daysLeft}d left`}
@@ -113,14 +219,14 @@ export const QuoteHistoryTable: React.FC<Props> = ({
                     <button
                       onClick={() => onView(q.id)}
                       className="p-2.5 sm:p-1.5 rounded-md text-gray-400 hover:text-jways-600 hover:bg-jways-50 dark:hover:bg-jways-900/20 transition-colors"
-                      title="View detail"
+                      aria-label="View detail"
                     >
                       <Eye className="w-5 h-5 sm:w-4 sm:h-4" />
                     </button>
                     <button
                       onClick={() => onDelete(q.id, q.referenceNo)}
                       className="p-2.5 sm:p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                      title="Delete"
+                      aria-label="Delete"
                     >
                       <Trash2 className="w-5 h-5 sm:w-4 sm:h-4" />
                     </button>
@@ -131,6 +237,7 @@ export const QuoteHistoryTable: React.FC<Props> = ({
           )}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };

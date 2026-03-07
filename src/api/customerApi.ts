@@ -1,3 +1,5 @@
+import { request } from './apiClient';
+
 export interface Customer {
   id: number;
   companyName: string;
@@ -31,28 +33,6 @@ export interface CustomerInput {
   country?: string;
   address?: string;
   notes?: string;
-}
-
-// @ts-expect-error -- Vite injects import.meta.env at build time
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = localStorage.getItem('smartQuoteToken');
-  const headers: HeadersInit = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-
-  const response = await fetch(`${API_URL}${path}`, {
-    headers: { ...headers, ...(options?.headers || {}) },
-    ...options,
-  });
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(body?.error?.message || `API Error: ${response.statusText}`);
-  }
-
-  if (response.status === 204) return undefined as T;
-  return response.json();
 }
 
 export const listCustomers = async (q?: string): Promise<Customer[]> => {

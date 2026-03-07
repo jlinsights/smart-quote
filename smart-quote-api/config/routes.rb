@@ -24,6 +24,9 @@ Rails.application.routes.draw do
       # Users (admin only)
       resources :users, only: [ :index, :update, :destroy ]
 
+      # Audit Logs (admin only)
+      resources :audit_logs, only: [ :index ]
+
       # FSC Rates
       get "fsc/rates", to: "fsc#rates"
       post "fsc/update", to: "fsc#update_rates"

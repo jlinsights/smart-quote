@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Customer, CustomerInput, listCustomers, createCustomer, updateCustomer, deleteCustomer } from '@/api/customerApi';
 import { COUNTRY_OPTIONS } from '@/config/options';
 import { Building2, Plus, Search, Pencil, Trash2, X, Loader2 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useToast } from '@/components/ui/Toast';
 
 export const CustomerManagement: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -11,14 +13,18 @@ export const CustomerManagement: React.FC = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<CustomerInput>({ companyName: '' });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
+  const { toast } = useToast();
 
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await listCustomers(search || undefined);
       setCustomers(data);
-    } catch {
-      // silent
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load customers');
     } finally {
       setLoading(false);
     }
@@ -59,22 +65,28 @@ export const CustomerManagement: React.FC = () => {
       } else {
         await createCustomer(form);
       }
+      setError(null);
+      toast('success', editingId ? 'Customer updated' : 'Customer created');
       resetForm();
       fetchCustomers();
-    } catch {
-      // silent
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to save customer');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`Delete "${name}"? Associated quotes will be unlinked.`)) return;
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteCustomer(id);
+      await deleteCustomer(deleteTarget.id);
+      setError(null);
+      toast('success', `"${deleteTarget.name}" deleted`);
       fetchCustomers();
-    } catch {
-      // silent
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to delete customer');
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -176,6 +188,13 @@ export const CustomerManagement: React.FC = () => {
         </form>
       )}
 
+      {/* Error */}
+      {error && (
+        <div className="mx-4 mt-2 p-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          {error}
+        </div>
+      )}
+
       {/* List */}
       <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-[400px] overflow-y-auto">
         {loading ? (
@@ -200,12 +219,14 @@ export const CustomerManagement: React.FC = () => {
                 <button
                   onClick={() => handleEdit(c)}
                   className="p-1 text-gray-400 hover:text-jways-600 transition-colors"
+                  aria-label={`Edit ${c.companyName}`}
                 >
                   <Pencil className="w-3 h-3" />
                 </button>
                 <button
-                  onClick={() => handleDelete(c.id, c.companyName)}
+                  onClick={() => setDeleteTarget({ id: c.id, name: c.companyName })}
                   className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  aria-label={`Delete ${c.companyName}`}
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>
@@ -214,6 +235,15 @@ export const CustomerManagement: React.FC = () => {
           ))
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete Customer"
+        message={`Delete "${deleteTarget?.name}"? Associated quotes will be unlinked.`}
+        confirmLabel="Delete"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

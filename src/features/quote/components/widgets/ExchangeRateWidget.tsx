@@ -43,7 +43,7 @@ export const ExchangeRateWidget: React.FC = () => {
           )}
           <button
             onClick={retry}
-            className={`text-gray-400 hover:text-jways-500 dark:text-gray-500 dark:hover:text-jways-400 transition-colors ${loading ? 'animate-spin cursor-not-allowed' : ''}`}
+            className={`text-gray-400 hover:text-jways-500 dark:text-gray-400 dark:hover:text-jways-400 transition-colors ${loading ? 'animate-spin cursor-not-allowed' : ''}`}
             disabled={loading}
             aria-label={t('widget.exchange.refresh')}
           >
@@ -61,7 +61,7 @@ export const ExchangeRateWidget: React.FC = () => {
         ) : (
           <>
             {/* Column headers */}
-            <div className="flex items-center justify-between mb-3 text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            <div className="flex items-center justify-between mb-3 text-[10px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider">
               <span>{t('widget.exchange.currency')}</span>
               <div className="flex items-center gap-6">
                 <span className="w-20 text-right">{t('widget.exchange.rate')}</span>
@@ -84,7 +84,7 @@ export const ExchangeRateWidget: React.FC = () => {
                       <span className="text-sm font-bold text-gray-800 dark:text-gray-100">
                         {rate.currency}
                       </span>
-                      <span className="text-[10px] text-gray-400 dark:text-gray-500 ml-1.5 hidden sm:inline">
+                      <span className="text-[10px] text-gray-400 dark:text-gray-400 ml-1.5 hidden sm:inline">
                         / KRW
                       </span>
                     </div>
@@ -122,7 +122,7 @@ export const ExchangeRateWidget: React.FC = () => {
         {/* Footer */}
         {!loading && data.length > 0 && (
           <div className="mt-4 pt-3 border-t border-gray-100 dark:border-jways-700">
-            <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-gray-500">
+            <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-gray-400">
               <span>* {t('widget.exchange.desc')}</span>
               <span className="flex items-center gap-1">
                 {loading && <RefreshCw className="w-2.5 h-2.5 animate-spin" />}

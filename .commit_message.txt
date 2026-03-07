@@ -1,1 +1,1 @@
-🔧 fix: Quote 모델에 belongs_to :customer 관계 추가
+🔧 Admin: AuditLog API+뷰어 위젯, 감사로깅 CRUD, SendGrid SMTP, PWA 아이콘, Header 테스트 수정

@@ -152,7 +152,7 @@ export const FscRateWidget: React.FC = () => {
 
       {data && (
         <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700">
-          <span className="text-[10px] text-gray-400 dark:text-gray-500">
+          <span className="text-[10px] text-gray-400 dark:text-gray-400">
             Last updated: {new Date(data.updatedAt).toLocaleString('ko-KR')}
           </span>
         </div>

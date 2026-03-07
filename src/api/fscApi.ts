@@ -1,5 +1,4 @@
-// @ts-expect-error -- Vite injects import.meta.env at build time
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { request } from './apiClient';
 
 export interface FscRates {
   rates: {
@@ -7,23 +6,6 @@ export interface FscRates {
     DHL: { international: number; domestic: number };
   };
   updatedAt: string;
-}
-
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = localStorage.getItem('smartQuoteToken');
-  const headers: HeadersInit = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-
-  const response = await fetch(`${API_URL}${path}`, {
-    headers: { ...headers, ...(options?.headers || {}) },
-    ...options,
-  });
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(body?.error?.message || `API Error: ${response.statusText}`);
-  }
-  return response.json();
 }
 
 export const getFscRates = async (): Promise<FscRates> => {

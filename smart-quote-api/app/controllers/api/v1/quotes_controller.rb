@@ -33,6 +33,7 @@ module Api
         )
 
         if quote.save
+          AuditLog.track!(user: current_user, action: "quote.created", resource: quote, ip_address: request.remote_ip)
           render json: quote_detail(quote), status: :created
         else
           render json: { error: { code: "VALIDATION_ERROR", message: quote.errors.full_messages.join(", ") } }, status: :unprocessable_entity
@@ -80,7 +81,13 @@ module Api
           end
         end
 
+        old_status = quote.status
         if quote.update(permitted.to_h.transform_keys { |k| k.to_s.underscore })
+          metadata = {}
+          metadata[:status_from] = old_status if permitted[:status].present? && old_status != quote.status
+          metadata[:status_to] = quote.status if metadata[:status_from]
+          action = metadata[:status_from] ? "quote.status_changed" : "quote.updated"
+          AuditLog.track!(user: current_user, action: action, resource: quote, metadata: metadata, ip_address: request.remote_ip)
           render json: quote_detail(quote)
         else
           render json: { error: { code: "VALIDATION_ERROR", message: quote.errors.full_messages.join(", ") } }, status: :unprocessable_entity
@@ -103,6 +110,7 @@ module Api
         QuoteMailer.send_quote(quote, email, recipient_name: name, message: message).deliver_later
         quote.update(status: "sent") if quote.status == "draft"
 
+        AuditLog.track!(user: current_user, action: "quote.email_sent", resource: quote, metadata: { recipient: email }, ip_address: request.remote_ip)
         render json: { success: true, message: "Quote sent to #{email}" }
       rescue ActiveRecord::RecordNotFound
         render json: { error: { code: "NOT_FOUND", message: "Quote not found" } }, status: :not_found
@@ -110,7 +118,9 @@ module Api
 
       # DELETE /api/v1/quotes/:id
       def destroy
-        scoped_quotes.find(params[:id]).destroy
+        quote = scoped_quotes.find(params[:id])
+        AuditLog.track!(user: current_user, action: "quote.deleted", resource: quote, metadata: { reference_no: quote.reference_no }, ip_address: request.remote_ip)
+        quote.destroy
         head :no_content
       rescue ActiveRecord::RecordNotFound
         render json: { error: { code: "NOT_FOUND", message: "Quote not found" } }, status: :not_found
@@ -123,6 +133,10 @@ module Api
                       .by_destination(params[:destination_country])
                       .by_date_range(params[:date_from], params[:date_to])
                       .by_status(params[:status])
+
+        if quotes.count > 10_000
+          return render json: { error: { code: "EXPORT_TOO_LARGE", message: "Too many records (max 10,000). Please narrow your filters." } }, status: :unprocessable_entity
+        end
 
         csv_data = CSV.generate(headers: true) do |csv|
           csv << [ "Reference No", "Date", "Destination", "Incoterm", "Billable Weight (kg)",
@@ -144,6 +158,7 @@ module Api
           end
         end
 
+        AuditLog.track!(user: current_user, action: "quote.exported", resource: Quote.new(id: 0), metadata: { count: quotes.count, filters: params.slice(:q, :destination_country, :date_from, :date_to, :status).to_unsafe_h }, ip_address: request.remote_ip)
         send_data csv_data, filename: "quotes-#{Date.current}.csv", type: "text/csv"
       end
 

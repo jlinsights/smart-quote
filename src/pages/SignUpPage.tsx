@@ -19,6 +19,7 @@ export const SignUpPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const { signup } = useAuth();
   const { t } = useLanguage();
@@ -34,6 +35,7 @@ export const SignUpPage: React.FC = () => {
     }
 
     if (email.trim() && password.trim() && name.trim()) {
+      setIsLoading(true);
       try {
         const result = await signup(email.trim(), password.trim(), company.trim(), name.trim(), nationality.trim());
         if (result.success) {
@@ -43,6 +45,8 @@ export const SignUpPage: React.FC = () => {
         }
       } catch {
         setError(t('auth.emailExists'));
+      } finally {
+        setIsLoading(false);
       }
     } else {
       setError(t('auth.fillAll'));
@@ -191,9 +195,10 @@ export const SignUpPage: React.FC = () => {
 
               <button
                 type="submit"
-                className="w-full py-3 px-4 bg-jways-600 hover:bg-jways-500 text-white text-sm font-semibold rounded-xl shadow-lg shadow-jways-600/25 hover:shadow-jways-500/30 transition-all duration-200"
+                disabled={isLoading}
+                className="w-full py-3 px-4 bg-jways-600 hover:bg-jways-500 text-white text-sm font-semibold rounded-xl shadow-lg shadow-jways-600/25 hover:shadow-jways-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t('auth.signup')}
+                {isLoading ? '...' : t('auth.signup')}
               </button>
             </form>
 

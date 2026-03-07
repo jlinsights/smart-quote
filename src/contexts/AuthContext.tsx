@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { API_URL, TOKEN_KEY } from '@/api/apiClient';
 
 export type UserRole = 'admin' | 'user' | 'member';
 
@@ -27,10 +28,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// @ts-expect-error - vite injects env
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-const TOKEN_KEY = 'smartQuoteToken';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);

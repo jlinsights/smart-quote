@@ -196,7 +196,7 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
                    <button
                       onClick={() => duplicateItem(idx)}
                       className={`text-gray-400 hover:text-jways-600 dark:hover:text-jways-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600/30 transition-colors ${isMobileView ? 'p-2.5' : 'p-1.5'}`}
-                      title="Duplicate this box"
+                      aria-label="Duplicate this box"
                    >
                       <Copy className={`${isMobileView ? 'w-5 h-5' : 'w-4 h-4'}`} />
                    </button>
@@ -204,7 +204,7 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
                       onClick={() => removeItem(idx)}
                       className={`text-red-400 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ${isMobileView ? 'p-2.5' : 'p-1.5'} ${items.length === 1 ? 'opacity-30 cursor-not-allowed' : ''}`}
                       disabled={items.length === 1}
-                      title={items.length === 1 ? 'At least one box required' : 'Remove this box'}
+                      aria-label={items.length === 1 ? 'At least one box required' : 'Remove this box'}
                    >
                       <Trash2 className={`${isMobileView ? 'w-5 h-5' : 'w-4 h-4'}`} />
                    </button>
@@ -251,7 +251,7 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
               {(warnings.length > 0 || hasZeroDims) && (
                 <div className="mt-1.5 space-y-0.5">
                   {hasZeroDims && (
-                    <p className="text-xs text-gray-400 dark:text-gray-500 pl-1">
+                    <p className="text-xs text-gray-400 dark:text-gray-400 pl-1">
                       Fill in all dimensions and weight to calculate
                     </p>
                   )}

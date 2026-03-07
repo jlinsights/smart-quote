@@ -49,7 +49,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
                                 <button
                                     onClick={() => setShowPackingInfo(!showPackingInfo)}
                                     className="text-gray-400 hover:text-jways-500 transition-colors focus:outline-none"
-                                    title="View Calculation Logic"
+                                    aria-label="View Calculation Logic"
                                 >
                                     <HelpCircle className="w-3.5 h-3.5" />
                                 </button>

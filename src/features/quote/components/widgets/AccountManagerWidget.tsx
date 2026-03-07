@@ -77,7 +77,7 @@ export const AccountManagerWidget: React.FC = () => {
             >
               <ChevronLeft className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
             </button>
-            <span className="text-xs sm:text-[10px] text-gray-400 dark:text-gray-500 tabular-nums min-w-[28px] text-center">
+            <span className="text-xs sm:text-[10px] text-gray-400 dark:text-gray-400 tabular-nums min-w-[28px] text-center">
               {currentIdx + 1} / {totalManagers}
             </span>
             <button
@@ -121,15 +121,15 @@ export const AccountManagerWidget: React.FC = () => {
           <p className="text-xs text-jways-600 dark:text-jways-400 font-medium">
             {t(manager.role)}
           </p>
-          <p className="text-xs sm:text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+          <p className="text-xs sm:text-[10px] text-gray-400 dark:text-gray-400 mt-0.5">
             {t(manager.department)}
           </p>
         </div>
 
         {/* Working hours */}
         <div className="flex items-center gap-1.5 mb-4">
-          <Clock className="w-4 h-4 sm:w-3 sm:h-3 text-gray-400 dark:text-gray-500" />
-          <span className="text-xs sm:text-[10px] text-gray-400 dark:text-gray-500">
+          <Clock className="w-4 h-4 sm:w-3 sm:h-3 text-gray-400 dark:text-gray-400" />
+          <span className="text-xs sm:text-[10px] text-gray-400 dark:text-gray-400">
             {manager.workingHours}
           </span>
           <span

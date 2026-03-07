@@ -3,6 +3,8 @@ import { QuoteInput, QuoteResult } from '@/types';
 import { saveQuote } from '@/api/quoteApi';
 import { sendQuoteSlackNotification } from '@/lib/slackNotification';
 import { Save, Check, Loader2, ExternalLink } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useToast } from '@/components/ui/Toast';
 
 interface Props {
   input: QuoteInput;
@@ -16,6 +18,8 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
   const [notes, setNotes] = useState('');
   const [savedRefNo, setSavedRefNo] = useState<string | null>(null);
   const [lastSavedHash, setLastSavedHash] = useState<string | null>(null);
+  const [showDupeConfirm, setShowDupeConfirm] = useState(false);
+  const { toast } = useToast();
 
   // Validation: items + destination + result must exist
   const isValid = useMemo(() => {
@@ -27,12 +31,7 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
   // Hash for duplicate detection (resets when input changes)
   const inputHash = useMemo(() => JSON.stringify(input), [input]);
 
-  const handleSave = async () => {
-    // Duplicate check
-    if (lastSavedHash === inputHash) {
-      if (!confirm('This quote was already saved. Save again?')) return;
-    }
-
+  const doSave = async () => {
     setState('saving');
     try {
       const detail = await saveQuote(input, notes || undefined, result || undefined);
@@ -41,6 +40,7 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
       setState('saved');
       setShowNotes(false);
       setNotes('');
+      toast('success', `Quote saved: ${detail.referenceNo}`);
       if (result) {
         sendQuoteSlackNotification(input, result, detail.referenceNo);
       }
@@ -48,8 +48,17 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
     } catch {
       setShowNotes(false);
       setState('error');
+      toast('error', 'Failed to save quote');
       setTimeout(() => setState('idle'), 3000);
     }
+  };
+
+  const handleSave = async () => {
+    if (lastSavedHash === inputHash) {
+      setShowDupeConfirm(true);
+      return;
+    }
+    doSave();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -57,34 +66,49 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
     if (e.key === 'Escape') { setShowNotes(false); setNotes(''); }
   };
 
+  const dupeDialog = (
+    <ConfirmDialog
+      open={showDupeConfirm}
+      title="Duplicate Quote"
+      message="This quote was already saved. Save again?"
+      confirmLabel="Save Again"
+      variant="warning"
+      onConfirm={() => { setShowDupeConfirm(false); doSave(); }}
+      onCancel={() => setShowDupeConfirm(false)}
+    />
+  );
+
   // Notes input mode
   if (showNotes) {
     return (
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Add notes (optional)"
-          className="px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-jways-500 focus:border-transparent w-48"
-          onKeyDown={handleKeyDown}
-          autoFocus
-        />
-        <button
-          onClick={handleSave}
-          disabled={state === 'saving'}
-          className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-jways-600 rounded-lg hover:bg-jways-700 disabled:opacity-50 transition-colors"
-        >
-          {state === 'saving' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
-          Save
-        </button>
-        <button
-          onClick={() => { setShowNotes(false); setNotes(''); }}
-          className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-        >
-          Cancel
-        </button>
-      </div>
+      <>
+        {dupeDialog}
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Add notes (optional)"
+            className="px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-jways-500 focus:border-transparent w-48"
+            onKeyDown={handleKeyDown}
+            autoFocus
+          />
+          <button
+            onClick={handleSave}
+            disabled={state === 'saving'}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-jways-600 rounded-lg hover:bg-jways-700 disabled:opacity-50 transition-colors"
+          >
+            {state === 'saving' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+            Save
+          </button>
+          <button
+            onClick={() => { setShowNotes(false); setNotes(''); }}
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            Cancel
+          </button>
+        </div>
+      </>
     );
   }
 
@@ -125,7 +149,7 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
       title={!isValid ? 'Enter cargo and destination first' : 'Save this quote'}
       className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
         !isValid
-          ? 'text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700 cursor-not-allowed opacity-50'
+          ? 'text-gray-400 dark:text-gray-400 border border-gray-200 dark:border-gray-700 cursor-not-allowed opacity-50'
           : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600'
       }`}
     >

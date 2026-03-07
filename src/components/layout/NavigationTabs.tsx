@@ -10,8 +10,11 @@ interface Props {
 
 export const NavigationTabs: React.FC<Props> = ({ currentView, onViewChange }) => {
   return (
-    <nav className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
+    <nav role="tablist" className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
       <button
+        role="tab"
+        aria-selected={currentView === 'calculator'}
+        aria-label="Calculator"
         onClick={() => onViewChange('calculator')}
         className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
           currentView === 'calculator'
@@ -23,6 +26,9 @@ export const NavigationTabs: React.FC<Props> = ({ currentView, onViewChange }) =
         <span className="hidden sm:inline">Calculator</span>
       </button>
       <button
+        role="tab"
+        aria-selected={currentView === 'history'}
+        aria-label="History"
         onClick={() => onViewChange('history')}
         className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
           currentView === 'history'

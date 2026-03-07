@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Globe, Moon, Sun, LogOut, Settings } from 'lucide-react';
+import { Globe, Moon, Sun, LogOut, Settings, Menu, X } from 'lucide-react';
 import { AccountSettingsModal } from '@/features/dashboard/components/AccountSettingsModal';
+
+const LANGUAGES = [
+  { code: 'en' as const, label: 'English', flag: '🇺🇸' },
+  { code: 'ko' as const, label: '한국어', flag: '🇰🇷' },
+];
 
 export const Header: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -12,10 +17,19 @@ export const Header: React.FC = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
 
-  const handleLanguageToggle = () => {
-    setLanguage(language === 'en' ? 'ko' : 'en');
-  };
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setIsLangOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -36,31 +50,56 @@ export const Header: React.FC = () => {
             </div>
             
             <div className="flex items-center space-x-2 sm:space-x-4">
-              {/* Language Toggle */}
-              <button
-                onClick={handleLanguageToggle}
-                className="p-2 text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-jways-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg flex items-center space-x-1 transition-all"
-                title={language === 'en' ? 'Switch to Korean' : 'Switch to English'}
-              >
-                <Globe className="w-5 h-5" />
-                <span className="text-sm font-medium uppercase">{language}</span>
-              </button>
+              {/* Language Dropdown */}
+              <div ref={langRef} className="relative">
+                <button
+                  onClick={() => setIsLangOpen(!isLangOpen)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') setIsLangOpen(false);
+                    if (e.key === 'ArrowDown' && !isLangOpen) { e.preventDefault(); setIsLangOpen(true); }
+                  }}
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-jways-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg flex items-center space-x-1 transition-all"
+                  aria-label="Select language"
+                  aria-expanded={isLangOpen}
+                  aria-haspopup="listbox"
+                >
+                  <Globe className="w-5 h-5" />
+                  <span className="text-sm font-medium uppercase">{language}</span>
+                </button>
+                {isLangOpen && (
+                  <div className="absolute right-0 mt-1 w-36 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 py-1" role="listbox">
+                    {LANGUAGES.map((lang) => (
+                      <button
+                        key={lang.code}
+                        role="option"
+                        aria-selected={language === lang.code}
+                        onClick={() => { setLanguage(lang.code); setIsLangOpen(false); }}
+                        onKeyDown={(e) => { if (e.key === 'Escape') setIsLangOpen(false); }}
+                        className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${language === lang.code ? 'text-jways-600 dark:text-jways-400 font-semibold' : 'text-gray-700 dark:text-gray-300'}`}
+                      >
+                        <span>{lang.flag}</span>
+                        <span>{lang.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Dark Mode Toggle */}
               <button
                 onClick={toggleDarkMode}
                 className="p-2 text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-jways-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all"
-                title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                aria-label={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               >
                 {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
 
-              <div className="w-px h-6 bg-gray-200 dark:bg-gray-800 mx-2"></div>
+              <div className="w-px h-6 bg-gray-200 dark:bg-gray-800 mx-2 hidden sm:block"></div>
 
-              {/* Auth Buttons */}
+              {/* Desktop Auth Buttons */}
               {isAuthenticated ? (
-                <div className="flex items-center space-x-3">
-                   <div className="hidden sm:flex flex-col items-end mr-2">
+                <div className="hidden sm:flex items-center space-x-3">
+                   <div className="flex flex-col items-end mr-2">
                       <span className="text-sm font-medium text-gray-900 dark:text-white">
                           {user?.email.split('@')[0]}
                       </span>
@@ -69,31 +108,31 @@ export const Header: React.FC = () => {
                       </span>
                    </div>
                    {user?.role === 'admin' && (
-                      <Link to="/admin" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-white bg-jways-50 dark:bg-gray-900 px-3 py-1.5 rounded-md transition-colors hidden sm:block">
+                      <Link to="/admin" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-white bg-jways-50 dark:bg-gray-900 px-3 py-1.5 rounded-md transition-colors">
                         {t('nav.admin')}
                       </Link>
                    )}
-                   <Link to="/dashboard" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-white transition-colors hidden sm:block">
+                   <Link to="/dashboard" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-white transition-colors">
                      {t('nav.dashboard')}
                    </Link>
                    <button
                       onClick={() => setIsSettingsOpen(true)}
                       className="p-2 text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-jways-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg flex items-center transition-all"
-                      title={t('settings.account.title')}
+                      aria-label={t('settings.account.title')}
                     >
                       <Settings className="w-5 h-5" />
                     </button>
                    <button
                       onClick={handleLogout}
                       className="p-2 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg flex items-center transition-all"
-                      title={t('nav.logout')}
+                      aria-label={t('nav.logout')}
                     >
                       <LogOut className="w-5 h-5" />
                     </button>
                 </div>
               ) : (
-                <div className="flex space-x-2">
-                  <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors hidden sm:block">
+                <div className="hidden sm:flex space-x-2">
+                  <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
                     {t('nav.login')}
                   </Link>
                   <Link to="/signup" className="bg-jways-600 text-white hover:bg-jways-700 px-3 py-2 sm:px-4 rounded-md text-sm font-medium shadow-sm transition-colors">
@@ -101,9 +140,55 @@ export const Header: React.FC = () => {
                   </Link>
                 </div>
               )}
+
+              {/* Mobile Hamburger */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="sm:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all"
+                aria-label="Toggle menu"
+              >
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="sm:hidden border-t border-gray-100 dark:border-gray-800 px-4 py-3 space-y-2 bg-white dark:bg-gray-950">
+            {isAuthenticated ? (
+              <>
+                <div className="pb-2 mb-2 border-b border-gray-100 dark:border-gray-800">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.email.split('@')[0]}</p>
+                  <p className="text-xs text-jways-600 dark:text-jways-400 font-semibold uppercase">{user?.role}</p>
+                </div>
+                <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-jways-600">
+                  {t('nav.dashboard')}
+                </Link>
+                {user?.role === 'admin' && (
+                  <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-jways-600">
+                    {t('nav.admin')}
+                  </Link>
+                )}
+                <button onClick={() => { setIsSettingsOpen(true); setIsMobileMenuOpen(false); }} className="block w-full text-left py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-jways-600">
+                  {t('settings.account.title')}
+                </button>
+                <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="block w-full text-left py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700">
+                  {t('nav.logout')}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-jways-600">
+                  {t('nav.login')}
+                </Link>
+                <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-jways-600">
+                  {t('nav.signup')}
+                </Link>
+              </>
+            )}
+          </div>
+        )}
       </nav>
 
       {/* Account Settings Modal */}

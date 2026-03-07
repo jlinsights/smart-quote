@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { QuoteSummary, QuoteDetail, QuoteListParams, QuoteStatus, Pagination } from '@/types';
 import { listQuotes, getQuote, deleteQuote, exportQuotesCsv } from '@/api/quoteApi';
-import { Download, Filter, FileText, DollarSign, TrendingUp, CheckCircle } from 'lucide-react';
+import { Download, Filter, FileText, DollarSign, TrendingUp, CheckCircle, Loader2 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useToast } from '@/components/ui/Toast';
 import { formatNum } from '@/lib/format';
 import { QuoteSearchBar } from './QuoteSearchBar';
 import { QuoteHistoryTable } from './QuoteHistoryTable';
@@ -20,7 +22,10 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedQuote, setSelectedQuote] = useState<QuoteDetail | null>(null);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; refNo: string } | null>(null);
+  const { toast } = useToast();
 
   const fetchList = useCallback(async () => {
     setIsLoading(true);
@@ -52,29 +57,40 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
   };
 
   const handleView = async (id: number) => {
+    setIsLoadingDetail(true);
     try {
       const detail = await getQuote(id);
       setSelectedQuote(detail);
     } catch {
       setError('Failed to load quote detail');
+    } finally {
+      setIsLoadingDetail(false);
     }
   };
 
-  const handleDelete = async (id: number, refNo: string) => {
-    if (!confirm(`Delete quote ${refNo}? This cannot be undone.`)) return;
+  const handleDelete = (id: number, refNo: string) => {
+    setDeleteTarget({ id, refNo });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteQuote(id);
+      await deleteQuote(deleteTarget.id);
+      toast('success', `Quote ${deleteTarget.refNo} deleted`);
       fetchList();
     } catch {
       setError('Failed to delete quote');
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
   const handleExport = async () => {
     try {
       await exportQuotesCsv(params);
+      toast('success', 'CSV exported successfully');
     } catch {
-      setError('Failed to export CSV');
+      toast('error', 'Failed to export CSV');
     }
   };
 
@@ -181,6 +197,16 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
         )}
       </div>
 
+      {/* Loading Overlay */}
+      {isLoadingDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-xl px-6 py-4 shadow-lg">
+            <Loader2 className="w-5 h-5 animate-spin text-jways-500" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Loading quote...</span>
+          </div>
+        </div>
+      )}
+
       {/* Detail Modal */}
       {selectedQuote && (
         <QuoteDetailModal
@@ -190,6 +216,15 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
           onStatusChange={() => fetchList()}
         />
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete Quote"
+        message={`Delete quote ${deleteTarget?.refNo}? This cannot be undone.`}
+        confirmLabel="Delete"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };
@@ -202,7 +237,7 @@ const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string; 
     </div>
     <p className="text-lg font-bold text-gray-900 dark:text-white tabular-nums">
       {value}
-      {sub && <span className="text-xs text-gray-400 dark:text-gray-500 ml-1 font-normal">{sub}</span>}
+      {sub && <span className="text-xs text-gray-400 dark:text-gray-400 ml-1 font-normal">{sub}</span>}
     </p>
   </div>
 );

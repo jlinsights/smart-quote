@@ -247,14 +247,14 @@ export const UserManagementWidget: React.FC = () => {
                             onClick={handleSaveClick}
                             disabled={saving}
                             className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg dark:text-green-400 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-                            title={t('admin.save')}
+                            aria-label={t('admin.save')}
                           >
                             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                           </button>
                           <button
                             onClick={handleCancelClick}
                             className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
-                            title={t('admin.cancel')}
+                            aria-label={t('admin.cancel')}
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -264,7 +264,7 @@ export const UserManagementWidget: React.FC = () => {
                           <button
                             onClick={() => handleEditClick(user)}
                             className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
-                            title={t('admin.edit')}
+                            aria-label={t('admin.edit')}
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
@@ -276,7 +276,7 @@ export const UserManagementWidget: React.FC = () => {
                                   ? 'text-white bg-red-500 hover:bg-red-600'
                                   : 'text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-gray-700'
                               }`}
-                              title={deleteConfirmId === user.id ? 'Click again to confirm' : 'Delete user'}
+                              aria-label={deleteConfirmId === user.id ? 'Click again to confirm' : 'Delete user'}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>

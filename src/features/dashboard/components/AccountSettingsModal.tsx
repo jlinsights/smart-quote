@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Settings, Key, Eye, EyeOff, Loader2, X } from 'lucide-react';
+import { useToast } from '@/components/ui/Toast';
 
 interface Props {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface Props {
 export const AccountSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const { t } = useLanguage();
   const { updatePassword } = useAuth();
+  const { toast } = useToast();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -69,12 +71,14 @@ export const AccountSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      toast('success', t('settings.password.success'));
       setTimeout(() => {
         setSuccess(false);
         onClose();
       }, 2000);
     } else {
       setError(result.error || t('settings.password.updateFailed'));
+      toast('error', result.error || t('settings.password.updateFailed'));
     }
   };
 
@@ -96,7 +100,7 @@ export const AccountSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
-            title={t('widget.close')}
+            aria-label={t('widget.close')}
           >
             <X className="w-5 h-5" />
           </button>

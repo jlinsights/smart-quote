@@ -40,18 +40,20 @@ describe('QuoteHistoryTable', () => {
   it('renders quote rows with formatted data', () => {
     render(<QuoteHistoryTable {...defaultProps} />);
 
-    expect(screen.getByText('SQ-2026-0001')).toBeInTheDocument();
-    expect(screen.getByText('US')).toBeInTheDocument();
-    expect(screen.getByText('1,500,000')).toBeInTheDocument();
-    expect(screen.getByText('$1,150.50')).toBeInTheDocument();
-    expect(screen.getByText('20.0%')).toBeInTheDocument();
-    expect(screen.getByText('draft')).toBeInTheDocument();
+    // Both mobile card and desktop table render — use getAllByText
+    expect(screen.getAllByText('SQ-2026-0001').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('US').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('1,500,000').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('$1,150.50').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('20.0%').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('draft').length).toBeGreaterThan(0);
   });
 
-  it('shows loading spinner when isLoading is true', () => {
-    render(<QuoteHistoryTable {...defaultProps} quotes={[]} isLoading={true} />);
+  it('shows loading skeletons when isLoading is true', () => {
+    const { container } = render(<QuoteHistoryTable {...defaultProps} quotes={[]} isLoading={true} />);
 
-    expect(screen.getByText('Loading quotes...')).toBeInTheDocument();
+    const skeletons = container.querySelectorAll('.animate-pulse');
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 
   it('shows empty message when no quotes and no filters', () => {
@@ -63,9 +65,10 @@ describe('QuoteHistoryTable', () => {
       />,
     );
 
+    // Rendered in both mobile and desktop views
     expect(
-      screen.getByText('No quotes saved yet. Calculate a quote and save it!'),
-    ).toBeInTheDocument();
+      screen.getAllByText('No quotes saved yet. Calculate a quote and save it!').length,
+    ).toBeGreaterThan(0);
   });
 
   it('shows filter message when no quotes and hasActiveFilters', () => {
@@ -78,16 +81,16 @@ describe('QuoteHistoryTable', () => {
     );
 
     expect(
-      screen.getByText('No quotes match your filters.'),
-    ).toBeInTheDocument();
+      screen.getAllByText('No quotes match your filters.').length,
+    ).toBeGreaterThan(0);
   });
 
   it('calls onView with correct id when view button clicked', async () => {
     const onView = vi.fn();
     render(<QuoteHistoryTable {...defaultProps} onView={onView} />);
 
-    const viewButton = screen.getByTitle('View detail');
-    await userEvent.click(viewButton);
+    const viewButtons = screen.getAllByLabelText('View detail');
+    await userEvent.click(viewButtons[0]);
 
     expect(onView).toHaveBeenCalledWith(1);
   });
@@ -96,8 +99,8 @@ describe('QuoteHistoryTable', () => {
     const onDelete = vi.fn();
     render(<QuoteHistoryTable {...defaultProps} onDelete={onDelete} />);
 
-    const deleteButton = screen.getByTitle('Delete');
-    await userEvent.click(deleteButton);
+    const deleteButtons = screen.getAllByLabelText('Delete');
+    await userEvent.click(deleteButtons[0]);
 
     expect(onDelete).toHaveBeenCalledWith(1, 'SQ-2026-0001');
   });

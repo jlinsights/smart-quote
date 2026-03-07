@@ -47,7 +47,7 @@ export const NoticeWidget: React.FC = () => {
                 {t('widget.notice')}
             </h3>
             {needsPagination && !loading && !error && (
-              <span className="text-[10px] text-gray-400 dark:text-gray-500">
+              <span className="text-[10px] text-gray-400 dark:text-gray-400">
                 {safePage + 1} / {totalPages}
               </span>
             )}
@@ -59,7 +59,7 @@ export const NoticeWidget: React.FC = () => {
               <>
                 <ul className="divide-y divide-gray-100 dark:divide-jways-700">
                     {data.length === 0 ? (
-                      <li className="px-5 py-6 text-center text-sm text-gray-400 dark:text-gray-500">
+                      <li className="px-5 py-6 text-center text-sm text-gray-400 dark:text-gray-400">
                         {t('dashboard.noNews')}
                       </li>
                     ) : (
@@ -93,7 +93,7 @@ export const NoticeWidget: React.FC = () => {
                     <button
                       type="button"
                       onClick={prevPage}
-                      className="p-2 sm:p-1 rounded-full hover:bg-gray-200 dark:hover:bg-jways-600 text-gray-400 dark:text-gray-500 transition-colors"
+                      className="p-2 sm:p-1 rounded-full hover:bg-gray-200 dark:hover:bg-jways-600 text-gray-400 dark:text-gray-400 transition-colors"
                       aria-label="Previous page"
                     >
                       <ChevronLeft className="w-5 h-5 sm:w-4 sm:h-4" />
@@ -116,7 +116,7 @@ export const NoticeWidget: React.FC = () => {
                     <button
                       type="button"
                       onClick={nextPage}
-                      className="p-2 sm:p-1 rounded-full hover:bg-gray-200 dark:hover:bg-jways-600 text-gray-400 dark:text-gray-500 transition-colors"
+                      className="p-2 sm:p-1 rounded-full hover:bg-gray-200 dark:hover:bg-jways-600 text-gray-400 dark:text-gray-400 transition-colors"
                       aria-label="Next page"
                     >
                       <ChevronRight className="w-5 h-5 sm:w-4 sm:h-4" />

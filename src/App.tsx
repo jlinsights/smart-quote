@@ -2,9 +2,11 @@ import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LandingPage } from './pages/LandingPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { ToastProvider } from './components/ui/Toast';
 
 const QuoteCalculator = React.lazy(() => import('./pages/QuoteCalculator'));
 const CustomerDashboard = React.lazy(() => import('./pages/CustomerDashboard'));
@@ -13,8 +15,10 @@ const SignUpPage = React.lazy(() => import('./pages/SignUpPage'));
 
 function App() {
   return (
+    <ErrorBoundary>
     <ThemeProvider>
       <LanguageProvider>
+        <ToastProvider>
         <BrowserRouter>
           <AuthProvider>
             <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950"><div className="w-8 h-8 border-4 border-gray-200 dark:border-gray-700 border-t-jways-500 rounded-full animate-spin" /></div>}>
@@ -62,8 +66,10 @@ function App() {
             </Suspense>
           </AuthProvider>
         </BrowserRouter>
+        </ToastProvider>
       </LanguageProvider>
     </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

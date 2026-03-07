@@ -207,7 +207,7 @@ export const LandingPage: React.FC = () => {
       {/* ═══════════ FOOTER ═══════════ */}
       <footer className="bg-white dark:bg-gray-950 py-10 border-t border-gray-100 dark:border-gray-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-gray-400 dark:text-gray-500 text-sm">
+          <p className="text-gray-400 dark:text-gray-400 text-sm">
             © 2025 Goodman GLS & J-Ways. All rights reserved.
           </p>
         </div>

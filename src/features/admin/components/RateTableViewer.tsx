@@ -136,7 +136,7 @@ export const RateTableViewer: React.FC = () => {
 
       <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700 flex items-center gap-1.5">
         <ChevronDown className="w-3 h-3 text-gray-400" />
-        <span className="text-[10px] text-gray-400 dark:text-gray-500">
+        <span className="text-[10px] text-gray-400 dark:text-gray-400">
           {carrier} tariff table • {mode === 'exact' ? `${selectedZone}: ${exactWeights.length} weight steps` : `${rangeRates.length} weight ranges × ${zones.length} zones`}
         </span>
       </div>

@@ -55,7 +55,7 @@ export const MobileLayout: React.FC<Props> = ({
              <button
                onClick={onReset}
                className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-red-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-red-400 transition-colors"
-               title="Reset Quote"
+               aria-label="Reset Quote"
              >
                 <RotateCcw className="w-5 h-5" />
              </button>
@@ -64,7 +64,7 @@ export const MobileLayout: React.FC<Props> = ({
              <button
                onClick={() => setIsMobileView(!isMobileView)}
                className="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
-               title="Switch to Desktop View"
+               aria-label="Switch to Desktop View"
              >
                 <Monitor className="w-5 h-5" />
              </button>
@@ -117,7 +117,7 @@ export const MobileLayout: React.FC<Props> = ({
                       <p className="text-xl font-bold text-jways-700 dark:text-jways-400">
                           {formatKRW(result.totalQuoteAmount)}
                       </p>
-                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                      <span className="text-xs text-gray-400 dark:text-gray-400">
                           ({formatUSDInt(result.totalQuoteAmountUSD)})
                       </span>
                   </div>

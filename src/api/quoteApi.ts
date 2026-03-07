@@ -1,12 +1,29 @@
 import { QuoteInput, QuoteResult, QuoteDetail, QuoteListResponse, QuoteListParams, CostBreakdown } from "@/types";
+import { request, ApiError, API_URL, TOKEN_KEY } from "./apiClient";
 
-// @ts-expect-error -- Vite injects import.meta.env at build time
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+export { ApiError as QuoteApiError };
 
 // Maps backend breakdown fields (upsBase) to frontend generic names (intlBase).
 // Handles both old saved quotes and future field names.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function mapBreakdown(raw: any): CostBreakdown {
+interface RawBreakdown {
+  packingMaterial?: number;
+  packingLabor?: number;
+  packingFumigation?: number;
+  handlingFees?: number;
+  pickupInSeoul?: number;
+  intlBase?: number;
+  upsBase?: number;
+  intlFsc?: number;
+  upsFsc?: number;
+  intlWarRisk?: number;
+  upsWarRisk?: number;
+  intlSurge?: number;
+  upsSurge?: number;
+  destDuty?: number;
+  totalCost?: number;
+}
+
+export function mapBreakdown(raw: RawBreakdown): CostBreakdown {
   return {
     packingMaterial: raw.packingMaterial ?? 0,
     packingLabor: raw.packingLabor ?? 0,
@@ -22,45 +39,10 @@ export function mapBreakdown(raw: any): CostBreakdown {
   };
 }
 
-export class QuoteApiError extends Error {
-  constructor(public status: number, message: string) {
-    super(message);
-    this.name = 'QuoteApiError';
-  }
-}
-
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = localStorage.getItem('smartQuoteToken');
-  const headers: HeadersInit = { 'Content-Type': 'application/json' };
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  const response = await fetch(`${API_URL}${path}`, {
-    headers: { ...headers, ...(options?.headers || {}) },
-    ...options,
-  });
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      localStorage.removeItem('smartQuoteToken');
-      window.location.href = '/login';
-    }
-    const body = await response.json().catch(() => ({}));
-    throw new QuoteApiError(
-      response.status,
-      body?.error?.message || `API Error: ${response.statusText}`
-    );
-  }
-
-  if (response.status === 204) return undefined as T;
-  return response.json();
-}
-
 // ── Existing: stateless calculation ──
 
 export const fetchQuote = async (input: QuoteInput): Promise<QuoteResult> => {
-  const raw = await request<QuoteResult & { breakdown: unknown }>('/api/v1/quotes/calculate', {
+  const raw = await request<QuoteResult & { breakdown: RawBreakdown }>('/api/v1/quotes/calculate', {
     method: 'POST',
     body: JSON.stringify(input),
   });
@@ -97,7 +79,7 @@ export const listQuotes = async (
 };
 
 export const getQuote = async (id: number): Promise<QuoteDetail> => {
-  const raw = await request<QuoteDetail & { breakdown: unknown }>(`/api/v1/quotes/${id}`);
+  const raw = await request<QuoteDetail & { breakdown: RawBreakdown }>(`/api/v1/quotes/${id}`);
   return { ...raw, breakdown: mapBreakdown(raw.breakdown) };
 };
 
@@ -106,7 +88,7 @@ export const updateQuoteStatus = async (
   status: 'draft' | 'sent' | 'accepted' | 'rejected',
   notes?: string
 ): Promise<QuoteDetail> => {
-  const raw = await request<QuoteDetail & { breakdown: unknown }>(`/api/v1/quotes/${id}`, {
+  const raw = await request<QuoteDetail & { breakdown: RawBreakdown }>(`/api/v1/quotes/${id}`, {
     method: 'PATCH',
     body: JSON.stringify({ status, ...(notes !== undefined ? { notes } : {}) }),
   });
@@ -140,7 +122,7 @@ export const exportQuotesCsv = async (
   if (params.status) searchParams.set('status', params.status);
 
   const qs = searchParams.toString();
-  const token = localStorage.getItem('smartQuoteToken');
+  const token = localStorage.getItem(TOKEN_KEY);
   const headers: HeadersInit = { Accept: 'text/csv' };
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -151,7 +133,7 @@ export const exportQuotesCsv = async (
   );
 
   if (!response.ok) {
-    throw new QuoteApiError(response.status, 'Failed to export CSV');
+    throw new ApiError(response.status, 'Failed to export CSV');
   }
 
   const blob = await response.blob();

@@ -4,6 +4,7 @@ import { X, Package, DollarSign, TrendingUp, Copy, Mail, Loader2 } from 'lucide-
 import { formatNum } from '@/lib/format';
 import { updateQuoteStatus, sendQuoteEmail } from '@/api/quoteApi';
 import { STATUS_COLORS } from '../constants';
+import { useToast } from '@/components/ui/Toast';
 
 interface Props {
   quote: QuoteDetail;
@@ -24,6 +25,7 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
   const [emailMsg, setEmailMsg] = useState('');
   const [emailSending, setEmailSending] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const { toast } = useToast();
 
   const handleSendEmail = async () => {
     if (!emailTo.trim()) return;
@@ -33,9 +35,10 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
       setEmailSent(true);
       setCurrentStatus('sent');
       onStatusChange?.(quote.id, 'sent');
+      toast('success', `Quote sent to ${emailTo}`);
       setTimeout(() => { setShowEmailForm(false); setEmailSent(false); }, 2000);
     } catch {
-      // silent
+      toast('error', 'Failed to send email');
     } finally {
       setEmailSending(false);
     }
@@ -48,8 +51,9 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
       await updateQuoteStatus(quote.id, newStatus);
       setCurrentStatus(newStatus);
       onStatusChange?.(quote.id, newStatus);
+      toast('info', `Status updated to ${newStatus}`);
     } catch {
-      // silently fail - user can retry
+      toast('error', 'Failed to update status');
     } finally {
       setIsUpdating(false);
     }
@@ -84,10 +88,11 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
                     key={s}
                     onClick={() => handleStatusChange(s)}
                     disabled={isUpdating}
+                    aria-label={`Set status to ${s}`}
                     className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize transition-all ${
                       s === currentStatus
                         ? `${STATUS_COLORS[s]} ring-1 ring-current`
-                        : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-50 dark:bg-gray-700/30 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        : 'text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-50 dark:bg-gray-700/30 hover:bg-gray-100 dark:hover:bg-gray-700'
                     } ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {s}
@@ -100,7 +105,7 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
             <button
               onClick={() => setShowEmailForm(!showEmailForm)}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 transition-colors"
-              title="Send quote via email"
+              aria-label="Send quote via email"
             >
               <Mail className="w-3.5 h-3.5" />
               Email
@@ -109,7 +114,7 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
               <button
                 onClick={() => onDuplicate(quote)}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-jways-600 hover:text-jways-700 bg-jways-50 hover:bg-jways-100 dark:text-jways-400 dark:hover:text-jways-300 dark:bg-jways-900/30 dark:hover:bg-jways-900/50 transition-colors"
-                title="Duplicate this quote"
+                aria-label="Duplicate this quote"
               >
                 <Copy className="w-3.5 h-3.5" />
                 Duplicate
@@ -117,6 +122,7 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
             )}
             <button
               onClick={onClose}
+              aria-label="Close modal"
               className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <X className="w-5 h-5" />

@@ -10,15 +10,17 @@ import { Smartphone, RotateCcw, Zap } from 'lucide-react';
 import { formatKRW, formatUSDInt } from '@/lib/format';
 import { InputSection } from '@/features/quote/components/InputSection';
 import { ResultSection } from '@/features/quote/components/ResultSection';
-import { UserManagementWidget } from '@/features/admin/components/UserManagementWidget';
-import { CustomerManagement } from '@/features/admin/components/CustomerManagement';
-import { RateTableViewer } from '@/features/admin/components/RateTableViewer';
-import { FscRateWidget } from '@/features/admin/components/FscRateWidget';
+const CustomerManagement = React.lazy(() => import('@/features/admin/components/CustomerManagement').then(m => ({ default: m.CustomerManagement })));
+const FscRateWidget = React.lazy(() => import('@/features/admin/components/FscRateWidget').then(m => ({ default: m.FscRateWidget })));
+const RateTableViewer = React.lazy(() => import('@/features/admin/components/RateTableViewer').then(m => ({ default: m.RateTableViewer })));
+const UserManagementWidget = React.lazy(() => import('@/features/admin/components/UserManagementWidget').then(m => ({ default: m.UserManagementWidget })));
+const AuditLogViewer = React.lazy(() => import('@/features/admin/components/AuditLogViewer').then(m => ({ default: m.AuditLogViewer })));
 import { Header } from '@/components/layout/Header';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useExchangeRates } from '@/features/dashboard/hooks/useExchangeRates';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 const INITIAL_INPUT: QuoteInput = {
   originCountry: 'KR',
@@ -40,6 +42,7 @@ const INITIAL_INPUT: QuoteInput = {
 
 const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false }) => {
   const [currentView, setCurrentView] = useState<AppView>('calculator');
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -129,9 +132,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   };
 
   const handleReset = () => {
-    if (confirm('Are you sure you want to reset the quote?')) {
-      setInput(INITIAL_INPUT);
-    }
+    setShowResetConfirm(true);
   };
 
   const handleDownloadPdf = async () => {
@@ -197,7 +198,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                   <button
                     onClick={handleReset}
                     className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-red-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-red-400 transition-colors"
-                    title={t('calc.resetQuote')}
+                    aria-label={t('calc.resetQuote')}
                   >
                     <RotateCcw className="w-5 h-5" />
                   </button>
@@ -207,7 +208,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                   <button
                     onClick={() => setIsMobileView(!isMobileView)}
                     className="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-                    title="Switch to Mobile View"
+                    aria-label="Switch to Mobile View"
                   >
                     {isMobileView ? (
                       <div className="relative">
@@ -248,13 +249,16 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                       <p className="text-sm text-gray-500 dark:text-gray-400">{t('calc.shipmentConfigDesc')}</p>
                     </div>
                     <InputSection input={input} onChange={setInput} isMobileView={false} effectiveMarginPercent={result?.profitMargin} hideMargin={isPublic} />
-                    {!isPublic && user?.email === 'jaehong.lim@goodmangls.com' && (
-                      <div className="mt-8 space-y-6">
-                        <CustomerManagement />
-                        <FscRateWidget />
-                        <RateTableViewer />
-                        <UserManagementWidget />
-                      </div>
+                    {!isPublic && user?.role === 'admin' && (
+                      <React.Suspense fallback={<div className="mt-8 space-y-6">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-32 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />)}</div>}>
+                        <div className="mt-8 space-y-6">
+                          <CustomerManagement />
+                          <FscRateWidget />
+                          <RateTableViewer />
+                          <UserManagementWidget />
+                          <AuditLogViewer />
+                        </div>
+                      </React.Suspense>
                     )}
                   </div>
                     <div className="lg:col-span-5" id="result-section">
@@ -287,7 +291,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                           <p className="text-xl font-bold text-jways-700 dark:text-jways-400">
                             {formatKRW(result.totalQuoteAmount)}
                           </p>
-                          <span className="text-xs text-gray-400 dark:text-gray-500">
+                          <span className="text-xs text-gray-400 dark:text-gray-400">
                             ({formatUSDInt(result.totalQuoteAmountUSD)})
                           </span>
                         </>
@@ -296,7 +300,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                           <p className="text-xl font-bold text-jways-700 dark:text-jways-400">
                             {formatUSDInt(result.totalQuoteAmountUSD)}
                           </p>
-                          <span className="text-xs text-gray-400 dark:text-gray-500">
+                          <span className="text-xs text-gray-400 dark:text-gray-400">
                             (≈ {formatKRW(result.totalQuoteAmount)})
                           </span>
                         </>
@@ -319,11 +323,20 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
         {/* Footer */}
         <footer className="border-t border-gray-100 dark:border-gray-800 mt-0 py-8 bg-white dark:bg-gray-950 text-center transition-colors duration-200 hidden lg:block">
-          <p className="text-sm text-gray-400 dark:text-gray-500">&copy; 2025 Goodman GLS & J-Ways. {isPublic ? 'Smart Quote System.' : 'Internal Use Only.'}</p>
+          <p className="text-sm text-gray-400 dark:text-gray-400">&copy; 2025 Goodman GLS & J-Ways. {isPublic ? 'Smart Quote System.' : 'Internal Use Only.'}</p>
           <p className="text-xs text-gray-300 dark:text-gray-600 mt-1">System Version 2.1 | Data Updated: 2025.01.15</p>
         </footer>
       </div>
 
+      <ConfirmDialog
+        open={showResetConfirm}
+        title="Reset Quote"
+        message="Are you sure you want to reset all inputs to defaults?"
+        confirmLabel="Reset"
+        variant="warning"
+        onConfirm={() => { setShowResetConfirm(false); setInput(INITIAL_INPUT); }}
+        onCancel={() => setShowResetConfirm(false)}
+      />
     </div>
   );
 };
