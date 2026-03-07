@@ -33,7 +33,7 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
   // Hash for duplicate detection (resets when input changes)
   const inputHash = useMemo(() => JSON.stringify(input), [input]);
 
-  const doSave = async () => {
+  const doSave = async (isDuplicate = false) => {
     setState('saving');
     try {
       const detail = await saveQuote(input, notes || undefined, result || undefined);
@@ -43,7 +43,7 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
       setShowNotes(false);
       setNotes('');
       toast('success', `Quote saved: ${detail.referenceNo}`);
-      if (result && user?.role === 'member') {
+      if (result && user?.role === 'member' && !isDuplicate) {
         sendQuoteSlackNotification(input, result, detail.referenceNo, {
           name: user.name || user.email,
           email: user.email,
@@ -79,7 +79,7 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
       message="This quote was already saved. Save again?"
       confirmLabel="Save Again"
       variant="warning"
-      onConfirm={() => { setShowDupeConfirm(false); doSave(); }}
+      onConfirm={() => { setShowDupeConfirm(false); doSave(true); }}
       onCancel={() => setShowDupeConfirm(false)}
     />
   );

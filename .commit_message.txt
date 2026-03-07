@@ -1,1 +1,1 @@
-🔔 Slack: Member 필드 회사명/이름/이메일 형식 변경, Margin 필드 복원
+🔔 Slack: 중복 저장 시 알림 차단
