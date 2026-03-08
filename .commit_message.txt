@@ -1,1 +1,1 @@
-✨ feat: 채널톡 플로팅 위젯 연동, 전담 매니저 위젯 제거
+🐛 fix: 물류 뉴스 API 경로 수정 (/notices/news → /api/v1/notices/news)
