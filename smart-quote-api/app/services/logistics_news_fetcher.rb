@@ -3,15 +3,27 @@ require "rss"
 
 class LogisticsNewsFetcher
   FEEDS = [
+    # Shipping & Maritime
     { url: "https://www.hellenicshippingnews.com/feed/", source: "Hellenic Shipping News" },
-    { url: "https://theloadstar.com/feed/", source: "The Loadstar" },
+    { url: "https://gcaptain.com/feed/", source: "gCaptain" },
+    { url: "https://www.maersk.com/news/rss", source: "Maersk" },
+
+    # Air Cargo & Aviation
     { url: "https://www.aircargonews.net/feed/", source: "Air Cargo News" },
+    { url: "https://www.iata.org/en/pressroom/rss-feed/", source: "IATA" },
+
+    # Express & Parcel Carriers
+    { url: "https://about.ups.com/us/en/rss/news.xml", source: "UPS" },
+    { url: "https://www.dhl.com/global-en/delivered/rss.xml", source: "DHL" },
+
+    # Industry & Trade
+    { url: "https://theloadstar.com/feed/", source: "The Loadstar" },
     { url: "https://www.joc.com/rss/all", source: "JOC" },
-    { url: "https://gcaptain.com/feed/", source: "gCaptain" }
+    { url: "https://www.freightwaves.com/feed", source: "FreightWaves" }
   ].freeze
 
   FETCH_TIMEOUT = 5 # seconds per feed
-  MAX_ITEMS = 30     # total items to return
+  MAX_ITEMS = 40     # total items to return
   CACHE_TTL = 600    # 10 minutes
 
   def self.call

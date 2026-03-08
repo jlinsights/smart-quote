@@ -1,1 +1,1 @@
-✨ feat: 물류 뉴스 RSS 백엔드 서비스 구현 (LogisticsNewsFetcher + NoticesController), API 에러 graceful 처리, 다국어 존칭 추가
+✨ feat: RSS 피드 소스 확장 — IATA, UPS, DHL, Maersk, FreightWaves 추가 (총 10개)
