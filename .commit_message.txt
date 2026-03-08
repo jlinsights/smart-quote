@@ -1,1 +1,1 @@
-🎨 UI: 헤더 아이콘 순서 변경(설정→다국어→다크모드→로그아웃), E-MAX 텍스트 제거, Audit Log admin 전용 확인
+🎨 feat: 사용자 이름 표시 개선, audit_logs 테이블 마이그레이션 추가, Audit Log Admin 위젯 활성화

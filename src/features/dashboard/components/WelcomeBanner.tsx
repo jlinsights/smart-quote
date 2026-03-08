@@ -24,7 +24,7 @@ export const WelcomeBanner: React.FC = () => {
       <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-extrabold">
-            {t('dashboard.welcome')}, {user?.email?.split('@')[0] || 'Guest'}
+            {t('dashboard.welcome')}, {user?.name || user?.email?.split('@')[0] || 'Guest'}
           </h1>
           <p className="text-sm text-gray-400 mt-1">
             {user?.email}

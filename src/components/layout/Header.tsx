@@ -55,7 +55,7 @@ export const Header: React.FC = () => {
                 <div className="hidden sm:flex items-center space-x-3">
                    <div className="flex flex-col items-end mr-2">
                       <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          {user?.email.split('@')[0]}
+                          {user?.name || user?.email.split('@')[0]}
                       </span>
                       <span className="text-xs text-jways-600 dark:text-jways-400 font-semibold uppercase tracking-wider">
                           {user?.role}
@@ -161,7 +161,7 @@ export const Header: React.FC = () => {
             {isAuthenticated ? (
               <>
                 <div className="pb-2 mb-2 border-b border-gray-100 dark:border-gray-800">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.email.split('@')[0]}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || user?.email.split('@')[0]}</p>
                   <p className="text-xs text-jways-600 dark:text-jways-400 font-semibold uppercase">{user?.role}</p>
                 </div>
                 <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-jways-600">
