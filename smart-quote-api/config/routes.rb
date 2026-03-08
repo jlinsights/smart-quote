@@ -27,7 +27,8 @@ Rails.application.routes.draw do
       # Margin Rules (CRUD: admin, resolve: authenticated)
       resources :margin_rules, only: [ :index, :create, :update, :destroy ] do
         collection do
-          get :resolve
+          get :resolve   # deprecated — kept for backward compat
+          post :resolve  # preferred — PII in request body
         end
       end
 

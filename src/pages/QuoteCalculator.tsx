@@ -113,14 +113,11 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
       // API-based margin resolution (DB rules)
       defaultMargin = resolvedMargin.marginPercent;
     } else {
-      // Fallback: hardcoded logic (same as seed data)
-      const email = user?.email;
+      // Fallback: nationality-based defaults (API unavailable)
       const isKorean = user?.nationality === 'South Korea' || !user?.nationality;
       const weight = result.billableWeight;
 
-      if (email === 'admin@yslogic.co.kr') {
-        defaultMargin = 19;
-      } else if (email === 'ibas@inter-airsea.co.kr' || isKorean) {
+      if (isKorean) {
         defaultMargin = weight >= 20 ? 19 : 24;
       } else {
         defaultMargin = weight >= 20 ? 24 : 32;

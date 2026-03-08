@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Percent, RefreshCw, Plus, Save, Loader2, Trash2, X, User, Globe, Weight } from 'lucide-react';
+import { Percent, RefreshCw, Plus, Save, Loader2, Trash2, X, XCircle, User, Globe, Weight } from 'lucide-react';
 import { useMarginRules } from '@/features/dashboard/hooks/useMarginRules';
 import { createMarginRule, updateMarginRule, deleteMarginRule, type MarginRule } from '@/api/marginRuleApi';
+import { useToast } from '@/components/ui/Toast';
 
 const EMPTY_FORM: Partial<MarginRule> = {
   name: '',
@@ -50,7 +51,8 @@ function conditionLabel(rule: MarginRule): string {
 }
 
 export const TargetMarginRulesWidget: React.FC = () => {
-  const { rules, loading, refetch } = useMarginRules();
+  const { rules, loading, error, refetch } = useMarginRules();
+  const { toast } = useToast();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<Partial<MarginRule>>(EMPTY_FORM);
@@ -109,8 +111,8 @@ export const TargetMarginRulesWidget: React.FC = () => {
       }
       cancelEdit();
       await refetch();
-    } catch {
-      // silent
+    } catch (e) {
+      toast('error', e instanceof Error ? e.message : 'Failed to save rule');
     } finally {
       setSaving(false);
     }
@@ -122,8 +124,8 @@ export const TargetMarginRulesWidget: React.FC = () => {
     try {
       await deleteMarginRule(id);
       await refetch();
-    } catch {
-      // silent
+    } catch (e) {
+      toast('error', e instanceof Error ? e.message : 'Failed to delete rule');
     } finally {
       setDeletingId(null);
     }
@@ -265,6 +267,15 @@ export const TargetMarginRulesWidget: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Error indicator */}
+      {error && (
+        <div className="px-4 py-2 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800 flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
+          <XCircle className="w-3.5 h-3.5 flex-shrink-0" />
+          <span className="flex-1">{error}</span>
+          <button onClick={refetch} className="underline hover:no-underline">Retry</button>
+        </div>
+      )}
 
       {/* Add Form */}
       {showAddForm && renderForm()}

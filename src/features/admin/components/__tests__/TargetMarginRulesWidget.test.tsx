@@ -31,6 +31,11 @@ vi.mock('@/features/dashboard/hooks/useMarginRules', () => ({
   useMarginRules: () => mockUseMarginRules(),
 }));
 
+const mockToast = vi.fn();
+vi.mock('@/components/ui/Toast', () => ({
+  useToast: () => ({ toast: mockToast }),
+}));
+
 vi.mock('@/api/marginRuleApi', async () => {
   const actual = await vi.importActual('@/api/marginRuleApi');
   return {
@@ -47,6 +52,7 @@ describe('TargetMarginRulesWidget', () => {
     mockUseMarginRules.mockReturnValue({
       rules: mockRules,
       loading: false,
+      error: null,
       refetch: mockRefetch,
     });
   });
@@ -82,10 +88,45 @@ describe('TargetMarginRulesWidget', () => {
     expect(screen.getByText('32%')).toBeInTheDocument();
   });
 
+  it('shows error indicator when fetch fails', () => {
+    mockUseMarginRules.mockReturnValue({
+      rules: [],
+      loading: false,
+      error: 'Network error',
+      refetch: mockRefetch,
+    });
+    render(<TargetMarginRulesWidget />);
+    expect(screen.getByText('Network error')).toBeInTheDocument();
+    expect(screen.getByText('Retry')).toBeInTheDocument();
+  });
+
+  it('shows toast on CRUD failure', async () => {
+    const { createMarginRule } = await import('@/api/marginRuleApi');
+    (createMarginRule as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Server error'));
+
+    const user = userEvent.setup();
+    render(<TargetMarginRulesWidget />);
+
+    // Open add form
+    const addButton = screen.getAllByRole('button')[0];
+    await user.click(addButton);
+
+    // Fill name and save
+    const nameInput = screen.getByPlaceholderText('Rule name');
+    await user.type(nameInput, 'Test Rule');
+    const saveButton = screen.getByText('Create');
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockToast).toHaveBeenCalledWith('error', 'Server error');
+    });
+  });
+
   it('shows loading spinner when loading with no rules', () => {
     mockUseMarginRules.mockReturnValue({
       rules: [],
       loading: true,
+      error: null,
       refetch: mockRefetch,
     });
     render(<TargetMarginRulesWidget />);

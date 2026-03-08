@@ -30,6 +30,12 @@
       "archivedTo": "docs/archive/2026-03/dynamic-margin-rules/",
       "matchRate": 98,
       "iterations": 1
+    },
+    "security-hardening": {
+      "archivedAt": "2026-03-08",
+      "archivedTo": "docs/archive/2026-03/security-hardening/",
+      "matchRate": 100,
+      "iterations": 0
     }
   }
 }

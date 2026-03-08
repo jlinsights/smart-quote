@@ -1,1 +1,1 @@
-📝 docs: README.md & CLAUDE.md 업데이트 — Dynamic Margin Rules, 테스트 수 25파일/208개 반영
+🔒 fix: 보안 강화 — PII URL 제거(POST 전환), 에러 피드백 추가, 하드코딩 이메일 제거, import.meta 타입 선언

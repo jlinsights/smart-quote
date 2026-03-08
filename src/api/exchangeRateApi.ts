@@ -44,8 +44,7 @@ function savePreviousRates(rates: Record<string, number>) {
  */
 export async function fetchExchangeRates(): Promise<ExchangeRate[]> {
   return fetchWithRetry(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const appId = (import.meta as any).env.VITE_OPEN_EXCHANGE_APP_ID;
+    const appId = import.meta.env.VITE_OPEN_EXCHANGE_APP_ID;
     if (!appId) {
       throw new Error('OpenExchangeRates API require VITE_OPEN_EXCHANGE_APP_ID in .env');
     }

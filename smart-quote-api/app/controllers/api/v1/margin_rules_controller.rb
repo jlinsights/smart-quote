@@ -6,6 +6,7 @@ module Api
       before_action :authenticate_user!
       before_action :require_admin!, except: [ :resolve ]
       before_action :set_margin_rule, only: [ :update, :destroy ]
+      before_action :validate_resolve_params!, only: [ :resolve ]
 
       # GET /api/v1/margin_rules
       def index
@@ -73,6 +74,19 @@ module Api
         params.permit(:name, :rule_type, :priority, :match_email,
                        :match_nationality, :weight_min, :weight_max,
                        :margin_percent, :is_active)
+      end
+
+      def validate_resolve_params!
+        unless params[:email].present?
+          render json: { error: { code: "VALIDATION_ERROR", message: "email is required" } },
+                 status: :unprocessable_entity and return
+        end
+
+        weight = params[:weight]
+        unless weight.present? && weight.to_s.match?(/\A\d+(\.\d+)?\z/) && weight.to_f > 0
+          render json: { error: { code: "VALIDATION_ERROR", message: "weight must be a positive number" } },
+                 status: :unprocessable_entity and return
+        end
       end
 
       def require_admin!

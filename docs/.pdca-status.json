@@ -71,6 +71,19 @@
       "matchRate": 98,
       "iterations": 1
     },
+    "security-hardening": {
+      "phase": "archived",
+      "planDoc": "docs/archive/2026-03/security-hardening/security-hardening.plan.md",
+      "designDoc": "docs/archive/2026-03/security-hardening/security-hardening.design.md",
+      "analysisDoc": "docs/archive/2026-03/security-hardening/security-hardening.analysis.md",
+      "reportDoc": "docs/archive/2026-03/security-hardening/security-hardening.report.md",
+      "startedAt": "2026-03-08",
+      "completedAt": "2026-03-08",
+      "archivedAt": "2026-03-08",
+      "archivedTo": "docs/archive/2026-03/security-hardening/",
+      "matchRate": 100,
+      "iterations": 0
+    },
     "global-port-weather": {
       "phase": "archived",
       "planDoc": "docs/archive/2026-02/global-port-weather/global-port-weather.plan.md",

@@ -45,4 +45,7 @@ export const resolveMargin = (
   nationality: string,
   weight: number
 ): Promise<ResolvedMargin> =>
-  request(`/api/v1/margin_rules/resolve?email=${encodeURIComponent(email)}&nationality=${encodeURIComponent(nationality)}&weight=${weight}`);
+  request('/api/v1/margin_rules/resolve', {
+    method: 'POST',
+    body: JSON.stringify({ email, nationality, weight }),
+  });
