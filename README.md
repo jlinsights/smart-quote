@@ -24,7 +24,7 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 
 1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L×W×H / 5000 for UPS & DHL, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
 2. **Carrier Costs** - Zone lookup -> `lookupCarrierRate()` -> FSC -> war risk
-3. **Margin** - USD-based margin added to cost, rounded up to nearest KRW 100
+3. **Margin** - Dynamic margin resolution via `MarginRuleResolver` (priority-based first-match-wins algorithm with 5min cache), admin CRUD management, hardcoded fallback if API unavailable. Revenue = cost / (1 - margin%), rounded up to nearest KRW 100
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
 
 ### Dashboard, Header & Widgets
@@ -36,6 +36,7 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 - **Notice Widget**: Company announcements and real-time logistics news RSS feed with paginated display
 - **Account Manager Widget**: Contact information for assigned logistics managers
 - **FSC Rates Widget (Admin)**: Tracks live DHL/UPS fuel surcharges with direct external verification links and manual override capabilities.
+- **Target Margin Rules Widget (Admin)**: DB-driven margin rule CRUD with priority-based grouping (P100 Per-User Flat > P90 Per-User Weight-Based > P50 Nationality > P0 Default), inline add/edit, soft delete with confirmation dialog
 
 ### Internationalization (i18n)
 
@@ -59,7 +60,7 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 | ------------ | ---------------------------------------------------------------------------- |
 | **Frontend** | React 19, TypeScript 5.8, Vite 6, Tailwind CSS                               |
 | **Backend**  | Rails 8 API-only, Ruby 3.4, PostgreSQL                                       |
-| **Testing**  | Vitest + Testing Library (16 files, 138 tests), RSpec + FactoryBot (backend) |
+| **Testing**  | Vitest + Testing Library (25 files, 208 tests), RSpec + FactoryBot (backend) |
 | **Deploy**   | Vercel (frontend), Render.com (backend, Docker, Singapore)                   |
 | **APIs**     | open.er-api.com (exchange rates), Open-Meteo (weather), Supabase (auth)      |
 | **Other**    | jsPDF, Lucide React, React Router v6, Zustand                                |
@@ -71,6 +72,7 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
   src/
     api/                       # API clients
       quoteApi.ts              # Rails backend client (VITE_API_URL)
+      marginRuleApi.ts         # Margin rule CRUD + resolve API
       exchangeRateApi.ts       # Exchange rate API (open.er-api.com, localStorage cache)
       weatherApi.ts            # Open-Meteo weather API (47 ports/airports)
       noticeApi.ts             # Notice/announcement API
@@ -95,9 +97,11 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
         services/              # calculationService.ts (mirrored calculation logic)
       history/
         components/            # QuoteHistoryPage, QuoteHistoryTable, QuoteSearchBar, QuotePagination, QuoteDetailModal
+      admin/
+        components/            # TargetMarginRulesWidget, FscRateWidget
       dashboard/
         components/            # WelcomeBanner, QuoteHistoryCompact, WidgetError, WidgetSkeleton
-        hooks/                 # useExchangeRates, usePortWeather, useLogisticsNews
+        hooks/                 # useExchangeRates, usePortWeather, useLogisticsNews, useMarginRules, useResolvedMargin
     pages/                     # Route-level pages
       LandingPage.tsx          # Public landing page (/)
       LoginPage.tsx            # Auth login (/login)
@@ -109,9 +113,14 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
       format.ts                # Currency/number formatters (formatKRW, formatUSD, etc.)
       pdfService.ts            # jsPDF-based PDF generation
 smart-quote-api/               # Backend (Rails 8 API)
+  app/models/
+    margin_rule.rb             # Margin rule model (validations, scopes, soft delete)
   app/services/
     quote_calculator.rb        # Main calculator orchestrator
+    margin_rule_resolver.rb    # Priority-based margin resolution with cache
     calculators/               # Individual calculators (ups, dhl, emax, item, surge, domestic)
+  app/controllers/api/v1/
+    margin_rules_controller.rb # CRUD + resolve endpoint (admin guard)
   lib/constants/               # Tariff tables (synced with frontend)
 ```
 
@@ -130,7 +139,7 @@ npm run dev          # Dev server on http://localhost:5173
 npm run build        # Production build (tsc + vite)
 npm run lint         # ESLint (--max-warnings 0)
 npm run test         # Vitest watch mode
-npx vitest run       # Run tests once (16 files, 138 tests)
+npx vitest run       # Run tests once (25 files, 208 tests)
 npx tsc --noEmit     # Type check only
 ```
 
@@ -173,6 +182,13 @@ PUT    /api/v1/auth/password     # Change Password (Requires Authenticated Token
 # Core Admin Configuration
 GET    /api/v1/fsc/rates         # View Fuel Surcharges (DHL/UPS)
 POST   /api/v1/fsc/update        # Update global FSC% rates
+
+# Margin Rules (Admin CRUD + Authenticated Resolve)
+GET    /api/v1/margin_rules          # List all rules (admin)
+POST   /api/v1/margin_rules          # Create rule (admin)
+PUT    /api/v1/margin_rules/:id      # Update rule (admin)
+DELETE /api/v1/margin_rules/:id      # Soft delete rule (admin)
+GET    /api/v1/margin_rules/resolve  # Resolve margin (authenticated)
 ```
 
 ## Environment Variables

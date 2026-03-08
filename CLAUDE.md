@@ -15,7 +15,7 @@ npm run dev          # Dev server on http://localhost:5173
 npm run build        # tsc + vite build
 npm run lint         # ESLint (--max-warnings 0)
 npm run test         # Vitest in watch mode
-npx vitest run       # Run tests once (16 files, 138 tests)
+npx vitest run       # Run tests once (25 files, 208 tests)
 npx tsc --noEmit     # Type check only
 ```
 
@@ -47,6 +47,7 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
   src/
     api/                       # API clients
       quoteApi.ts              # Rails backend (fetch-based, VITE_API_URL)
+      marginRuleApi.ts         # Margin rule CRUD + resolve API
       exchangeRateApi.ts       # open.er-api.com (KRW base, localStorage cache for previous rates)
       weatherApi.ts            # Open-Meteo API (47 global ports/airports)
       noticeApi.ts             # Company announcements
@@ -72,9 +73,11 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
       history/
         components/            # QuoteHistoryPage, QuoteHistoryTable, QuoteSearchBar, QuotePagination, QuoteDetailModal
         constants.ts           # Shared constants (STATUS_COLORS)
+      admin/
+        components/            # TargetMarginRulesWidget, FscRateWidget
       dashboard/
         components/            # WelcomeBanner, QuoteHistoryCompact, WidgetError, WidgetSkeleton
-        hooks/                 # useExchangeRates, usePortWeather, useLogisticsNews
+        hooks/                 # useExchangeRates, usePortWeather, useLogisticsNews, useMarginRules, useResolvedMargin
     pages/                     # Route-level pages
       LandingPage.tsx          # Public landing (/)
       LoginPage.tsx            # Auth login (/login)
@@ -89,8 +92,11 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
       pdfService.ts            # jsPDF-based PDF generation (optional referenceNo pass-through)
       fetchWithRetry.ts        # Generic fetch retry wrapper
 smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL)
+  app/models/
+    margin_rule.rb             # Margin rule model (validations, scopes, soft delete)
   app/services/
     quote_calculator.rb        # Main orchestrator
+    margin_rule_resolver.rb    # Priority-based margin resolution (5min cache, first-match-wins)
     calculators/
       item_cost.rb             # Packing dimensions, volumetric weight, material/labor
       surge_cost.rb            # Surcharge logic
@@ -98,6 +104,8 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
       dhl_cost.rb / dhl_zone.rb
       emax_cost.rb
       domestic_cost.rb         # Domestic pickup cost
+  app/controllers/api/v1/
+    margin_rules_controller.rb # CRUD + resolve endpoint (admin guard, audit log)
   lib/constants/               # Tariff tables (ups_tariff.rb, dhl_tariff.rb, emax_tariff.rb)
 ```
 
@@ -129,7 +137,7 @@ Frontend (`src/features/quote/services/calculationService.ts`) and backend (`sma
 
 1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L*W*H / 5000 for UPS & DHL, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
 2. **Carrier Costs** - Zone lookup (country -> zone code), shared `lookupCarrierRate()` engine (exact table 0.5-20kg -> range table >20kg -> fallback), FSC% surcharge
-3. **Margin** - `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100
+3. **Margin** - Dynamic margin via `MarginRuleResolver` (priority-based: P100 per-user flat > P90 per-user weight > P50 nationality > P0 default), `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100. Admin can manually override at any time.
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
 
 ### Surge Charges (All Carriers)
@@ -168,6 +176,15 @@ Z1: SG/TW/MO/CN, Z2: JP/VN, Z3: TH/PH, Z4: AU/IN, Z5: CA/US, Z6: ES/IT/GB/FR, Z7
 - Custom Admin widget located at `src/features/admin/components/FscRateWidget.tsx`.
 - Calls `GET /api/v1/fsc/rates` to display the actual tracked fuel surcharge percentages for UPS and DHL.
 - Displays external links for visual verification and provides a secure `update` mutation for overriding.
+
+### TargetMarginRulesWidget (Admin)
+
+- DB-driven margin rule CRUD at `src/features/admin/components/TargetMarginRulesWidget.tsx`.
+- Groups rules by priority tier (P100 Per-User Flat, P90 Per-User Weight-Based, P50 Nationality, P0 Default).
+- Inline add/edit form, soft delete with confirmation dialog, manual refresh.
+- Backend: `MarginRuleResolver` service with 5min cache, first-match-wins algorithm, audit logging.
+- QuoteCalculator auto-resolves margin via `useResolvedMargin` hook with hardcoded fallback if API fails.
+- Admin users can manually change the Target Margin at any time via the margin slider.
 
 ## External APIs
 
@@ -221,6 +238,13 @@ PUT    /api/v1/auth/password     # Change Password (Requires Authenticated Token
 # Core Admin Configuration
 GET    /api/v1/fsc/rates         # View Fuel Surcharges (DHL/UPS)
 POST   /api/v1/fsc/update        # Update global FSC% rates
+
+# Margin Rules (Admin CRUD + Authenticated Resolve)
+GET    /api/v1/margin_rules          # List all rules (admin)
+POST   /api/v1/margin_rules          # Create rule (admin)
+PUT    /api/v1/margin_rules/:id      # Update rule (admin)
+DELETE /api/v1/margin_rules/:id      # Soft delete rule (admin)
+GET    /api/v1/margin_rules/resolve  # Resolve margin (authenticated)
 ```
 
 ## Configuration
@@ -235,13 +259,15 @@ POST   /api/v1/fsc/update        # Update global FSC% rates
 
 - **Frontend**: Vitest + @testing-library/react, jsdom environment, setup in `src/test/setup.ts`
   - Tests use `vitest/globals` (no imports needed for `describe`, `it`, `expect`)
-  - 16 test files, 138 tests:
+  - 25 test files, 208 tests:
     - calculationService (34), ExchangeRateWidget (10), exchangeRateApi (10)
     - SaveQuoteButton (9), NoticeWidget (9), AccountManagerWidget (11)
     - WeatherWidget (8), weatherApi (7), weatherCodes (8)
     - QuoteHistoryTable (7), QuoteSearchBar (7), QuotePagination (6)
     - CustomerDashboard (4), quoteApi (4), noticeApi (3), pdfService (1)
+    - marginRuleApi (6), TargetMarginRulesWidget (9)
 - **Backend**: RSpec + FactoryBot + Shoulda Matchers, factories in `spec/factories/`
+  - margin_rule model spec, margin_rule_resolver service spec, margin_rules request spec
 
 ## Deployment
 

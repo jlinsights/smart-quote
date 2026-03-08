@@ -1,1 +1,1 @@
-📦 chore: Dynamic Margin Rules PDCA 아카이브 완료 (98% match rate, 1 iteration)
+📝 docs: README.md & CLAUDE.md 업데이트 — Dynamic Margin Rules, 테스트 수 25파일/208개 반영
