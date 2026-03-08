@@ -7,6 +7,8 @@ class LogisticsNewsFetcher
     { url: "https://www.hellenicshippingnews.com/feed/", source: "Hellenic Shipping News" },
     { url: "https://gcaptain.com/feed/", source: "gCaptain" },
     { url: "https://www.maersk.com/news/rss", source: "Maersk" },
+    { url: "https://splash247.com/feed/", source: "Splash247" },
+    { url: "https://maritime-executive.com/feed", source: "Maritime Executive" },
 
     # Air Cargo & Aviation
     { url: "https://www.aircargonews.net/feed/", source: "Air Cargo News" },
@@ -16,6 +18,11 @@ class LogisticsNewsFetcher
     { url: "https://about.ups.com/us/en/rss/news.xml", source: "UPS" },
     { url: "https://www.dhl.com/global-en/delivered/rss.xml", source: "DHL" },
 
+    # Supply Chain & Logistics
+    { url: "https://www.supplychaindive.com/feeds/news/", source: "Supply Chain Dive" },
+    { url: "https://www.logisticsmgmt.com/rss", source: "Logistics Management" },
+    { url: "https://ttnews.com/rss.xml", source: "Transport Topics" },
+
     # Industry & Trade
     { url: "https://theloadstar.com/feed/", source: "The Loadstar" },
     { url: "https://www.joc.com/rss/all", source: "JOC" },
@@ -23,7 +30,7 @@ class LogisticsNewsFetcher
   ].freeze
 
   FETCH_TIMEOUT = 5 # seconds per feed
-  MAX_ITEMS = 40     # total items to return
+  MAX_ITEMS = 50     # total items to return
   CACHE_TTL = 600    # 10 minutes
 
   def self.call
@@ -81,7 +88,7 @@ class LogisticsNewsFetcher
     feed = RSS::Parser.parse(response.body, false)
     return [] unless feed
 
-    feed.items.first(10).map do |item|
+    feed.items.first(8).map do |item|
       {
         title: sanitize_text(item.title),
         link: item.link.is_a?(String) ? item.link : item.link&.href.to_s,
