@@ -73,7 +73,7 @@ export function AuditLogViewer() {
       setTotalCount(data.pagination.totalCount);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to load audit logs';
-      setError(msg.includes('500') ? 'Server error — audit_logs table may not be migrated yet' : msg);
+      setError(msg.includes('404') || msg.includes('500') ? 'Backend deploying — audit log will be available shortly' : msg);
     } finally {
       setLoading(false);
     }

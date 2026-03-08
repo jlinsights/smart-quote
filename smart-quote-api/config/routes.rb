@@ -27,6 +27,9 @@ Rails.application.routes.draw do
       # Audit Logs (admin only)
       resources :audit_logs, only: [ :index ]
 
+      # Logistics News (public)
+      get "notices/news", to: "notices#news"
+
       # FSC Rates
       get "fsc/rates", to: "fsc#rates"
       post "fsc/update", to: "fsc#update_rates"

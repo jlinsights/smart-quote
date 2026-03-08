@@ -1,1 +1,1 @@
-🌐 feat: 다국어 존칭 추가 (ko: 님, ja: さん, en/zh: 생략)
+✨ feat: 물류 뉴스 RSS 백엔드 서비스 구현 (LogisticsNewsFetcher + NoticesController), API 에러 graceful 처리, 다국어 존칭 추가

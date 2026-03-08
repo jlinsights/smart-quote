@@ -1,13 +1,38 @@
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { RefreshCw, TrendingUp, TrendingDown, Minus, DollarSign } from 'lucide-react';
+import { RefreshCw, TrendingUp, TrendingDown, Minus, DollarSign, Fuel, ExternalLink } from 'lucide-react';
 import { WidgetSkeleton } from '@/features/dashboard/components/WidgetSkeleton';
 import { WidgetError } from '@/features/dashboard/components/WidgetError';
 import { useExchangeRates } from '@/features/dashboard/hooks/useExchangeRates';
+import { useFscRates } from '@/features/dashboard/hooks/useFscRates';
+import { UPS_FSC_URL, DHL_FSC_URL } from '@/config/rates';
 
 export const ExchangeRateWidget: React.FC = () => {
   const { t } = useLanguage();
-  const { data, loading, error, lastUpdated, isStale, retry } = useExchangeRates();
+  const { 
+    data: exchangeData, 
+    loading: ratesLoading, 
+    error: ratesError, 
+    lastUpdated: ratesUpdated, 
+    isStale: ratesStale, 
+    retry: retryRates 
+  } = useExchangeRates();
+
+  const {
+    data: fscData,
+    loading: fscLoading,
+    error: fscError,
+    retry: retryFsc
+  } = useFscRates();
+
+  const loading = ratesLoading || fscLoading;
+  const error = ratesError || fscError;
+  const isStale = ratesStale;
+
+  const handleRetry = () => {
+    retryRates();
+    retryFsc();
+  };
 
   const TrendIcon = ({ trend }: { trend: 'up' | 'down' | 'flat' }) => {
     if (trend === 'up') return <TrendingUp className="w-3 h-3" />;
@@ -31,7 +56,7 @@ export const ExchangeRateWidget: React.FC = () => {
         </h3>
         <div className="flex items-center gap-2">
           {/* Live indicator */}
-          {data.length > 0 && (
+          {!loading && exchangeData.length > 0 && (
             <span
               className={`inline-block w-2 h-2 rounded-full ${
                 isStale
@@ -42,7 +67,7 @@ export const ExchangeRateWidget: React.FC = () => {
             />
           )}
           <button
-            onClick={retry}
+            onClick={handleRetry}
             className={`text-gray-400 hover:text-jways-500 dark:text-gray-400 dark:hover:text-jways-400 transition-colors ${loading ? 'animate-spin cursor-not-allowed' : ''}`}
             disabled={loading}
             aria-label={t('widget.exchange.refresh')}
@@ -53,80 +78,133 @@ export const ExchangeRateWidget: React.FC = () => {
       </div>
 
       {/* Body */}
-      <div className="p-5 flex-1 flex flex-col">
-        {loading && data.length === 0 ? (
-          <WidgetSkeleton lines={6} />
-        ) : error && data.length === 0 ? (
-          <WidgetError message={error} onRetry={retry} />
+      <div className="p-5 flex-1 flex flex-col overflow-y-auto">
+        {loading && exchangeData.length === 0 ? (
+          <WidgetSkeleton lines={8} />
+        ) : error && exchangeData.length === 0 ? (
+          <WidgetError message={error} onRetry={handleRetry} />
         ) : (
-          <>
-            {/* Column headers */}
-            <div className="flex items-center justify-between mb-3 text-[10px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider">
-              <span>{t('widget.exchange.currency')}</span>
-              <div className="flex items-center gap-6">
-                <span className="w-20 text-right">{t('widget.exchange.rate')}</span>
-                <span className="w-16 text-right">{t('widget.exchange.change')}</span>
+          <div className="space-y-6">
+            {/* Exchange Rates */}
+            <div>
+              <div className="flex items-center justify-between mb-3 text-[10px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider">
+                <span>{t('widget.exchange.currency')}</span>
+                <div className="flex items-center gap-6">
+                  <span className="w-20 text-right">{t('widget.exchange.rate')}</span>
+                  <span className="w-16 text-right">{t('widget.exchange.change')}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2.5">
+                {exchangeData.map((rate) => (
+                  <div
+                    key={rate.currency}
+                    className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-jways-900/30 transition-colors group"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="text-lg leading-none" role="img" aria-label={rate.currency}>
+                        {rate.flag}
+                      </span>
+                      <div className="min-w-0">
+                        <span className="text-sm font-bold text-gray-800 dark:text-gray-100">
+                          {rate.currency}
+                        </span>
+                        <span className="text-[10px] text-gray-400 dark:text-gray-400 ml-1.5 hidden sm:inline">
+                          / KRW
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-20 text-right">
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums">
+                          {rate.rate.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </div>
+
+                      <div
+                        className={`flex items-center gap-0.5 text-[11px] font-semibold px-1.5 py-0.5 rounded-md w-16 justify-end ${trendColors(rate.trend)}`}
+                      >
+                        <TrendIcon trend={rate.trend} />
+                        <span className="tabular-nums">
+                          {rate.change > 0 ? '+' : ''}
+                          {rate.change.toFixed(1)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="space-y-2.5 flex-1">
-              {data.map((rate) => (
-                <div
-                  key={rate.currency}
-                  className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-jways-900/30 transition-colors group"
-                >
-                  {/* Currency info */}
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-lg leading-none" role="img" aria-label={rate.currency}>
-                      {rate.flag}
-                    </span>
-                    <div className="min-w-0">
-                      <span className="text-sm font-bold text-gray-800 dark:text-gray-100">
-                        {rate.currency}
-                      </span>
-                      <span className="text-[10px] text-gray-400 dark:text-gray-400 ml-1.5 hidden sm:inline">
-                        / KRW
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Rate + Change */}
-                  <div className="flex items-center gap-3">
-                    {/* Rate value */}
-                    <div className="w-20 text-right">
-                      <span className="text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums">
-                        {rate.rate.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-
-                    {/* Change badge */}
-                    <div
-                      className={`flex items-center gap-0.5 text-[11px] font-semibold px-1.5 py-0.5 rounded-md w-16 justify-end ${trendColors(rate.trend)}`}
-                    >
-                      <TrendIcon trend={rate.trend} />
-                      <span className="tabular-nums">
-                        {rate.change > 0 ? '+' : ''}
-                        {rate.change.toFixed(1)}
-                      </span>
-                    </div>
-                  </div>
+            {/* FSC Rates */}
+            <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-1.5">
+                  <Fuel className="w-3.5 h-3.5 text-jways-500" />
+                  <span className="text-[10px] font-bold text-gray-400 dark:text-gray-400 uppercase tracking-wider">
+                    {t('widget.fsc.title')}
+                  </span>
                 </div>
-              ))}
+                <div className="flex items-center gap-4 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                  <span className="w-12 text-center">{t('widget.fsc.intl')}</span>
+                  <span className="w-12 text-center">{t('widget.fsc.dom')}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {[
+                  { name: 'UPS', link: UPS_FSC_URL, logo: '📦' },
+                  { name: 'DHL', link: DHL_FSC_URL, logo: '🚚' }
+                ].map((carrier) => {
+                  const rates = fscData?.rates?.[carrier.name as 'UPS' | 'DHL'];
+                  return (
+                    <div
+                      key={carrier.name}
+                      className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-jways-900/30 transition-colors group"
+                    >
+                      <div className="flex items-center gap-2">
+                        <a 
+                          href={carrier.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-sm font-bold text-gray-800 dark:text-gray-100 hover:text-jways-600 dark:hover:text-jways-400 transition-colors"
+                        >
+                          {carrier.name}
+                          <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 text-right">
+                          <span className="text-sm font-bold text-jways-600 dark:text-jways-400">
+                            {rates ? `${rates.international}%` : '--'}
+                          </span>
+                        </div>
+                        <div className="w-12 text-right">
+                          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                            {rates ? `${rates.domestic}%` : '--'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </>
+          </div>
         )}
 
         {/* Footer */}
-        {!loading && data.length > 0 && (
-          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-jways-700">
+        {!loading && (exchangeData.length > 0 || fscData) && (
+          <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-gray-400">
               <span>* {t('widget.exchange.desc')}</span>
               <span className="flex items-center gap-1">
-                {loading && <RefreshCw className="w-2.5 h-2.5 animate-spin" />}
-                {lastUpdated?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {(ratesLoading || fscLoading) && <RefreshCw className="w-2.5 h-2.5 animate-spin" />}
+                {ratesUpdated?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
           </div>

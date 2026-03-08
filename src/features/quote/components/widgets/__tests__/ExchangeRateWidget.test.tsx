@@ -18,9 +18,14 @@ function makeRate(currency: string, overrides: Partial<ExchangeRate> = {}): Exch
 }
 
 const mockUseExchangeRates = vi.fn();
+const mockUseFscRates = vi.fn();
 
 vi.mock('@/features/dashboard/hooks/useExchangeRates', () => ({
   useExchangeRates: () => mockUseExchangeRates(),
+}));
+
+vi.mock('@/features/dashboard/hooks/useFscRates', () => ({
+  useFscRates: () => mockUseFscRates(),
 }));
 
 vi.mock('@/contexts/LanguageContext', () => ({
@@ -39,11 +44,22 @@ function mockHook(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function mockFscHook(overrides: Record<string, unknown> = {}) {
+  return {
+    data: null,
+    loading: false,
+    error: null,
+    retry: vi.fn(),
+    ...overrides,
+  };
+}
+
 describe('ExchangeRateWidget', () => {
   afterEach(() => vi.restoreAllMocks());
 
   it('renders loading skeleton when loading', () => {
     mockUseExchangeRates.mockReturnValue(mockHook({ loading: true }));
+    mockUseFscRates.mockReturnValue(mockFscHook({ loading: true }));
     render(<ExchangeRateWidget />);
     expect(screen.getByText('widget.exchange')).toBeInTheDocument();
     expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
@@ -55,6 +71,7 @@ describe('ExchangeRateWidget', () => {
       makeRate('EUR', { flag: '🇪🇺', rate: 1512.3, change: -3.2, trend: 'down' }),
     ];
     mockUseExchangeRates.mockReturnValue(mockHook({ data, lastUpdated: new Date() }));
+    mockUseFscRates.mockReturnValue(mockFscHook());
     render(<ExchangeRateWidget />);
 
     await waitFor(() => {
@@ -139,9 +156,43 @@ describe('ExchangeRateWidget', () => {
   it('shows stale indicator (gray) when data is stale', () => {
     const data = [makeRate('USD')];
     mockUseExchangeRates.mockReturnValue(mockHook({ data, lastUpdated: new Date(), isStale: true }));
+    mockUseFscRates.mockReturnValue(mockFscHook());
     const { container } = render(<ExchangeRateWidget />);
 
     const staleIndicator = container.querySelector('.bg-gray-300');
     expect(staleIndicator).toBeInTheDocument();
+  });
+
+  it('renders FSC rates for UPS and DHL', async () => {
+    const exchangeData = [makeRate('USD')];
+    const fscData = {
+      rates: {
+        UPS: { international: 33.25, domestic: 12.0 },
+        DHL: { international: 30.5, domestic: 10.0 },
+      },
+    };
+    mockUseExchangeRates.mockReturnValue(mockHook({ data: exchangeData, lastUpdated: new Date() }));
+    mockUseFscRates.mockReturnValue(mockFscHook({ data: fscData }));
+    
+    render(<ExchangeRateWidget />);
+
+    expect(screen.getByText('widget.fsc.title')).toBeInTheDocument();
+    expect(screen.getByText('33.25%')).toBeInTheDocument();
+    expect(screen.getByText('30.5%')).toBeInTheDocument();
+    expect(screen.getByText('12%')).toBeInTheDocument();
+    expect(screen.getByText('10%')).toBeInTheDocument();
+  });
+
+  it('contains links to official FSC pages', () => {
+    mockUseExchangeRates.mockReturnValue(mockHook({ data: [makeRate('USD')], lastUpdated: new Date() }));
+    mockUseFscRates.mockReturnValue(mockFscHook());
+    
+    render(<ExchangeRateWidget />);
+
+    const upsLink = screen.getByRole('link', { name: /UPS/i });
+    const dhlLink = screen.getByRole('link', { name: /DHL/i });
+
+    expect(upsLink).toHaveAttribute('href', expect.stringContaining('ups.com'));
+    expect(dhlLink).toHaveAttribute('href', expect.stringContaining('express.dhl'));
   });
 });
