@@ -24,6 +24,12 @@
       "archivedTo": "docs/archive/2026-02/Save-Quote/",
       "matchRate": 92,
       "iterations": 0
+    },
+    "dynamic-margin-rules": {
+      "archivedAt": "2026-03-08",
+      "archivedTo": "docs/archive/2026-03/dynamic-margin-rules/",
+      "matchRate": 98,
+      "iterations": 1
     }
   }
 }

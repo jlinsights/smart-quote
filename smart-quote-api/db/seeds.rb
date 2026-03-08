@@ -17,3 +17,6 @@ admin_password = ENV.fetch("ADMIN_DEFAULT_PASSWORD", "changeme123!")
 end
 
 puts "Seeded #{User.count} admin users."
+
+# Margin Rules
+load Rails.root.join("db/seeds/margin_rules.rb")

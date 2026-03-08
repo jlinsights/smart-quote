@@ -15,6 +15,7 @@ const FscRateWidget = React.lazy(() => import('@/features/admin/components/FscRa
 const RateTableViewer = React.lazy(() => import('@/features/admin/components/RateTableViewer').then(m => ({ default: m.RateTableViewer })));
 const UserManagementWidget = React.lazy(() => import('@/features/admin/components/UserManagementWidget').then(m => ({ default: m.UserManagementWidget })));
 const AuditLogViewer = React.lazy(() => import('@/features/admin/components/AuditLogViewer').then(m => ({ default: m.AuditLogViewer })));
+const TargetMarginRulesWidget = React.lazy(() => import('@/features/admin/components/TargetMarginRulesWidget').then(m => ({ default: m.TargetMarginRulesWidget })));
 import { Header } from '@/components/layout/Header';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -22,6 +23,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useExchangeRates } from '@/features/dashboard/hooks/useExchangeRates';
 import { useFscRates } from '@/features/dashboard/hooks/useFscRates';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useResolvedMargin } from '@/features/dashboard/hooks/useResolvedMargin';
 
 const INITIAL_INPUT: QuoteInput = {
   originCountry: 'KR',
@@ -97,34 +99,38 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
   const hasManuallyChangedMargin = React.useRef(false);
 
-  // Adjust default margin based on user email, nationality and billable weight
+  // ── Resolve margin from API (DB-driven rules) with fallback ──
+  const { data: resolvedMargin } = useResolvedMargin(
+    user?.email, user?.nationality, result?.billableWeight
+  );
+
   React.useEffect(() => {
-    if (result && !hasManuallyChangedMargin.current) {
-       const email = user?.email;
-       const isKorean = user?.nationality === 'South Korea' || !user?.nationality;
-       const weight = result.billableWeight;
-       let defaultMargin = input.marginPercent;
+    if (!result || hasManuallyChangedMargin.current) return;
 
-       // ── Per-user flat overrides (weight-independent) ──
-       // Add new entries here: email → fixed margin %
-       const FLAT_MARGIN_OVERRIDES: Record<string, number> = {
-         'admin@yslogic.co.kr': 19,  // 용성종합물류: flat 19% regardless of WT
-       };
+    let defaultMargin: number;
 
-       if (email && FLAT_MARGIN_OVERRIDES[email] !== undefined) {
-         defaultMargin = FLAT_MARGIN_OVERRIDES[email];
-       } else if (email === 'ibas@inter-airsea.co.kr' || isKorean) {
-         // (주)인터블루에어엔씨 → same as Korean nationality rules
-         defaultMargin = weight >= 20 ? 19 : 24;
-       } else {
-         defaultMargin = weight >= 20 ? 24 : 32;
-       }
+    if (resolvedMargin) {
+      // API-based margin resolution (DB rules)
+      defaultMargin = resolvedMargin.marginPercent;
+    } else {
+      // Fallback: hardcoded logic (same as seed data)
+      const email = user?.email;
+      const isKorean = user?.nationality === 'South Korea' || !user?.nationality;
+      const weight = result.billableWeight;
 
-       if (input.marginPercent !== defaultMargin) {
-         setInput(prev => ({ ...prev, marginPercent: defaultMargin }));
-       }
+      if (email === 'admin@yslogic.co.kr') {
+        defaultMargin = 19;
+      } else if (email === 'ibas@inter-airsea.co.kr' || isKorean) {
+        defaultMargin = weight >= 20 ? 19 : 24;
+      } else {
+        defaultMargin = weight >= 20 ? 24 : 32;
+      }
     }
-  }, [result, user?.nationality, user?.email, input.marginPercent]);
+
+    if (input.marginPercent !== defaultMargin) {
+      setInput(prev => ({ ...prev, marginPercent: defaultMargin }));
+    }
+  }, [result, resolvedMargin, user?.nationality, user?.email, input.marginPercent]);
 
 
 
@@ -274,6 +280,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                       <React.Suspense fallback={<div className="mt-8 space-y-6">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-32 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />)}</div>}>
                         <div className="mt-8 space-y-6">
                           <CustomerManagement />
+                          <TargetMarginRulesWidget />
                           <FscRateWidget />
                           <RateTableViewer />
                           <UserManagementWidget />

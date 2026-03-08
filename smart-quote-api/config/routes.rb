@@ -24,6 +24,13 @@ Rails.application.routes.draw do
       # Users (admin only)
       resources :users, only: [ :index, :update, :destroy ]
 
+      # Margin Rules (CRUD: admin, resolve: authenticated)
+      resources :margin_rules, only: [ :index, :create, :update, :destroy ] do
+        collection do
+          get :resolve
+        end
+      end
+
       # Audit Logs (admin only)
       resources :audit_logs, only: [ :index ]
 

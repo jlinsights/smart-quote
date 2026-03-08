@@ -1,1 +1,1 @@
-✨ feat: 한국어 물류 RSS 피드 추가 — 카고뉴스, 물류신문, 연합뉴스 산업 (총 19개)
+📦 chore: Dynamic Margin Rules PDCA 아카이브 완료 (98% match rate, 1 iteration)

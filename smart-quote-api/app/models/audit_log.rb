@@ -4,6 +4,7 @@ class AuditLog < ApplicationRecord
   ACTIONS = %w[
     quote.created quote.updated quote.deleted
     quote.status_changed quote.email_sent quote.exported
+    margin_rule.created margin_rule.updated margin_rule.deleted
   ].freeze
 
   validates :action, presence: true, inclusion: { in: ACTIONS }

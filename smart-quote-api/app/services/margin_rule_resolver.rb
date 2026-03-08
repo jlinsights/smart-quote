@@ -1,0 +1,39 @@
+class MarginRuleResolver
+  CACHE_KEY = "margin_rules_active"
+  CACHE_TTL = 5.minutes
+  DEFAULT_MARGIN = 24.0
+
+  def self.resolve(email:, nationality:, weight:)
+    new.resolve(email: email, nationality: nationality, weight: weight)
+  end
+
+  def resolve(email:, nationality:, weight:)
+    rules = cached_rules
+
+    matched = rules.find do |rule|
+      matches?(rule, email: email, nationality: nationality, weight: weight)
+    end
+
+    if matched
+      { margin_percent: matched.margin_percent.to_f, matched_rule: matched, fallback: false }
+    else
+      { margin_percent: DEFAULT_MARGIN, matched_rule: nil, fallback: true }
+    end
+  end
+
+  private
+
+  def cached_rules
+    Rails.cache.fetch(CACHE_KEY, expires_in: CACHE_TTL) do
+      MarginRule.active.by_priority.to_a
+    end
+  end
+
+  def matches?(rule, email:, nationality:, weight:)
+    return false if rule.match_email.present? && rule.match_email != email
+    return false if rule.match_nationality.present? && rule.match_nationality != nationality
+    return false if rule.weight_min.present? && weight < rule.weight_min
+    return false if rule.weight_max.present? && weight > rule.weight_max
+    true
+  end
+end
