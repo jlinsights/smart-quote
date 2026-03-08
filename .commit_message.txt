@@ -1,1 +1,1 @@
-🐛 fix: 물류 뉴스 API 경로 수정 (/notices/news → /api/v1/notices/news)
+✨ feat: 한국어 물류 RSS 피드 추가 — 카고뉴스, 물류신문, 연합뉴스 산업 (총 19개)

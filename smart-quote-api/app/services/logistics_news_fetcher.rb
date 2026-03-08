@@ -27,7 +27,12 @@ class LogisticsNewsFetcher
     # Industry & Trade
     { url: "https://theloadstar.com/feed/", source: "The Loadstar" },
     { url: "https://www.joc.com/rss/all", source: "JOC" },
-    { url: "https://www.freightwaves.com/feed", source: "FreightWaves" }
+    { url: "https://www.freightwaves.com/feed", source: "FreightWaves" },
+
+    # 한국 물류 뉴스
+    { url: "https://www.cargonews.co.kr/rss/allArticle.xml", source: "카고뉴스" },
+    { url: "https://www.klnews.co.kr/rss/allArticle.xml", source: "물류신문" },
+    { url: "https://www.yna.co.kr/rss/industry.xml", source: "연합뉴스 산업" }
   ].freeze
 
   FETCH_TIMEOUT = 5 # seconds per feed
