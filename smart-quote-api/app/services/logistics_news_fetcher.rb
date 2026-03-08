@@ -17,6 +17,7 @@ class LogisticsNewsFetcher
     # Express & Parcel Carriers
     { url: "https://about.ups.com/us/en/rss/news.xml", source: "UPS" },
     { url: "https://www.dhl.com/global-en/delivered/rss.xml", source: "DHL" },
+    { url: "https://newsroom.fedex.com/newsroom/feeds/", source: "FedEx" },
 
     # Supply Chain & Logistics
     { url: "https://www.supplychaindive.com/feeds/news/", source: "Supply Chain Dive" },

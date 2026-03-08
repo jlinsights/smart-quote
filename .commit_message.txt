@@ -1,1 +1,1 @@
-✨ feat: 글로벌 물류 RSS 피드 15개로 확장 — Supply Chain Dive, Splash247 등 추가
+✨ feat: FedEx RSS 피드 추가 (총 16개 소스)
