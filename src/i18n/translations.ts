@@ -101,6 +101,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
      // Dashboard
      'dashboard.welcome': '환영합니다',
+     'dashboard.honorific': '님',
      'dashboard.newQuote': '새 견적',
      'dashboard.recentQuotes': '최근 견적',
      'dashboard.viewAll': '전체 보기',
@@ -269,6 +270,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Dashboard
     'dashboard.welcome': 'Welcome',
+    'dashboard.honorific': '',
     'dashboard.newQuote': 'New Quote',
     'dashboard.recentQuotes': 'Recent Quotes',
     'dashboard.viewAll': 'View All',
@@ -431,6 +433,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Dashboard
     'dashboard.welcome': '欢迎',
+    'dashboard.honorific': '',
     'dashboard.newQuote': '新报价',
     'dashboard.recentQuotes': '最近报价',
     'dashboard.viewAll': '查看全部',
@@ -581,6 +584,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Dashboard
     'dashboard.welcome': 'ようこそ',
+    'dashboard.honorific': 'さん',
     'dashboard.newQuote': '新規見積',
     'dashboard.recentQuotes': '最近の見積',
     'dashboard.viewAll': 'すべて表示',

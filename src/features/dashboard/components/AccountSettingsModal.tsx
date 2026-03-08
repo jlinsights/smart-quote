@@ -24,29 +24,27 @@ export const AccountSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const handleClose = () => {
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setError(null);
+    setSuccess(false);
+    setShowCurrent(false);
+    setShowNew(false);
+    onClose();
+  };
+
   // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') handleClose();
     };
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
     }
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
-  // Reset state when modal opens/closes
-  useEffect(() => {
-    if (!isOpen) {
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      setError(null);
-      setSuccess(false);
-      setShowCurrent(false);
-      setShowNew(false);
-    }
-  }, [isOpen]);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +72,7 @@ export const AccountSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
       toast('success', t('settings.password.success'));
       setTimeout(() => {
         setSuccess(false);
-        onClose();
+        handleClose();
       }, 2000);
     } else {
       setError(result.error || t('settings.password.updateFailed'));
@@ -87,7 +85,7 @@ export const AccountSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Modal */}
       <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden transform transition-all">
@@ -98,7 +96,7 @@ export const AccountSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
             {t('settings.account.title')}
           </h3>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
             aria-label={t('widget.close')}
           >

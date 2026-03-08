@@ -1,1 +1,1 @@
-🎨 feat: 사용자 이름 표시 개선, audit_logs 테이블 마이그레이션 추가, Audit Log Admin 위젯 활성화
+🌐 feat: 다국어 존칭 추가 (ko: 님, ja: さん, en/zh: 생략)

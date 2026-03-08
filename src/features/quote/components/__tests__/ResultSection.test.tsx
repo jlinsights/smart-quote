@@ -17,7 +17,7 @@ vi.mock('@/features/dashboard/hooks/usePortWeather', () => ({
 
 const mockCalculateQuote = vi.fn<() => QuoteResult | null>(() => null);
 vi.mock('@/features/quote/services/calculationService', () => ({
-  calculateQuote: (...args: unknown[]) => mockCalculateQuote(),
+  calculateQuote: () => mockCalculateQuote(),
 }));
 
 vi.mock('@/lib/pdfService', () => ({
