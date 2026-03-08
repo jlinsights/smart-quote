@@ -1,28 +1,38 @@
 import { fetchLogisticsNews } from '../noticeApi';
 
+vi.mock('../apiClient', () => ({
+  request: vi.fn(),
+}));
+
+import { request } from '../apiClient';
+const mockRequest = vi.mocked(request);
+
 describe('fetchLogisticsNews', () => {
-  it('returns all static LogisticsNews[]', async () => {
+  it('returns news items from backend API', async () => {
+    const mockNews = [
+      { title: 'Port congestion easing', link: 'https://example.com/1', pubDate: '2026-03-08T00:00:00Z', source: 'FreightWaves' },
+      { title: 'IATA cargo update', link: 'https://example.com/2', pubDate: '2026-03-07T00:00:00Z', source: 'IATA' },
+    ];
+    mockRequest.mockResolvedValue(mockNews);
+
     const result = await fetchLogisticsNews();
 
-    expect(result).toHaveLength(8);
+    expect(result).toHaveLength(2);
     expect(result[0]).toEqual(expect.objectContaining({
-      title: 'UPS 2025 공휴일 서비스 일정 안내',
-      source: 'UPS Korea',
+      title: 'Port congestion easing',
+      source: 'FreightWaves',
     }));
   });
 
-  it('returns items with required fields', async () => {
-    const result = await fetchLogisticsNews();
+  it('returns empty array on API error', async () => {
+    mockRequest.mockRejectedValue(new Error('Network error'));
 
-    for (const item of result) {
-      expect(item).toHaveProperty('title');
-      expect(item).toHaveProperty('link');
-      expect(item).toHaveProperty('pubDate');
-      expect(item).toHaveProperty('source');
-    }
+    const result = await fetchLogisticsNews();
+    expect(result).toEqual([]);
   });
 
   it('returns a promise (async interface)', async () => {
+    mockRequest.mockResolvedValue([]);
     const promise = fetchLogisticsNews();
     expect(promise).toBeInstanceOf(Promise);
     await promise;

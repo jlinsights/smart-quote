@@ -148,7 +148,6 @@ describe('CustomerDashboard', () => {
     expect(screen.getByText('widget.notice')).toBeInTheDocument();
     expect(screen.getByText('widget.exchange')).toBeInTheDocument();
     expect(screen.getByText('widget.calculator')).toBeInTheDocument();
-    expect(screen.getByText('widget.manager')).toBeInTheDocument();
   });
 
   it('renders exchange rate calculator with swap button', async () => {

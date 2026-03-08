@@ -8,7 +8,6 @@ import { QuoteHistoryCompact } from '@/features/dashboard/components/QuoteHistor
 import { WeatherWidget } from '@/features/quote/components/widgets/WeatherWidget';
 import { NoticeWidget } from '@/features/quote/components/widgets/NoticeWidget';
 import { ExchangeRateWidget } from '@/features/quote/components/widgets/ExchangeRateWidget';
-import { AccountManagerWidget } from '@/features/quote/components/widgets/AccountManagerWidget';
 import { ExchangeRateCalculatorWidget } from '@/features/quote/components/widgets/ExchangeRateCalculatorWidget';
 
 const CustomerDashboard: React.FC = () => {
@@ -57,10 +56,6 @@ const CustomerDashboard: React.FC = () => {
             
             <div className="flex-shrink-0">
               <ExchangeRateCalculatorWidget />
-            </div>
-
-            <div className="flex-shrink-0">
-              <AccountManagerWidget />
             </div>
           </div>
         </div>
