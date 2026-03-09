@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getMarginRules, type MarginRule } from '@/api/marginRuleApi';
 
 export function useMarginRules() {
@@ -11,7 +11,7 @@ export function useMarginRules() {
     setError(null);
     try {
       const data = await getMarginRules();
-      setRules(data.rules);
+      setRules(data.rules || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load rules');
     } finally {
@@ -21,5 +21,10 @@ export function useMarginRules() {
 
   useEffect(() => { fetchRules(); }, [fetchRules]);
 
-  return { rules, loading, error, refetch: fetchRules };
+  return useMemo(() => ({
+    rules,
+    loading,
+    error,
+    refetch: fetchRules
+  }), [rules, loading, error, fetchRules]);
 }

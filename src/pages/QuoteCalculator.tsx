@@ -98,6 +98,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   }, [input]);
 
   const hasManuallyChangedMargin = React.useRef(false);
+  const marginResolutionTimeout = React.useRef<NodeJS.Timeout | null>(null);
 
   // ── Resolve margin from API (DB-driven rules) with fallback ──
   const { data: resolvedMargin } = useResolvedMargin(
@@ -107,27 +108,36 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   React.useEffect(() => {
     if (!result || hasManuallyChangedMargin.current) return;
 
-    let defaultMargin: number;
+    // Debounce to prevent rapid setInput calls during typing
+    if (marginResolutionTimeout.current) clearTimeout(marginResolutionTimeout.current);
 
-    if (resolvedMargin) {
-      // API-based margin resolution (DB rules)
-      defaultMargin = resolvedMargin.marginPercent;
-    } else {
-      // Fallback: nationality-based defaults (API unavailable)
-      const isKorean = user?.nationality === 'South Korea' || !user?.nationality;
-      const weight = result.billableWeight;
+    marginResolutionTimeout.current = setTimeout(() => {
+      let defaultMargin: number;
 
-      if (isKorean) {
-        defaultMargin = weight >= 20 ? 19 : 24;
+      if (resolvedMargin) {
+        // API-based margin resolution (DB rules)
+        defaultMargin = resolvedMargin.marginPercent;
       } else {
-        defaultMargin = weight >= 20 ? 24 : 32;
-      }
-    }
+        // Fallback: nationality-based defaults (API unavailable)
+        const isKorean = user?.nationality === 'South Korea' || !user?.nationality;
+        const weight = result.billableWeight;
 
-    if (input.marginPercent !== defaultMargin) {
-      setInput(prev => ({ ...prev, marginPercent: defaultMargin }));
-    }
-  }, [result, resolvedMargin, user?.nationality, user?.email, input.marginPercent]);
+        if (isKorean) {
+          defaultMargin = weight >= 20 ? 19 : 24;
+        } else {
+          defaultMargin = weight >= 20 ? 24 : 32;
+        }
+      }
+
+      if (input.marginPercent !== defaultMargin) {
+        setInput(prev => ({ ...prev, marginPercent: defaultMargin }));
+      }
+    }, 300); // 300ms debounce
+
+    return () => {
+      if (marginResolutionTimeout.current) clearTimeout(marginResolutionTimeout.current);
+    };
+  }, [result?.billableWeight, resolvedMargin, user?.nationality, user?.email]);
 
 
 
