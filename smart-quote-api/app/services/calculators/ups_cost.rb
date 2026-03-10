@@ -28,7 +28,7 @@ module Calculators
         intl_fsc: ups_fsc,
         intl_war_risk: ups_war_risk,
         applied_zone: zone_info[:label],
-        transit_time: 'UPS 3-5 Business Days'
+        transit_time: 'UPS 2-4 Business Days'
       }
     end
 

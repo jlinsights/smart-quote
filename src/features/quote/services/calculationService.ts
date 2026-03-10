@@ -251,7 +251,7 @@ export const calculateUpsCosts = (
       intlFsc,
       intlWarRisk: 0,
       appliedZone: zoneInfo.label,
-      transitTime: '3-5 Business Days'
+      transitTime: '2-4 Business Days'
     };
 };
 
