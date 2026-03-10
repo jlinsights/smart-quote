@@ -259,14 +259,24 @@ export const calculateUpsCosts = (
 // --- DHL Calculator ---
 
 export const determineDhlZone = (country: string): { rateKey: string; label: string } => {
-  if (['CN', 'HK', 'MO', 'SG', 'TW'].includes(country)) return { rateKey: 'Z1', label: 'China/HK/SG/TW' };
+  // Aligned with DHL Express Korea 공식 항공요금표 (2026-02)
+  // Z1: 중국, 홍콩, 싱가포르 (TW/MO not in PDF — kept provisionally, verify with DHL)
+  if (['CN', 'HK', 'MO', 'SG', 'TW'].includes(country)) return { rateKey: 'Z1', label: 'China/HK/SG' };
+  // Z2: 일본
   if (['JP'].includes(country)) return { rateKey: 'Z2', label: 'Japan' };
-  if (['PH', 'TH'].includes(country)) return { rateKey: 'Z3', label: 'PH/TH' };
-  if (['VN', 'IN'].includes(country)) return { rateKey: 'Z4', label: 'VN/IN' };
-  if (['AU', 'KH'].includes(country)) return { rateKey: 'Z5', label: 'AU/KH' };
-  if (['US', 'CA'].includes(country)) return { rateKey: 'Z6', label: 'US/CA' };
-  if (['GB', 'FR', 'DE', 'IT', 'ES', 'DK', 'NL', 'BE', 'CH', 'FI', 'SE', 'NO', 'AT', 'PT', 'IE', 'MC', 'CZ', 'PL', 'HU', 'RO', 'BG'].includes(country))
-    return { rateKey: 'Z7', label: 'Europe' };
+  // Z3: 필리핀, 베트남, 태국
+  if (['PH', 'VN', 'TH'].includes(country)) return { rateKey: 'Z3', label: 'PH/VN/TH' };
+  // Z4: 호주, 캄보디아, 인도
+  if (['AU', 'KH', 'IN'].includes(country)) return { rateKey: 'Z4', label: 'AU/KH/IN' };
+  // Z5: 미국, 캐나다
+  if (['US', 'CA'].includes(country)) return { rateKey: 'Z5', label: 'US/CA' };
+  // Z6: 유럽 (서유럽 + 북유럽)
+  if (['GB', 'FR', 'DE', 'IT', 'ES', 'DK', 'NL', 'BE', 'CH', 'FI', 'SE', 'NO', 'AT', 'PT', 'IE', 'MC'].includes(country))
+    return { rateKey: 'Z6', label: 'Europe' };
+  // Z7: 동유럽
+  if (['CZ', 'PL', 'HU', 'RO', 'BG'].includes(country))
+    return { rateKey: 'Z7', label: 'Eastern Europe' };
+  // Z8: 남미, 아프리카, 중동
   if (['BR', 'AR', 'CL', 'CO', 'ZA', 'EG', 'AE', 'TR', 'BH', 'IL', 'JO', 'LB', 'SA', 'PK'].includes(country))
     return { rateKey: 'Z8', label: 'S.Am/Africa/ME' };
   return { rateKey: 'Z8', label: 'Rest of World' };

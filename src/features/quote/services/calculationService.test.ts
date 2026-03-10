@@ -50,15 +50,27 @@ describe('calculationService', () => {
     });
 
     it('maps CN to Z1', () => {
-      expect(determineDhlZone('CN')).toEqual({ rateKey: 'Z1', label: 'China/HK/SG/TW' });
+      expect(determineDhlZone('CN')).toEqual({ rateKey: 'Z1', label: 'China/HK/SG' });
     });
 
-    it('maps US to Z6', () => {
-      expect(determineDhlZone('US')).toEqual({ rateKey: 'Z6', label: 'US/CA' });
+    it('maps VN to Z3 (PH/VN/TH)', () => {
+      expect(determineDhlZone('VN')).toEqual({ rateKey: 'Z3', label: 'PH/VN/TH' });
     });
 
-    it('maps DE to Z7 (Europe)', () => {
-      expect(determineDhlZone('DE')).toEqual({ rateKey: 'Z7', label: 'Europe' });
+    it('maps AU to Z4 (AU/KH/IN)', () => {
+      expect(determineDhlZone('AU')).toEqual({ rateKey: 'Z4', label: 'AU/KH/IN' });
+    });
+
+    it('maps US to Z5', () => {
+      expect(determineDhlZone('US')).toEqual({ rateKey: 'Z5', label: 'US/CA' });
+    });
+
+    it('maps DE to Z6 (Europe)', () => {
+      expect(determineDhlZone('DE')).toEqual({ rateKey: 'Z6', label: 'Europe' });
+    });
+
+    it('maps CZ to Z7 (Eastern Europe)', () => {
+      expect(determineDhlZone('CZ')).toEqual({ rateKey: 'Z7', label: 'Eastern Europe' });
     });
 
     it('maps BR to Z8 (S.Am/Africa/ME)', () => {
@@ -77,11 +89,23 @@ describe('calculationService', () => {
   // --- UPS Cost Tests ---
 
   describe('calculateUpsCosts', () => {
-    it('uses range rate for 20.3kg (boundary test)', () => {
-      // 20.3kg > 20kg exact table max → should use range rate
-      // ceil(20.3) = 21, 21 * Z5 per-kg rate (11096) = 233016
+    it('uses 21-70 tier range rate for 20.3kg (boundary test)', () => {
+      // 20.3kg > 20kg exact table max → should use 21-70 range rate
+      // ceil(20.3) = 21, 21 * Z5 per-kg rate (12198) = 256158
       const result = calculateUpsCosts(20.3, 'US', 0);
-      expect(result.intlBase).toBe(21 * 11096);
+      expect(result.intlBase).toBe(21 * 12198);
+    });
+
+    it('uses 71-299 tier range rate for 80kg', () => {
+      // 80kg → 71-299 tier, ceil(80) * Z5 rate (11590) = 927200
+      const result = calculateUpsCosts(80, 'US', 0);
+      expect(result.intlBase).toBe(80 * 11590);
+    });
+
+    it('uses 300+ tier range rate for 350kg', () => {
+      // 350kg → 300+ tier, ceil(350) * Z5 rate (11096) = 3883600
+      const result = calculateUpsCosts(350, 'US', 0);
+      expect(result.intlBase).toBe(350 * 11096);
     });
   });
 
@@ -95,9 +119,9 @@ describe('calculationService', () => {
       expect(result.intlWarRisk).toBe(0);
     });
 
-    it('returns correct exact rate for DHL Z6 at 5kg', () => {
+    it('returns correct exact rate for DHL Z5 (US) at 5kg', () => {
       const result = calculateDhlCosts(5, 'US', 0);
-      expect(result.intlBase).toBe(DHL_EXACT_RATES['Z6'][5]);
+      expect(result.intlBase).toBe(DHL_EXACT_RATES['Z5'][5]);
     });
 
     it('uses range rate for DHL Z1 at 50kg', () => {

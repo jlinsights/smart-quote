@@ -1,1 +1,1 @@
-🔒 fix: 보안 강화 — PII URL 제거(POST 전환), 에러 피드백 추가, 하드코딩 이메일 제거, import.meta 타입 선언
+📦 docs: Tariff Verification PDCA 완료 보고서 아카이브 (5-way 정합성 100%, 1133 tests)
