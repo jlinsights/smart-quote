@@ -5,8 +5,9 @@ export const SURGE_RATES = {
     OVER_MAX: 1200000     // Over Maximum Limits (Penalty)
 };
 
-export const HANDLING_FEE = 0; 
+export const HANDLING_FEE = 35000;
 export const FUMIGATION_FEE = 30000;
+export const WAR_RISK_SURCHARGE_RATE = 0; // DEC-006: War risk surcharge removed (synced with backend rates.rb)
 export const PACKING_MATERIAL_BASE_COST = 15000; // per m2
 export const PACKING_LABOR_UNIT_COST = 50000; // per item
 

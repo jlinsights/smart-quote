@@ -180,7 +180,7 @@ module Api
           :marginPercent, :dutyTaxEstimate,
           :exchangeRate, :fscPercent,
           :manualDomesticCost, :manualPackingCost, :manualSurgeCost,
-          :overseasCarrier, :customerId,
+          :overseasCarrier, :customerId, :pickupInSeoulCost,
           items: [ :id, :name, :quantity, :weight, :length, :width, :height ]
         ).to_h
       end
@@ -199,7 +199,10 @@ module Api
           exchange_rate: input["exchangeRate"] || input[:exchangeRate],
           fsc_percent: input["fscPercent"] || input[:fscPercent],
           manual_domestic_cost: input["manualDomesticCost"] || input[:manualDomesticCost],
-          manual_packing_cost: input["manualPackingCost"] || input[:manualPackingCost]
+          manual_packing_cost: input["manualPackingCost"] || input[:manualPackingCost],
+          manual_surge_cost: input["manualSurgeCost"] || input[:manualSurgeCost],
+          pickup_in_seoul_cost: input["pickupInSeoulCost"] || input[:pickupInSeoulCost],
+          overseas_carrier: input["overseasCarrier"] || input[:overseasCarrier] || "UPS"
         }
       end
 
@@ -212,7 +215,9 @@ module Api
           profit_margin: result[:profitMargin],
           billable_weight: result[:billableWeight],
           applied_zone: result[:appliedZone],
-          domestic_truck_type: result[:domesticTruckType]
+          domestic_truck_type: result[:domesticTruckType],
+          carrier: result[:carrier],
+          transit_time: result[:transitTime]
         }
       end
 

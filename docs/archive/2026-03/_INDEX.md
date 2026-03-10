@@ -10,3 +10,4 @@
 | security-hardening | 2026-03-08 | 100% | [plan](security-hardening/security-hardening.plan.md), [design](security-hardening/security-hardening.design.md), [analysis](security-hardening/security-hardening.analysis.md), [report](security-hardening/security-hardening.report.md) |
 | tariff-verification | 2026-03-10 | 100% | [report](tariff-verification/tariff-verification.report.md) |
 | quote-export | 2026-03-10 | 95% | [plan](quote-export/quote-export.plan.md), [design](quote-export/quote-export.design.md), [analysis](quote-export/quote-export.analysis.md), [report](quote-export/quote-export.report.md) |
+| calculation-sync | 2026-03-11 | 100% | [plan](calculation-sync/calculation-sync.plan.md), [design](calculation-sync/calculation-sync.design.md), [analysis](calculation-sync/calculation-sync.analysis.md), [report](calculation-sync/calculation-sync.report.md) |

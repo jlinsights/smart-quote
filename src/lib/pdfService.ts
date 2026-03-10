@@ -6,6 +6,10 @@ import { formatKRW, formatUSD, formatNum, formatNumDec } from './format';
 import { loadKoreanFont } from './pdfFontLoader';
 import logoBase64 from '@/assets/logo-base64';
 
+/** Helper to access jspdf-autotable's lastAutoTable property (untyped) */
+const getLastAutoTableY = (doc: jsPDF): number =>
+  (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+
 const { COLORS, FONTS, MARGIN_X, PAGE_WIDTH } = PDF_LAYOUT;
 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN_X * 2;
 
@@ -113,7 +117,7 @@ const drawCargoTable = async (doc: jsPDF, items: QuoteInput['items'], result: Qu
     margin: { left: MARGIN_X, right: MARGIN_X },
   });
 
-  return (doc as any).lastAutoTable.finalY + 10;
+  return getLastAutoTableY(doc) + 10;
 };
 
 // ─── Cost Breakdown Table ────────────────────────────────
@@ -159,7 +163,7 @@ const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number): Pro
     margin: { left: MARGIN_X, right: MARGIN_X },
   });
 
-  return (doc as any).lastAutoTable.finalY + 8;
+  return getLastAutoTableY(doc) + 8;
 };
 
 // ─── Quote Summary Box ───────────────────────────────────
@@ -336,7 +340,8 @@ export const generateComparisonPDF = async (
     columnStyles: {
       0: { halign: 'left', fontStyle: 'bold', cellWidth: 55 },
     },
-    didParseCell: (data: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    didParseCell: (data: { row: { index: number }; column: { index: number }; cell: { styles: any } }) => {
       // Highlight cheapest carrier in the quote row
       if (data.row.index === 6 && data.column.index > 0) {
         const carrierIdx = data.column.index - 1;
@@ -349,7 +354,7 @@ export const generateComparisonPDF = async (
     margin: { left: MARGIN_X, right: MARGIN_X },
   });
 
-  yPos = (doc as any).lastAutoTable.finalY + 10;
+  yPos = getLastAutoTableY(doc) + 10;
 
   // Savings note
   if (amounts.filter(a => a !== minAmount).length > 0) {

@@ -11,7 +11,8 @@ import {
   SURGE_RATES,
   DEFAULT_EXCHANGE_RATE,
   PACKING_MATERIAL_BASE_COST,
-  PACKING_LABOR_UNIT_COST
+  PACKING_LABOR_UNIT_COST,
+  WAR_RISK_SURCHARGE_RATE
 } from "@/config/rates";
 import {
   SURGE_THRESHOLDS,
@@ -246,10 +247,11 @@ export const calculateUpsCosts = (
 
     const fscRate = (fscPercent || 0) / 100;
     const intlFsc = intlBase * fscRate;
+    const intlWarRisk = intlBase * (WAR_RISK_SURCHARGE_RATE / 100);
     return {
       intlBase,
       intlFsc,
-      intlWarRisk: 0,
+      intlWarRisk,
       appliedZone: zoneInfo.label,
       transitTime: '2-4 Business Days'
     };
@@ -292,10 +294,11 @@ export const calculateDhlCosts = (
 
   const fscRate = (fscPercent || 0) / 100;
   const intlFsc = intlBase * fscRate;
+  const intlWarRisk = intlBase * (WAR_RISK_SURCHARGE_RATE / 100);
   return {
     intlBase,
     intlFsc,
-    intlWarRisk: 0,
+    intlWarRisk,
     appliedZone: zoneInfo.label,
     transitTime: '3-7 Business Days (DHL)',
   };

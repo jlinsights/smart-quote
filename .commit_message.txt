@@ -1,1 +1,1 @@
-✨ feat: quote-export Phase 1 구현 (한글폰트+autoTable+로고+동적파일명+3캐리어비교)
+✏️ fix: 랜딩페이지 세금/관세 문구 삭제

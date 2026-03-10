@@ -10,6 +10,13 @@
       "timestamp": "2026-03-05",
       "action": "Archived to docs/archive/2026-03/auth-hardening/",
       "matchRate": 93
+    },
+    {
+      "feature": "calculation-sync",
+      "phase": "archived",
+      "timestamp": "2026-03-11",
+      "action": "Archived to docs/archive/2026-03/calculation-sync/",
+      "matchRate": 100
     }
   ]
 }

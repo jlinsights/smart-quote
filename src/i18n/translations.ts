@@ -13,12 +13,12 @@ export const translations: Record<Language, Record<string, string>> = {
      // Landing Page
      'landing.title.main': '글로벌 물류 견적,',
      'landing.title.sub': '가장 빠르고 정확하게.',
-     'landing.subtitle': 'UPS, DHL 연동, 세금 및 특수 비용까지 포함된 신뢰할 수 있는 배송 견적을 즉시 계산하세요.',
+     'landing.subtitle': 'UPS, DHL 연동, 특수 비용까지 포함된 신뢰할 수 있는 배송 견적을 즉시 계산하세요.',
      'landing.getStarted': '시작하기',
      'landing.instantQuotes': '즉각적인 견적 산출',
      'landing.instantQuotes.desc': '실시간 변수를 적용하여 Door-to-Door 및 Door-to-Airport 요금을 즉시 계산합니다.',
      'landing.accurateBreakdown': '정확한 비용 세분화',
-     'landing.accurateBreakdown.desc': '유류할증료(FSC), 관세, 포장 물류비, 출발지/도착지 수수료의 상세 내역을 제공합니다.',
+     'landing.accurateBreakdown.desc': '유류할증료(FSC), 포장 물류비, 출발지/도착지 수수료의 상세 내역을 제공합니다.',
      'landing.verifiedCarriers': '검증된 운송사 파트너',
      'landing.verifiedCarriers.desc': '프리미엄 물류 파트너의 실제 운임 구조를 바탕으로 한 견적입니다.',
 
@@ -179,12 +179,12 @@ export const translations: Record<Language, Record<string, string>> = {
     // Landing Page
     'landing.title.main': 'Global Logistics Quotes,',
     'landing.title.sub': 'Fastest and Most Accurate.',
-    'landing.subtitle': 'Instantly calculate reliable shipping quotes including UPS, DHL integration, taxes, and special charges.',
+    'landing.subtitle': 'Instantly calculate reliable shipping quotes including UPS, DHL integration and special charges.',
     'landing.getStarted': 'Get Started',
     'landing.instantQuotes': 'Instant Quotes',
     'landing.instantQuotes.desc': 'Instantly calculate Door-to-Door and Door-to-Airport rates using real-time variables.',
     'landing.accurateBreakdown': 'Accurate Cost Breakdown',
-    'landing.accurateBreakdown.desc': 'Provides detailed breakdown of FSC, customs duties, packaging logistics costs, and origin/destination fees.',
+    'landing.accurateBreakdown.desc': 'Provides detailed breakdown of FSC, packaging logistics costs, and origin/destination fees.',
     'landing.verifiedCarriers': 'Verified Carrier Partners',
     'landing.verifiedCarriers.desc': 'Quotes based on the actual freight structure of premium logistics partners.',
 
@@ -352,12 +352,12 @@ export const translations: Record<Language, Record<string, string>> = {
     // Landing Page
     'landing.title.main': '全球物流报价，',
     'landing.title.sub': '快速精准。',
-    'landing.subtitle': '即时计算包含UPS、DHL集成运费、税费和特殊费用的可靠运输报价。',
+    'landing.subtitle': '即时计算包含UPS、DHL集成运费和特殊费用的可靠运输报价。',
     'landing.getStarted': '开始使用',
     'landing.instantQuotes': '即时报价',
     'landing.instantQuotes.desc': '利用实时变量即时计算门到门和门到机场的费率。',
     'landing.accurateBreakdown': '精确费用明细',
-    'landing.accurateBreakdown.desc': 'FSC、关税、包装物流费和始发地/目的地费用的详细分解。',
+    'landing.accurateBreakdown.desc': 'FSC、包装物流费和始发地/目的地费用的详细分解。',
     'landing.verifiedCarriers': '认证承运商',
     'landing.verifiedCarriers.desc': '基于优质物流合作伙伴真实运费结构的报价。',
 
@@ -503,12 +503,12 @@ export const translations: Record<Language, Record<string, string>> = {
     // Landing Page
     'landing.title.main': 'グローバル物流見積、',
     'landing.title.sub': '最速で正確に。',
-    'landing.subtitle': 'UPS、DHL連携、税金、特別料金を含む信頼できる配送見積をすぐに計算します。',
+    'landing.subtitle': 'UPS、DHL連携、特別料金を含む信頼できる配送見積をすぐに計算します。',
     'landing.getStarted': '始める',
     'landing.instantQuotes': '即時見積',
     'landing.instantQuotes.desc': 'リアルタイム変数を使用してDoor-to-DoorおよびDoor-to-Air料金を即座に計算します。',
     'landing.accurateBreakdown': '正確な費用内訳',
-    'landing.accurateBreakdown.desc': 'FSC、関税、梱包物流費、発送元/配送先手数料の詳細な内訳を提供します。',
+    'landing.accurateBreakdown.desc': 'FSC、梱包物流費、発送元/配送先手数料の詳細な内訳を提供します。',
     'landing.verifiedCarriers': '認定キャリア',
     'landing.verifiedCarriers.desc': 'プレミアム物流パートナーの実際の運賃構造に基づいた見積です。',
 

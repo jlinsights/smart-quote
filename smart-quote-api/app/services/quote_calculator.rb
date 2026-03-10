@@ -81,8 +81,11 @@ class QuoteCalculator
       dest_duty = @input[:dutyTaxEstimate] || 0
     end
 
+    # 5a. Extra Pick-up in Seoul cost
+    pickup_in_seoul = @input[:pickupInSeoulCost] || 0
+
     # 6. Totals
-    total_cost_amount = packing_total + final_handling_fee + overseas_total + dest_duty
+    total_cost_amount = packing_total + final_handling_fee + overseas_total + dest_duty + pickup_in_seoul
 
     quote_basis_cost = 0
     if ['EXW', 'FOB'].include?(@input[:incoterm])
@@ -126,6 +129,7 @@ class QuoteCalculator
       billableWeight: billable_weight,
       appliedZone: overseas_result[:applied_zone],
       transitTime: overseas_result[:transit_time],
+      carrier: carrier,
       warnings: user_warnings,
       breakdown: {
         packingMaterial: item_result[:packing_material_cost],
@@ -136,6 +140,7 @@ class QuoteCalculator
         intlFsc: overseas_result[:intl_fsc],
         intlWarRisk: overseas_result[:intl_war_risk],
         intlSurge: surge_cost,
+        pickupInSeoul: pickup_in_seoul,
         destDuty: dest_duty,
         totalCost: total_cost_amount
       }

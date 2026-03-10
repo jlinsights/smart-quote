@@ -150,7 +150,7 @@ describe('TargetMarginRulesWidget', () => {
     render(<TargetMarginRulesWidget />);
 
     // Hover over a rule to show actions — find the trash button
-    const trashButtons = document.querySelectorAll('.group-hover\\:flex button');
+    document.querySelectorAll('.group-hover\\:flex button');
     // Since group-hover buttons might not be visible in test, find the Trash2 icon buttons
     const allButtons = screen.getAllByRole('button');
     // Find a delete button (has Trash2 icon)
