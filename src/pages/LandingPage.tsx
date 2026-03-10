@@ -86,7 +86,7 @@ export const LandingPage: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-white">SQ-2026-0147</div>
-                    <div className="text-xs text-gray-500">Seoul → Los Angeles</div>
+                    <div className="text-xs text-gray-500">{t('landing.mock.route')}</div>
                   </div>
                 </div>
 
@@ -112,7 +112,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 <div className="mt-5 pt-4 border-t border-white/10 flex justify-between items-center">
-                  <span className="text-xs text-gray-500">Margin 18.5%</span>
+                  <span className="text-xs text-gray-500">{t('landing.mock.margin')} 18.5%</span>
                   <span className="text-lg font-extrabold text-white">₩398,500</span>
                 </div>
               </div>
@@ -121,14 +121,14 @@ export const LandingPage: React.FC = () => {
               <div className="absolute -top-4 -right-4 sm:-top-6 sm:-right-6 bg-green-500/10 backdrop-blur border border-green-500/20 rounded-xl px-4 py-2.5 shadow-lg">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-400" />
-                  <span className="text-xs font-semibold text-green-400">Live Rates</span>
+                  <span className="text-xs font-semibold text-green-400">{t('landing.liveRates')}</span>
                 </div>
               </div>
 
               <div className="absolute -bottom-3 -left-3 sm:-bottom-5 sm:-left-5 bg-white/5 backdrop-blur border border-white/10 rounded-xl px-4 py-2.5 shadow-lg">
                 <div className="flex items-center gap-2">
                   <Globe className="w-3.5 h-3.5 text-jways-400" />
-                  <span className="text-xs font-semibold text-gray-300">47 Global Ports</span>
+                  <span className="text-xs font-semibold text-gray-300">{t('landing.globalPorts')}</span>
                 </div>
               </div>
             </div>
@@ -137,10 +137,10 @@ export const LandingPage: React.FC = () => {
           {/* ── Stats row ── */}
           <div className="mt-20 pt-10 border-t border-white/5 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
             {[
-              { value: '3', label: 'Carriers', icon: Truck },
-              { value: '190+', label: 'Countries', icon: Globe },
-              { value: '< 1s', label: 'Calculation', icon: Zap },
-              { value: '24/7', label: 'Available', icon: ShieldCheck },
+              { value: '3', label: t('landing.stat.carriers'), icon: Truck },
+              { value: '190+', label: t('landing.stat.countries'), icon: Globe },
+              { value: '< 1s', label: t('landing.stat.calculation'), icon: Zap },
+              { value: '24/7', label: t('landing.stat.available'), icon: ShieldCheck },
             ].map((stat) => (
               <div key={stat.label} className="text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
@@ -158,9 +158,9 @@ export const LandingPage: React.FC = () => {
       <section className="py-20 sm:py-28 bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <p className="text-sm font-semibold text-jways-600 dark:text-jways-400 uppercase tracking-widest mb-3">Features</p>
+            <p className="text-sm font-semibold text-jways-600 dark:text-jways-400 uppercase tracking-widest mb-3">{t('landing.featuresLabel')}</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white">
-              Everything you need for accurate quotes
+              {t('landing.featuresTitle')}
             </h2>
           </div>
 
@@ -211,7 +211,7 @@ export const LandingPage: React.FC = () => {
       <footer className="bg-white dark:bg-gray-950 py-10 border-t border-gray-100 dark:border-gray-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-gray-400 dark:text-gray-400 text-sm">
-            © 2025 Goodman GLS & J-Ways. All rights reserved.
+            {t('landing.footer')}
           </p>
         </div>
       </footer>
