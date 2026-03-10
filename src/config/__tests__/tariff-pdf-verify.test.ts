@@ -268,7 +268,7 @@ describe('UPS Tariff — PDF 원본 전수 대조', () => {
     const tier = UPS_RANGE_RATES[0]; // 20.5-70
     Object.entries(UPS_RANGE_PDF['21-70']).forEach(([zone, rate]) => {
       it(`21-70 tier ${zone} = ${rate}/kg`, () => {
-        expect(tier.rates[zone]).toBe(rate);
+        expect((tier.rates as Record<string, number>)[zone]).toBe(rate);
       });
     });
   });
@@ -277,7 +277,7 @@ describe('UPS Tariff — PDF 원본 전수 대조', () => {
     const tier = UPS_RANGE_RATES[1]; // 70.1-299
     Object.entries(UPS_RANGE_PDF['71-299']).forEach(([zone, rate]) => {
       it(`71-299 tier ${zone} = ${rate}/kg`, () => {
-        expect(tier.rates[zone]).toBe(rate);
+        expect((tier.rates as Record<string, number>)[zone]).toBe(rate);
       });
     });
   });
@@ -286,7 +286,7 @@ describe('UPS Tariff — PDF 원본 전수 대조', () => {
     const tier = UPS_RANGE_RATES[2]; // 299.1+
     Object.entries(UPS_RANGE_PDF['300+']).forEach(([zone, rate]) => {
       it(`300+ tier ${zone} = ${rate}/kg`, () => {
-        expect(tier.rates[zone]).toBe(rate);
+        expect((tier.rates as Record<string, number>)[zone]).toBe(rate);
       });
     });
   });
@@ -310,7 +310,7 @@ describe('DHL Tariff — PDF 원본 전수 대조', () => {
     const tier = DHL_RANGE_RATES[0];
     Object.entries(DHL_RANGE_PDF['30.1-70']).forEach(([zone, rate]) => {
       it(`30.1+ ${zone} = ${rate}/kg`, () => {
-        expect(tier.rates[zone]).toBe(rate);
+        expect((tier.rates as Record<string, number>)[zone]).toBe(rate);
       });
     });
   });

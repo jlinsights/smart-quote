@@ -1,339 +1,370 @@
-import type { jsPDF } from "jspdf";
-import { QuoteInput, QuoteResult } from "@/types";
-import { COUNTRY_OPTIONS } from "@/config/options";
-import { PDF_LAYOUT } from "@/config/ui-constants";
-import { formatKRW, formatUSD, formatNum } from './format';
+import type { jsPDF } from 'jspdf';
+import { QuoteInput, QuoteResult } from '@/types';
+import { COUNTRY_OPTIONS } from '@/config/options';
+import { PDF_LAYOUT } from '@/config/ui-constants';
+import { formatKRW, formatUSD, formatNum, formatNumDec } from './format';
+import { loadKoreanFont } from './pdfFontLoader';
+import logoBase64 from '@/assets/logo-base64';
 
-const { COLORS, FONTS, MARGIN_X, LINE_HEIGHT } = PDF_LAYOUT;
+const { COLORS, FONTS, MARGIN_X, PAGE_WIDTH } = PDF_LAYOUT;
+const CONTENT_WIDTH = PAGE_WIDTH - MARGIN_X * 2;
 
-const nextLine = (currentY: number, h = LINE_HEIGHT): number => currentY + h;
+const nextLine = (y: number, h = PDF_LAYOUT.LINE_HEIGHT): number => y + h;
 
-const drawHeader = (doc: jsPDF, yPos: number): number => {
-  doc.setFontSize(FONTS.SIZE_HEADER);
+// ─── Header ──────────────────────────────────────────────
+
+const drawHeader = (doc: jsPDF, yPos: number, referenceNo?: string): number => {
+  // Logo (left)
+  doc.addImage(logoBase64, 'PNG', MARGIN_X, yPos - 8, PDF_LAYOUT.LOGO.WIDTH, PDF_LAYOUT.LOGO.HEIGHT);
+
+  // Title (right)
+  doc.setFontSize(FONTS.SIZE_TITLE);
   doc.setTextColor(...COLORS.PRIMARY);
-  doc.text("J-Ways Smart Quote", MARGIN_X, yPos);
-  
-  doc.setFontSize(FONTS.SIZE_NORMAL);
+  doc.text('견적서 / Quotation', PAGE_WIDTH - MARGIN_X, yPos, { align: 'right' });
+
+  yPos = nextLine(yPos, 16);
+
+  // Separator line
+  doc.setDrawColor(...COLORS.PRIMARY);
+  doc.setLineWidth(0.5);
+  doc.line(MARGIN_X, yPos, PAGE_WIDTH - MARGIN_X, yPos);
+  yPos = nextLine(yPos, 8);
+
+  // Meta row
+  doc.setFontSize(FONTS.SIZE_SMALL);
   doc.setTextColor(...COLORS.TEXT_LIGHT);
-  doc.text("Integrated Logistics Solution", 150, yPos);
-  
-  return nextLine(yPos, 15);
+  doc.text(`Date: ${new Date().toLocaleDateString('ko-KR')}`, MARGIN_X, yPos);
+  const ref = referenceNo || 'DRAFT';
+  doc.text(`Ref: ${ref}`, PAGE_WIDTH - MARGIN_X, yPos, { align: 'right' });
+
+  return nextLine(yPos, 12);
 };
 
-const drawMetaData = (doc: jsPDF, yPos: number, referenceNo?: string): number => {
-  doc.setFontSize(FONTS.SIZE_NORMAL);
-  doc.setTextColor(0);
-  doc.text(`Date: ${new Date().toLocaleDateString()}`, MARGIN_X, yPos);
-  const ref = referenceNo || 'DRAFT';
-  doc.text(`Quote Ref: ${ref}`, 150, yPos);
-  return nextLine(yPos, 10);
-};
+// ─── Shipment Details ────────────────────────────────────
 
 const drawShipmentDetails = (doc: jsPDF, input: QuoteInput, yPos: number): number => {
   doc.setFillColor(...COLORS.BG_HEADER);
-  doc.rect(15, yPos - 5, 180, 28, 'F');
-  
-  doc.setFontSize(FONTS.SIZE_SUBHEADER);
-  doc.setFont("helvetica", "bold");
-  doc.text("Shipment Details", MARGIN_X, yPos);
-  yPos = nextLine(yPos, 8);
+  doc.roundedRect(MARGIN_X, yPos - 5, CONTENT_WIDTH, 28, 2, 2, 'F');
 
-  doc.setFont("helvetica", "normal");
+  doc.setFontSize(FONTS.SIZE_SUBHEADER);
+  doc.setFont(FONTS.FAMILY, 'normal');
+  doc.setTextColor(...COLORS.PRIMARY);
+  doc.text('배송 정보 / Shipment Details', MARGIN_X + 5, yPos);
+  yPos = nextLine(yPos, 9);
+
   doc.setFontSize(FONTS.SIZE_NORMAL);
-  
+  doc.setTextColor(...COLORS.TEXT);
+
   const countryLabel = COUNTRY_OPTIONS.find(c => c.code === input.destinationCountry)?.name || input.destinationCountry;
 
-  doc.text(`Origin: ${input.originCountry}`, MARGIN_X, yPos);
-  doc.text(`Destination: ${countryLabel} (${input.destinationZip})`, 110, yPos);
+  doc.text(`출발지: ${input.originCountry}`, MARGIN_X + 5, yPos);
+  doc.text(`도착지: ${countryLabel} (${input.destinationZip || '-'})`, 110, yPos);
   yPos = nextLine(yPos);
-  doc.text(`Shipping Mode: ${input.shippingMode || 'Door-to-Door'}`, MARGIN_X, yPos);
-  doc.text(`Packing: ${input.packingType}`, 110, yPos);
+  doc.text(`배송 방식: ${input.shippingMode || 'Door-to-Door'}`, MARGIN_X + 5, yPos);
+  doc.text(`포장: ${input.packingType}`, 110, yPos);
+
   return nextLine(yPos, 15);
 };
 
-const drawCargoManifest = (doc: jsPDF, items: QuoteInput['items'], result: QuoteResult, yPos: number): number => {
+// ─── Cargo Manifest Table ────────────────────────────────
+
+const drawCargoTable = async (doc: jsPDF, items: QuoteInput['items'], result: QuoteResult, yPos: number): Promise<number> => {
+  const autoTable = (await import('jspdf-autotable')).default;
+
   doc.setFontSize(FONTS.SIZE_SUBHEADER);
-  doc.setFont("helvetica", "bold");
-  doc.text("Cargo Manifest", MARGIN_X, yPos);
-  yPos = nextLine(yPos, 8);
+  doc.setTextColor(...COLORS.PRIMARY);
+  doc.text('화물 명세 / Cargo Manifest', MARGIN_X, yPos);
+  yPos = nextLine(yPos, 4);
 
-  doc.setFontSize(FONTS.SIZE_NORMAL);
-  doc.setFont("helvetica", "normal");
-  
-  // Table Header
-  doc.setFillColor(...COLORS.BG_TABLE);
-  doc.rect(20, yPos - 4, 170, 8, 'F');
-  doc.text("#", 25, yPos);
-  doc.text("Dimensions (LxWxH)", 40, yPos);
-  doc.text("Weight", 100, yPos);
-  doc.text("Qty", 140, yPos);
-  yPos = nextLine(yPos, 8);
-
-  // Table Rows
-  items.forEach((item, index) => {
-    doc.text(`${index + 1}`, 25, yPos);
-    doc.text(`${item.length} x ${item.width} x ${item.height} cm`, 40, yPos);
-    doc.text(`${item.weight} kg`, 100, yPos);
-    doc.text(`${item.quantity}`, 140, yPos);
-    yPos = nextLine(yPos);
+  autoTable(doc, {
+    startY: yPos,
+    head: [['#', '규격 L×W×H (cm)', '중량 (kg)', '수량', '용적중량 (kg)']],
+    body: items.map((item, i) => [
+      i + 1,
+      `${item.length} × ${item.width} × ${item.height}`,
+      formatNum(item.weight),
+      item.quantity,
+      formatNumDec((item.length + 10) * (item.width + 10) * (item.height + 15) / 5000 * item.quantity),
+    ]),
+    foot: [[
+      { content: '', colSpan: 2 },
+      `실중량: ${formatNum(result.totalActualWeight)} kg`,
+      '',
+      `청구중량: ${formatNum(result.billableWeight)} kg`,
+    ]],
+    theme: 'grid',
+    headStyles: {
+      fillColor: COLORS.PRIMARY as [number, number, number],
+      font: FONTS.FAMILY,
+      fontSize: FONTS.SIZE_TABLE,
+      halign: 'center',
+    },
+    bodyStyles: {
+      font: FONTS.FAMILY,
+      fontSize: FONTS.SIZE_TABLE,
+      halign: 'center',
+    },
+    footStyles: {
+      font: FONTS.FAMILY,
+      fontSize: FONTS.SIZE_TABLE,
+      fontStyle: 'bold',
+      halign: 'center',
+    },
+    margin: { left: MARGIN_X, right: MARGIN_X },
   });
 
-  yPos = nextLine(yPos, 5);
-  doc.setFont("helvetica", "bold");
-  doc.text(`Total Actual Weight: ${formatNum(result.totalActualWeight)} kg`, 100, yPos);
-  yPos = nextLine(yPos);
-  doc.text(`Billable Weight: ${formatNum(result.billableWeight)} kg`, 100, yPos);
-  
-  return nextLine(yPos, 15);
+  return (doc as any).lastAutoTable.finalY + 10;
 };
 
-const drawCostBreakdown = (doc: jsPDF, result: QuoteResult, yPos: number): number => {
+// ─── Cost Breakdown Table ────────────────────────────────
+
+const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number): Promise<number> => {
+  const autoTable = (await import('jspdf-autotable')).default;
+
   doc.setFontSize(FONTS.SIZE_SUBHEADER);
-  doc.setFont("helvetica", "bold");
-  doc.text("Detailed Cost Breakdown", MARGIN_X, yPos);
-  yPos = nextLine(yPos, 8);
+  doc.setTextColor(...COLORS.PRIMARY);
+  doc.text('비용 내역 / Cost Breakdown', MARGIN_X, yPos);
+  yPos = nextLine(yPos, 4);
 
-  doc.setFontSize(FONTS.SIZE_NORMAL);
-  doc.setFont("helvetica", "normal");
-  
-  // formatKRW imported from @/lib/format
+  const bd = result.breakdown;
+  const rows: (string | number)[][] = [];
 
-  // Domestic (Removed)
+  const packingTotal = bd.packingMaterial + bd.packingLabor + bd.packingFumigation + bd.handlingFees;
+  if (packingTotal > 0) rows.push(['포장 / 핸들링', formatKRW(packingTotal)]);
+  if (bd.pickupInSeoul > 0) rows.push(['서울 픽업비', formatKRW(bd.pickupInSeoul)]);
+  rows.push([`국제운송 (${result.carrier})`, formatKRW(bd.intlBase)]);
+  if (bd.intlFsc > 0) rows.push(['유류할증료 (FSC)', formatKRW(bd.intlFsc)]);
+  if (bd.intlWarRisk > 0) rows.push(['전쟁위험할증', formatKRW(bd.intlWarRisk)]);
+  if (bd.intlSurge > 0) rows.push(['할증료 (Surge)', formatKRW(bd.intlSurge)]);
+  if (bd.destDuty > 0) rows.push(['관세/세금 (예상)', formatKRW(bd.destDuty)]);
 
-  // Packing
-  const packingTotal = result.breakdown.packingMaterial + result.breakdown.packingLabor + result.breakdown.packingFumigation + result.breakdown.handlingFees;
-  doc.text("Packing & Handling:", MARGIN_X, yPos);
-  doc.text(formatKRW(packingTotal), 160, yPos, { align: 'right' });
-  yPos = nextLine(yPos);
+  autoTable(doc, {
+    startY: yPos,
+    head: [['항목', '금액 (KRW)']],
+    body: rows,
+    theme: 'striped',
+    headStyles: {
+      fillColor: COLORS.PRIMARY as [number, number, number],
+      font: FONTS.FAMILY,
+      fontSize: FONTS.SIZE_TABLE,
+    },
+    bodyStyles: {
+      font: FONTS.FAMILY,
+      fontSize: FONTS.SIZE_TABLE,
+    },
+    columnStyles: {
+      0: { halign: 'left', cellWidth: 100 },
+      1: { halign: 'right' },
+    },
+    margin: { left: MARGIN_X, right: MARGIN_X },
+  });
 
-  // International
-  const overseasTotal = result.breakdown.intlBase + result.breakdown.intlFsc + result.breakdown.intlWarRisk + result.breakdown.intlSurge;
-  
-  const isEmax = result.appliedZone.includes('E-MAX');
-  const isDhl = result.appliedZone.includes('DHL') || result.transitTime.includes('DHL');
-  const carrierName = isEmax ? 'E-MAX' : (isDhl ? 'DHL' : 'UPS');
-  
-  doc.text(`International Freight (${carrierName}):`, MARGIN_X, yPos);
-  doc.text(formatKRW(overseasTotal), 160, yPos, { align: 'right' });
-  yPos = nextLine(yPos);
-
-  // Surge Detail (Only if applied)
-  if (result.breakdown.intlSurge > 0) {
-      doc.setTextColor(...COLORS.WARNING);
-      doc.setFontSize(9);
-      doc.text(`  ↳ Includes Demand/Surge/War Risk Fees: ${formatKRW(result.breakdown.intlSurge)}`, MARGIN_X, yPos);
-      doc.setFontSize(FONTS.SIZE_NORMAL);
-      doc.setTextColor(0);
-      yPos = nextLine(yPos);
-  }
-
-  // Duty
-  if (result.breakdown.destDuty > 0) {
-    doc.text("Destination Duty (Est.):", MARGIN_X, yPos);
-    doc.text(formatKRW(result.breakdown.destDuty), 160, yPos, { align: 'right' });
-    yPos = nextLine(yPos);
-  }
-  
-  // Line
-  doc.setDrawColor(200);
-  doc.line(MARGIN_X, yPos, 160, yPos);
-  return nextLine(yPos, 6);
+  return (doc as any).lastAutoTable.finalY + 8;
 };
+
+// ─── Quote Summary Box ───────────────────────────────────
 
 const drawQuoteSummary = (doc: jsPDF, input: QuoteInput, result: QuoteResult, yPos: number): number => {
-  doc.setDrawColor(...COLORS.PRIMARY);
-  doc.setLineWidth(0.5);
-  doc.line(MARGIN_X, yPos, 190, yPos);
-  yPos = nextLine(yPos, 10);
+  // Blue summary box
+  doc.setFillColor(...COLORS.PRIMARY);
+  doc.roundedRect(MARGIN_X, yPos, CONTENT_WIDTH, 35, 3, 3, 'F');
 
-  doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(...COLORS.PRIMARY);
-  doc.text("Total Estimated Quote", MARGIN_X, yPos);
-  yPos = nextLine(yPos, 10);
-
-  doc.setFontSize(24);
-  doc.setTextColor(0);
-  doc.text(formatKRW(result.totalQuoteAmount), MARGIN_X, yPos);
-
+  doc.setTextColor(...COLORS.WHITE);
   doc.setFontSize(FONTS.SIZE_SUBHEADER);
-  doc.setTextColor(...COLORS.TEXT_LIGHT);
-  doc.text(`(approx. ${formatUSD(result.totalQuoteAmountUSD)})`, 100, yPos);
-  
-  yPos = nextLine(yPos, 15);
+  doc.text('총 견적가 / Total Quote', MARGIN_X + 8, yPos + 10);
 
-  // --- Service Level ---
+  doc.setFontSize(20);
+  doc.text(formatKRW(result.totalQuoteAmount), MARGIN_X + 8, yPos + 23);
+
   doc.setFontSize(FONTS.SIZE_NORMAL);
-  doc.setTextColor(50);
-  const isEmax = result.appliedZone.includes('E-MAX');
-  const isDhl = result.appliedZone.includes('DHL') || result.transitTime.includes('DHL');
-  const carrierName = isEmax ? 'E-MAX' : (isDhl ? 'DHL' : 'UPS');
+  doc.text(`(≈ ${formatUSD(result.totalQuoteAmountUSD)})`, MARGIN_X + 8, yPos + 30);
 
-  doc.text(`Service Level: ${carrierName} International (${input.shippingMode || 'Door-to-Door'})`, MARGIN_X, yPos);
-  yPos = nextLine(yPos);
-  doc.text(`Applied Zone: ${result.appliedZone}`, MARGIN_X, yPos);
-  yPos = nextLine(yPos);
-  doc.text(`Transit Time: ${result.transitTime}`, MARGIN_X, yPos);
-  
-  return nextLine(yPos, 15);
+  // Right side info
+  const rightX = PAGE_WIDTH - MARGIN_X - 8;
+  doc.setFontSize(FONTS.SIZE_SMALL);
+  doc.text(`Carrier: ${result.carrier}`, rightX, yPos + 10, { align: 'right' });
+  doc.text(`Zone: ${result.appliedZone}`, rightX, yPos + 17, { align: 'right' });
+  doc.text(`Transit: ${result.transitTime}`, rightX, yPos + 24, { align: 'right' });
+  doc.text(`Incoterm: ${input.incoterm}`, rightX, yPos + 31, { align: 'right' });
+
+  return yPos + 45;
 };
+
+// ─── Warnings ────────────────────────────────────────────
 
 const drawWarnings = (doc: jsPDF, warnings: string[], yPos: number): number => {
-  if (warnings.length > 0) {
-    doc.setTextColor(...COLORS.WARNING);
-    doc.setFont("helvetica", "bold");
-    doc.text("Notice / Warnings:", MARGIN_X, yPos);
-    yPos = nextLine(yPos, 6);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    warnings.forEach(w => {
-      doc.text(`• ${w}`, MARGIN_X, yPos);
-      yPos = nextLine(yPos, 5);
-    });
-    yPos = nextLine(yPos, 5); // Extra space after warnings
-  }
-  return yPos;
+  if (warnings.length === 0) return yPos;
+
+  doc.setTextColor(...COLORS.WARNING);
+  doc.setFontSize(FONTS.SIZE_SMALL);
+  doc.text('⚠ 주의사항 / Warnings:', MARGIN_X, yPos);
+  yPos = nextLine(yPos, 5);
+
+  warnings.forEach(w => {
+    doc.text(`• ${w}`, MARGIN_X + 3, yPos);
+    yPos = nextLine(yPos, 5);
+  });
+
+  return nextLine(yPos, 5);
 };
+
+// ─── Footer ──────────────────────────────────────────────
 
 const drawFooter = (doc: jsPDF) => {
   const pageHeight = doc.internal.pageSize.height;
+
+  doc.setDrawColor(...COLORS.PRIMARY);
+  doc.setLineWidth(0.3);
+  doc.line(MARGIN_X, pageHeight - 28, PAGE_WIDTH - MARGIN_X, pageHeight - 28);
+
   doc.setFontSize(FONTS.SIZE_SMALL);
-  doc.setTextColor(150);
-  doc.text("This quote is an estimate based on provided dimensions and is subject to change upon final measurement.", MARGIN_X, pageHeight - 20);
-  doc.text("© 2025 J-Ways Co., Ltd.", MARGIN_X, pageHeight - 15);
+  doc.setTextColor(...COLORS.TEXT_LIGHT);
+  doc.text(
+    '본 견적서는 제공된 규격 기준 추정치이며, 최종 실측 시 변경될 수 있습니다.',
+    MARGIN_X,
+    pageHeight - 22
+  );
+  doc.text(
+    'This quote is an estimate based on provided dimensions and is subject to change upon final measurement.',
+    MARGIN_X,
+    pageHeight - 17
+  );
+  doc.text(`© ${new Date().getFullYear()} Goodman GLS / J-Ways Co., Ltd.`, MARGIN_X, pageHeight - 12);
+
+  // Page number
+  doc.text(
+    `Page ${doc.getCurrentPageInfo().pageNumber}`,
+    PAGE_WIDTH - MARGIN_X,
+    pageHeight - 12,
+    { align: 'right' }
+  );
 };
 
+// ─── Build Filename ──────────────────────────────────────
 
-/** Generate a side-by-side carrier comparison PDF (UPS vs DHL) */
+const buildFilename = (prefix: string, referenceNo?: string): string => {
+  const date = new Date().toISOString().slice(0, 10);
+  const ref = referenceNo || 'DRAFT';
+  return `${prefix}_${ref}_${date}.pdf`;
+};
+
+// ─── Public: Generate Single Quote PDF ───────────────────
+
+export const generatePDF = async (input: QuoteInput, result: QuoteResult, referenceNo?: string) => {
+  const { jsPDF: JsPDF } = await import('jspdf');
+  const doc = new JsPDF();
+
+  await loadKoreanFont(doc);
+
+  let yPos = 20;
+  yPos = drawHeader(doc, yPos, referenceNo);
+  yPos = drawShipmentDetails(doc, input, yPos);
+  yPos = await drawCargoTable(doc, input.items, result, yPos);
+  yPos = await drawCostTable(doc, result, yPos);
+  yPos = drawQuoteSummary(doc, input, result, yPos);
+  drawWarnings(doc, result.warnings, yPos);
+  drawFooter(doc);
+
+  doc.save(buildFilename('JWays_Quote', referenceNo));
+};
+
+// ─── Public: Generate Carrier Comparison PDF ─────────────
+
 export const generateComparisonPDF = async (
   input: QuoteInput,
   upsResult: QuoteResult,
-  dhlResult: QuoteResult
+  dhlResult: QuoteResult,
+  emaxResult?: QuoteResult,
 ) => {
-  const { jsPDF: JsPDF } = await import("jspdf");
+  const { jsPDF: JsPDF } = await import('jspdf');
+  const autoTable = (await import('jspdf-autotable')).default;
   const doc = new JsPDF();
+
+  await loadKoreanFont(doc);
+
   let yPos = 20;
 
   // Header
   yPos = drawHeader(doc, yPos);
-  doc.setFontSize(FONTS.SIZE_NORMAL);
-  doc.setTextColor(0);
-  doc.text(`Date: ${new Date().toLocaleDateString()}`, MARGIN_X, yPos);
-  doc.text('Carrier Comparison Report', 130, yPos);
+  doc.setFontSize(FONTS.SIZE_SUBHEADER);
+  doc.setTextColor(...COLORS.PRIMARY);
+  doc.text('캐리어 비교 / Carrier Comparison Report', MARGIN_X, yPos);
   yPos = nextLine(yPos, 10);
 
   // Shipment info
   yPos = drawShipmentDetails(doc, input, yPos);
-  yPos = drawCargoManifest(doc, input.items, upsResult, yPos);
+  yPos = await drawCargoTable(doc, input.items, upsResult, yPos);
 
-  // ── Comparison Table ──
-  doc.setFontSize(FONTS.SIZE_SUBHEADER);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(...COLORS.PRIMARY);
-  doc.text("Carrier Comparison", MARGIN_X, yPos);
-  yPos = nextLine(yPos, 10);
+  // Comparison table
+  const carriers = emaxResult ? ['UPS', 'DHL', 'EMAX'] : ['UPS', 'DHL'];
+  const results = emaxResult ? [upsResult, dhlResult, emaxResult] : [upsResult, dhlResult];
+  const amounts = results.map(r => r.totalQuoteAmount);
+  const minAmount = Math.min(...amounts);
 
-  const colLeft = 70;
-  const colRight = 140;
+  const headRow = ['항목', ...carriers];
+  const bodyRows = [
+    ['Zone', ...results.map(r => r.appliedZone)],
+    ['Transit Time', ...results.map(r => r.transitTime)],
+    ['청구중량 (kg)', ...results.map(r => formatNum(r.billableWeight))],
+    ['포장/핸들링', ...results.map(r => formatKRW(
+      r.breakdown.packingMaterial + r.breakdown.packingLabor + r.breakdown.packingFumigation + r.breakdown.handlingFees
+    ))],
+    ['국제운송', ...results.map(r => formatKRW(
+      r.breakdown.intlBase + r.breakdown.intlFsc + r.breakdown.intlWarRisk + r.breakdown.intlSurge
+    ))],
+    ['총 비용', ...results.map(r => formatKRW(r.breakdown.totalCost))],
+    ['견적가 (KRW)', ...results.map(r => formatKRW(r.totalQuoteAmount))],
+    ['견적가 (USD)', ...results.map(r => formatUSD(r.totalQuoteAmountUSD))],
+  ];
 
-  // Table header
-  doc.setFillColor(...COLORS.BG_HEADER);
-  doc.rect(15, yPos - 5, 180, 10, 'F');
-  doc.setFontSize(FONTS.SIZE_NORMAL);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(0);
-  doc.text("", MARGIN_X, yPos);
-  doc.text("UPS", colLeft, yPos, { align: 'center' });
-  doc.text("DHL", colRight, yPos, { align: 'center' });
-  yPos = nextLine(yPos, 8);
+  autoTable(doc, {
+    startY: yPos,
+    head: [headRow],
+    body: bodyRows,
+    theme: 'grid',
+    headStyles: {
+      fillColor: COLORS.PRIMARY as [number, number, number],
+      font: FONTS.FAMILY,
+      fontSize: FONTS.SIZE_TABLE,
+      halign: 'center',
+    },
+    bodyStyles: {
+      font: FONTS.FAMILY,
+      fontSize: FONTS.SIZE_TABLE,
+      halign: 'center',
+    },
+    columnStyles: {
+      0: { halign: 'left', fontStyle: 'bold', cellWidth: 55 },
+    },
+    didParseCell: (data: any) => {
+      // Highlight cheapest carrier in the quote row
+      if (data.row.index === 6 && data.column.index > 0) {
+        const carrierIdx = data.column.index - 1;
+        if (amounts[carrierIdx] === minAmount) {
+          data.cell.styles.textColor = COLORS.PRIMARY;
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+    },
+    margin: { left: MARGIN_X, right: MARGIN_X },
+  });
 
-  const compRow = (label: string, upsVal: string, dhlVal: string, highlight?: 'ups' | 'dhl') => {
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(80);
-    doc.text(label, MARGIN_X, yPos);
-    doc.setTextColor(0);
-    if (highlight === 'ups') doc.setFont("helvetica", "bold");
-    doc.text(upsVal, colLeft, yPos, { align: 'center' });
-    doc.setFont("helvetica", "normal");
-    if (highlight === 'dhl') doc.setFont("helvetica", "bold");
-    doc.text(dhlVal, colRight, yPos, { align: 'center' });
-    doc.setFont("helvetica", "normal");
-    yPos = nextLine(yPos);
-  };
-
-  const cheaper = upsResult.totalQuoteAmount <= dhlResult.totalQuoteAmount ? 'ups' : 'dhl';
-
-  compRow("Zone", upsResult.appliedZone, dhlResult.appliedZone);
-  compRow("Transit Time", upsResult.transitTime, dhlResult.transitTime);
-  compRow("Billable Weight", `${formatNum(upsResult.billableWeight)} kg`, `${formatNum(dhlResult.billableWeight)} kg`);
-  yPos = nextLine(yPos, 3);
-
-  // Cost rows
-  doc.setDrawColor(220);
-  doc.line(MARGIN_X, yPos - 2, 190, yPos - 2);
-  compRow("Packing & Handling",
-    formatKRW(upsResult.breakdown.packingMaterial + upsResult.breakdown.packingLabor + upsResult.breakdown.packingFumigation + upsResult.breakdown.handlingFees),
-    formatKRW(dhlResult.breakdown.packingMaterial + dhlResult.breakdown.packingLabor + dhlResult.breakdown.packingFumigation + dhlResult.breakdown.handlingFees)
-  );
-  compRow("Intl. Freight",
-    formatKRW(upsResult.breakdown.intlBase + upsResult.breakdown.intlFsc + upsResult.breakdown.intlWarRisk + upsResult.breakdown.intlSurge),
-    formatKRW(dhlResult.breakdown.intlBase + dhlResult.breakdown.intlFsc + dhlResult.breakdown.intlWarRisk + dhlResult.breakdown.intlSurge)
-  );
-  compRow("Total Cost", formatKRW(upsResult.breakdown.totalCost), formatKRW(dhlResult.breakdown.totalCost));
-  yPos = nextLine(yPos, 3);
-
-  // Total Quote (highlighted)
-  doc.setDrawColor(...COLORS.PRIMARY);
-  doc.setLineWidth(0.5);
-  doc.line(MARGIN_X, yPos - 2, 190, yPos - 2);
-  doc.setLineWidth(0.2);
-  yPos = nextLine(yPos, 2);
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(0);
-  doc.text("Total Quote", MARGIN_X, yPos);
-  if (cheaper === 'ups') doc.setTextColor(...COLORS.PRIMARY);
-  doc.text(formatKRW(upsResult.totalQuoteAmount), colLeft, yPos, { align: 'center' });
-  doc.setTextColor(0);
-  if (cheaper === 'dhl') doc.setTextColor(...COLORS.PRIMARY);
-  doc.text(formatKRW(dhlResult.totalQuoteAmount), colRight, yPos, { align: 'center' });
-  yPos = nextLine(yPos);
-
-  doc.setFontSize(FONTS.SIZE_NORMAL);
-  doc.setTextColor(...COLORS.TEXT_LIGHT);
-  doc.text("USD", MARGIN_X + 23, yPos);
-  doc.text(formatUSD(upsResult.totalQuoteAmountUSD), colLeft, yPos, { align: 'center' });
-  doc.text(formatUSD(dhlResult.totalQuoteAmountUSD), colRight, yPos, { align: 'center' });
-  yPos = nextLine(yPos, 10);
+  yPos = (doc as any).lastAutoTable.finalY + 10;
 
   // Savings note
-  const diff = Math.abs(upsResult.totalQuoteAmount - dhlResult.totalQuoteAmount);
-  if (diff > 0) {
+  if (amounts.filter(a => a !== minAmount).length > 0) {
+    const cheapestIdx = amounts.indexOf(minAmount);
+    const expensiveAmount = Math.max(...amounts);
+    const savings = expensiveAmount - minAmount;
     doc.setFontSize(FONTS.SIZE_NORMAL);
     doc.setTextColor(...COLORS.PRIMARY);
-    doc.setFont("helvetica", "bold");
-    const cheaperName = cheaper === 'ups' ? 'UPS' : 'DHL';
-    doc.text(`→ ${cheaperName} is ${formatKRW(diff)} cheaper (${formatUSD(diff / input.exchangeRate)})`, MARGIN_X, yPos);
+    doc.text(
+      `→ ${carriers[cheapestIdx]}가 최저가: ${formatKRW(savings)} 절감 (≈ ${formatUSD(savings / input.exchangeRate)})`,
+      MARGIN_X,
+      yPos
+    );
   }
 
   drawFooter(doc);
-  doc.save("jways_carrier_comparison.pdf");
-};
-
-export const generatePDF = async (input: QuoteInput, result: QuoteResult, referenceNo?: string) => {
-  const { jsPDF: JsPDF } = await import("jspdf");
-  const doc = new JsPDF();
-  let yPos = 20;
-
-  yPos = drawHeader(doc, yPos);
-  yPos = drawMetaData(doc, yPos, referenceNo);
-  yPos = drawShipmentDetails(doc, input, yPos);
-  yPos = drawCargoManifest(doc, input.items, result, yPos);
-  yPos = drawCostBreakdown(doc, result, yPos);
-  yPos = drawQuoteSummary(doc, input, result, yPos);
-  drawWarnings(doc, result.warnings, yPos);
-  
-  drawFooter(doc);
-
-  doc.save("jways_smart_quote.pdf");
+  doc.save(buildFilename('JWays_Comparison'));
 };
