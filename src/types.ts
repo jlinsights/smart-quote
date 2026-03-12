@@ -50,6 +50,16 @@ export enum Incoterm {
 
     // UPS Add-on Services
     upsAddOns?: string[]; // Selected UPS add-on codes (e.g. ['RES', 'RMT'])
+
+    // DB-driven surcharges (resolved from API, applied in calculateQuote)
+    resolvedSurcharges?: Array<{
+      code: string;
+      name: string;
+      nameKo: string | null;
+      chargeType: 'fixed' | 'rate';
+      amount: number; // KRW for fixed, % for rate
+      sourceUrl: string | null;
+    }>;
   }
   
   export interface CostBreakdown {

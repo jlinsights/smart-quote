@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { QuoteInput, PackingType, Incoterm } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SEOUL_PICKUP_ZONES } from '@/config/options';
@@ -28,6 +28,24 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
   const { surcharges, loading: scLoading, error: scError, lastUpdated: scUpdated, calculateApplied, totalAmount, retry: scRetry } = useSurcharges(carrier, input.destinationCountry);
   const appliedSurcharges = calculateApplied(intlBase);
   const systemTotal = totalAmount(intlBase);
+
+  // Sync resolved surcharges into QuoteInput for calculateQuote()
+  const prevSurchargesRef = useRef<string>('');
+  useEffect(() => {
+    const mapped = surcharges.map(s => ({
+      code: s.code,
+      name: s.name,
+      nameKo: s.name_ko,
+      chargeType: s.charge_type,
+      amount: s.amount,
+      sourceUrl: s.source_url,
+    }));
+    const key = JSON.stringify(mapped);
+    if (key !== prevSurchargesRef.current) {
+      prevSurchargesRef.current = key;
+      onFieldChange('resolvedSurcharges', mapped.length > 0 ? mapped : undefined);
+    }
+  }, [surcharges, onFieldChange]);
 
   return (
     <div className={cardClass}>

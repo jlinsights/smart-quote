@@ -517,8 +517,31 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
       break;
   }
 
-  // Surge: manual input for all carriers (UPS, DHL, EMAX)
-  const surgeCost = input.manualSurgeCost ?? 0;
+  // System surcharges from DB (War Risk, PSS, EBS, etc.)
+  const manualSurgeCost = input.manualSurgeCost ?? 0;
+  let systemSurchargeTotal = 0;
+  let appliedSurcharges: NonNullable<import("@/types").CostBreakdown["appliedSurcharges"]> | undefined;
+
+  if (input.resolvedSurcharges && input.resolvedSurcharges.length > 0) {
+    const applied = input.resolvedSurcharges.map(s => {
+      const appliedAmount = s.chargeType === 'rate'
+        ? Math.round(carrierResult.intlBase * s.amount / 100)
+        : Math.round(s.amount);
+      return {
+        code: s.code,
+        name: s.name,
+        nameKo: s.nameKo ?? undefined,
+        chargeType: s.chargeType,
+        amount: s.amount,
+        appliedAmount,
+        sourceUrl: s.sourceUrl ?? undefined,
+      };
+    });
+    systemSurchargeTotal = applied.reduce((sum, s) => sum + s.appliedAmount, 0);
+    appliedSurcharges = applied;
+  }
+
+  const surgeCost = systemSurchargeTotal + manualSurgeCost;
   const intlTotal = carrierResult.intlBase + carrierResult.intlFsc + carrierResult.intlWarRisk + surgeCost;
 
   // 3a. Carrier Add-on Services (DHL or UPS)
@@ -605,6 +628,9 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
       intlFsc: carrierResult.intlFsc,
       intlWarRisk: carrierResult.intlWarRisk,
       intlSurge: surgeCost,
+      intlSystemSurcharge: systemSurchargeTotal || undefined,
+      intlManualSurge: manualSurgeCost || undefined,
+      appliedSurcharges,
       dhlAddOnTotal: dhlAddOnTotal || undefined,
       dhlAddOnDetails,
       destDuty,
