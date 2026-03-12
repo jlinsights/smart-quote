@@ -1,1 +1,1 @@
-🗄️ feat: DHL/UPS 부가서비스 요금 DB 마이그레이션 (addon_rates 테이블 + Resolver 서비스 + API + 프론트엔드 통합)
+🐛 fix: Ruby 3.4 rss gem 누락으로 Render 배포 실패 수정 (Gemfile에 rss gem 추가)

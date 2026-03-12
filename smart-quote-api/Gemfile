@@ -33,8 +33,9 @@ gem "kaminari"
 # Rate limiting
 gem "rack-attack"
 
-# CSV (removed from default gems in Ruby 3.4)
+# CSV and RSS (removed from default gems in Ruby 3.4)
 gem "csv"
+gem "rss"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
