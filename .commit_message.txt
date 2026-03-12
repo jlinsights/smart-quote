@@ -1,1 +1,1 @@
-🗃️ fix: DB 최적화 — schema.rb 재생성, 중복 마이그레이션 제거, 성능 인덱스 추가
+🐛 fix: Packing & Docs Cost Override 버그 수정 — manualPackingCost 입력 시 핸들링비(35,000원) 유지

@@ -591,10 +591,9 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   }
 
   let finalHandlingFee = HANDLING_FEE;
-  // Manual override zeroes out specific components if applied
+  // Manual packing cost override: replace packing material/labor costs but keep handling fee
   if (input.manualPackingCost !== undefined && input.manualPackingCost >= 0) {
       packingFumigationCost = 0;
-      finalHandlingFee = 0;
   }
 
   const packingTotal = itemResult.packingMaterialCost + itemResult.packingLaborCost + packingFumigationCost;
