@@ -161,7 +161,7 @@ module Api
           end
         end
 
-        AuditLog.track!(user: current_user, action: "quote.exported", resource: Quote.new(id: 0), metadata: { count: quotes.count, filters: params.slice(:q, :destination_country, :date_from, :date_to, :status).to_unsafe_h }, ip_address: request.remote_ip)
+        AuditLog.track!(user: current_user, action: "quote.exported", resource: Quote.new(id: 0), metadata: { count: quotes.count, filters: params.permit(:q, :destination_country, :date_from, :date_to, :status).to_h }, ip_address: request.remote_ip)
         send_data csv_data, filename: "quotes-#{Date.current}.csv", type: "text/csv"
       end
 
@@ -184,6 +184,9 @@ module Api
           :exchangeRate, :fscPercent,
           :manualDomesticCost, :manualPackingCost, :manualSurgeCost,
           :overseasCarrier, :customerId, :pickupInSeoulCost,
+          :dhlDeclaredValue,
+          dhlAddOns: [],
+          upsAddOns: [],
           items: [ :id, :name, :quantity, :weight, :length, :width, :height ]
         ).to_h
       end
