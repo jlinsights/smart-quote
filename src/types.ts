@@ -60,6 +60,25 @@ export enum Incoterm {
       amount: number; // KRW for fixed, % for rate
       sourceUrl: string | null;
     }>;
+
+    // DB-driven add-on rates (resolved from API, replaces hardcoded dhl_addons/ups_addons)
+    resolvedAddonRates?: Array<{
+      code: string;
+      carrier: 'DHL' | 'UPS';
+      nameEn: string;
+      nameKo: string;
+      chargeType: 'fixed' | 'per_piece' | 'per_carton' | 'calculated';
+      unit: 'shipment' | 'piece' | 'carton';
+      amount: number;
+      perKgRate: number | null;
+      ratePercent: number | null;
+      minAmount: number | null;
+      fscApplicable: boolean;
+      autoDetect: boolean;
+      selectable: boolean;
+      condition: string | null;
+      detectRules: Record<string, number | string[]> | null;
+    }>;
   }
   
   export interface CostBreakdown {

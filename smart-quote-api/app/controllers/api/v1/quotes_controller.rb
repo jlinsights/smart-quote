@@ -187,7 +187,11 @@ module Api
           :dhlDeclaredValue,
           dhlAddOns: [],
           upsAddOns: [],
-          items: [ :id, :name, :quantity, :weight, :length, :width, :height ]
+          items: [ :id, :name, :quantity, :weight, :length, :width, :height ],
+          resolvedAddonRates: [ :code, :carrier, :nameEn, :nameKo, :chargeType,
+                                :unit, :amount, :perKgRate, :ratePercent, :minAmount,
+                                :fscApplicable, :autoDetect, :selectable, :condition,
+                                detectRules: {} ]
         ).to_h
       end
 

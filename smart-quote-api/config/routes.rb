@@ -45,6 +45,13 @@ Rails.application.routes.draw do
         end
       end
 
+      # Add-on Rates (CRUD: admin, resolve: authenticated)
+      resources :addon_rates, only: [ :index, :create, :update, :destroy ] do
+        collection do
+          get :resolve
+        end
+      end
+
       # FSC Rates
       get "fsc/rates", to: "fsc#rates"
       post "fsc/update", to: "fsc#update_rates"

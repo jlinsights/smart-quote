@@ -1,1 +1,1 @@
-🔒 fix: clean_params에 dhlAddOns/upsAddOns/dhlDeclaredValue 누락 수정 + to_unsafe_h 제거
+🗄️ feat: DHL/UPS 부가서비스 요금 DB 마이그레이션 (addon_rates 테이블 + Resolver 서비스 + API + 프론트엔드 통합)

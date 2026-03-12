@@ -338,6 +338,25 @@ export const calculateEmaxCosts = (
 
 // --- DHL Add-on Cost Calculator ---
 
+// Generic add-on fee calculator for 'calculated' charge types using DB params
+const calcAddonFee = (
+  rate: { chargeType: string; amount: number; perKgRate?: number | null; ratePercent?: number | null; minAmount?: number | null },
+  billableWeight: number,
+  declaredValue: number
+): number => {
+  if (rate.chargeType === 'calculated') {
+    if (rate.perKgRate) {
+      const min = rate.minAmount ?? rate.amount;
+      return Math.max(min, Math.ceil(billableWeight) * rate.perKgRate);
+    }
+    if (rate.ratePercent) {
+      const min = rate.minAmount ?? rate.amount;
+      return Math.max(declaredValue * rate.ratePercent / 100, min);
+    }
+  }
+  return rate.amount;
+};
+
 const calculateDhlAddOnCosts = (
   input: QuoteInput,
   billableWeight: number,
@@ -347,9 +366,32 @@ const calculateDhlAddOnCosts = (
   const details: NonNullable<import("@/types").CostBreakdown["dhlAddOnDetails"]> = [];
   let total = 0;
 
+  // Use DB rates if available, otherwise hardcoded
+  const dbRates = input.resolvedAddonRates?.filter(r => r.carrier === 'DHL');
+  const useDb = dbRates && dbRates.length > 0;
+
+  type AddonRateLike = {
+    code: string; nameKo: string; nameEn: string; amount: number;
+    chargeType: string; fscApplicable: boolean;
+    perKgRate?: number | null; ratePercent?: number | null; minAmount?: number | null;
+    detectRules?: Record<string, number | string[]> | null;
+  };
+
+  const findRate = (code: string): AddonRateLike | null => {
+    if (useDb) {
+      const r = dbRates!.find(a => a.code === code);
+      return r ? { ...r } : null;
+    }
+    const h = DHL_ADDON_RATES.find(a => a.code === code);
+    return h ? { code: h.code, nameKo: h.nameKo, nameEn: h.nameEn, amount: h.amount, chargeType: h.chargeType, fscApplicable: h.fscApplicable } : null;
+  };
+
   // 1. Auto-detected: OSP and OWT
   let ospCount = 0;
   let owtCount = 0;
+  const ospDef = findRate("OSP");
+  const owtDef = findRate("OWT");
+
   input.items.forEach((item) => {
     let l = item.length;
     let w = item.width;
@@ -361,37 +403,60 @@ const calculateDhlAddOnCosts = (
       weight = weight * PACKING_WEIGHT_BUFFER + PACKING_WEIGHT_ADDITION;
     }
 
-    if (isDhlOversizePiece(l, w, h)) ospCount += item.quantity;
-    if (isDhlOverWeight(weight)) owtCount += item.quantity;
+    // OSP detection using DB detectRules or hardcoded
+    if (useDb && ospDef?.detectRules) {
+      const rules = ospDef.detectRules;
+      const maxL = (rules.max_longest as number) ?? 100;
+      const maxS = (rules.max_second as number) ?? 80;
+      const sorted = [l, w, h].sort((a, b) => b - a);
+      if (sorted[0] > maxL || sorted[1] > maxS) ospCount += item.quantity;
+    } else {
+      if (isDhlOversizePiece(l, w, h)) ospCount += item.quantity;
+    }
+
+    // OWT detection
+    if (useDb && owtDef?.detectRules) {
+      const threshold = (owtDef.detectRules.weight_threshold as number) ?? 70;
+      if (weight > threshold) owtCount += item.quantity;
+    } else {
+      if (isDhlOverWeight(weight)) owtCount += item.quantity;
+    }
   });
 
-  if (ospCount > 0) {
-    const ospRate = DHL_ADDON_RATES.find((a) => a.code === "OSP")!;
-    const amount = ospRate.amount * ospCount;
-    const fsc = ospRate.fscApplicable ? amount * fscRate : 0;
-    details.push({ code: "OSP", nameKo: ospRate.nameKo, nameEn: ospRate.nameEn, amount, fscAmount: fsc });
+  if (ospCount > 0 && ospDef) {
+    const amount = ospDef.amount * ospCount;
+    const fsc = ospDef.fscApplicable ? amount * fscRate : 0;
+    details.push({ code: "OSP", nameKo: ospDef.nameKo, nameEn: ospDef.nameEn, amount, fscAmount: fsc });
     total += amount + fsc;
   }
-  if (owtCount > 0) {
-    const owtRate = DHL_ADDON_RATES.find((a) => a.code === "OWT")!;
-    const amount = owtRate.amount * owtCount;
-    const fsc = owtRate.fscApplicable ? amount * fscRate : 0;
-    details.push({ code: "OWT", nameKo: owtRate.nameKo, nameEn: owtRate.nameEn, amount, fscAmount: fsc });
+  if (owtCount > 0 && owtDef) {
+    const amount = owtDef.amount * owtCount;
+    const fsc = owtDef.fscApplicable ? amount * fscRate : 0;
+    details.push({ code: "OWT", nameKo: owtDef.nameKo, nameEn: owtDef.nameEn, amount, fscAmount: fsc });
     total += amount + fsc;
   }
 
   // 2. User-selected add-ons
   const selectedCodes = input.dhlAddOns || [];
   selectedCodes.forEach((code) => {
-    const addon = DHL_ADDON_RATES.find((a) => a.code === code);
+    const addon = findRate(code);
     if (!addon) return;
 
-    let amount = addon.amount;
-    if (code === "RMT") amount = calculateRemoteAreaFee(billableWeight);
-    if (code === "INS") amount = calculateInsuranceFee(input.dhlDeclaredValue || 0);
-    if (code === "IRR") {
-      const totalPieces = input.items.reduce((s, i) => s + i.quantity, 0);
-      amount = addon.amount * totalPieces;
+    let amount: number;
+    if (useDb) {
+      amount = calcAddonFee(addon as any, billableWeight, input.dhlDeclaredValue || 0);
+      if (code === "IRR" && addon.chargeType === 'per_piece') {
+        const totalPieces = input.items.reduce((s, i) => s + i.quantity, 0);
+        amount = addon.amount * totalPieces;
+      }
+    } else {
+      amount = addon.amount;
+      if (code === "RMT") amount = calculateRemoteAreaFee(billableWeight);
+      if (code === "INS") amount = calculateInsuranceFee(input.dhlDeclaredValue || 0);
+      if (code === "IRR") {
+        const totalPieces = input.items.reduce((s, i) => s + i.quantity, 0);
+        amount = addon.amount * totalPieces;
+      }
     }
 
     const fsc = addon.fscApplicable ? amount * fscRate : 0;
@@ -413,8 +478,30 @@ const calculateUpsAddOnCosts = (
   const details: NonNullable<import("@/types").CostBreakdown["dhlAddOnDetails"]> = [];
   let total = 0;
 
+  // Use DB rates if available, otherwise hardcoded
+  const dbRates = input.resolvedAddonRates?.filter(r => r.carrier === 'UPS');
+  const useDb = dbRates && dbRates.length > 0;
+
+  type AddonRateLike = {
+    code: string; nameKo: string; nameEn: string; amount: number;
+    chargeType: string; fscApplicable: boolean;
+    perKgRate?: number | null; ratePercent?: number | null; minAmount?: number | null;
+    detectRules?: Record<string, number | string[]> | null;
+  };
+
+  const findRate = (code: string): AddonRateLike | null => {
+    if (useDb) {
+      const r = dbRates!.find(a => a.code === code);
+      return r ? { ...r } : null;
+    }
+    const h = UPS_ADDON_RATES.find(a => a.code === code);
+    return h ? { code: h.code, nameKo: h.nameKo, nameEn: h.nameEn, amount: h.amount, chargeType: h.chargeType, fscApplicable: h.fscApplicable } : null;
+  };
+
   // 1. Auto-detected: AHS (Additional Handling)
   let ahsCount = 0;
+  const ahsDef = findRate("AHS");
+
   input.items.forEach((item) => {
     let l = item.length;
     let w = item.width;
@@ -426,36 +513,58 @@ const calculateUpsAddOnCosts = (
       weight = weight * PACKING_WEIGHT_BUFFER + PACKING_WEIGHT_ADDITION;
     }
 
-    if (isUpsAdditionalHandling(l, w, h, weight, input.packingType)) ahsCount += item.quantity;
+    if (useDb && ahsDef?.detectRules) {
+      const rules = ahsDef.detectRules;
+      const wt = (rules.weight_threshold as number) ?? 25;
+      const ml = (rules.max_longest as number) ?? 122;
+      const ms = (rules.max_second as number) ?? 76;
+      const pt = (rules.packing_types as string[]) ?? ['WOODEN_BOX', 'SKID'];
+      const sorted = [l, w, h].sort((a, b) => b - a);
+      if (weight > wt || sorted[0] > ml || sorted[1] > ms || pt.includes(input.packingType)) {
+        ahsCount += item.quantity;
+      }
+    } else {
+      if (isUpsAdditionalHandling(l, w, h, weight, input.packingType)) ahsCount += item.quantity;
+    }
   });
 
-  if (ahsCount > 0) {
-    const ahsRate = UPS_ADDON_RATES.find((a) => a.code === "AHS")!;
-    const amount = ahsRate.amount * ahsCount;
-    const fsc = ahsRate.fscApplicable ? amount * fscRate : 0;
-    details.push({ code: "AHS", nameKo: ahsRate.nameKo, nameEn: ahsRate.nameEn, amount, fscAmount: fsc });
+  if (ahsCount > 0 && ahsDef) {
+    const amount = ahsDef.amount * ahsCount;
+    const fsc = ahsDef.fscApplicable ? amount * fscRate : 0;
+    details.push({ code: "AHS", nameKo: ahsDef.nameKo, nameEn: ahsDef.nameEn, amount, fscAmount: fsc });
     total += amount + fsc;
   }
 
   // 2. Auto-detected: DDP Service Fee
   if (input.incoterm === Incoterm.DDP) {
-    const ddpRate = UPS_ADDON_RATES.find((a) => a.code === "DDP")!;
-    details.push({ code: "DDP", nameKo: ddpRate.nameKo, nameEn: ddpRate.nameEn, amount: ddpRate.amount, fscAmount: 0 });
-    total += ddpRate.amount;
+    const ddpDef = findRate("DDP");
+    if (ddpDef) {
+      details.push({ code: "DDP", nameKo: ddpDef.nameKo, nameEn: ddpDef.nameEn, amount: ddpDef.amount, fscAmount: 0 });
+      total += ddpDef.amount;
+    }
   }
 
   // 3. User-selected add-ons
   const selectedCodes = input.upsAddOns || [];
   selectedCodes.forEach((code) => {
-    const addon = UPS_ADDON_RATES.find((a) => a.code === code);
+    const addon = findRate(code);
     if (!addon) return;
 
-    let amount = addon.amount;
-    if (code === "RMT") amount = calculateUpsRemoteAreaFee(billableWeight);
-    if (code === "EXT") amount = calculateUpsExtendedAreaFee(billableWeight);
-    if (code === "ADC") {
-      const totalCartons = input.items.reduce((s, i) => s + i.quantity, 0);
-      amount = addon.amount * totalCartons;
+    let amount: number;
+    if (useDb) {
+      amount = calcAddonFee(addon as any, billableWeight, 0);
+      if (code === "ADC" && addon.chargeType === 'per_carton') {
+        const totalCartons = input.items.reduce((s, i) => s + i.quantity, 0);
+        amount = addon.amount * totalCartons;
+      }
+    } else {
+      amount = addon.amount;
+      if (code === "RMT") amount = calculateUpsRemoteAreaFee(billableWeight);
+      if (code === "EXT") amount = calculateUpsExtendedAreaFee(billableWeight);
+      if (code === "ADC") {
+        const totalCartons = input.items.reduce((s, i) => s + i.quantity, 0);
+        amount = addon.amount * totalCartons;
+      }
     }
 
     const fsc = addon.fscApplicable ? amount * fscRate : 0;

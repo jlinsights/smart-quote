@@ -7,6 +7,7 @@ import { SurchargePanel } from './SurchargePanel';
 import { DhlAddOnPanel } from './DhlAddOnPanel';
 import { UpsAddOnPanel } from './UpsAddOnPanel';
 import { useSurcharges } from '@/features/dashboard/hooks/useSurcharges';
+import { useAddonRates } from '@/features/dashboard/hooks/useAddonRates';
 
 interface Props {
   input: QuoteInput;
@@ -29,6 +30,9 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
   const appliedSurcharges = calculateApplied(intlBase);
   const systemTotal = totalAmount(intlBase);
 
+  // DB-driven add-on rates (fallback to hardcoded in panels if API fails)
+  const { rates: dbAddonRates } = useAddonRates(carrier as 'DHL' | 'UPS');
+
   // Sync resolved surcharges into QuoteInput for calculateQuote()
   const prevSurchargesRef = useRef<string>('');
   useEffect(() => {
@@ -46,6 +50,34 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
       onFieldChange('resolvedSurcharges', mapped.length > 0 ? mapped : undefined);
     }
   }, [surcharges, onFieldChange]);
+
+  // Sync resolved addon rates into QuoteInput for calculateQuote()
+  const prevAddonRatesRef = useRef<string>('');
+  useEffect(() => {
+    if (dbAddonRates.length === 0) return;
+    const mapped = dbAddonRates.map(r => ({
+      code: r.code,
+      carrier: r.carrier,
+      nameEn: r.nameEn,
+      nameKo: r.nameKo,
+      chargeType: r.chargeType,
+      unit: r.unit,
+      amount: r.amount,
+      perKgRate: r.perKgRate,
+      ratePercent: r.ratePercent,
+      minAmount: r.minAmount,
+      fscApplicable: r.fscApplicable,
+      autoDetect: r.autoDetect,
+      selectable: r.selectable,
+      condition: r.condition,
+      detectRules: r.detectRules,
+    }));
+    const key = JSON.stringify(mapped);
+    if (key !== prevAddonRatesRef.current) {
+      prevAddonRatesRef.current = key;
+      onFieldChange('resolvedAddonRates', mapped);
+    }
+  }, [dbAddonRates, onFieldChange]);
 
   return (
     <div className={cardClass}>
@@ -111,6 +143,7 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
             billableWeight={billableWeight}
             fscPercent={input.fscPercent}
             isMobileView={isMobileView}
+            dbRates={dbAddonRates.length > 0 ? dbAddonRates : undefined}
           />
         )}
 
@@ -124,6 +157,7 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
             fscPercent={input.fscPercent}
             isMobileView={isMobileView}
             incoterm={input.incoterm}
+            dbRates={dbAddonRates.length > 0 ? dbAddonRates : undefined}
           />
         )}
 
