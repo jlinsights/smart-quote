@@ -1,1 +1,1 @@
-🔄 fix: 백엔드 동기화 — quote_calculator.rb 핸들링비 버그 동일 수정 + 패리티 테스트 업데이트
+🔧 fix: Packing & Docs Override = 전체 대체 (핸들링 포함) + 비용 산출 기준 안내 UI 추가

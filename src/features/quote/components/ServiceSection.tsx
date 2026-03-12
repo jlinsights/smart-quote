@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { QuoteInput, PackingType, Incoterm } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SEOUL_PICKUP_ZONES } from '@/config/options';
@@ -8,6 +8,8 @@ import { DhlAddOnPanel } from './DhlAddOnPanel';
 import { UpsAddOnPanel } from './UpsAddOnPanel';
 import { useSurcharges } from '@/features/dashboard/hooks/useSurcharges';
 import { useAddonRates } from '@/features/dashboard/hooks/useAddonRates';
+import { UI_TEXT } from '@/config/text';
+import { HelpCircle, X } from 'lucide-react';
 
 interface Props {
   input: QuoteInput;
@@ -99,24 +101,7 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
           </div>
         </div>
 
-        <div>
-          <label className={lc}>Packing & Docs Cost Override (KRW)</label>
-          <div className="relative">
-              <input
-                  type="number"
-                  step="any"
-                  value={input.manualPackingCost ?? ''}
-                  onChange={(e) => onFieldChange('manualPackingCost', e.target.value === '' ? undefined : Number(e.target.value))}
-                  className={ic}
-                  placeholder="Auto-calculated if empty"
-                  inputMode="decimal"
-                  autoComplete="off"
-              />
-          </div>
-          <p className="mt-1 text-[10px] text-gray-400">
-              Enter cost to override auto-calculation of Material, Labor, Fumigation & Handling.
-          </p>
-        </div>
+        <PackingCostOverrideField input={input} onFieldChange={onFieldChange} lc={lc} ic={ic} />
 
         <SurchargePanel
           carrier={carrier}
@@ -233,6 +218,62 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
           </div>
         )}
       </div>
+    </div>
+  );
+};
+
+/** Packing & Docs Cost Override with expandable calculation basis info */
+const PackingCostOverrideField: React.FC<{
+  input: QuoteInput;
+  onFieldChange: <K extends keyof QuoteInput>(key: K, value: QuoteInput[K]) => void;
+  lc: string;
+  ic: string;
+}> = ({ input, onFieldChange, lc, ic }) => {
+  const [showInfo, setShowInfo] = useState(false);
+
+  return (
+    <div>
+      <label className={lc}>Packing & Docs Cost Override (KRW)</label>
+      <div className="relative">
+        <input
+          type="number"
+          step="any"
+          value={input.manualPackingCost ?? ''}
+          onChange={(e) => onFieldChange('manualPackingCost', e.target.value === '' ? undefined : Number(e.target.value))}
+          className={ic}
+          placeholder="Auto-calculated if empty"
+          inputMode="decimal"
+          autoComplete="off"
+        />
+      </div>
+      <div className="mt-1.5 flex items-start gap-1">
+        <button
+          type="button"
+          onClick={() => setShowInfo(!showInfo)}
+          className="flex items-center gap-1 text-[10px] text-gray-400 hover:text-jways-500 transition-colors"
+        >
+          <HelpCircle className="w-3 h-3 flex-shrink-0" />
+          <span>Enter cost to override auto-calculation of Material, Labor, Fumigation & Handling.</span>
+        </button>
+      </div>
+      {showInfo && (
+        <div className="mt-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-xs text-gray-600 dark:text-gray-300 border border-gray-100 dark:border-gray-600 relative animate-in fade-in slide-in-from-top-1 duration-200">
+          <button
+            type="button"
+            onClick={() => setShowInfo(false)}
+            className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          >
+            <X className="w-3 h-3" />
+          </button>
+          <p className="font-bold mb-2 text-jways-700 dark:text-jways-300">{UI_TEXT.COST_BREAKDOWN.TITLE}</p>
+          <ul className="space-y-1 list-disc pl-4 marker:text-gray-300">
+            <li>{UI_TEXT.COST_BREAKDOWN.MATERIAL}</li>
+            <li>{UI_TEXT.COST_BREAKDOWN.LABOR}</li>
+            <li>{UI_TEXT.COST_BREAKDOWN.FUMIGATION}</li>
+            <li>{UI_TEXT.COST_BREAKDOWN.HANDLING}</li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
