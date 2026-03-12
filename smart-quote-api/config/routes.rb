@@ -38,6 +38,13 @@ Rails.application.routes.draw do
       # Logistics News (public)
       get "notices/news", to: "notices#news"
 
+      # Surcharges (CRUD: admin, resolve: authenticated)
+      resources :surcharges, only: [ :index, :create, :update, :destroy ] do
+        collection do
+          get :resolve
+        end
+      end
+
       # FSC Rates
       get "fsc/rates", to: "fsc#rates"
       post "fsc/update", to: "fsc#update_rates"

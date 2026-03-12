@@ -12,6 +12,7 @@ const mockQuote: QuoteSummary = {
   profitMargin: 20.0,
   billableWeight: 15.5,
   status: 'draft',
+  validityDate: '2026-02-21',
   createdAt: '2026-02-14T00:00:00Z',
 };
 

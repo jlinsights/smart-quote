@@ -43,6 +43,13 @@ export enum Incoterm {
     manualPackingCost?: number; // Optional manual override for packing & docs
     manualSurgeCost?: number; // Optional manual surge/AHS cost (auto-calc disabled)
     pickupInSeoulCost?: number; // Extra cost for pick-up in Seoul (KRW)
+
+    // DHL Add-on Services
+    dhlAddOns?: string[]; // Selected DHL add-on codes (e.g. ['SAT', 'RES'])
+    dhlDeclaredValue?: number; // Declared value for insurance calculation (KRW)
+
+    // UPS Add-on Services
+    upsAddOns?: string[]; // Selected UPS add-on codes (e.g. ['RES', 'RMT'])
   }
   
   export interface CostBreakdown {
@@ -54,7 +61,26 @@ export enum Incoterm {
     intlBase: number; // Carrier base rate (UPS/DHL/EMAX)
     intlFsc: number; // Fuel Surcharge (0 for EMAX)
     intlWarRisk: number; // War risk surcharge (0 for EMAX)
-    intlSurge: number; // Additional Handling, Large Package, etc.
+    intlSurge: number; // Combined surge total (system + manual)
+    intlSystemSurcharge?: number; // DB-driven surcharges (auto-calculated)
+    intlManualSurge?: number; // User-entered manual surge override
+    dhlAddOnTotal?: number; // DHL add-on services total
+    dhlAddOnDetails?: Array<{
+      code: string;
+      nameKo: string;
+      nameEn: string;
+      amount: number;
+      fscAmount: number;
+    }>;
+    appliedSurcharges?: Array<{
+      code: string;
+      name: string;
+      nameKo?: string;
+      chargeType: 'fixed' | 'rate';
+      amount: number;
+      appliedAmount: number;
+      sourceUrl?: string;
+    }>;
     destDuty: number;
     totalCost: number;
   }
@@ -81,7 +107,7 @@ export enum Incoterm {
 
   // ── Quote History Types ──
 
-  export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected';
+  export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'confirmed' | 'expired';
 
   export interface QuoteSummary {
     id: number;
@@ -93,6 +119,8 @@ export enum Incoterm {
     billableWeight: number;
     domesticTruckType?: string;
     status: QuoteStatus;
+    validityDate: string | null;
+    surchargeStale?: boolean;
     createdAt: string;
   }
 
@@ -129,6 +157,7 @@ export enum Incoterm {
     domesticTruckType?: string;
     warnings: string[];
     breakdown: CostBreakdown;
+    validityDate: string | null;
   }
 
   export interface Pagination {

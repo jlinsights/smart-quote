@@ -71,8 +71,18 @@ class QuoteCalculator
                         )
                       end
 
-    # Surge: manual input for all carriers (UPS, DHL, EMAX)
-    surge_cost = @input[:manualSurgeCost] || 0
+    # System surcharges from DB (War Risk, PSS, EBS, etc.)
+    surcharge_result = SurchargeResolver.calculate_total(
+      carrier: carrier,
+      country: @input[:destinationCountry],
+      zone: overseas_result[:applied_zone],
+      intl_base: overseas_result[:intl_base]
+    )
+    system_surcharge_total = surcharge_result[:total]
+
+    # Manual surge: additional on top of system surcharges
+    manual_surge_cost = @input[:manualSurgeCost] || 0
+    surge_cost = system_surcharge_total + manual_surge_cost
     overseas_total = overseas_result[:intl_base] + overseas_result[:intl_fsc] + overseas_result[:intl_war_risk] + surge_cost
 
     # 5. Duty
@@ -140,6 +150,11 @@ class QuoteCalculator
         intlFsc: overseas_result[:intl_fsc],
         intlWarRisk: overseas_result[:intl_war_risk],
         intlSurge: surge_cost,
+        intlManualSurge: manual_surge_cost,
+        intlSystemSurcharge: system_surcharge_total,
+        appliedSurcharges: surcharge_result[:applied].map { |s|
+          { code: s[:code], name: s[:name], nameKo: s[:name_ko], amount: s[:applied_amount], chargeType: s[:charge_type], sourceUrl: s[:source_url] }
+        },
         pickupInSeoul: pickup_in_seoul,
         destDuty: dest_duty,
         totalCost: total_cost_amount

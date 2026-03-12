@@ -17,6 +17,27 @@
       "timestamp": "2026-03-11",
       "action": "Archived to docs/archive/2026-03/calculation-sync/",
       "matchRate": 100
+    },
+    {
+      "feature": "surcharge-management",
+      "phase": "archived",
+      "timestamp": "2026-03-12",
+      "action": "Archived to docs/archive/2026-03/surcharge-management/",
+      "matchRate": 100
+    },
+    {
+      "feature": "surcharge-management-v2",
+      "phase": "archived",
+      "timestamp": "2026-03-12",
+      "action": "Archived to docs/archive/2026-03/surcharge-management-v2/",
+      "matchRate": 100
+    },
+    {
+      "feature": "dhl-addons",
+      "phase": "archived",
+      "timestamp": "2026-03-12",
+      "action": "Archived to docs/archive/2026-03/dhl-addons/",
+      "matchRate": 91
     }
   ]
 }

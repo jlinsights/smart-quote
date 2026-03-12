@@ -1,4 +1,4 @@
-import { QuoteInput, QuoteResult, QuoteDetail, QuoteListResponse, QuoteListParams, CostBreakdown } from "@/types";
+import { QuoteInput, QuoteResult, QuoteDetail, QuoteListResponse, QuoteListParams, CostBreakdown, QuoteStatus } from "@/types";
 import { request, ApiError, API_URL, TOKEN_KEY } from "./apiClient";
 
 export { ApiError as QuoteApiError };
@@ -85,7 +85,7 @@ export const getQuote = async (id: number): Promise<QuoteDetail> => {
 
 export const updateQuoteStatus = async (
   id: number,
-  status: 'draft' | 'sent' | 'accepted' | 'rejected',
+  status: QuoteStatus,
   notes?: string
 ): Promise<QuoteDetail> => {
   const raw = await request<QuoteDetail & { breakdown: RawBreakdown }>(`/api/v1/quotes/${id}`, {

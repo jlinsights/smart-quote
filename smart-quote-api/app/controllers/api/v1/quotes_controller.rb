@@ -42,6 +42,9 @@ module Api
 
       # GET /api/v1/quotes
       def index
+        # Auto-expire stale drafts (validity_date passed)
+        scoped_quotes.stale_drafts.update_all(status: "expired")
+
         quotes = scoped_quotes
                       .includes(:customer)
                       .search_text(params[:q])
@@ -76,7 +79,7 @@ module Api
         permitted = params.permit(:status, :notes, :customer_id)
 
         if permitted[:status].present?
-          unless %w[draft sent accepted rejected].include?(permitted[:status])
+          unless Quote::VALID_STATUSES.include?(permitted[:status])
             return render json: { error: { code: "INVALID_STATUS", message: "Invalid status" } }, status: :unprocessable_entity
           end
         end
@@ -233,6 +236,8 @@ module Api
           domesticTruckType: quote.domestic_truck_type,
           status: quote.status,
           customerName: quote.customer&.company_name,
+          validityDate: quote.validity_date&.iso8601,
+          surchargeStale: surcharge_stale?(quote),
           createdAt: quote.created_at.iso8601
         }
       end
@@ -272,8 +277,35 @@ module Api
           warnings: quote.warnings,
           breakdown: quote.breakdown,
           customerId: quote.customer_id,
-          customerName: quote.customer&.company_name
+          customerName: quote.customer&.company_name,
+          validityDate: quote.validity_date&.iso8601
         }
+      end
+
+      def surcharge_stale?(quote)
+        return false unless quote.status.in?(%w[draft sent])
+        return false unless quote.breakdown.is_a?(Hash)
+
+        stored = quote.breakdown["appliedSurcharges"] || []
+        return false if stored.empty?
+
+        carrier = quote.breakdown.dig("carrier") || quote.overseas_carrier
+        country = quote.destination_country
+        zone = quote.applied_zone
+
+        current = SurchargeResolver.resolve(carrier: carrier, country_code: country, zone: zone)
+
+        stored_codes = stored.map { |s| s["code"] }.sort
+        current_codes = current.map { |s| s[:code] }.sort
+
+        return true if stored_codes != current_codes
+
+        stored_total = stored.sum { |s| s["appliedAmount"].to_f }
+        current_total = current.sum { |s| s[:applied_amount].to_f }
+        stored_total != current_total
+      rescue => e
+        Rails.logger.warn "[SURCHARGE_STALE] Error checking: #{e.message}"
+        false
       end
     end
   end

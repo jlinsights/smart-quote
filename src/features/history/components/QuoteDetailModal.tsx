@@ -13,7 +13,7 @@ interface Props {
   onStatusChange?: (id: number, newStatus: QuoteStatus) => void;
 }
 
-const STATUS_FLOW: QuoteStatus[] = ['draft', 'sent', 'accepted', 'rejected'];
+const STATUS_FLOW: QuoteStatus[] = ['draft', 'sent', 'confirmed', 'accepted', 'rejected', 'expired'];
 
 export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate, onStatusChange }) => {
   const fmt = formatNum;
@@ -203,6 +203,10 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
               <Field label="Zone" value={quote.appliedZone || '-'} />
               <Field label="Exchange Rate" value={`${quote.exchangeRate.toLocaleString()} KRW/USD`} />
               <Field label="FSC" value={`${quote.fscPercent}%`} />
+              <Field label="Validity" value={quote.validityDate
+                ? new Date(quote.validityDate).toLocaleDateString('ko-KR')
+                : '-'
+              } />
             </div>
           </Section>
 
@@ -245,8 +249,25 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
               <BreakdownRow label="Handling Fees" value={quote.breakdown.handlingFees} />
               <BreakdownRow label="Intl. Base" value={quote.breakdown.intlBase} />
               <BreakdownRow label="Intl. FSC" value={quote.breakdown.intlFsc} />
-              <BreakdownRow label="Intl. War Risk" value={quote.breakdown.intlWarRisk} />
-              <BreakdownRow label="Intl. Surge" value={quote.breakdown.intlSurge} />
+              {quote.breakdown.appliedSurcharges && quote.breakdown.appliedSurcharges.length > 0 ? (
+                <>
+                  {quote.breakdown.appliedSurcharges.map((s, i) => (
+                    <BreakdownRow
+                      key={i}
+                      label={`  ${s.nameKo || s.name}${s.chargeType === 'rate' ? ` (${s.amount}%)` : ''}`}
+                      value={s.appliedAmount}
+                    />
+                  ))}
+                  {(quote.breakdown.intlManualSurge ?? 0) > 0 && (
+                    <BreakdownRow label="  Manual Surge" value={quote.breakdown.intlManualSurge!} />
+                  )}
+                </>
+              ) : (
+                <>
+                  <BreakdownRow label="Intl. War Risk" value={quote.breakdown.intlWarRisk} />
+                  <BreakdownRow label="Intl. Surge" value={quote.breakdown.intlSurge} />
+                </>
+              )}
               {quote.breakdown.destDuty > 0 && (
                 <BreakdownRow label="Dest Duty/Tax" value={quote.breakdown.destDuty} />
               )}

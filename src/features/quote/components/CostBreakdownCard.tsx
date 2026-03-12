@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { QuoteResult } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Calculator, PackageCheck, HelpCircle, X, Plane, BoxSelect, TrendingUp, Info } from 'lucide-react';
+import { Calculator, PackageCheck, HelpCircle, X, Plane, BoxSelect, TrendingUp, Info, Shield, Package } from 'lucide-react';
 import { UI_TEXT } from '@/config/text';
 import { formatKRW } from '@/lib/format';
 import { resultStyles } from './result-styles';
@@ -122,7 +122,28 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
                                     <span>{formatCurrency(result.breakdown.intlWarRisk)}</span>
                                 </div>
                             )}
-                            {result.breakdown.intlSurge > 0 && (
+                            {result.breakdown.appliedSurcharges && result.breakdown.appliedSurcharges.length > 0 ? (
+                                <>
+                                    {result.breakdown.appliedSurcharges.map((s) => (
+                                        <div key={s.code} className="flex justify-between text-amber-600 dark:text-amber-500">
+                                            <div className="flex items-center">
+                                                <Shield className="w-3 h-3 mr-1 flex-shrink-0" />
+                                                <span>{s.nameKo || s.name} {s.chargeType === 'rate' ? `(${s.amount}%)` : ''}</span>
+                                            </div>
+                                            <span>{formatCurrency(s.appliedAmount)}</span>
+                                        </div>
+                                    ))}
+                                    {(result.breakdown.intlManualSurge ?? 0) > 0 && (
+                                        <div className="flex justify-between text-amber-600 dark:text-amber-500">
+                                            <div className="flex items-center">
+                                                <BoxSelect className="w-3 h-3 mr-1" />
+                                                <span>Manual Surge</span>
+                                            </div>
+                                            <span>{formatCurrency(result.breakdown.intlManualSurge!)}</span>
+                                        </div>
+                                    )}
+                                </>
+                            ) : result.breakdown.intlSurge > 0 ? (
                                 <div className="flex justify-between text-amber-600 dark:text-amber-500">
                                     <div className="flex items-center">
                                         <BoxSelect className="w-3 h-3 mr-1" />
@@ -130,10 +151,33 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
                                     </div>
                                     <span>{formatCurrency(result.breakdown.intlSurge)}</span>
                                 </div>
-                            )}
+                            ) : null}
                         </div>
                     </div>
                     
+                    {/* DHL Add-on Services (Conditional) */}
+                    {result.breakdown.dhlAddOnDetails && result.breakdown.dhlAddOnDetails.length > 0 && (
+                        <div className="flex flex-col space-y-1">
+                            <div className="flex justify-between items-start text-gray-700 dark:text-gray-300">
+                                <div className="flex items-center">
+                                    <Package className={`w-4 h-4 mr-2 flex-shrink-0 ${result.carrier === 'UPS' ? 'text-blue-500' : 'text-yellow-500'}`} />
+                                    <span>{result.carrier} Add-ons</span>
+                                </div>
+                                <div className="text-right">
+                                    <span className="block font-medium">{formatCurrency(result.breakdown.dhlAddOnTotal || 0)}</span>
+                                </div>
+                            </div>
+                            <div className="space-y-0.5 text-xs text-gray-500 dark:text-gray-400 pl-6">
+                                {result.breakdown.dhlAddOnDetails.map((d) => (
+                                    <div key={d.code} className={`flex justify-between ${result.carrier === 'UPS' ? 'text-blue-700 dark:text-blue-400' : 'text-yellow-700 dark:text-yellow-400'}`}>
+                                        <span>{d.nameKo} ({d.code})</span>
+                                        <span>{formatCurrency(d.amount + d.fscAmount)}{d.fscAmount > 0 ? ' +FSC' : ''}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* DDP Duty (Conditional) */}
                     {result.breakdown.destDuty > 0 && (
                          <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">

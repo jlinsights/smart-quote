@@ -16,6 +16,7 @@ const RateTableViewer = React.lazy(() => import('@/features/admin/components/Rat
 const UserManagementWidget = React.lazy(() => import('@/features/admin/components/UserManagementWidget').then(m => ({ default: m.UserManagementWidget })));
 const AuditLogViewer = React.lazy(() => import('@/features/admin/components/AuditLogViewer').then(m => ({ default: m.AuditLogViewer })));
 const TargetMarginRulesWidget = React.lazy(() => import('@/features/admin/components/TargetMarginRulesWidget').then(m => ({ default: m.TargetMarginRulesWidget })));
+const SurchargeManagementWidget = React.lazy(() => import('@/features/admin/components/SurchargeManagementWidget').then(m => ({ default: m.SurchargeManagementWidget })));
 import { Header } from '@/components/layout/Header';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -283,13 +284,14 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                       <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{t('calc.shipmentConfig')}</h2>
                       <p className="text-sm text-gray-500 dark:text-gray-400">{t('calc.shipmentConfigDesc')}</p>
                     </div>
-                    <InputSection input={input} onChange={setInput} isMobileView={false} effectiveMarginPercent={result?.profitMargin} hideMargin={hideMargin} />
+                    <InputSection input={input} onChange={setInput} isMobileView={false} effectiveMarginPercent={result?.profitMargin} hideMargin={hideMargin} intlBase={result?.breakdown.intlBase} billableWeight={result?.billableWeight} />
                     {isAdmin && (
                       <React.Suspense fallback={<div className="mt-8 space-y-6">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-32 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />)}</div>}>
                         <div className="mt-8 space-y-6">
                           <CustomerManagement />
                           <TargetMarginRulesWidget />
                           <FscRateWidget />
+                          <SurchargeManagementWidget />
                           <RateTableViewer />
                           <UserManagementWidget />
                           <AuditLogViewer />

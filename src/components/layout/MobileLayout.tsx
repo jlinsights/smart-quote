@@ -90,7 +90,7 @@ export const MobileLayout: React.FC<Props> = ({
                     <p className="text-sm text-gray-500 dark:text-gray-400">Enter cargo details to generate overseas (UPS, DHL, E-MAX) integrated quote.</p>
                  </div>
                  
-                 <InputSection input={input} onChange={setInput} isMobileView={true} effectiveMarginPercent={result?.profitMargin} />
+                 <InputSection input={input} onChange={setInput} isMobileView={true} effectiveMarginPercent={result?.profitMargin} intlBase={result?.breakdown.intlBase} billableWeight={result?.billableWeight} />
               </div>
 
               {/* Right Column: Result */}

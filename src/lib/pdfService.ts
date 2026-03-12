@@ -17,7 +17,7 @@ const nextLine = (y: number, h = PDF_LAYOUT.LINE_HEIGHT): number => y + h;
 
 // ─── Header ──────────────────────────────────────────────
 
-const drawHeader = (doc: jsPDF, yPos: number, referenceNo?: string): number => {
+const drawHeader = (doc: jsPDF, yPos: number, referenceNo?: string, validityDate?: string): number => {
   // Logo (left)
   doc.addImage(logoBase64, 'PNG', MARGIN_X, yPos - 8, PDF_LAYOUT.LOGO.WIDTH, PDF_LAYOUT.LOGO.HEIGHT);
 
@@ -40,6 +40,11 @@ const drawHeader = (doc: jsPDF, yPos: number, referenceNo?: string): number => {
   doc.text(`Date: ${new Date().toLocaleDateString('ko-KR')}`, MARGIN_X, yPos);
   const ref = referenceNo || 'DRAFT';
   doc.text(`Ref: ${ref}`, PAGE_WIDTH - MARGIN_X, yPos, { align: 'right' });
+
+  if (validityDate) {
+    yPos = nextLine(yPos, 5);
+    doc.text(`Valid until: ${validityDate}`, MARGIN_X, yPos);
+  }
 
   return nextLine(yPos, 12);
 };
@@ -138,8 +143,21 @@ const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number): Pro
   if (bd.pickupInSeoul > 0) rows.push(['서울 픽업비', formatKRW(bd.pickupInSeoul)]);
   rows.push([`국제운송 (${result.carrier})`, formatKRW(bd.intlBase)]);
   if (bd.intlFsc > 0) rows.push(['유류할증료 (FSC)', formatKRW(bd.intlFsc)]);
-  if (bd.intlWarRisk > 0) rows.push(['전쟁위험할증', formatKRW(bd.intlWarRisk)]);
-  if (bd.intlSurge > 0) rows.push(['할증료 (Surge)', formatKRW(bd.intlSurge)]);
+  // Individual surcharge rows from appliedSurcharges (V2)
+  if (bd.appliedSurcharges && bd.appliedSurcharges.length > 0) {
+    bd.appliedSurcharges.forEach((s) => {
+      const label = s.nameKo || s.name;
+      const suffix = s.chargeType === 'rate' ? ` (${s.amount}%)` : '';
+      rows.push([`  ${label}${suffix}`, formatKRW(s.appliedAmount)]);
+    });
+    if ((bd.intlManualSurge ?? 0) > 0) {
+      rows.push(['  수동 할증 (Manual Surge)', formatKRW(bd.intlManualSurge!)]);
+    }
+  } else {
+    // Backward compat: single row for legacy quotes without appliedSurcharges
+    if (bd.intlWarRisk > 0) rows.push(['전쟁위험할증', formatKRW(bd.intlWarRisk)]);
+    if (bd.intlSurge > 0) rows.push(['할증료 (Surge)', formatKRW(bd.intlSurge)]);
+  }
   if (bd.destDuty > 0) rows.push(['관세/세금 (예상)', formatKRW(bd.destDuty)]);
 
   autoTable(doc, {
@@ -212,6 +230,25 @@ const drawWarnings = (doc: jsPDF, warnings: string[], yPos: number): number => {
   return nextLine(yPos, 5);
 };
 
+// ─── Disclaimer ─────────────────────────────────────────
+
+const drawDisclaimer = (doc: jsPDF, yPos: number): number => {
+  doc.setFontSize(FONTS.SIZE_SMALL);
+  doc.setTextColor(...COLORS.TEXT_LIGHT);
+
+  const disclaimerKo = '본 견적서는 유효기간 내 확인 기준이며, 할증료 변동 시 재산정될 수 있습니다.';
+  const disclaimerEn = 'This quotation is valid within the stated period. Surcharges are subject to change at time of booking.';
+  const rateDate = `Rates as of: ${new Date().toLocaleDateString('ko-KR')}`;
+
+  doc.text(disclaimerKo, MARGIN_X, yPos);
+  yPos = nextLine(yPos, 4);
+  doc.text(disclaimerEn, MARGIN_X, yPos);
+  yPos = nextLine(yPos, 4);
+  doc.text(rateDate, MARGIN_X, yPos);
+
+  return nextLine(yPos, 6);
+};
+
 // ─── Footer ──────────────────────────────────────────────
 
 const drawFooter = (doc: jsPDF) => {
@@ -260,13 +297,18 @@ export const generatePDF = async (input: QuoteInput, result: QuoteResult, refere
 
   await loadKoreanFont(doc);
 
+  const validityDate = referenceNo
+    ? new Date(Date.now() + 7 * 86400000).toLocaleDateString('ko-KR')
+    : undefined;
+
   let yPos = 20;
-  yPos = drawHeader(doc, yPos, referenceNo);
+  yPos = drawHeader(doc, yPos, referenceNo, validityDate);
   yPos = drawShipmentDetails(doc, input, yPos);
   yPos = await drawCargoTable(doc, input.items, result, yPos);
   yPos = await drawCostTable(doc, result, yPos);
   yPos = drawQuoteSummary(doc, input, result, yPos);
-  drawWarnings(doc, result.warnings, yPos);
+  yPos = drawWarnings(doc, result.warnings, yPos);
+  drawDisclaimer(doc, yPos);
   drawFooter(doc);
 
   doc.save(buildFilename('JWays_Quote', referenceNo));
@@ -286,10 +328,12 @@ export const generateComparisonPDF = async (
 
   await loadKoreanFont(doc);
 
+  const comparisonValidityDate = new Date(Date.now() + 7 * 86400000).toLocaleDateString('ko-KR');
+
   let yPos = 20;
 
   // Header
-  yPos = drawHeader(doc, yPos);
+  yPos = drawHeader(doc, yPos, undefined, comparisonValidityDate);
   doc.setFontSize(FONTS.SIZE_SUBHEADER);
   doc.setTextColor(...COLORS.PRIMARY);
   doc.text('캐리어 비교 / Carrier Comparison Report', MARGIN_X, yPos);
@@ -368,8 +412,10 @@ export const generateComparisonPDF = async (
       MARGIN_X,
       yPos
     );
+    yPos = nextLine(yPos, 10);
   }
 
+  drawDisclaimer(doc, yPos);
   drawFooter(doc);
   doc.save(buildFilename('JWays_Comparison'));
 };

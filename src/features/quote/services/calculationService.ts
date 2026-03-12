@@ -22,6 +22,19 @@ import {
 import { UPS_EXACT_RATES, UPS_RANGE_RATES } from "@/config/ups_tariff";
 import { DHL_EXACT_RATES, DHL_RANGE_RATES } from "@/config/dhl_tariff";
 import { EMAX_RATES, EMAX_HANDLING_CHARGE } from "@/config/emax_tariff";
+import {
+  DHL_ADDON_RATES,
+  isDhlOversizePiece,
+  isDhlOverWeight,
+  calculateRemoteAreaFee,
+  calculateInsuranceFee,
+} from "@/config/dhl_addons";
+import {
+  UPS_ADDON_RATES,
+  isUpsAdditionalHandling,
+  calculateUpsRemoteAreaFee,
+  calculateUpsExtendedAreaFee,
+} from "@/config/ups_addons";
 
 // --- Types for Internal Calculations ---
 interface ItemCalculationResult {
@@ -323,6 +336,136 @@ export const calculateEmaxCosts = (
   };
 };
 
+// --- DHL Add-on Cost Calculator ---
+
+const calculateDhlAddOnCosts = (
+  input: QuoteInput,
+  billableWeight: number,
+  fscPercent: number
+): { total: number; details: NonNullable<import("@/types").CostBreakdown["dhlAddOnDetails"]> } => {
+  const fscRate = (fscPercent || 0) / 100;
+  const details: NonNullable<import("@/types").CostBreakdown["dhlAddOnDetails"]> = [];
+  let total = 0;
+
+  // 1. Auto-detected: OSP and OWT
+  let ospCount = 0;
+  let owtCount = 0;
+  input.items.forEach((item) => {
+    let l = item.length;
+    let w = item.width;
+    let h = item.height;
+    let weight = item.weight;
+
+    if (input.packingType !== PackingType.NONE) {
+      l += 10; w += 10; h += 15;
+      weight = weight * PACKING_WEIGHT_BUFFER + PACKING_WEIGHT_ADDITION;
+    }
+
+    if (isDhlOversizePiece(l, w, h)) ospCount += item.quantity;
+    if (isDhlOverWeight(weight)) owtCount += item.quantity;
+  });
+
+  if (ospCount > 0) {
+    const ospRate = DHL_ADDON_RATES.find((a) => a.code === "OSP")!;
+    const amount = ospRate.amount * ospCount;
+    const fsc = ospRate.fscApplicable ? amount * fscRate : 0;
+    details.push({ code: "OSP", nameKo: ospRate.nameKo, nameEn: ospRate.nameEn, amount, fscAmount: fsc });
+    total += amount + fsc;
+  }
+  if (owtCount > 0) {
+    const owtRate = DHL_ADDON_RATES.find((a) => a.code === "OWT")!;
+    const amount = owtRate.amount * owtCount;
+    const fsc = owtRate.fscApplicable ? amount * fscRate : 0;
+    details.push({ code: "OWT", nameKo: owtRate.nameKo, nameEn: owtRate.nameEn, amount, fscAmount: fsc });
+    total += amount + fsc;
+  }
+
+  // 2. User-selected add-ons
+  const selectedCodes = input.dhlAddOns || [];
+  selectedCodes.forEach((code) => {
+    const addon = DHL_ADDON_RATES.find((a) => a.code === code);
+    if (!addon) return;
+
+    let amount = addon.amount;
+    if (code === "RMT") amount = calculateRemoteAreaFee(billableWeight);
+    if (code === "INS") amount = calculateInsuranceFee(input.dhlDeclaredValue || 0);
+    if (code === "IRR") {
+      const totalPieces = input.items.reduce((s, i) => s + i.quantity, 0);
+      amount = addon.amount * totalPieces;
+    }
+
+    const fsc = addon.fscApplicable ? amount * fscRate : 0;
+    details.push({ code, nameKo: addon.nameKo, nameEn: addon.nameEn, amount, fscAmount: fsc });
+    total += amount + fsc;
+  });
+
+  return { total, details };
+};
+
+// --- UPS Add-on Cost Calculator ---
+
+const calculateUpsAddOnCosts = (
+  input: QuoteInput,
+  billableWeight: number,
+  fscPercent: number
+): { total: number; details: NonNullable<import("@/types").CostBreakdown["dhlAddOnDetails"]> } => {
+  const fscRate = (fscPercent || 0) / 100;
+  const details: NonNullable<import("@/types").CostBreakdown["dhlAddOnDetails"]> = [];
+  let total = 0;
+
+  // 1. Auto-detected: AHS (Additional Handling)
+  let ahsCount = 0;
+  input.items.forEach((item) => {
+    let l = item.length;
+    let w = item.width;
+    let h = item.height;
+    let weight = item.weight;
+
+    if (input.packingType !== PackingType.NONE) {
+      l += 10; w += 10; h += 15;
+      weight = weight * PACKING_WEIGHT_BUFFER + PACKING_WEIGHT_ADDITION;
+    }
+
+    if (isUpsAdditionalHandling(l, w, h, weight, input.packingType)) ahsCount += item.quantity;
+  });
+
+  if (ahsCount > 0) {
+    const ahsRate = UPS_ADDON_RATES.find((a) => a.code === "AHS")!;
+    const amount = ahsRate.amount * ahsCount;
+    const fsc = ahsRate.fscApplicable ? amount * fscRate : 0;
+    details.push({ code: "AHS", nameKo: ahsRate.nameKo, nameEn: ahsRate.nameEn, amount, fscAmount: fsc });
+    total += amount + fsc;
+  }
+
+  // 2. Auto-detected: DDP Service Fee
+  if (input.incoterm === Incoterm.DDP) {
+    const ddpRate = UPS_ADDON_RATES.find((a) => a.code === "DDP")!;
+    details.push({ code: "DDP", nameKo: ddpRate.nameKo, nameEn: ddpRate.nameEn, amount: ddpRate.amount, fscAmount: 0 });
+    total += ddpRate.amount;
+  }
+
+  // 3. User-selected add-ons
+  const selectedCodes = input.upsAddOns || [];
+  selectedCodes.forEach((code) => {
+    const addon = UPS_ADDON_RATES.find((a) => a.code === code);
+    if (!addon) return;
+
+    let amount = addon.amount;
+    if (code === "RMT") amount = calculateUpsRemoteAreaFee(billableWeight);
+    if (code === "EXT") amount = calculateUpsExtendedAreaFee(billableWeight);
+    if (code === "ADC") {
+      const totalCartons = input.items.reduce((s, i) => s + i.quantity, 0);
+      amount = addon.amount * totalCartons;
+    }
+
+    const fsc = addon.fscApplicable ? amount * fscRate : 0;
+    details.push({ code, nameKo: addon.nameKo, nameEn: addon.nameEn, amount, fscAmount: fsc });
+    total += amount + fsc;
+  });
+
+  return { total, details };
+};
+
 // --- Main Orchestrator ---
 
 export const calculateQuote = (input: QuoteInput): QuoteResult => {
@@ -378,6 +521,19 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const surgeCost = input.manualSurgeCost ?? 0;
   const intlTotal = carrierResult.intlBase + carrierResult.intlFsc + carrierResult.intlWarRisk + surgeCost;
 
+  // 3a. Carrier Add-on Services (DHL or UPS)
+  let dhlAddOnTotal = 0;
+  let dhlAddOnDetails: NonNullable<import("@/types").CostBreakdown["dhlAddOnDetails"]> | undefined;
+  if (carrier === 'DHL') {
+    const dhlAddOns = calculateDhlAddOnCosts(input, billableWeight, input.fscPercent);
+    dhlAddOnTotal = dhlAddOns.total;
+    dhlAddOnDetails = dhlAddOns.details.length > 0 ? dhlAddOns.details : undefined;
+  } else if (carrier === 'UPS') {
+    const upsAddOns = calculateUpsAddOnCosts(input, billableWeight, input.fscPercent);
+    dhlAddOnTotal = upsAddOns.total;
+    dhlAddOnDetails = upsAddOns.details.length > 0 ? upsAddOns.details : undefined;
+  }
+
   // 4. Duty
   let destDuty = 0;
   if (input.incoterm === Incoterm.DDP) {
@@ -388,7 +544,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const pickupInSeoul = input.pickupInSeoulCost ?? 0;
 
   // 5. Totals
-  const totalCostAmount = packingTotal + finalHandlingFee + intlTotal + destDuty + pickupInSeoul;
+  const totalCostAmount = packingTotal + finalHandlingFee + intlTotal + dhlAddOnTotal + destDuty + pickupInSeoul;
 
   let quoteBasisCost = 0;
   if ([Incoterm.EXW, Incoterm.FOB].includes(input.incoterm)) {
@@ -449,6 +605,8 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
       intlFsc: carrierResult.intlFsc,
       intlWarRisk: carrierResult.intlWarRisk,
       intlSurge: surgeCost,
+      dhlAddOnTotal: dhlAddOnTotal || undefined,
+      dhlAddOnDetails,
       destDuty,
       totalCost: totalCostAmount
     }

@@ -3,20 +3,31 @@ import { QuoteInput, PackingType, Incoterm } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SEOUL_PICKUP_ZONES } from '@/config/options';
 import { inputStyles } from './input-styles';
+import { SurchargePanel } from './SurchargePanel';
+import { DhlAddOnPanel } from './DhlAddOnPanel';
+import { UpsAddOnPanel } from './UpsAddOnPanel';
+import { useSurcharges } from '@/features/dashboard/hooks/useSurcharges';
 
 interface Props {
   input: QuoteInput;
   onFieldChange: <K extends keyof QuoteInput>(key: K, value: QuoteInput[K]) => void;
   isMobileView: boolean;
+  intlBase?: number; // base carrier rate for rate-based surcharge calculation
+  billableWeight?: number; // for DHL add-on fee calculations
 }
 
-export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobileView }) => {
+export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobileView, intlBase = 0, billableWeight = 0 }) => {
   const { inputClass, labelClass, cardClass, sectionTitleClass, twoColGrid } = inputStyles;
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
   const grid = twoColGrid(isMobileView);
   const { t, language } = useLanguage();
   const isEn = language === 'en';
+
+  const carrier = input.overseasCarrier || 'UPS';
+  const { surcharges, loading: scLoading, error: scError, lastUpdated: scUpdated, calculateApplied, totalAmount, retry: scRetry } = useSurcharges(carrier, input.destinationCountry);
+  const appliedSurcharges = calculateApplied(intlBase);
+  const systemTotal = totalAmount(intlBase);
 
   return (
     <div className={cardClass}>
@@ -57,25 +68,46 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
           </p>
         </div>
 
-        <div>
-          <label className={lc}>Surge / AHS / War Risk Fee (KRW)</label>
-          <div className="relative">
-              <input
-                  type="number"
-                  step="1000"
-                  min="0"
-                  value={input.manualSurgeCost ?? ''}
-                  onChange={(e) => onFieldChange('manualSurgeCost', e.target.value === '' ? undefined : Number(e.target.value))}
-                  className={ic}
-                  placeholder="0"
-                  inputMode="numeric"
-                  autoComplete="off"
-              />
-          </div>
-          <p className="mt-1 text-[10px] text-gray-400">
-              Carrier surcharges (AHS, Large Package, Peak Season, etc.). Applied to all carriers.
-          </p>
-        </div>
+        <SurchargePanel
+          carrier={carrier}
+          surcharges={surcharges}
+          appliedSurcharges={appliedSurcharges}
+          systemTotal={systemTotal}
+          manualSurgeCost={input.manualSurgeCost}
+          onManualSurgeChange={(val) => onFieldChange('manualSurgeCost', val)}
+          loading={scLoading}
+          error={scError}
+          lastUpdated={scUpdated}
+          onRetry={scRetry}
+          isMobileView={isMobileView}
+        />
+
+        {carrier === 'DHL' && (
+          <DhlAddOnPanel
+            selectedAddOns={input.dhlAddOns || []}
+            onAddOnsChange={(codes) => onFieldChange('dhlAddOns', codes)}
+            declaredValue={input.dhlDeclaredValue}
+            onDeclaredValueChange={(val) => onFieldChange('dhlDeclaredValue', val)}
+            items={input.items}
+            packingType={input.packingType}
+            billableWeight={billableWeight}
+            fscPercent={input.fscPercent}
+            isMobileView={isMobileView}
+          />
+        )}
+
+        {carrier === 'UPS' && (
+          <UpsAddOnPanel
+            selectedAddOns={input.upsAddOns || []}
+            onAddOnsChange={(codes) => onFieldChange('upsAddOns', codes)}
+            items={input.items}
+            packingType={input.packingType}
+            billableWeight={billableWeight}
+            fscPercent={input.fscPercent}
+            isMobileView={isMobileView}
+            incoterm={input.incoterm}
+          />
+        )}
 
         <div>
           <label className={lc}>{t('calc.service.pickup.label')}</label>

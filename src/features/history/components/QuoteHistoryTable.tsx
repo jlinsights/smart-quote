@@ -1,14 +1,11 @@
 import React from 'react';
 import { QuoteSummary } from '@/types';
-import { Eye, Trash2, Clock } from 'lucide-react';
+import { Eye, Trash2, Clock, AlertTriangle } from 'lucide-react';
 import { formatNum } from '@/lib/format';
 import { STATUS_COLORS } from '@/features/history/constants';
 
-const QUOTE_VALIDITY_DAYS = 7;
-
-function getExpiryInfo(createdAt: string) {
-  const created = new Date(createdAt);
-  const expiry = new Date(created.getTime() + QUOTE_VALIDITY_DAYS * 24 * 60 * 60 * 1000);
+function getExpiryFromDate(validityDate: string) {
+  const expiry = new Date(validityDate);
   const now = new Date();
   const daysLeft = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   return { daysLeft, expired: daysLeft <= 0 };
@@ -64,14 +61,24 @@ export const QuoteHistoryTable: React.FC<Props> = ({
           </div>
         ) : (
           quotes.map((q) => {
-            const expiry = (q.status === 'draft' || q.status === 'sent') ? getExpiryInfo(q.createdAt) : null;
+            const expiry = q.validityDate && (q.status === 'draft' || q.status === 'sent')
+              ? getExpiryFromDate(q.validityDate)
+              : null;
             return (
               <div
                 key={q.id}
                 className="px-4 py-3 border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors space-y-1.5"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-medium text-gray-900 dark:text-white">{q.referenceNo}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-mono text-xs font-medium text-gray-900 dark:text-white">{q.referenceNo}</span>
+                    {q.surchargeStale && (
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                        <AlertTriangle className="w-2.5 h-2.5" />
+                        재확인
+                      </span>
+                    )}
+                  </div>
                   <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_COLORS[q.status]}`}>
                     {q.status}
                   </span>
@@ -179,8 +186,8 @@ export const QuoteHistoryTable: React.FC<Props> = ({
                   <div className="text-gray-500 dark:text-gray-400">
                     {new Date(q.createdAt).toLocaleDateString('ko-KR')}
                   </div>
-                  {q.status === 'draft' || q.status === 'sent' ? (() => {
-                    const { daysLeft, expired } = getExpiryInfo(q.createdAt);
+                  {q.validityDate && (q.status === 'draft' || q.status === 'sent') ? (() => {
+                    const { daysLeft, expired } = getExpiryFromDate(q.validityDate);
                     return (
                       <div className={`flex items-center gap-0.5 mt-0.5 text-[10px] font-medium ${
                         expired ? 'text-red-500 dark:text-red-400' :
@@ -210,9 +217,17 @@ export const QuoteHistoryTable: React.FC<Props> = ({
                   </span>
                 </td>
                 <td className="px-4 py-3 text-center">
-                  <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_COLORS[q.status]}`}>
-                    {q.status}
-                  </span>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_COLORS[q.status]}`}>
+                      {q.status}
+                    </span>
+                    {q.surchargeStale && (
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                        <AlertTriangle className="w-2.5 h-2.5" />
+                        재확인
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-center gap-1">

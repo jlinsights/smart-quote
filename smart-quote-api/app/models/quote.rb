@@ -4,7 +4,8 @@ class Quote < ApplicationRecord
 
   VALID_INCOTERMS = %w[EXW FOB C&F CIF DAP DDP].freeze
   VALID_PACKING_TYPES = %w[NONE WOODEN_BOX SKID VACUUM].freeze
-  VALID_STATUSES = %w[draft sent accepted rejected].freeze
+  VALID_STATUSES = %w[draft sent accepted rejected confirmed expired].freeze
+  DEFAULT_VALIDITY_DAYS = 7
 
   validates :reference_no, presence: true, uniqueness: true
   validates :destination_country, presence: true, length: { maximum: 3 }
@@ -18,6 +19,10 @@ class Quote < ApplicationRecord
   validates :status, inclusion: { in: VALID_STATUSES }
 
   scope :recent, -> { order(created_at: :desc) }
+  scope :stale_drafts, -> {
+    where(status: %w[draft sent])
+      .where("validity_date < ?", Date.current)
+  }
   scope :by_destination, ->(country) { where(destination_country: country) if country.present? }
   scope :by_status, ->(status) { where(status: status) if status.present? }
   scope :by_date_range, ->(from, to) {
@@ -37,8 +42,17 @@ class Quote < ApplicationRecord
   }
 
   before_validation :generate_reference_no, on: :create
+  before_create :set_validity_date
+
+  def expired?
+    validity_date.present? && validity_date < Date.current && %w[draft sent].include?(status)
+  end
 
   private
+
+  def set_validity_date
+    self.validity_date ||= (created_at || Time.current).to_date + DEFAULT_VALIDITY_DAYS
+  end
 
   def generate_reference_no
     return if reference_no.present?
