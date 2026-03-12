@@ -56,11 +56,11 @@ describe('Calculation Parity Tests (Frontend)', () => {
     expect(result.breakdown.handlingFees).toBe(35000);
   });
 
-  it('zeroes handling fee when manualPackingCost is set', () => {
+  it('keeps handling fee when manualPackingCost is set', () => {
     const fixture = fixtures.fixtures.find(f => f.name === 'ups_jp_manual_packing')!;
     const result = calculateQuote(fixture.input as unknown as QuoteInput);
 
-    expect(result.breakdown.handlingFees).toBe(0);
+    expect(result.breakdown.handlingFees).toBe(35000);
     expect(result.breakdown.packingFumigation).toBe(0);
   });
 

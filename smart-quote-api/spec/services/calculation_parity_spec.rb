@@ -55,11 +55,11 @@ RSpec.describe QuoteCalculator, "Calculation Parity" do
       expect(result[:breakdown][:handlingFees]).to eq(35_000)
     end
 
-    it "zeroes handling fee when manualPackingCost is set" do
+    it "keeps handling fee when manualPackingCost is set" do
       fixture = fixtures_data["fixtures"].find { |f| f["name"] == "ups_jp_manual_packing" }
       result = QuoteCalculator.call(fixture["input"])
 
-      expect(result[:breakdown][:handlingFees]).to eq(0)
+      expect(result[:breakdown][:handlingFees]).to eq(35_000)
       expect(result[:breakdown][:packingFumigation]).to eq(0)
     end
 

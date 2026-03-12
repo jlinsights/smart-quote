@@ -30,9 +30,9 @@ class QuoteCalculator
     end
 
     final_handling_fee = HANDLING_FEE
+    # Manual packing cost override: replace packing material/labor costs but keep handling fee
     if @input[:manualPackingCost] && @input[:manualPackingCost] >= 0
       packing_fumigation_cost = 0
-      final_handling_fee = 0
     end
 
     packing_total = item_result[:packing_material_cost] + item_result[:packing_labor_cost] + packing_fumigation_cost
