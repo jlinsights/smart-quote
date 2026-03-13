@@ -60,7 +60,8 @@ module JwtAuthenticatable
       role: user.role,
       name: user.name,
       company: user.company,
-      nationality: user.nationality
+      nationality: user.nationality,
+      networks: user.networks
     }
   end
 end

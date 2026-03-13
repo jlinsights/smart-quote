@@ -274,6 +274,32 @@ export const DHL_ZONE_COUNTRIES: Record<string, string[]> = {
   ],
 };
 
+// ─── Nationality options for signup / admin ─────────────────────────
+// Top 7 pinned (frequent B2B partners), rest alphabetical from COUNTRY_OPTIONS
+const PINNED_NATIONALITY_CODES = ['KR', 'US', 'CN', 'JP', 'VN', 'TW', 'SG'];
+
+export const NATIONALITY_OPTIONS: { code: string; name: string }[] = (() => {
+  const pinned = PINNED_NATIONALITY_CODES.map(code => {
+    if (code === 'KR') return { code: 'KR', name: '🇰🇷 South Korea' };
+    return COUNTRY_OPTIONS.find(c => c.code === code)!;
+  });
+  const rest = COUNTRY_OPTIONS
+    .filter(c => !PINNED_NATIONALITY_CODES.includes(c.code))
+    .sort((a, b) => {
+      const nameA = a.name.replace(/^[^\w]+/, '');
+      const nameB = b.name.replace(/^[^\w]+/, '');
+      return nameA.localeCompare(nameB);
+    });
+  return [...pinned, ...rest];
+})();
+
+/** Look up display name (with flag) from country code */
+export function getCountryDisplayName(code: string): string {
+  if (!code) return '-';
+  const found = NATIONALITY_OPTIONS.find(c => c.code === code);
+  return found ? found.name : code;
+}
+
 export const ORIGIN_COUNTRY_OPTIONS = [
     { code: 'KR', name: '🇰🇷 South Korea' },
     { code: 'CN', name: '🇨🇳 China' },

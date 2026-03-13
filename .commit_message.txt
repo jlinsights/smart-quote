@@ -1,1 +1,1 @@
-✅ test: AuthContext 단위 테스트 12건 추가 및 isLoading 인터페이스 노출
+🌍 feat: 국적 드롭다운 206개국 확장 + 기존 텍스트→코드 마이그레이션

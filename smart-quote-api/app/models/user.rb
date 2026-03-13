@@ -8,6 +8,9 @@ class User < ApplicationRecord
                     uniqueness: { case_sensitive: false },
                     format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :role, presence: true, inclusion: { in: %w[admin user member] }
+  validate :networks_must_be_valid
+
+  VALID_NETWORKS = %w[WCA MPL EAN].freeze
 
   after_initialize :set_default_role, if: :new_record?
   validates :password, length: { minimum: 6 }, if: :password_required?
@@ -26,5 +29,14 @@ class User < ApplicationRecord
 
   def password_required?
     new_record? || password.present?
+  end
+
+  def networks_must_be_valid
+    return if networks.blank?
+
+    invalid = networks - VALID_NETWORKS
+    if invalid.any?
+      errors.add(:networks, "contains invalid values: #{invalid.join(', ')}")
+    end
   end
 end

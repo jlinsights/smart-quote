@@ -3,6 +3,8 @@ import { API_URL, TOKEN_KEY } from '@/api/apiClient';
 
 export type UserRole = 'admin' | 'user' | 'member';
 
+export type FreightNetwork = 'WCA' | 'MPL' | 'EAN';
+
 export interface User {
   id: number;
   email: string;
@@ -10,6 +12,7 @@ export interface User {
   company?: string;
   name?: string;
   nationality?: string;
+  networks?: FreightNetwork[];
 }
 
 interface AuthResult {
@@ -21,7 +24,7 @@ interface AuthResult {
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<AuthResult>;
-  signup: (email: string, password: string, company?: string, name?: string, nationality?: string) => Promise<AuthResult>;
+  signup: (email: string, password: string, company?: string, name?: string, nationality?: string, networks?: FreightNetwork[]) => Promise<AuthResult>;
   logout: () => void;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<AuthResult>;
   isAuthenticated: boolean;
@@ -78,7 +81,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string,
     company?: string,
     name?: string,
-    nationality?: string
+    nationality?: string,
+    networks?: FreightNetwork[]
   ): Promise<AuthResult> => {
     try {
       const res = await fetch(`${API_URL}/api/v1/auth/register`, {
@@ -87,6 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({
           email, password, password_confirmation: password,
           company, name, nationality,
+          networks: networks && networks.length > 0 ? networks : undefined,
         }),
       });
 

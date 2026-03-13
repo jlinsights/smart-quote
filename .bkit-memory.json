@@ -1,15 +1,22 @@
 {
   "activeFeature": null,
-  "phase": null,
+  "phase": "idle",
   "matchRate": null,
   "iteration": 0,
   "history": [
     {
+      "feature": "Save-Quote",
+      "phase": "archived",
+      "timestamp": "2026-03-13",
+      "action": "Archived v2 docs to docs/archive/2026-02/Save-Quote/ (97%)",
+      "matchRate": 97
+    },
+    {
       "feature": "auth-hardening",
       "phase": "archived",
-      "timestamp": "2026-03-05",
-      "action": "Archived to docs/archive/2026-03/auth-hardening/",
-      "matchRate": 93
+      "timestamp": "2026-03-13",
+      "action": "Re-analyzed: 93%→97% (+12 AuthContext tests, isLoading exposure)",
+      "matchRate": 97
     },
     {
       "feature": "calculation-sync",
@@ -52,6 +59,13 @@
       "timestamp": "2026-03-13",
       "action": "Archived to docs/archive/2026-03/exchange-rate-proxy/",
       "matchRate": 98
+    },
+    {
+      "feature": "freight-networks",
+      "phase": "archived",
+      "timestamp": "2026-03-13",
+      "action": "Archived to docs/archive/2026-03/freight-networks/",
+      "matchRate": 97
     }
   ]
 }

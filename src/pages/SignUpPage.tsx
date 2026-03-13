@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Header } from '../components/layout/Header';
 import { ShieldCheck, ArrowLeft } from 'lucide-react';
+import type { FreightNetwork } from '../contexts/AuthContext';
+import { NATIONALITY_OPTIONS } from '../config/options';
 
 const dotGridStyle: React.CSSProperties = {
   backgroundImage:
@@ -18,8 +20,15 @@ export const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [networks, setNetworks] = useState<FreightNetwork[]>([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const toggleNetwork = (network: FreightNetwork) => {
+    setNetworks(prev =>
+      prev.includes(network) ? prev.filter(n => n !== network) : [...prev, network]
+    );
+  };
 
   const { signup } = useAuth();
   const { t } = useLanguage();
@@ -37,7 +46,7 @@ export const SignUpPage: React.FC = () => {
     if (email.trim() && password.trim() && name.trim()) {
       setIsLoading(true);
       try {
-        const result = await signup(email.trim(), password.trim(), company.trim(), name.trim(), nationality.trim());
+        const result = await signup(email.trim(), password.trim(), company.trim(), name.trim(), nationality.trim(), networks);
         if (result.success) {
            navigate('/dashboard', { replace: true });
         } else {
@@ -135,16 +144,55 @@ export const SignUpPage: React.FC = () => {
                     style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.75rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem' }}
                   >
                     <option value="" className="bg-gray-800 text-white">🌍 Select (Optional)</option>
-                    <option value="South Korea" className="bg-gray-800 text-white">🇰🇷 South Korea</option>
-                    <option value="United States" className="bg-gray-800 text-white">🇺🇸 United States</option>
-                    <option value="China" className="bg-gray-800 text-white">🇨🇳 China</option>
-                    <option value="Japan" className="bg-gray-800 text-white">🇯🇵 Japan</option>
-                    <option value="Vietnam" className="bg-gray-800 text-white">🇻🇳 Vietnam</option>
-                    <option value="Taiwan" className="bg-gray-800 text-white">🇹🇼 Taiwan</option>
-                    <option value="Singapore" className="bg-gray-800 text-white">🇸🇬 Singapore</option>
-                    <option value="Other" className="bg-gray-800 text-white">🌍 Other</option>
+                    {NATIONALITY_OPTIONS.map((country, idx) => (
+                      <React.Fragment key={country.code}>
+                        {idx === 7 && <option disabled className="bg-gray-800 text-gray-500">{'─'.repeat(20)}</option>}
+                        <option value={country.code} className="bg-gray-800 text-white">{country.name}</option>
+                      </React.Fragment>
+                    ))}
                   </select>
                 </div>
+              </div>
+
+              {/* Freight Network Memberships */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2.5">
+                  {t('auth.networks')}
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  {(['WCA', 'MPL', 'EAN'] as FreightNetwork[]).map((net) => (
+                    <label
+                      key={net}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-all duration-200 text-sm font-medium ${
+                        networks.includes(net)
+                          ? 'bg-jways-600/20 border-jways-500/50 text-jways-300'
+                          : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20 hover:text-gray-300'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={networks.includes(net)}
+                        onChange={() => toggleNetwork(net)}
+                        className="sr-only"
+                      />
+                      <span className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${
+                        networks.includes(net)
+                          ? 'bg-jways-500 border-jways-500'
+                          : 'border-gray-500'
+                      }`}>
+                        {networks.includes(net) && (
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </span>
+                      {net}
+                    </label>
+                  ))}
+                </div>
+                <p className="mt-1.5 text-xs text-gray-500">
+                  {t('auth.networksHint')}
+                </p>
               </div>
 
               <div>

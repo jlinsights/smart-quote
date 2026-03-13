@@ -6,6 +6,7 @@ export interface AdminUser {
   name: string | null;
   company: string | null;
   nationality: string | null;
+  networks: string[] | null;
   role: 'admin' | 'user' | 'member';
   quoteCount: number;
   createdAt: string;

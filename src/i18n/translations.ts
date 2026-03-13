@@ -50,6 +50,8 @@ export const translations: Record<Language, Record<string, string>> = {
      'auth.passwordsNotMatch': '비밀번호가 일치하지 않습니다.',
      'auth.emailExists': '이미 존재하는 이메일이거나 데이터가 유효하지 않습니다.',
      'auth.fillAll': '모든 필드를 입력해주세요.',
+     'auth.networks': '물류 네트워크 가입 여부',
+     'auth.networksHint': '가입하신 글로벌 물류 네트워크를 선택하세요 (선택사항)',
      'auth.backHome': '← 홈으로 돌아가기',
 
      // Calculator - Headers
@@ -187,6 +189,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'admin.company': '회사명',
     'admin.name': '이름',
     'admin.nationality': '국적',
+    'admin.networks': '네트워크',
     'admin.email': '이메일',
     'admin.password': '비밀번호',
     'admin.role': '권한',
@@ -255,6 +258,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'auth.passwordsNotMatch': 'Passwords do not match.',
     'auth.emailExists': 'Email already exists or data is invalid.',
     'auth.fillAll': 'Please fill in all fields.',
+    'auth.networks': 'Freight Network Membership',
+    'auth.networksHint': 'Select the global freight networks you belong to (optional)',
     'auth.backHome': '← Back to Home',
 
     // Calculator - Headers
@@ -399,6 +404,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'admin.company': 'Company',
     'admin.name': 'Name',
     'admin.nationality': 'Nationality',
+    'admin.networks': 'Networks',
     'admin.email': 'Email',
     'admin.password': 'Password',
     'admin.role': 'Role',
@@ -467,6 +473,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'auth.passwordsNotMatch': '密码不匹配。',
     'auth.emailExists': '邮箱已存在或数据无效。',
     'auth.fillAll': '请填写所有字段。',
+    'auth.networks': '物流网络会员',
+    'auth.networksHint': '请选择您加入的全球物流网络（可选）',
     'auth.backHome': '← 返回首页',
 
     // Calculator - Headers
@@ -600,6 +608,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'admin.company': '公司名称',
     'admin.name': '姓名',
     'admin.nationality': '国籍',
+    'admin.networks': '网络',
     'admin.email': '电子邮件',
     'admin.password': '密码',
     'admin.role': '角色',
@@ -657,6 +666,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'auth.passwordsNotMatch': 'パスワードが一致しません。',
     'auth.emailExists': 'メールが既に存在するか、データが無効です。',
     'auth.fillAll': 'すべてのフィールドを入力してください。',
+    'auth.networks': '物流ネットワーク加盟',
+    'auth.networksHint': '加盟しているグローバル物流ネットワークを選択してください（任意）',
     'auth.backHome': '← ホームに戻る',
 
     // Calculator - Headers
@@ -790,6 +801,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'admin.company': '会社名',
     'admin.name': '氏名',
     'admin.nationality': '国籍',
+    'admin.networks': 'ネットワーク',
     'admin.email': 'Eメール',
     'admin.password': 'パスワード',
     'admin.role': '権限',

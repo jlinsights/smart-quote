@@ -58,7 +58,7 @@ module Api
 
       def register_params
         params.permit(:email, :password, :password_confirmation,
-                      :name, :company, :nationality)
+                      :name, :company, :nationality, networks: [])
       end
     end
   end

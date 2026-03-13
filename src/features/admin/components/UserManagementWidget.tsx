@@ -3,6 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Users, Building2, UserCircle, Globe2, Mail, Shield, Edit2, Check, X, Trash2, Loader2, AlertCircle, Hash } from 'lucide-react';
 import { listUsers, updateUser, deleteUser, AdminUser, UpdateUserParams } from '@/api/userApi';
+import { NATIONALITY_OPTIONS, getCountryDisplayName } from '@/config/options';
 
 export const UserManagementWidget: React.FC = () => {
   const { t } = useLanguage();
@@ -134,6 +135,12 @@ export const UserManagementWidget: React.FC = () => {
                 </th>
                 <th scope="col" className="px-6 py-4 font-semibold">
                   <div className="flex items-center gap-2">
+                    <Globe2 className="w-4 h-4 text-gray-400" />
+                    {t('admin.networks')}
+                  </div>
+                </th>
+                <th scope="col" className="px-6 py-4 font-semibold">
+                  <div className="flex items-center gap-2">
                     <Mail className="w-4 h-4 text-gray-400" />
                     {t('admin.email')}
                   </div>
@@ -190,22 +197,37 @@ export const UserManagementWidget: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {isEditing ? (
                         <select
-                          className="w-[120px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-jways-500 focus:border-jways-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                          value={editForm.nationality || 'South Korea'}
+                          className="w-[140px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-jways-500 focus:border-jways-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                          value={editForm.nationality || ''}
                           onChange={(e) => handleFormChange('nationality', e.target.value)}
                         >
-                          <option value="South Korea" className="bg-white dark:bg-gray-800">South Korea</option>
-                          <option value="United States" className="bg-white dark:bg-gray-800">United States</option>
-                          <option value="China" className="bg-white dark:bg-gray-800">China</option>
-                          <option value="Japan" className="bg-white dark:bg-gray-800">Japan</option>
-                          <option value="Vietnam" className="bg-white dark:bg-gray-800">Vietnam</option>
-                          <option value="Taiwan" className="bg-white dark:bg-gray-800">Taiwan</option>
-                          <option value="Singapore" className="bg-white dark:bg-gray-800">Singapore</option>
-                          <option value="Other" className="bg-white dark:bg-gray-800">Other</option>
+                          <option value="" className="bg-white dark:bg-gray-800">-</option>
+                          {NATIONALITY_OPTIONS.map((country, idx) => (
+                            <React.Fragment key={country.code}>
+                              {idx === 7 && <option disabled className="bg-white dark:bg-gray-800">{'─'.repeat(20)}</option>}
+                              <option value={country.code} className="bg-white dark:bg-gray-800">{country.name}</option>
+                            </React.Fragment>
+                          ))}
                         </select>
                       ) : (
-                        user.nationality || '-'
+                        getCountryDisplayName(user.nationality || '')
                       )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {user.networks && user.networks.length > 0 ? (
+                          user.networks.map((net) => (
+                            <span
+                              key={net}
+                              className="px-2 py-0.5 rounded-full text-xs font-medium bg-jways-100 text-jways-700 dark:bg-jways-500/20 dark:text-jways-300"
+                            >
+                              {net}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <a href={`mailto:${user.email}`} className="text-jways-600 dark:text-jways-400 hover:underline">
@@ -289,7 +311,7 @@ export const UserManagementWidget: React.FC = () => {
               })}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                     No registered users found.
                   </td>
                 </tr>

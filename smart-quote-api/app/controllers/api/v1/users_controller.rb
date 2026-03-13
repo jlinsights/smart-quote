@@ -15,7 +15,7 @@ module Api
       # PATCH /api/v1/users/:id
       def update
         user = User.find(params[:id])
-        permitted = params.permit(:name, :company, :nationality, :role)
+        permitted = params.permit(:name, :company, :nationality, :role, networks: [])
 
         if permitted[:role].present? && !%w[admin user member].include?(permitted[:role])
           return render json: { error: { code: "INVALID_ROLE", message: "Role must be admin, user, or member" } }, status: :unprocessable_entity
@@ -55,6 +55,7 @@ module Api
           name: user.name,
           company: user.company,
           nationality: user.nationality,
+          networks: user.networks,
           role: user.role,
           quoteCount: user.quotes.count,
           createdAt: user.created_at.iso8601
