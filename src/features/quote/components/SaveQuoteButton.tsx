@@ -43,7 +43,7 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
       setShowNotes(false);
       setNotes('');
       toast('success', `Quote saved: ${detail.referenceNo}`);
-      if (result && user?.role === 'member' && !isDuplicate) {
+      if (result && user && user.role !== 'admin' && !isDuplicate) {
         sendQuoteSlackNotification(input, result, detail.referenceNo, {
           name: user.name || user.email,
           email: user.email,

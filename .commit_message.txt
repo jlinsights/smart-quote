@@ -1,1 +1,1 @@
-🌍 feat: 국적 드롭다운 206개국 확장 + 기존 텍스트→코드 마이그레이션
+🐛 fix: Slack 알림 Admin 제외 조건 수정 (role === 'member' → role !== 'admin')
