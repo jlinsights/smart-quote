@@ -177,4 +177,65 @@ describe('SaveQuoteButton', () => {
       screen.queryByPlaceholderText('Add notes (optional)'),
     ).not.toBeInTheDocument();
   });
+
+  it('pressing Enter in notes input triggers save', async () => {
+    vi.useRealTimers();
+    vi.mocked(saveQuote).mockResolvedValue({ referenceNo: 'SQ-2026-0099' } as ReturnType<typeof saveQuote> extends Promise<infer T> ? T : never);
+
+    render(<SaveQuoteButton input={mockInput} result={mockResult} />);
+
+    await userEvent.click(screen.getByText('Save Quote'));
+    const notesInput = screen.getByPlaceholderText('Add notes (optional)');
+    await userEvent.type(notesInput, 'rush order');
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(saveQuote).toHaveBeenCalledWith(mockInput, 'rush order', mockResult);
+    });
+  });
+
+  it('pressing Escape in notes input closes notes and clears input', async () => {
+    vi.useRealTimers();
+    render(<SaveQuoteButton input={mockInput} result={mockResult} />);
+
+    await userEvent.click(screen.getByText('Save Quote'));
+    const notesInput = screen.getByPlaceholderText('Add notes (optional)');
+    await userEvent.type(notesInput, 'some note');
+    await userEvent.keyboard('{Escape}');
+
+    expect(screen.getByText('Save Quote')).toBeInTheDocument();
+    expect(
+      screen.queryByPlaceholderText('Add notes (optional)'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows duplicate confirm dialog when saving same input twice', async () => {
+    vi.useRealTimers();
+    vi.mocked(saveQuote).mockResolvedValue({ referenceNo: 'SQ-2026-0050' } as ReturnType<typeof saveQuote> extends Promise<infer T> ? T : never);
+
+    render(<SaveQuoteButton input={mockInput} result={mockResult} />);
+
+    // First save
+    await userEvent.click(screen.getByText('Save Quote'));
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Saved!/)).toBeInTheDocument();
+    });
+
+    // Wait for state to reset to idle
+    await waitFor(() => {
+      expect(screen.getByText('Save Quote')).toBeInTheDocument();
+    }, { timeout: 5000 });
+
+    // Second save with same input -> should show duplicate dialog
+    await userEvent.click(screen.getByText('Save Quote'));
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Duplicate Quote')).toBeInTheDocument();
+      expect(screen.getByText('This quote was already saved. Save again?')).toBeInTheDocument();
+      expect(screen.getByText('Save Again')).toBeInTheDocument();
+    });
+  });
 });

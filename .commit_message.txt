@@ -1,1 +1,1 @@
-🌐 feat: 언어 선택기에 일본어(🇯🇵)·중국어(🇨🇳) 추가
+✅ test: AuthContext 단위 테스트 12건 추가 및 isLoading 인터페이스 노출
