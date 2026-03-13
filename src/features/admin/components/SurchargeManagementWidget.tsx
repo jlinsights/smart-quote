@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Shield, RefreshCw, Plus, Save, Loader2, Trash2, X, ExternalLink, AlertTriangle } from 'lucide-react';
+import { Shield, RefreshCw, Plus, Save, Loader2, Trash2, X, ExternalLink, AlertTriangle, AlertCircle } from 'lucide-react';
 import { getSurcharges, createSurcharge, updateSurcharge, deleteSurcharge, type SurchargeRule } from '@/api/surchargeApi';
 import { useToast } from '@/components/ui/Toast';
 import { formatKRW } from '@/lib/format';
@@ -42,6 +42,7 @@ export const SurchargeManagementWidget: React.FC = () => {
   const { toast } = useToast();
   const [surcharges, setSurcharges] = useState<SurchargeRule[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<Partial<SurchargeRule>>(EMPTY_FORM);
@@ -51,15 +52,16 @@ export const SurchargeManagementWidget: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const res = await getSurcharges();
       setSurcharges(res.surcharges);
-    } catch {
-      toast('error', 'Failed to load surcharges');
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Failed to load surcharges');
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -331,7 +333,13 @@ export const SurchargeManagementWidget: React.FC = () => {
       {(showAddForm || editingId) && renderForm()}
 
       {/* Surcharge List */}
-      {loading && surcharges.length === 0 ? (
+      {loadError && surcharges.length === 0 ? (
+        <div className="p-6 text-center text-xs text-red-500">
+          <AlertCircle className="w-4 h-4 mx-auto mb-1" />
+          {loadError}
+          <button onClick={fetchData} className="ml-2 underline hover:no-underline">Retry</button>
+        </div>
+      ) : loading && surcharges.length === 0 ? (
         <div className="p-6 text-center text-xs text-gray-400">
           <Loader2 className="w-4 h-4 animate-spin mx-auto" />
         </div>

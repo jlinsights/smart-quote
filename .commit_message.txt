@@ -1,1 +1,1 @@
-✏️ fix: 랜딩페이지 EMAX·해상 표현 제거, 현재 2캐리어(UPS/DHL) + 확장 예정 반영
+🐛 fix: Surcharge toast 반복 출현 버그 수정 — toast→인라인 에러 전환, useCallback 의존성 제거
