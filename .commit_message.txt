@@ -1,1 +1,1 @@
-🧪 fix: E2E 테스트 3건 수정 — 랜딩 카피 변경 반영, strict mode 중복 셀렉터 해결
+🧪 fix: E2E 테스트 수정 — header→nav 셀렉터, 중복 링크 .first() 적용
