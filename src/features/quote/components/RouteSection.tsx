@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { QuoteInput, Incoterm } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { COUNTRY_OPTIONS, INCOTERM_OPTIONS } from '@/config/options';
+import { COUNTRY_OPTIONS, INCOTERM_OPTIONS, UPS_ZONE_COUNTRIES, DHL_ZONE_COUNTRIES } from '@/config/options';
 import { inputStyles } from './input-styles';
 
 const INCOTERM_DESC: Record<string, string> = {
@@ -42,6 +42,18 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
   const grid = twoColGrid(isMobileView);
   const { t } = useLanguage();
 
+  const [selectedZone, setSelectedZone] = useState<string>('');
+
+  const carrier = input.overseasCarrier || 'UPS';
+  const zoneMap = carrier === 'DHL' ? DHL_ZONE_COUNTRIES : UPS_ZONE_COUNTRIES;
+  const zoneKeys = Object.keys(zoneMap);
+
+  const filteredCountries = useMemo(() => {
+    if (!selectedZone || !zoneMap[selectedZone]) return COUNTRY_OPTIONS;
+    const zoneCodes = new Set(zoneMap[selectedZone]);
+    return COUNTRY_OPTIONS.filter(c => zoneCodes.has(c.code));
+  }, [selectedZone, zoneMap]);
+
   const zipHint = ZIP_HINTS[input.destinationCountry] || { placeholder: 'Zip / Postal Code' };
 
   return (
@@ -60,6 +72,30 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
           </div>
 
           <div>
+            <label className={lc}>{t('calc.label.zone')}</label>
+            <div className="relative">
+                <select
+                value={selectedZone}
+                onChange={(e) => {
+                  const zone = e.target.value;
+                  setSelectedZone(zone);
+                  // Auto-select first country in the zone
+                  if (zone && zoneMap[zone]?.length) {
+                    onFieldChange('destinationCountry', zoneMap[zone][0]);
+                  }
+                }}
+                className={`${ic} appearance-none`}
+                >
+                  <option value="">{t('calc.label.zoneAll')}</option>
+                  {zoneKeys.map(z => (
+                    <option key={z} value={z}>{z} ({zoneMap[z].length} {t('calc.label.zoneCountries')})</option>
+                  ))}
+                </select>
+                {selectChevron}
+            </div>
+          </div>
+
+          <div>
             <label className={lc}>{t('calc.label.destination')}</label>
             <div className="relative">
                 <select
@@ -69,7 +105,7 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                 }}
                 className={`${ic} appearance-none`}
                 >
-                {COUNTRY_OPTIONS.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                {filteredCountries.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
                 </select>
                 {selectChevron}
             </div>
@@ -94,7 +130,10 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
             <div className="relative">
                 <select
                 value={input.overseasCarrier || 'UPS'}
-                onChange={(e) => onFieldChange('overseasCarrier', e.target.value as QuoteInput['overseasCarrier'])}
+                onChange={(e) => {
+                  onFieldChange('overseasCarrier', e.target.value as QuoteInput['overseasCarrier']);
+                  setSelectedZone('');
+                }}
                 className={`${ic} appearance-none`}
                 >
                   <option value="UPS">UPS</option>
