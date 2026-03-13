@@ -1,6 +1,36 @@
 import React, { createContext, useContext, useState } from 'react';
 import { Language, translations } from '../i18n/translations';
 
+const TIMEZONE_LANG_MAP: Record<string, Language> = {
+  'Asia/Seoul': 'ko',
+  'Asia/Tokyo': 'ja',
+  'Asia/Shanghai': 'cn',
+  'Asia/Chongqing': 'cn',
+  'Asia/Harbin': 'cn',
+  'Asia/Urumqi': 'cn',
+  'Asia/Hong_Kong': 'cn',
+  'Asia/Macau': 'cn',
+  'Asia/Taipei': 'cn',
+};
+
+const BROWSER_LANG_MAP: Record<string, Language> = {
+  ko: 'ko',
+  ja: 'ja',
+  zh: 'cn',
+};
+
+function detectLanguage(): Language {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (tz && TIMEZONE_LANG_MAP[tz]) return TIMEZONE_LANG_MAP[tz];
+  } catch { /* ignore */ }
+
+  const browserLang = navigator.language?.split('-')[0]?.toLowerCase();
+  if (browserLang && BROWSER_LANG_MAP[browserLang]) return BROWSER_LANG_MAP[browserLang];
+
+  return 'en';
+}
+
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
@@ -12,7 +42,9 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    return (localStorage.getItem('smartQuoteLanguage') as Language) || 'en';
+    const saved = localStorage.getItem('smartQuoteLanguage') as Language | null;
+    if (saved) return saved;
+    return detectLanguage();
   });
 
   const setLanguage = (lang: Language) => {
