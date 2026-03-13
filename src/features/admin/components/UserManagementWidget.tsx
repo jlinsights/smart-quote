@@ -1,9 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import type { FreightNetwork } from '@/contexts/AuthContext';
 import { Users, Building2, UserCircle, Globe2, Mail, Shield, Edit2, Check, X, Trash2, Loader2, AlertCircle, Hash } from 'lucide-react';
 import { listUsers, updateUser, deleteUser, AdminUser, UpdateUserParams } from '@/api/userApi';
 import { NATIONALITY_OPTIONS, getCountryDisplayName } from '@/config/options';
+
+const NETWORK_OPTIONS: FreightNetwork[] = ['WCA', 'MPL', 'EAN', 'JCtrans'];
+
+const NETWORK_STYLES: Record<string, { bg: string; text: string; border: string }> = {
+  WCA:     { bg: 'bg-blue-100 dark:bg-blue-500/20', text: 'text-blue-700 dark:text-blue-300', border: 'border-blue-300 dark:border-blue-500/40' },
+  MPL:     { bg: 'bg-emerald-100 dark:bg-emerald-500/20', text: 'text-emerald-700 dark:text-emerald-300', border: 'border-emerald-300 dark:border-emerald-500/40' },
+  EAN:     { bg: 'bg-amber-100 dark:bg-amber-500/20', text: 'text-amber-700 dark:text-amber-300', border: 'border-amber-300 dark:border-amber-500/40' },
+  JCtrans: { bg: 'bg-red-100 dark:bg-red-500/20', text: 'text-red-700 dark:text-red-300', border: 'border-red-300 dark:border-red-500/40' },
+};
 
 export const UserManagementWidget: React.FC = () => {
   const { t } = useLanguage();
@@ -40,6 +50,7 @@ export const UserManagementWidget: React.FC = () => {
       company: user.company || '',
       nationality: user.nationality || '',
       role: user.role,
+      networks: user.networks || [],
     });
   };
 
@@ -79,6 +90,16 @@ export const UserManagementWidget: React.FC = () => {
 
   const handleFormChange = (key: keyof UpdateUserParams, value: string) => {
     setEditForm(prev => ({ ...prev, [key]: value }));
+  };
+
+  const toggleNetwork = (net: FreightNetwork) => {
+    setEditForm(prev => {
+      const current = (prev.networks || []) as string[];
+      const updated = current.includes(net)
+        ? current.filter(n => n !== net)
+        : [...current, net];
+      return { ...prev, networks: updated };
+    });
   };
 
   return (
@@ -214,20 +235,46 @@ export const UserManagementWidget: React.FC = () => {
                       )}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1">
-                        {user.networks && user.networks.length > 0 ? (
-                          user.networks.map((net) => (
-                            <span
-                              key={net}
-                              className="px-2 py-0.5 rounded-full text-xs font-medium bg-jways-100 text-jways-700 dark:bg-jways-500/20 dark:text-jways-300"
-                            >
-                              {net}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </div>
+                      {isEditing ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {NETWORK_OPTIONS.map((net) => {
+                            const selected = (editForm.networks || []).includes(net);
+                            const style = NETWORK_STYLES[net];
+                            return (
+                              <button
+                                key={net}
+                                type="button"
+                                onClick={() => toggleNetwork(net)}
+                                className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${
+                                  selected
+                                    ? `${style.bg} ${style.text} ${style.border}`
+                                    : 'bg-gray-100 text-gray-400 border-gray-200 dark:bg-gray-700 dark:text-gray-500 dark:border-gray-600'
+                                }`}
+                              >
+                                {net}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-1">
+                          {user.networks && user.networks.length > 0 ? (
+                            user.networks.map((net) => {
+                              const style = NETWORK_STYLES[net] || NETWORK_STYLES.WCA;
+                              return (
+                                <span
+                                  key={net}
+                                  className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${style.bg} ${style.text} ${style.border}`}
+                                >
+                                  {net}
+                                </span>
+                              );
+                            })
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <a href={`mailto:${user.email}`} className="text-jways-600 dark:text-jways-400 hover:underline">

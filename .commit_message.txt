@@ -1,1 +1,1 @@
-📝 fix: 물류 네트워크 설명 정정 (MPL=MarcoPoloLine, EAN=Exclusive Air Network)
+✨ feat: Admin 패널 네트워크 편집 기능 추가 및 네트워크별 컬러 배지 적용

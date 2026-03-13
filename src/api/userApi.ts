@@ -17,6 +17,7 @@ export interface UpdateUserParams {
   company?: string;
   nationality?: string;
   role?: 'admin' | 'user' | 'member';
+  networks?: string[];
 }
 
 export const listUsers = async (): Promise<AdminUser[]> => {
