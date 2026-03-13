@@ -1,1 +1,1 @@
-🧹 fix: CI 린트 에러 6건 + 경고 2건 수정 — 미사용 import 제거, const 전환, any 타입 제거
+🧪 fix: E2E 테스트 3건 수정 — 랜딩 카피 변경 반영, strict mode 중복 셀렉터 해결

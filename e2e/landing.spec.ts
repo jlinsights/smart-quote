@@ -4,13 +4,13 @@ test.describe('Landing Page', () => {
   test('displays hero section and navigation', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('header')).toBeVisible();
-    await expect(page.getByText('UPS · DHL · E-MAX')).toBeVisible();
+    await expect(page.getByText(/WCA.*MPL.*EAN.*JCtrans/)).toBeVisible();
   });
 
   test('has login and signup links', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('link', { name: /sign in|login/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /sign up|signup|register/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /sign up|signup|register/i }).first()).toBeVisible();
   });
 
   test('navigates to login page', async ({ page }) => {
