@@ -1,7 +1,7 @@
 {
-  "activeFeature": "exchange-rate-proxy",
-  "phase": "completed",
-  "matchRate": 98,
+  "activeFeature": null,
+  "phase": null,
+  "matchRate": null,
   "iteration": 0,
   "history": [
     {
@@ -45,6 +45,13 @@
       "timestamp": "2026-03-13",
       "action": "Archived to docs/archive/2026-03/packing-docs-simplify/",
       "matchRate": 95
+    },
+    {
+      "feature": "exchange-rate-proxy",
+      "phase": "archived",
+      "timestamp": "2026-03-13",
+      "action": "Archived to docs/archive/2026-03/exchange-rate-proxy/",
+      "matchRate": 98
     }
   ]
 }
