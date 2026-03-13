@@ -1,1 +1,1 @@
-✨ feat: Zone-국가 매핑 완전 일치 — COUNTRY_OPTIONS 196개국, UPS 183개국, DHL 188개국 누락 0
+🔤 fix: '해외 운송사' → '운송사(Carrier)'로 라벨 간소화 (4개 언어)

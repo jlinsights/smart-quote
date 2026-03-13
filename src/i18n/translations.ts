@@ -96,7 +96,7 @@ export const translations: Record<Language, Record<string, string>> = {
      'calc.label.zoneCountries': '개국',
      'calc.label.destination': '도착 국가',
      'calc.label.zip': '도착지 우편번호',
-     'calc.label.carrier': '해외 운송사',
+     'calc.label.carrier': '운송사',
      'calc.label.mode': '배송 모드',
 
      // Cost Breakdown
@@ -301,7 +301,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'calc.label.zoneCountries': 'countries',
     'calc.label.destination': 'Destination Country',
     'calc.label.zip': 'Destination Zip Code',
-    'calc.label.carrier': 'International Carrier',
+    'calc.label.carrier': 'Carrier',
     'calc.label.mode': 'Delivery Mode',
 
     // Cost Breakdown
@@ -512,7 +512,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'calc.label.zoneCountries': '个国家',
     'calc.label.destination': '目的国',
     'calc.label.zip': '目的地邮编',
-    'calc.label.carrier': '海外承运商',
+    'calc.label.carrier': '承运商',
     'calc.label.mode': '运输方式',
 
     // Cost Breakdown
@@ -702,7 +702,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'calc.label.zoneCountries': 'ヶ国',
     'calc.label.destination': '配送先国',
     'calc.label.zip': '配送先郵便番号',
-    'calc.label.carrier': '海外キャリア',
+    'calc.label.carrier': 'キャリア',
     'calc.label.mode': '配送モード',
 
     // Cost Breakdown
