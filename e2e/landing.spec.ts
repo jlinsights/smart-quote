@@ -4,7 +4,7 @@ test.describe('Landing Page', () => {
   test('displays hero section and navigation', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('nav')).toBeVisible();
-    await expect(page.getByText(/WCA.*MPL.*EAN.*JCtrans/)).toBeVisible();
+    await expect(page.getByText(/WCA.*MPL.*EAN.*JCtrans/).first()).toBeVisible();
   });
 
   test('has login and signup links', async ({ page }) => {
