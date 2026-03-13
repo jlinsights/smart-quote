@@ -1,1 +1,1 @@
-📦 chore: packing-docs-simplify PDCA 아카이브 완료 (95% match rate)
+🔄 feat: 환율 API를 Rails 백엔드 캐싱 프록시로 전환 (무료 플랜 한도 내 안정 운영)

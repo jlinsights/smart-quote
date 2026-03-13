@@ -5,34 +5,30 @@ vi.mock('@/lib/fetchWithRetry', () => ({
   fetchWithRetry: <T>(fn: () => Promise<T>) => fn(),
 }));
 
-function makeMockResponse(overrides: Record<string, number> = {}) {
+function makeMockProxyResponse() {
   return {
-    result: 'success',
-    base_code: 'KRW',
-    time_last_update_utc: '2026-02-26T00:00:00+00:00',
-    rates: {
-      KRW: 1,
-      USD: 0.000722, // ~1385 KRW per USD
-      EUR: 0.000661, // ~1513 KRW per EUR
-      JPY: 0.001117, // ~895 KRW per 100 JPY
-      CNY: 0.005123, // ~195 KRW per CNY
-      GBP: 0.000571, // ~1752 KRW per GBP
-      SGD: 0.000959, // ~1043 KRW per SGD
-      ...overrides,
-    },
+    rates: [
+      { currency: 'USD', code: 'USA', flag: '\u{1F1FA}\u{1F1F8}', rate: 1428.50, previousClose: 1425.00, change: 3.50, changePercent: 0.25, trend: 'up' },
+      { currency: 'EUR', code: 'EUR', flag: '\u{1F1EA}\u{1F1FA}', rate: 1552.30, previousClose: 1550.00, change: 2.30, changePercent: 0.15, trend: 'up' },
+      { currency: 'JPY', code: 'JPN', flag: '\u{1F1EF}\u{1F1F5}', rate: 9.45, previousClose: 9.50, change: -0.05, changePercent: -0.53, trend: 'down' },
+      { currency: 'CNY', code: 'CHN', flag: '\u{1F1E8}\u{1F1F3}', rate: 196.80, previousClose: 196.80, change: 0, changePercent: 0, trend: 'flat' },
+      { currency: 'GBP', code: 'GBR', flag: '\u{1F1EC}\u{1F1E7}', rate: 1812.40, previousClose: 1810.00, change: 2.40, changePercent: 0.13, trend: 'up' },
+      { currency: 'SGD', code: 'SGP', flag: '\u{1F1F8}\u{1F1EC}', rate: 1068.20, previousClose: 1065.00, change: 3.20, changePercent: 0.30, trend: 'up' },
+    ],
+    fetchedAt: '2026-03-13T09:00:00+09:00',
+    cached: true,
   };
 }
 
 describe('fetchExchangeRates', () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    localStorage.clear();
   });
 
-  it('fetches and returns 6 currencies with correct structure', async () => {
+  it('fetches and returns 6 currencies from Rails proxy', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve(makeMockResponse()),
+      json: () => Promise.resolve(makeMockProxyResponse()),
     }));
 
     const result = await fetchExchangeRates();
@@ -41,59 +37,28 @@ describe('fetchExchangeRates', () => {
     expect(result[0]).toMatchObject({
       currency: 'USD',
       code: 'USA',
-      flag: '🇺🇸',
+      rate: 1428.50,
     });
-    expect(result[0].rate).toBeGreaterThan(0);
-    expect(['up', 'down', 'flat']).toContain(result[0].trend);
   });
 
-  it('converts KRW-based rate to "1 foreign = X KRW"', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+  it('calls the correct Rails proxy endpoint', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve(makeMockResponse({ USD: 0.000722 })),
-    }));
+      json: () => Promise.resolve(makeMockProxyResponse()),
+    });
+    vi.stubGlobal('fetch', mockFetch);
 
-    const result = await fetchExchangeRates();
-    const usd = result.find(r => r.currency === 'USD')!;
+    await fetchExchangeRates();
 
-    // 1 / 0.000722 ≈ 1385.04
-    expect(usd.rate).toBeCloseTo(1385.04, 0);
-  });
-
-  it('handles network error', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
-    await expect(fetchExchangeRates()).rejects.toThrow('Network error');
-  });
-
-  it('handles non-ok response', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 429 }));
-    await expect(fetchExchangeRates()).rejects.toThrow('Exchange rate API error: 429');
-  });
-
-  it('handles API error result', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ result: 'error', 'error-type': 'unsupported-code' }),
-    }));
-    await expect(fetchExchangeRates()).rejects.toThrow('Exchange rate API: missing rates data or KRW base');
-  });
-
-  it('handles zero rate gracefully', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(makeMockResponse({ USD: 0 })),
-    }));
-
-    const result = await fetchExchangeRates();
-    const usd = result.find(r => r.currency === 'USD')!;
-    expect(usd.rate).toBe(0);
-    expect(usd.trend).toBe('flat');
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/v1/exchange_rates')
+    );
   });
 
   it('includes all expected currencies', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve(makeMockResponse()),
+      json: () => Promise.resolve(makeMockProxyResponse()),
     }));
 
     const result = await fetchExchangeRates();
@@ -101,49 +66,37 @@ describe('fetchExchangeRates', () => {
     expect(currencies).toEqual(['USD', 'EUR', 'JPY', 'CNY', 'GBP', 'SGD']);
   });
 
-  it('uses cached previous rates for change calculation', async () => {
-    // Seed localStorage with a previous USD rate of 1400 KRW
-    localStorage.setItem('exchange_rates_prev', JSON.stringify({
-      rates: { USD: 1400, EUR: 1500, JPY: 900, CNY: 195, GBP: 1750, SGD: 1040 },
-      timestamp: Date.now() - 60000,
-    }));
-
+  it('preserves trend information from server', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve(makeMockResponse({ USD: 0.000722 })),
+      json: () => Promise.resolve(makeMockProxyResponse()),
     }));
 
     const result = await fetchExchangeRates();
     const usd = result.find(r => r.currency === 'USD')!;
-
-    // 1/0.000722 ≈ 1385.04, previous = 1400 → change ≈ -14.96
-    expect(usd.change).toBeCloseTo(-14.96, 0);
-    expect(usd.trend).toBe('down');
+    expect(usd.trend).toBe('up');
+    expect(usd.change).toBe(3.50);
+    expect(usd.changePercent).toBe(0.25);
+    expect(usd.previousClose).toBe(1425.00);
   });
 
-  it('shows flat when no cached previous rates exist', async () => {
-    // No localStorage data → previousClose = current rate → change = 0
+  it('handles network error', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
+    await expect(fetchExchangeRates()).rejects.toThrow('Network error');
+  });
+
+  it('handles non-ok response (proxy error)', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 503 }));
+    await expect(fetchExchangeRates()).rejects.toThrow('Exchange rate proxy error: 503');
+  });
+
+  it('handles empty rates array', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve(makeMockResponse()),
+      json: () => Promise.resolve({ rates: [], fetchedAt: '2026-03-13T09:00:00+09:00', cached: true }),
     }));
 
     const result = await fetchExchangeRates();
-    const usd = result.find(r => r.currency === 'USD')!;
-    expect(usd.change).toBe(0);
-    expect(usd.trend).toBe('flat');
-  });
-
-  it('saves current rates to localStorage after fetch', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(makeMockResponse()),
-    }));
-
-    await fetchExchangeRates();
-
-    const cached = JSON.parse(localStorage.getItem('exchange_rates_prev')!);
-    expect(cached.rates.USD).toBeCloseTo(1385.04, 0);
-    expect(cached.timestamp).toBeGreaterThan(0);
+    expect(result).toHaveLength(0);
   });
 });

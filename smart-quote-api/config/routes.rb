@@ -52,6 +52,9 @@ Rails.application.routes.draw do
         end
       end
 
+      # Exchange Rates (public - no auth required)
+      get "exchange_rates", to: "exchange_rates#index"
+
       # FSC Rates
       get "fsc/rates", to: "fsc#rates"
       post "fsc/update", to: "fsc#update_rates"

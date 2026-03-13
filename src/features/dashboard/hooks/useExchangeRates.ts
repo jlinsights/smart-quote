@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchExchangeRates } from '@/api/exchangeRateApi';
 import type { ExchangeRate } from '@/types/dashboard';
 
-const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
-const STALE_THRESHOLD = 6 * 60 * 1000; // 6 minutes — data considered stale
+const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes (server caches for 1 hour)
+const STALE_THRESHOLD = 35 * 60 * 1000; // 35 minutes — data considered stale
 
 interface UseExchangeRatesResult {
   data: ExchangeRate[];
