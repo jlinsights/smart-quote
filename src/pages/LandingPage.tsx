@@ -95,7 +95,6 @@ export const LandingPage: React.FC = () => {
                   {[
                     { carrier: 'UPS', zone: 'Z5', amount: '₩487,200' },
                     { carrier: 'DHL', zone: 'Z4', amount: '₩512,800' },
-                    { carrier: 'EMAX', zone: 'CN', amount: '₩398,500' },
                   ].map((row) => (
                     <div
                       key={row.carrier}
@@ -138,7 +137,7 @@ export const LandingPage: React.FC = () => {
           {/* ── Stats row ── */}
           <div className="mt-20 pt-10 border-t border-white/5 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
             {[
-              { value: '3', label: t('landing.stat.carriers'), icon: Truck },
+              { value: '2+', label: t('landing.stat.carriers'), icon: Truck },
               { value: '190+', label: t('landing.stat.countries'), icon: Globe },
               { value: '< 1s', label: t('landing.stat.calculation'), icon: Zap },
               { value: '24/7', label: t('landing.stat.available'), icon: ShieldCheck },
