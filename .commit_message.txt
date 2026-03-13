@@ -1,1 +1,1 @@
-🔧 fix: Packing & Docs — 핸들링 35K 자동 포함 제거, 사용자 입력값만 반영, 미입력 시 숨김, COST BASIS ? 아이콘 제거
+📦 chore: packing-docs-simplify PDCA 아카이브 완료 (95% match rate)

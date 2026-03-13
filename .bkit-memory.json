@@ -38,6 +38,13 @@
       "timestamp": "2026-03-12",
       "action": "Archived to docs/archive/2026-03/dhl-addons/",
       "matchRate": 91
+    },
+    {
+      "feature": "packing-docs-simplify",
+      "phase": "archived",
+      "timestamp": "2026-03-13",
+      "action": "Archived to docs/archive/2026-03/packing-docs-simplify/",
+      "matchRate": 95
     }
   ]
 }
