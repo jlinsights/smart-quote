@@ -52,10 +52,10 @@ export const translations: Record<Language, Record<string, string>> = {
      'auth.fillAll': '모든 필드를 입력해주세요.',
      'auth.networks': '물류 네트워크 가입 여부',
      'auth.networksHint': '가입하신 글로벌 물류 네트워크를 선택하세요 (선택사항)',
-     'auth.networkDesc.WCA': 'World Cargo Alliance — 글로벌 화물 포워딩 네트워크',
-     'auth.networkDesc.MPL': 'Multimodal Partners Logistics — 복합운송 물류 파트너십',
-     'auth.networkDesc.EAN': 'Express Air Network — 국제 항공특송 네트워크',
-     'auth.networkDesc.JCtrans': 'JCtrans — 중국 최대 물류 B2B 플랫폼',
+     'auth.networkDesc.WCA': 'World Cargo Alliance — 195개국 12,500+ 오피스, 세계 최대 포워더 네트워크',
+     'auth.networkDesc.MPL': 'MarcoPoloLine Group — 96개국 458 오피스, 소수정예 프리미엄 네트워크',
+     'auth.networkDesc.EAN': 'Exclusive Air Network — 항공 특화, 1국가 1회원 독점 네트워크',
+     'auth.networkDesc.JCtrans': 'JCtrans — 중국 최대 물류 B2B 플랫폼 (jctrans.com)',
      'auth.backHome': '← 홈으로 돌아가기',
 
      // Calculator - Headers
@@ -264,10 +264,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'auth.fillAll': 'Please fill in all fields.',
     'auth.networks': 'Freight Network Membership',
     'auth.networksHint': 'Select the global freight networks you belong to (optional)',
-    'auth.networkDesc.WCA': 'World Cargo Alliance — Global freight forwarding network',
-    'auth.networkDesc.MPL': 'Multimodal Partners Logistics — Multimodal logistics partnership',
-    'auth.networkDesc.EAN': 'Express Air Network — International air express network',
-    'auth.networkDesc.JCtrans': 'JCtrans — China\'s largest logistics B2B platform',
+    'auth.networkDesc.WCA': 'World Cargo Alliance — 195 countries, 12,500+ offices, largest forwarder network',
+    'auth.networkDesc.MPL': 'MarcoPoloLine Group — 96 countries, 458 offices, elite premium network',
+    'auth.networkDesc.EAN': 'Exclusive Air Network — Air cargo specialist, 1 member per country',
+    'auth.networkDesc.JCtrans': 'JCtrans — China\'s largest logistics B2B platform (jctrans.com)',
     'auth.backHome': '← Back to Home',
 
     // Calculator - Headers
@@ -483,10 +483,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'auth.fillAll': '请填写所有字段。',
     'auth.networks': '物流网络会员',
     'auth.networksHint': '请选择您加入的全球物流网络（可选）',
-    'auth.networkDesc.WCA': 'World Cargo Alliance — 全球货运代理网络',
-    'auth.networkDesc.MPL': 'Multimodal Partners Logistics — 多式联运物流合作',
-    'auth.networkDesc.EAN': 'Express Air Network — 国际航空快递网络',
-    'auth.networkDesc.JCtrans': 'JCtrans — 中国最大的物流B2B平台',
+    'auth.networkDesc.WCA': 'World Cargo Alliance — 195个国家12,500+办事处，全球最大货代网络',
+    'auth.networkDesc.MPL': 'MarcoPoloLine Group — 96个国家458办事处，精英优质网络',
+    'auth.networkDesc.EAN': 'Exclusive Air Network — 航空货运专家，一国一会员独家网络',
+    'auth.networkDesc.JCtrans': 'JCtrans — 中国最大的物流B2B平台 (jctrans.com)',
     'auth.backHome': '← 返回首页',
 
     // Calculator - Headers
@@ -680,10 +680,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'auth.fillAll': 'すべてのフィールドを入力してください。',
     'auth.networks': '物流ネットワーク加盟',
     'auth.networksHint': '加盟しているグローバル物流ネットワークを選択してください（任意）',
-    'auth.networkDesc.WCA': 'World Cargo Alliance — グローバル貨物フォワーディングネットワーク',
-    'auth.networkDesc.MPL': 'Multimodal Partners Logistics — 複合輸送物流パートナーシップ',
-    'auth.networkDesc.EAN': 'Express Air Network — 国際航空エクスプレスネットワーク',
-    'auth.networkDesc.JCtrans': 'JCtrans — 中国最大の物流B2Bプラットフォーム',
+    'auth.networkDesc.WCA': 'World Cargo Alliance — 195ヶ国12,500+拠点、世界最大のフォワーダーネットワーク',
+    'auth.networkDesc.MPL': 'MarcoPoloLine Group — 96ヶ国458拠点、少数精鋭プレミアムネットワーク',
+    'auth.networkDesc.EAN': 'Exclusive Air Network — 航空貨物専門、1国1会員の独占ネットワーク',
+    'auth.networkDesc.JCtrans': 'JCtrans — 中国最大の物流B2Bプラットフォーム (jctrans.com)',
     'auth.backHome': '← ホームに戻る',
 
     // Calculator - Headers

@@ -1,1 +1,1 @@
-✨ feat: JCtrans 네트워크 추가 + 각 네트워크 툴팁 설명 (4개 언어)
+📝 fix: 물류 네트워크 설명 정정 (MPL=MarcoPoloLine, EAN=Exclusive Air Network)
