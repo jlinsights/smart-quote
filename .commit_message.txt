@@ -1,1 +1,1 @@
-🔧 fix: Packing & Docs Override = 전체 대체 (핸들링 포함) + 비용 산출 기준 안내 UI 추가
+🔧 fix: Packing & Docs — 핸들링 35K 자동 포함 제거, 사용자 입력값만 반영, 미입력 시 숨김, COST BASIS ? 아이콘 제거

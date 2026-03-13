@@ -49,14 +49,14 @@ describe('Calculation Parity Tests (Frontend)', () => {
     expect(result.breakdown.intlSurge).toBe(40000);
   });
 
-  it('applies HANDLING_FEE of 35000 when no manual packing override', () => {
+  it('handling fee is always 0 (no auto handling fee)', () => {
     const fixture = fixtures.fixtures.find(f => f.name === 'basic_ups_us_wooden_box')!;
     const result = calculateQuote(fixture.input as unknown as QuoteInput);
 
-    expect(result.breakdown.handlingFees).toBe(35000);
+    expect(result.breakdown.handlingFees).toBe(0);
   });
 
-  it('zeroes handling fee when manualPackingCost overrides entire Packing & Docs', () => {
+  it('zeroes fumigation when manualPackingCost overrides Packing & Docs', () => {
     const fixture = fixtures.fixtures.find(f => f.name === 'ups_jp_manual_packing')!;
     const result = calculateQuote(fixture.input as unknown as QuoteInput);
 

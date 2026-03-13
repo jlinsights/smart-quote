@@ -48,14 +48,14 @@ RSpec.describe QuoteCalculator, "Calculation Parity" do
       expect(result[:breakdown][:intlSurge]).to eq(40_000)
     end
 
-    it "applies HANDLING_FEE of 35000 when no manual packing override" do
+    it "handling fee is always 0 (no auto handling fee)" do
       fixture = fixtures_data["fixtures"].find { |f| f["name"] == "basic_ups_us_wooden_box" }
       result = QuoteCalculator.call(fixture["input"])
 
-      expect(result[:breakdown][:handlingFees]).to eq(35_000)
+      expect(result[:breakdown][:handlingFees]).to eq(0)
     end
 
-    it "zeroes handling fee when manualPackingCost overrides entire Packing & Docs" do
+    it "zeroes fumigation when manualPackingCost overrides Packing & Docs" do
       fixture = fixtures_data["fixtures"].find { |f| f["name"] == "ups_jp_manual_packing" }
       result = QuoteCalculator.call(fixture["input"])
 

@@ -590,11 +590,12 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
     packingFumigationCost = FUMIGATION_FEE;
   }
 
-  let finalHandlingFee = HANDLING_FEE;
-  // Manual packing cost override: replaces entire Packing & Docs (material + labor + fumigation + handling)
+  let finalHandlingFee = 0;
+  // Packing & Docs = user-entered manualPackingCost only. No auto handling fee.
+  // When manualPackingCost is set: material=override, labor=0, fumigation=0, handling=0
+  // When manualPackingCost is empty: material=auto, labor=auto, fumigation=auto, handling=0
   if (input.manualPackingCost !== undefined && input.manualPackingCost >= 0) {
       packingFumigationCost = 0;
-      finalHandlingFee = 0;
   }
 
   const packingTotal = itemResult.packingMaterialCost + itemResult.packingLaborCost + packingFumigationCost;

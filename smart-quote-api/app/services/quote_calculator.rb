@@ -29,11 +29,12 @@ class QuoteCalculator
       packing_fumigation_cost = FUMIGATION_FEE
     end
 
-    final_handling_fee = HANDLING_FEE
-    # Manual packing cost override: replaces entire Packing & Docs (material + labor + fumigation + handling)
+    final_handling_fee = 0
+    # Packing & Docs = user-entered manualPackingCost only. No auto handling fee.
+    # When manualPackingCost is set: material=override, labor=0, fumigation=0, handling=0
+    # When manualPackingCost is empty: material=auto, labor=auto, fumigation=auto, handling=0
     if @input[:manualPackingCost] && @input[:manualPackingCost] >= 0
       packing_fumigation_cost = 0
-      final_handling_fee = 0
     end
 
     packing_total = item_result[:packing_material_cost] + item_result[:packing_labor_cost] + packing_fumigation_cost

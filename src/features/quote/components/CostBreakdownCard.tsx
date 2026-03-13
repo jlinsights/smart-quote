@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { QuoteResult } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Calculator, PackageCheck, HelpCircle, X, Plane, BoxSelect, TrendingUp, Info, Shield, Package } from 'lucide-react';
+import { Calculator, PackageCheck, Plane, BoxSelect, TrendingUp, Info, Shield, Package } from 'lucide-react';
 import { UI_TEXT } from '@/config/text';
 import { formatKRW } from '@/lib/format';
 import { resultStyles } from './result-styles';
@@ -14,7 +14,6 @@ interface Props {
 }
 
 export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, marginPercent, hideMargin }) => {
-  const [showPackingInfo, setShowPackingInfo] = useState(false);
   const { cardClass } = resultStyles;
   const { t } = useLanguage();
 
@@ -40,47 +39,21 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
                 <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Cost Basis</h4>
                 <div className="space-y-4 pl-3 border-l-2 border-dashed border-gray-200 dark:border-gray-700">
                     
-                    {/* Packing */}
-                    <div className="flex flex-col space-y-2">
-                        <div className="flex justify-between items-center text-gray-700 dark:text-gray-300 group">
-                            <div className="flex items-center">
-                                <PackageCheck className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
-                                <span className="mr-2">Packing & Docs</span>
-                                <button
-                                    onClick={() => setShowPackingInfo(!showPackingInfo)}
-                                    className="text-gray-400 hover:text-jways-500 transition-colors focus:outline-none"
-                                    aria-label="View Calculation Logic"
-                                >
-                                    <HelpCircle className="w-3.5 h-3.5" />
-                                </button>
-                            </div>
-                            <span className="font-medium">{formatCurrency(
-                                result.breakdown.packingMaterial + 
-                                result.breakdown.packingLabor + 
-                                result.breakdown.packingFumigation + 
-                                result.breakdown.handlingFees
-                            )}</span>
+                    {/* Packing & Docs (only shown when user entered a value) */}
+                    {(result.breakdown.packingMaterial + result.breakdown.packingLabor + result.breakdown.packingFumigation + result.breakdown.handlingFees) > 0 && (
+                    <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
+                        <div className="flex items-center">
+                            <PackageCheck className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+                            <span>Packing & Docs</span>
                         </div>
-
-                        {/* Packing Info Box */}
-                        {showPackingInfo && (
-                            <div className="ml-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-xs text-gray-600 dark:text-gray-300 border border-gray-100 dark:border-gray-600 relative animate-in fade-in slide-in-from-top-1 duration-200">
-                                <button 
-                                    onClick={() => setShowPackingInfo(false)}
-                                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                                >
-                                    <X className="w-3 h-3" />
-                                </button>
-                                <p className="font-bold mb-2 text-jways-700 dark:text-jways-300">{UI_TEXT.COST_BREAKDOWN.TITLE}</p>
-                                <ul className="space-y-1.5 list-disc pl-4 marker:text-gray-300">
-                                    <li>{UI_TEXT.COST_BREAKDOWN.MATERIAL}</li>
-                                    <li>{UI_TEXT.COST_BREAKDOWN.LABOR}</li>
-                                    <li>{UI_TEXT.COST_BREAKDOWN.FUMIGATION}</li>
-                                    <li>{UI_TEXT.COST_BREAKDOWN.HANDLING}</li>
-                                </ul>
-                            </div>
-                        )}
+                        <span className="font-medium">{formatCurrency(
+                            result.breakdown.packingMaterial +
+                            result.breakdown.packingLabor +
+                            result.breakdown.packingFumigation +
+                            result.breakdown.handlingFees
+                        )}</span>
                     </div>
+                    )}
 
                     {/* Pick-up in Seoul (Conditional) */}
                     {result.breakdown.pickupInSeoul > 0 && (

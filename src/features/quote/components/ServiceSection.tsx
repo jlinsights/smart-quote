@@ -253,7 +253,7 @@ const PackingCostOverrideField: React.FC<{
           className="flex items-center gap-1 text-[10px] text-gray-400 hover:text-jways-500 transition-colors"
         >
           <HelpCircle className="w-3 h-3 flex-shrink-0" />
-          <span>Enter cost to override auto-calculation of Material, Labor, Fumigation & Handling.</span>
+          <span>참고: 아래 항목들을 합산하여 자유롭게 입력할 수 있습니다. (예시 금액이며 필수 아님)</span>
         </button>
       </div>
       {showInfo && (
