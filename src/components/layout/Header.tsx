@@ -9,6 +9,8 @@ import { AccountSettingsModal } from '@/features/dashboard/components/AccountSet
 const LANGUAGES = [
   { code: 'en' as const, label: 'English', flag: '🇺🇸' },
   { code: 'ko' as const, label: '한국어', flag: '🇰🇷' },
+  { code: 'ja' as const, label: '日本語', flag: '🇯🇵' },
+  { code: 'cn' as const, label: '中文', flag: '🇨🇳' },
 ];
 
 export const Header: React.FC = () => {
