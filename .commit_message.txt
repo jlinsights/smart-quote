@@ -1,1 +1,1 @@
-🐛 fix: Slack 알림 Admin 제외 조건 수정 (role === 'member' → role !== 'admin')
+✨ feat: JCtrans 네트워크 추가 + 각 네트워크 툴팁 설명 (4개 언어)

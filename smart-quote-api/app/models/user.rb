@@ -10,7 +10,7 @@ class User < ApplicationRecord
   validates :role, presence: true, inclusion: { in: %w[admin user member] }
   validate :networks_must_be_valid
 
-  VALID_NETWORKS = %w[WCA MPL EAN].freeze
+  VALID_NETWORKS = %w[WCA MPL EAN JCtrans].freeze
 
   after_initialize :set_default_role, if: :new_record?
   validates :password, length: { minimum: 6 }, if: :password_required?

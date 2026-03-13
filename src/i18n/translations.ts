@@ -52,6 +52,10 @@ export const translations: Record<Language, Record<string, string>> = {
      'auth.fillAll': '모든 필드를 입력해주세요.',
      'auth.networks': '물류 네트워크 가입 여부',
      'auth.networksHint': '가입하신 글로벌 물류 네트워크를 선택하세요 (선택사항)',
+     'auth.networkDesc.WCA': 'World Cargo Alliance — 글로벌 화물 포워딩 네트워크',
+     'auth.networkDesc.MPL': 'Multimodal Partners Logistics — 복합운송 물류 파트너십',
+     'auth.networkDesc.EAN': 'Express Air Network — 국제 항공특송 네트워크',
+     'auth.networkDesc.JCtrans': 'JCtrans — 중국 최대 물류 B2B 플랫폼',
      'auth.backHome': '← 홈으로 돌아가기',
 
      // Calculator - Headers
@@ -260,6 +264,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'auth.fillAll': 'Please fill in all fields.',
     'auth.networks': 'Freight Network Membership',
     'auth.networksHint': 'Select the global freight networks you belong to (optional)',
+    'auth.networkDesc.WCA': 'World Cargo Alliance — Global freight forwarding network',
+    'auth.networkDesc.MPL': 'Multimodal Partners Logistics — Multimodal logistics partnership',
+    'auth.networkDesc.EAN': 'Express Air Network — International air express network',
+    'auth.networkDesc.JCtrans': 'JCtrans — China\'s largest logistics B2B platform',
     'auth.backHome': '← Back to Home',
 
     // Calculator - Headers
@@ -475,6 +483,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'auth.fillAll': '请填写所有字段。',
     'auth.networks': '物流网络会员',
     'auth.networksHint': '请选择您加入的全球物流网络（可选）',
+    'auth.networkDesc.WCA': 'World Cargo Alliance — 全球货运代理网络',
+    'auth.networkDesc.MPL': 'Multimodal Partners Logistics — 多式联运物流合作',
+    'auth.networkDesc.EAN': 'Express Air Network — 国际航空快递网络',
+    'auth.networkDesc.JCtrans': 'JCtrans — 中国最大的物流B2B平台',
     'auth.backHome': '← 返回首页',
 
     // Calculator - Headers
@@ -668,6 +680,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'auth.fillAll': 'すべてのフィールドを入力してください。',
     'auth.networks': '物流ネットワーク加盟',
     'auth.networksHint': '加盟しているグローバル物流ネットワークを選択してください（任意）',
+    'auth.networkDesc.WCA': 'World Cargo Alliance — グローバル貨物フォワーディングネットワーク',
+    'auth.networkDesc.MPL': 'Multimodal Partners Logistics — 複合輸送物流パートナーシップ',
+    'auth.networkDesc.EAN': 'Express Air Network — 国際航空エクスプレスネットワーク',
+    'auth.networkDesc.JCtrans': 'JCtrans — 中国最大の物流B2Bプラットフォーム',
     'auth.backHome': '← ホームに戻る',
 
     // Calculator - Headers

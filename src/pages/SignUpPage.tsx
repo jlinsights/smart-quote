@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Header } from '../components/layout/Header';
-import { ShieldCheck, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, HelpCircle } from 'lucide-react';
 import type { FreightNetwork } from '../contexts/AuthContext';
 import { NATIONALITY_OPTIONS } from '../config/options';
 
@@ -160,10 +160,10 @@ export const SignUpPage: React.FC = () => {
                   {t('auth.networks')}
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  {(['WCA', 'MPL', 'EAN'] as FreightNetwork[]).map((net) => (
+                  {(['WCA', 'MPL', 'EAN', 'JCtrans'] as FreightNetwork[]).map((net) => (
                     <label
                       key={net}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-all duration-200 text-sm font-medium ${
+                      className={`group relative flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-all duration-200 text-sm font-medium ${
                         networks.includes(net)
                           ? 'bg-jways-600/20 border-jways-500/50 text-jways-300'
                           : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20 hover:text-gray-300'
@@ -187,6 +187,10 @@ export const SignUpPage: React.FC = () => {
                         )}
                       </span>
                       {net}
+                      <HelpCircle className="w-3.5 h-3.5 text-gray-500 group-hover:text-gray-300 transition-colors" />
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 border border-white/10 rounded-lg text-xs text-gray-200 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-10 shadow-xl">
+                        {t(`auth.networkDesc.${net}`)}
+                      </div>
                     </label>
                   ))}
                 </div>

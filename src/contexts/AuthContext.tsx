@@ -3,7 +3,7 @@ import { API_URL, TOKEN_KEY } from '@/api/apiClient';
 
 export type UserRole = 'admin' | 'user' | 'member';
 
-export type FreightNetwork = 'WCA' | 'MPL' | 'EAN';
+export type FreightNetwork = 'WCA' | 'MPL' | 'EAN' | 'JCtrans';
 
 export interface User {
   id: number;
