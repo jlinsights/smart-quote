@@ -184,6 +184,25 @@ export const COUNTRY_OPTIONS = [
   { code: 'SD', name: '🇸🇩 Sudan' },
   { code: 'SS', name: '🇸🇸 South Sudan' },
   { code: 'LY', name: '🇱🇾 Libya' },
+  // Caribbean & Overseas Territories
+  { code: 'AF', name: '🇦🇫 Afghanistan' },
+  { code: 'AG', name: '🇦🇬 Antigua & Barbuda' },
+  { code: 'AI', name: '🇦🇮 Anguilla' },
+  { code: 'AW', name: '🇦🇼 Aruba' },
+  { code: 'CW', name: '🇨🇼 Curacao' },
+  { code: 'DM', name: '🇩🇲 Dominica' },
+  { code: 'GD', name: '🇬🇩 Grenada' },
+  { code: 'FO', name: '🇫🇴 Faroe Islands' },
+  { code: 'GL', name: '🇬🇱 Greenland' },
+  { code: 'GP', name: '🇬🇵 Guadeloupe' },
+  { code: 'KN', name: '🇰🇳 St. Kitts & Nevis' },
+  { code: 'MP', name: '🇲🇵 Northern Mariana Islands' },
+  { code: 'MQ', name: '🇲🇶 Martinique' },
+  { code: 'MS', name: '🇲🇸 Montserrat' },
+  { code: 'NC', name: '🇳🇨 New Caledonia' },
+  { code: 'SX', name: '🇸🇽 St. Maarten' },
+  { code: 'TC', name: '🇹🇨 Turks & Caicos' },
+  { code: 'VI', name: '🇻🇮 US Virgin Islands' },
 ];
 
 // ─── UPS Zone-to-Country mappings (Z1-Z10) ──────────────────────────

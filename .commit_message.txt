@@ -1,1 +1,1 @@
-✨ feat: UPS/DHL 공식 Zone 차트 기반 전체 국가 매핑 (UPS Z1-Z10, DHL Z1-Z8 완전 반영)
+✨ feat: Zone-국가 매핑 완전 일치 — COUNTRY_OPTIONS 196개국, UPS 183개국, DHL 188개국 누락 0
