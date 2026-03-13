@@ -1,1 +1,1 @@
-🐛 fix: Surcharge toast 반복 출현 버그 수정 — toast→인라인 에러 전환, useCallback 의존성 제거
+🧹 fix: CI 린트 에러 6건 + 경고 2건 수정 — 미사용 import 제거, const 전환, any 타입 제거

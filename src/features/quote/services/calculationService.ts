@@ -6,7 +6,6 @@ import {
   CargoItem
 } from "@/types";
 import {
-  HANDLING_FEE,
   FUMIGATION_FEE,
   SURGE_RATES,
   DEFAULT_EXCHANGE_RATE,
@@ -444,7 +443,7 @@ const calculateDhlAddOnCosts = (
 
     let amount: number;
     if (useDb) {
-      amount = calcAddonFee(addon as any, billableWeight, input.dhlDeclaredValue || 0);
+      amount = calcAddonFee(addon as Parameters<typeof calcAddonFee>[0], billableWeight, input.dhlDeclaredValue || 0);
       if (code === "IRR" && addon.chargeType === 'per_piece') {
         const totalPieces = input.items.reduce((s, i) => s + i.quantity, 0);
         amount = addon.amount * totalPieces;
@@ -552,7 +551,7 @@ const calculateUpsAddOnCosts = (
 
     let amount: number;
     if (useDb) {
-      amount = calcAddonFee(addon as any, billableWeight, 0);
+      amount = calcAddonFee(addon as Parameters<typeof calcAddonFee>[0], billableWeight, 0);
       if (code === "ADC" && addon.chargeType === 'per_carton') {
         const totalCartons = input.items.reduce((s, i) => s + i.quantity, 0);
         amount = addon.amount * totalCartons;
@@ -590,7 +589,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
     packingFumigationCost = FUMIGATION_FEE;
   }
 
-  let finalHandlingFee = 0;
+  const finalHandlingFee = 0;
   // Packing & Docs = user-entered manualPackingCost only. No auto handling fee.
   // When manualPackingCost is set: material=override, labor=0, fumigation=0, handling=0
   // When manualPackingCost is empty: material=auto, labor=auto, fumigation=auto, handling=0

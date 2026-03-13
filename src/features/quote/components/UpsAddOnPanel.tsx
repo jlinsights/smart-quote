@@ -4,8 +4,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import {
   UPS_ADDON_RATES,
   isUpsAdditionalHandling,
-  calculateUpsRemoteAreaFee,
-  calculateUpsExtendedAreaFee,
 } from '@/config/ups_addons';
 import type { AddonRate } from '@/api/addonRateApi';
 import { AlertTriangle, Package, Info } from 'lucide-react';

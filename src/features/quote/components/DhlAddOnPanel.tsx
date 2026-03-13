@@ -5,8 +5,6 @@ import {
   DHL_ADDON_RATES,
   isDhlOversizePiece,
   isDhlOverWeight,
-  calculateRemoteAreaFee,
-  calculateInsuranceFee,
 } from '@/config/dhl_addons';
 import type { AddonRate } from '@/api/addonRateApi';
 import { AlertTriangle, Package, Shield } from 'lucide-react';
