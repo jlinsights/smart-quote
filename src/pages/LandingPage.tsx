@@ -33,14 +33,14 @@ export const LandingPage: React.FC = () => {
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             {/* ── Left: Copy ── */}
             <div className="flex-1 text-center lg:text-left">
-              {/* Pill badge */}
+              {/* Network partner badge */}
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-jways-500/10 border border-jways-500/20 mb-8">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-jways-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-jways-500" />
                 </span>
                 <span className="text-xs sm:text-sm font-medium text-jways-300 tracking-wide">
-                  UPS · DHL
+                  {t('landing.badge.networks')}
                 </span>
               </div>
 
@@ -95,6 +95,7 @@ export const LandingPage: React.FC = () => {
                   {[
                     { carrier: 'UPS', zone: 'Z5', amount: '₩487,200' },
                     { carrier: 'DHL', zone: 'Z4', amount: '₩512,800' },
+                    { carrier: 'EMAX', zone: 'CN', amount: '₩398,500' },
                   ].map((row) => (
                     <div
                       key={row.carrier}
