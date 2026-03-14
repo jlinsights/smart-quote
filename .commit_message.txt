@@ -1,1 +1,1 @@
-🔄 feat: CostBreakdownCard 통화 클릭 토글 — KRW/USD 전환, 내부비용·최종견적가 모두 적용
+🗃️ feat: 굿맨GLS 관리자 마진룰 8개 프로덕션 DB 마이그레이션 추가 + seeds.rb 동기화
