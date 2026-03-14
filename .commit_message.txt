@@ -1,1 +1,1 @@
-🔒 refactor: 코드 분석 기반 보안·품질 개선 9건 — Slack webhook 백엔드 이전, 토큰 키 통합, 401 soft redirect, FSC 에러 피드백, CostBreakdown 타입 정리, API_URL 통합, console.error 제거, UUID 전환
+💱 fix: 환율 API 직접 폴백 추가 — Rails 프록시 404 시 open.er-api.com 직접 호출로 USD/EUR/JPY/CNY/GBP/SGD 환율 정상 표시

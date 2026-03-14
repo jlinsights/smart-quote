@@ -20,9 +20,26 @@ function makeMockProxyResponse() {
   };
 }
 
+function makeMockDirectApiResponse() {
+  return {
+    result: 'success',
+    base_code: 'KRW',
+    rates: {
+      KRW: 1,
+      USD: 0.0007, // 1 KRW = 0.0007 USD → 1 USD ≈ 1428.57 KRW
+      EUR: 0.00064,
+      JPY: 0.106,
+      CNY: 0.00508,
+      GBP: 0.00055,
+      SGD: 0.00094,
+    },
+  };
+}
+
 describe('fetchExchangeRates', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    localStorage.clear();
   });
 
   it('fetches and returns 6 currencies from Rails proxy', async () => {
@@ -41,7 +58,7 @@ describe('fetchExchangeRates', () => {
     });
   });
 
-  it('calls the correct Rails proxy endpoint', async () => {
+  it('calls the correct Rails proxy endpoint first', async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(makeMockProxyResponse()),
@@ -80,23 +97,56 @@ describe('fetchExchangeRates', () => {
     expect(usd.previousClose).toBe(1425.00);
   });
 
-  it('handles network error', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
-    await expect(fetchExchangeRates()).rejects.toThrow('Network error');
-  });
-
-  it('handles non-ok response (proxy error)', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 503 }));
-    await expect(fetchExchangeRates()).rejects.toThrow('Exchange rate proxy error: 503');
-  });
-
-  it('handles empty rates array', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ rates: [], fetchedAt: '2026-03-13T09:00:00+09:00', cached: true }),
-    }));
+  it('falls back to direct API when proxy fails', async () => {
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 404 }) // proxy fails
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(makeMockDirectApiResponse()),
+      });
+    vi.stubGlobal('fetch', mockFetch);
 
     const result = await fetchExchangeRates();
-    expect(result).toHaveLength(0);
+
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch.mock.calls[1][0]).toBe('https://open.er-api.com/v6/latest/KRW');
+    expect(result).toHaveLength(6);
+    expect(result.map(r => r.currency)).toEqual(['USD', 'EUR', 'JPY', 'CNY', 'GBP', 'SGD']);
+  });
+
+  it('falls back to direct API when proxy returns empty rates', async () => {
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ rates: [] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(makeMockDirectApiResponse()),
+      });
+    vi.stubGlobal('fetch', mockFetch);
+
+    const result = await fetchExchangeRates();
+    expect(result).toHaveLength(6);
+  });
+
+  it('calculates correct inverted rate from direct API', async () => {
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 503 })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(makeMockDirectApiResponse()),
+      });
+    vi.stubGlobal('fetch', mockFetch);
+
+    const result = await fetchExchangeRates();
+    const usd = result.find(r => r.currency === 'USD')!;
+    // 1 / 0.0007 = 1428.57... → rounded to 1428.57
+    expect(usd.rate).toBeCloseTo(1428.57, 0);
+  });
+
+  it('throws when both proxy and direct API fail', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
+    await expect(fetchExchangeRates()).rejects.toThrow('Network error');
   });
 });
