@@ -41,6 +41,7 @@ export const ResultSection: React.FC<Props> = ({ result, input, onMarginChange, 
           onMarginChange={onMarginChange}
           marginPercent={marginPercent}
           hideMargin={hideMargin}
+          isKorean={isKorean}
         />
       ) : (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-6">

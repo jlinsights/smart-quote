@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { QuoteResult } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Calculator, PackageCheck, Plane, BoxSelect, TrendingUp, Info, Shield, Package } from 'lucide-react';
+import { Calculator, PackageCheck, Plane, BoxSelect, TrendingUp, Info, Shield, Package, ArrowUpDown } from 'lucide-react';
 import { UI_TEXT } from '@/config/text';
-import { formatKRW } from '@/lib/format';
+import { formatKRW, formatUSD } from '@/lib/format';
 import { resultStyles } from './result-styles';
 
 interface Props {
@@ -11,13 +11,22 @@ interface Props {
   onMarginChange: (newMargin: number) => void;
   marginPercent: number;
   hideMargin?: boolean;
+  isKorean?: boolean;
 }
 
-export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, marginPercent, hideMargin }) => {
+export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, marginPercent, hideMargin, isKorean = true }) => {
   const { cardClass } = resultStyles;
   const { t } = useLanguage();
+  const [showKRW, setShowKRW] = useState(isKorean);
 
-  const formatCurrency = formatKRW;
+  const exchangeRate = result.totalQuoteAmountUSD > 0
+    ? result.totalQuoteAmount / result.totalQuoteAmountUSD
+    : 1400;
+
+  const formatCurrency = useCallback(
+    (val: number) => showKRW ? formatKRW(val) : formatUSD(val / exchangeRate),
+    [showKRW, exchangeRate]
+  );
 
   const carrierTotalCost = result.breakdown.intlBase + result.breakdown.intlFsc + result.breakdown.intlWarRisk + result.breakdown.intlSurge;
   const totalInternalCost = result.totalCostAmount;
@@ -29,7 +38,17 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
                 <Calculator className="w-4 h-4 mr-2 text-jways-500" />
                 {t('quote.logisticsCost')}
             </h3>
-            <span className="text-[10px] font-bold px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-gray-600 dark:text-gray-300 uppercase tracking-wide">Internal</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowKRW(prev => !prev)}
+                className="flex items-center gap-1 text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-300 transition-colors"
+                title="Toggle currency"
+              >
+                <ArrowUpDown className="w-3 h-3" />
+                {showKRW ? 'KRW' : 'USD'}
+              </button>
+              <span className="text-[10px] font-bold px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-gray-600 dark:text-gray-300 uppercase tracking-wide">Internal</span>
+            </div>
         </div>
         
         <div className="p-5 space-y-6 text-sm">
@@ -202,9 +221,11 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
                     <div className={`flex justify-between items-center pt-3 ${hideMargin ? '' : 'border-t border-jways-200 dark:border-jways-700/50'}`}>
                         <span className="text-jways-900 dark:text-jways-100 font-extrabold text-lg">{t('quote.finalPrice')}</span>
                         <div className="flex flex-col items-end">
-                            <span className="text-jways-900 dark:text-jways-100 font-extrabold text-lg">{formatCurrency(result.totalQuoteAmount)}</span>
+                            <span className="text-jways-900 dark:text-jways-100 font-extrabold text-lg">
+                              {showKRW ? formatKRW(result.totalQuoteAmount) : formatUSD(result.totalQuoteAmountUSD)}
+                            </span>
                             <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-0.5">
-                                ({t('quote.approx')} ${result.totalQuoteAmountUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                                ({t('quote.approx')} {showKRW ? formatUSD(result.totalQuoteAmountUSD) : formatKRW(result.totalQuoteAmount)})
                             </span>
                         </div>
                     </div>

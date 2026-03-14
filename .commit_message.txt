@@ -1,1 +1,1 @@
-🐛 fix: 한국 국적 통화 표시 버그 — nationality 비교값 'South Korea' → 'KR' (실제 저장 코드) 수정
+🔄 feat: CostBreakdownCard 통화 클릭 토글 — KRW/USD 전환, 내부비용·최종견적가 모두 적용
