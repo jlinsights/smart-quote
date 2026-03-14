@@ -1,4 +1,4 @@
-class AddGoodmanglesAdminMarginRules < ActiveRecord::Migration[7.1]
+class AddGoodmanglsAdminMarginRules < ActiveRecord::Migration[7.1]
   def up
     goodmangls_rules = [
       { name: "굿맨GLS 신현억 ≥20kg", rule_type: "weight_based", priority: 100,
