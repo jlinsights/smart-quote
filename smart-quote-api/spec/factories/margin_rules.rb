@@ -19,7 +19,7 @@ FactoryBot.define do
 
     trait :nationality do
       priority { 50 }
-      match_nationality { "South Korea" }
+      match_nationality { "KR" }
     end
 
     trait :default_rule do

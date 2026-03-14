@@ -3,6 +3,7 @@ import { Percent, RefreshCw, Plus, Save, Loader2, Trash2, X, XCircle, User, Glob
 import { useMarginRules } from '@/features/dashboard/hooks/useMarginRules';
 import { createMarginRule, updateMarginRule, deleteMarginRule, type MarginRule } from '@/api/marginRuleApi';
 import { useToast } from '@/components/ui/Toast';
+import { NATIONALITY_OPTIONS, getCountryDisplayName } from '@/config/options';
 
 const EMPTY_FORM: Partial<MarginRule> = {
   name: '',
@@ -38,7 +39,7 @@ function PriorityIcon({ priority }: { priority: number }) {
 function conditionLabel(rule: MarginRule): string {
   const parts: string[] = [];
   if (rule.matchEmail) parts.push(rule.matchEmail);
-  if (rule.matchNationality) parts.push(rule.matchNationality);
+  if (rule.matchNationality) parts.push(getCountryDisplayName(rule.matchNationality));
   if (rule.weightMin !== null && rule.weightMax !== null) {
     parts.push(`${rule.weightMin}–${rule.weightMax}kg`);
   } else if (rule.weightMin !== null) {
@@ -178,13 +179,16 @@ export const TargetMarginRulesWidget: React.FC = () => {
           </div>
           <div>
             <label className="text-[10px] text-gray-500">Match Nationality</label>
-            <input
-              type="text"
-              placeholder="(optional)"
+            <select
               value={form.matchNationality || ''}
               onChange={(e) => setForm(f => ({ ...f, matchNationality: e.target.value || null }))}
               className="w-full px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            />
+            >
+              <option value="">— Any —</option>
+              {NATIONALITY_OPTIONS.map((c) => (
+                <option key={c.code} value={c.code}>{c.name}</option>
+              ))}
+            </select>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-2">

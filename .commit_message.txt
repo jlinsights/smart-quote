@@ -1,1 +1,1 @@
-🔄 feat: 견적 통화 클릭 토글 — 한국 국적 KRW 기본, 해외 USD 기본, 클릭으로 즉시 전환
+🐛 fix: 한국 국적 통화 표시 버그 — nationality 비교값 'South Korea' → 'KR' (실제 저장 코드) 수정

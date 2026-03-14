@@ -119,7 +119,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
         defaultMargin = resolvedMargin.marginPercent;
       } else {
         // Fallback: nationality-based defaults (API unavailable)
-        const isKorean = user?.nationality === 'South Korea' || !user?.nationality;
+        const isKorean = user?.nationality === 'KR' || !user?.nationality;
         const weight = result.billableWeight;
 
         if (isKorean) {
@@ -308,7 +308,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                         onDownloadPdf={handleDownloadPdf}
                         onSwitchCarrier={(carrier) => setInput(prev => ({ ...prev, overseasCarrier: carrier }))}
                         marginPercent={input.marginPercent}
-                        isKorean={user?.nationality === 'South Korea' || !user?.nationality}
+                        isKorean={user?.nationality === 'KR' || !user?.nationality}
                       />
                     )}
                   </div>
@@ -323,7 +323,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">{t('calc.totalEstimate')}</p>
                     <div className="flex items-baseline space-x-1">
-                      {(user?.nationality === 'South Korea' || !user?.nationality) ? (
+                      {(user?.nationality === 'KR' || !user?.nationality) ? (
                         <>
                           <p className="text-xl font-bold text-jways-700 dark:text-jways-400">
                             {formatKRW(result.totalQuoteAmount)}

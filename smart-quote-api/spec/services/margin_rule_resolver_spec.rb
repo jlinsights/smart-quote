@@ -22,12 +22,12 @@ RSpec.describe MarginRuleResolver do
 
   let!(:nationality_heavy) do
     create(:margin_rule, name: "KR Heavy", rule_type: "weight_based", priority: 50,
-           match_nationality: "South Korea", weight_min: 20, margin_percent: 19)
+           match_nationality: "KR", weight_min: 20, margin_percent: 19)
   end
 
   let!(:nationality_light) do
     create(:margin_rule, name: "KR Light", rule_type: "weight_based", priority: 50,
-           match_nationality: "South Korea", weight_min: 0, weight_max: 19.99, margin_percent: 24)
+           match_nationality: "KR", weight_min: 0, weight_max: 19.99, margin_percent: 24)
   end
 
   let!(:default_heavy) do
@@ -42,7 +42,7 @@ RSpec.describe MarginRuleResolver do
 
   describe ".resolve" do
     it "matches per-user flat rule (highest priority)" do
-      result = described_class.resolve(email: "vip@example.com", nationality: "South Korea", weight: 25)
+      result = described_class.resolve(email: "vip@example.com", nationality: "KR", weight: 25)
       expect(result[:margin_percent]).to eq(15.0)
       expect(result[:matched_rule].name).to eq("VIP Flat")
       expect(result[:fallback]).to be false
@@ -61,13 +61,13 @@ RSpec.describe MarginRuleResolver do
     end
 
     it "matches nationality rule when no user-specific rule" do
-      result = described_class.resolve(email: "random@example.com", nationality: "South Korea", weight: 25)
+      result = described_class.resolve(email: "random@example.com", nationality: "KR", weight: 25)
       expect(result[:margin_percent]).to eq(19.0)
       expect(result[:matched_rule].name).to eq("KR Heavy")
     end
 
     it "matches nationality rule for light weight" do
-      result = described_class.resolve(email: "random@example.com", nationality: "South Korea", weight: 10)
+      result = described_class.resolve(email: "random@example.com", nationality: "KR", weight: 10)
       expect(result[:margin_percent]).to eq(24.0)
       expect(result[:matched_rule].name).to eq("KR Light")
     end
@@ -98,7 +98,7 @@ RSpec.describe MarginRuleResolver do
       user_flat.update!(is_active: false)
       Rails.cache.clear
 
-      result = described_class.resolve(email: "vip@example.com", nationality: "South Korea", weight: 25)
+      result = described_class.resolve(email: "vip@example.com", nationality: "KR", weight: 25)
       expect(result[:matched_rule].name).not_to eq("VIP Flat")
     end
   end

@@ -9,7 +9,7 @@ RSpec.describe "Api::V1::Auth", type: :request do
         password_confirmation: "password123",
         name: "New User",
         company: "Test Corp",
-        nationality: "South Korea"
+        nationality: "KR"
       }
     end
 

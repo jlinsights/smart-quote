@@ -29,9 +29,25 @@ class MarginRuleResolver
     end
   end
 
+  # Legacy DB records may store "South Korea" while frontend sends "KR"
+  NATIONALITY_ALIASES = {
+    "South Korea" => "KR", "KR" => "KR",
+    "United States" => "US", "US" => "US",
+    "China" => "CN", "CN" => "CN",
+    "Japan" => "JP", "JP" => "JP",
+    "Vietnam" => "VN", "VN" => "VN",
+    "Taiwan" => "TW", "TW" => "TW",
+    "Singapore" => "SG", "SG" => "SG",
+  }.freeze
+
+  def nationality_matches?(rule_value, input_value)
+    return true if rule_value == input_value
+    NATIONALITY_ALIASES[rule_value] == NATIONALITY_ALIASES[input_value]
+  end
+
   def matches?(rule, email:, nationality:, weight:)
     return false if rule.match_email.present? && rule.match_email != email
-    return false if rule.match_nationality.present? && rule.match_nationality != nationality
+    return false if rule.match_nationality.present? && !nationality_matches?(rule.match_nationality, nationality)
     return false if rule.weight_min.present? && weight < rule.weight_min
     return false if rule.weight_max.present? && weight > rule.weight_max
     true

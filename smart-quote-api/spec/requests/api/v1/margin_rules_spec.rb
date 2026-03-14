@@ -159,12 +159,12 @@ RSpec.describe "Api::V1::MarginRules", type: :request do
   describe "GET /api/v1/margin_rules/resolve" do
     let!(:kr_heavy) do
       create(:margin_rule, name: "KR Heavy", priority: 50,
-             match_nationality: "South Korea", weight_min: 20, margin_percent: 19)
+             match_nationality: "KR", weight_min: 20, margin_percent: 19)
     end
 
     it "returns resolved margin for authenticated user" do
       get "/api/v1/margin_rules/resolve",
-          params: { email: "test@example.com", nationality: "South Korea", weight: 25 },
+          params: { email: "test@example.com", nationality: "KR", weight: 25 },
           headers: user_headers
 
       expect(response).to have_http_status(:ok)

@@ -12,7 +12,7 @@ const mockRules: MarginRule[] = [
   },
   {
     id: 2, name: 'KR Heavy', ruleType: 'weight_based', priority: 50,
-    matchEmail: null, matchNationality: 'South Korea',
+    matchEmail: null, matchNationality: 'KR',
     weightMin: 20, weightMax: null, marginPercent: 19,
     isActive: true, createdBy: 'system', createdAt: '2026-03-08T00:00:00Z', updatedAt: '2026-03-08T00:00:00Z',
   },

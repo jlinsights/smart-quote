@@ -75,11 +75,11 @@ describe('marginRuleApi', () => {
       const mockResponse = { marginPercent: 19, matchedRule: { id: 1, name: 'Test' }, fallback: false };
       mockRequest.mockResolvedValue(mockResponse);
 
-      const result = await resolveMargin('user@test.com', 'South Korea', 25);
+      const result = await resolveMargin('user@test.com', 'KR', 25);
 
       expect(mockRequest).toHaveBeenCalledWith('/api/v1/margin_rules/resolve', {
         method: 'POST',
-        body: JSON.stringify({ email: 'user@test.com', nationality: 'South Korea', weight: 25 }),
+        body: JSON.stringify({ email: 'user@test.com', nationality: 'KR', weight: 25 }),
       });
       expect(result).toEqual(mockResponse);
     });
