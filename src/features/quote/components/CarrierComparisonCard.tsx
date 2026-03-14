@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { QuoteInput, QuoteResult } from '@/types';
 import { calculateQuote } from '@/features/quote/services/calculationService';
 import { generateComparisonPDF } from '@/lib/pdfService';
 import { formatKRW, formatUSDInt } from '@/lib/format';
-import { ArrowRightLeft, Check, FileDown } from 'lucide-react';
+import { ArrowRightLeft, Check, FileDown, ArrowUpDown } from 'lucide-react';
 
 interface Props {
   input: QuoteInput;
@@ -13,6 +13,7 @@ interface Props {
 }
 
 export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, isKorean = true, onSwitchCarrier }) => {
+  const [showKRW, setShowKRW] = useState(isKorean);
   const altCarrier = input.overseasCarrier === 'DHL' ? 'UPS' : 'DHL';
 
   const altResult = useMemo<QuoteResult | null>(() => {
@@ -45,38 +46,47 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
             Carrier Comparison
           </h4>
         </div>
-        <button
-          onClick={async () => {
-            const upsResult = currentCarrier === 'UPS' ? currentResult : altResult;
-            const dhlResult = currentCarrier === 'DHL' ? currentResult : altResult;
-            await generateComparisonPDF(input, upsResult, dhlResult);
-          }}
-          className="flex items-center gap-1 text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-300 transition-colors"
-          title="Download comparison PDF"
-        >
-          <FileDown className="w-3.5 h-3.5" />
-          PDF
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowKRW(prev => !prev)}
+            className="flex items-center gap-1 text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-300 transition-colors"
+            title="Toggle currency"
+          >
+            <ArrowUpDown className="w-3 h-3" />
+            {showKRW ? 'KRW' : 'USD'}
+          </button>
+          <button
+            onClick={async () => {
+              const upsResult = currentCarrier === 'UPS' ? currentResult : altResult;
+              const dhlResult = currentCarrier === 'DHL' ? currentResult : altResult;
+              await generateComparisonPDF(input, upsResult, dhlResult);
+            }}
+            className="flex items-center gap-1 text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-300 transition-colors"
+            title="Download comparison PDF"
+          >
+            <FileDown className="w-3.5 h-3.5" />
+            PDF
+          </button>
+        </div>
       </div>
       <div className="grid grid-cols-2 divide-x divide-gray-100 dark:divide-gray-700">
-        {/* Current carrier */}
         <CarrierColumn
           carrier={currentCarrier}
           result={currentResult}
-          isKorean={isKorean}
+          showKRW={showKRW}
           isCurrent={true}
           colorClass={carrierColors[currentCarrier] || ''}
           onSelect={() => {}}
         />
-        {/* Alternative carrier */}
         <CarrierColumn
           carrier={altCarrier}
           result={altResult}
-          isKorean={isKorean}
+          showKRW={showKRW}
           isCurrent={false}
           colorClass={carrierColors[altCarrier] || ''}
           diff={diff}
           diffPercent={diffPercent}
+          exchangeRate={currentResult.totalQuoteAmount > 0 ? currentResult.totalQuoteAmount / currentResult.totalQuoteAmountUSD : 1400}
           onSelect={() => onSwitchCarrier(altCarrier as 'UPS' | 'DHL')}
         />
       </div>
@@ -87,15 +97,16 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
 interface CarrierColumnProps {
   carrier: string;
   result: QuoteResult;
-  isKorean: boolean;
+  showKRW: boolean;
   isCurrent: boolean;
   colorClass: string;
   diff?: number;
   diffPercent?: number;
+  exchangeRate?: number;
   onSelect: () => void;
 }
 
-const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, isKorean, isCurrent, diff, diffPercent, onSelect }) => {
+const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, showKRW, isCurrent, diff, diffPercent, exchangeRate = 1400, onSelect }) => {
   return (
     <div className={`p-4 ${isCurrent ? 'bg-jways-50/50 dark:bg-jways-900/10' : ''}`}>
       <div className="flex items-center justify-between mb-3">
@@ -117,7 +128,7 @@ const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, isKorean
         <div>
           <p className="text-xs text-gray-500 dark:text-gray-400">Total Quote</p>
           <p className="text-lg font-bold text-gray-900 dark:text-white">
-            {isKorean ? formatKRW(result.totalQuoteAmount) : formatUSDInt(result.totalQuoteAmountUSD)}
+            {showKRW ? formatKRW(result.totalQuoteAmount) : formatUSDInt(result.totalQuoteAmountUSD)}
           </p>
         </div>
         <div className="grid grid-cols-2 gap-2 text-xs">
@@ -138,7 +149,7 @@ const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, isKorean
                 ? 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-900/20'
                 : 'text-gray-500 bg-gray-50 dark:text-gray-400 dark:bg-gray-800'
           }`}>
-            {diff < 0 ? '' : diff > 0 ? '+' : ''}{isKorean ? formatKRW(diff) : formatUSDInt(diff / (result.totalQuoteAmount > 0 ? result.totalQuoteAmount / result.totalQuoteAmountUSD : 1400))} ({diffPercent > 0 ? '+' : ''}{diffPercent.toFixed(1)}%)
+            {diff < 0 ? '' : diff > 0 ? '+' : ''}{showKRW ? formatKRW(diff) : formatUSDInt(diff / exchangeRate)} ({diffPercent > 0 ? '+' : ''}{diffPercent.toFixed(1)}%)
           </div>
         )}
       </div>

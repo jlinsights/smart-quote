@@ -1,1 +1,1 @@
-💱 fix: 환율 API 직접 폴백 추가 — Rails 프록시 404 시 open.er-api.com 직접 호출로 USD/EUR/JPY/CNY/GBP/SGD 환율 정상 표시
+🔄 feat: 견적 통화 클릭 토글 — 한국 국적 KRW 기본, 해외 USD 기본, 클릭으로 즉시 전환
