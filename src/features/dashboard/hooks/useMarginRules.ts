@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import * as Sentry from '@sentry/browser';
 import { getMarginRules, type MarginRule } from '@/api/marginRuleApi';
 
 export function useMarginRules() {
@@ -13,6 +14,7 @@ export function useMarginRules() {
       const data = await getMarginRules();
       setRules(data.rules || []);
     } catch (e) {
+      Sentry.captureException(e);
       setError(e instanceof Error ? e.message : 'Failed to load rules');
     } finally {
       setLoading(false);

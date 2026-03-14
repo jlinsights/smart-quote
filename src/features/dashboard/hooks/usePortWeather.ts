@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import * as Sentry from '@sentry/browser';
 import { fetchPortWeather } from '@/api/weatherApi';
 import type { PortWeather } from '@/types/dashboard';
 
@@ -23,6 +24,7 @@ export function usePortWeather(): UsePortWeatherResult {
       const weather = await fetchPortWeather();
       setData(weather);
     } catch (err) {
+      Sentry.captureException(err);
       setError(err instanceof Error ? err.message : 'Failed to load weather');
     } finally {
       setLoading(false);

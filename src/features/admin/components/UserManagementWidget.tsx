@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import * as Sentry from '@sentry/browser';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import type { FreightNetwork } from '@/contexts/AuthContext';
@@ -33,6 +34,7 @@ export const UserManagementWidget: React.FC = () => {
       const data = await listUsers();
       setUsers(data);
     } catch (e) {
+      Sentry.captureException(e);
       setError(e instanceof Error ? e.message : 'Failed to load users');
     } finally {
       setLoading(false);
@@ -68,6 +70,7 @@ export const UserManagementWidget: React.FC = () => {
       setEditingId(null);
       setEditForm({});
     } catch (e) {
+      Sentry.captureException(e);
       alert(e instanceof Error ? e.message : 'Failed to update user');
     } finally {
       setSaving(false);
@@ -84,6 +87,7 @@ export const UserManagementWidget: React.FC = () => {
       setUsers(prev => prev.filter(u => u.id !== id));
       setDeleteConfirmId(null);
     } catch (e) {
+      Sentry.captureException(e);
       alert(e instanceof Error ? e.message : 'Failed to delete user');
     }
   };

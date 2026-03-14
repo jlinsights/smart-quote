@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import * as Sentry from '@sentry/browser';
 import { FileText, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { listQuotes } from '@/api/quoteApi';
@@ -22,8 +23,9 @@ export const QuoteHistoryCompact: React.FC = () => {
       try {
         const result = await listQuotes({ page: 1, perPage: 5 });
         setQuotes(result.quotes.slice(0, 5));
-      } catch {
-        // Silently fail — quote history is not critical
+      } catch (e) {
+        // Silently fail — quote history is not critical for UI
+        Sentry.captureException(e);
       } finally {
         setLoading(false);
       }

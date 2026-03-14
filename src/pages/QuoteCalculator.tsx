@@ -4,19 +4,9 @@ import { generatePDF } from '@/lib/pdfService';
 import { calculateQuote } from '@/features/quote/services/calculationService';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { QuoteHistoryPage } from '@/features/history/components/QuoteHistoryPage';
-import { SaveQuoteButton } from '@/features/quote/components/SaveQuoteButton';
-import { NavigationTabs, AppView } from '@/components/layout/NavigationTabs';
-import { Smartphone, RotateCcw, Zap } from 'lucide-react';
-import { formatKRW, formatUSDInt } from '@/lib/format';
+import { AppView } from '@/components/layout/NavigationTabs';
 import { InputSection } from '@/features/quote/components/InputSection';
 import { ResultSection } from '@/features/quote/components/ResultSection';
-const CustomerManagement = React.lazy(() => import('@/features/admin/components/CustomerManagement').then(m => ({ default: m.CustomerManagement })));
-const FscRateWidget = React.lazy(() => import('@/features/admin/components/FscRateWidget').then(m => ({ default: m.FscRateWidget })));
-const RateTableViewer = React.lazy(() => import('@/features/admin/components/RateTableViewer').then(m => ({ default: m.RateTableViewer })));
-const UserManagementWidget = React.lazy(() => import('@/features/admin/components/UserManagementWidget').then(m => ({ default: m.UserManagementWidget })));
-const AuditLogViewer = React.lazy(() => import('@/features/admin/components/AuditLogViewer').then(m => ({ default: m.AuditLogViewer })));
-const TargetMarginRulesWidget = React.lazy(() => import('@/features/admin/components/TargetMarginRulesWidget').then(m => ({ default: m.TargetMarginRulesWidget })));
-const SurchargeManagementWidget = React.lazy(() => import('@/features/admin/components/SurchargeManagementWidget').then(m => ({ default: m.SurchargeManagementWidget })));
 import { Header } from '@/components/layout/Header';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -25,6 +15,9 @@ import { useExchangeRates } from '@/features/dashboard/hooks/useExchangeRates';
 import { useFscRates } from '@/features/dashboard/hooks/useFscRates';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useResolvedMargin } from '@/features/dashboard/hooks/useResolvedMargin';
+import { CalculatorActionBar } from './components/CalculatorActionBar';
+import { AdminWidgets } from './components/AdminWidgets';
+import { MobileStickyBottomBar } from './components/MobileStickyBottomBar';
 
 const INITIAL_INPUT: QuoteInput = {
   originCountry: 'KR',
@@ -48,13 +41,14 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const [currentView, setCurrentView] = useState<AppView>('calculator');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
-  
+
   const { isDarkMode, toggleDarkMode } = useTheme();
   const { t } = useLanguage();
   const { user, isAuthenticated } = useAuth();
   const isAdmin = user?.role === 'admin';
   const canSaveAndViewHistory = isAuthenticated && !isPublic;
   const hideMargin = isPublic || user?.role === 'member';
+  const isKorean = user?.nationality === 'KR' || !user?.nationality;
 
   const [input, setInput] = useState<QuoteInput>(INITIAL_INPUT);
   const [hasSetInitialRate, setHasSetInitialRate] = useState(false);
@@ -119,7 +113,6 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
         defaultMargin = resolvedMargin.marginPercent;
       } else {
         // Fallback: nationality-based defaults (API unavailable)
-        const isKorean = user?.nationality === 'KR' || !user?.nationality;
         const weight = result.billableWeight;
 
         if (isKorean) {
@@ -210,65 +203,17 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
       <div className={containerClass}>
         {/* Calculator Sub-Header / Action Bar */}
-        <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40 transition-colors duration-200 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="h-14 flex items-center justify-between w-full">
-              <div className="flex items-center space-x-2 sm:space-x-4">
-                {canSaveAndViewHistory && <NavigationTabs currentView={currentView} onViewChange={setCurrentView} />}
-
-                {currentView === 'calculator' && result && canSaveAndViewHistory && (
-                  <div className="hidden sm:block">
-                    <SaveQuoteButton input={input} result={result} onSaved={handleQuoteSaved} />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center space-x-2 sm:space-x-4">
-                <div className="hidden md:flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
-                  <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
-                  <span>Lightning Quote System</span>
-                </div>
-
-                {currentView === 'calculator' && (
-                  <button
-                    onClick={handleReset}
-                    className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-red-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-red-400 transition-colors"
-                    aria-label={t('calc.resetQuote')}
-                  >
-                    <RotateCcw className="w-5 h-5" />
-                  </button>
-                )}
-
-                {currentView === 'calculator' && (
-                  <button
-                    onClick={() => setIsMobileView(!isMobileView)}
-                    className="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-                    aria-label="Switch to Mobile View"
-                  >
-                    {isMobileView ? (
-                      <div className="relative">
-                        <Smartphone className="w-5 h-5 text-jways-600" />
-                        <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-jways-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-3 w-3 bg-jways-500"></span>
-                        </span>
-                      </div>
-                    ) : (
-                      <Smartphone className="w-5 h-5" />
-                    )}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Mobile Save Button */}
-            {currentView === 'calculator' && result && canSaveAndViewHistory && (
-              <div className="sm:hidden pb-3">
-                <SaveQuoteButton input={input} result={result} onSaved={handleQuoteSaved} />
-              </div>
-            )}
-          </div>
-        </div>
+        <CalculatorActionBar
+          currentView={currentView}
+          onViewChange={setCurrentView}
+          canSaveAndViewHistory={canSaveAndViewHistory}
+          input={input}
+          result={result}
+          onQuoteSaved={handleQuoteSaved}
+          onReset={handleReset}
+          isMobileView={isMobileView}
+          onToggleMobileView={() => setIsMobileView(!isMobileView)}
+        />
 
         {/* Main Content */}
         {currentView === 'calculator' ? (
@@ -284,19 +229,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                       <p className="text-sm text-gray-500 dark:text-gray-400">{t('calc.shipmentConfigDesc')}</p>
                     </div>
                     <InputSection input={input} onChange={setInput} isMobileView={false} effectiveMarginPercent={result?.profitMargin} hideMargin={hideMargin} intlBase={result?.breakdown.intlBase} billableWeight={result?.billableWeight} />
-                    {isAdmin && (
-                      <React.Suspense fallback={<div className="mt-8 space-y-6">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-32 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />)}</div>}>
-                        <div className="mt-8 space-y-6">
-                          <CustomerManagement />
-                          <TargetMarginRulesWidget />
-                          <FscRateWidget />
-                          <SurchargeManagementWidget />
-                          <RateTableViewer />
-                          <UserManagementWidget />
-                          <AuditLogViewer />
-                        </div>
-                      </React.Suspense>
-                    )}
+                    {isAdmin && <AdminWidgets />}
                   </div>
                     <div className="lg:col-span-5" id="result-section">
                     {result && (
@@ -308,7 +241,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                         onDownloadPdf={handleDownloadPdf}
                         onSwitchCarrier={(carrier) => setInput(prev => ({ ...prev, overseasCarrier: carrier }))}
                         marginPercent={input.marginPercent}
-                        isKorean={user?.nationality === 'KR' || !user?.nationality}
+                        isKorean={isKorean}
                       />
                     )}
                   </div>
@@ -318,40 +251,11 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
             {/* Sticky Bottom Bar (Mobile / Responsive) */}
             {result && !isMobileView && (
-              <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 safe-area-bottom">
-                <div className="max-w-lg mx-auto flex justify-between items-center">
-                  <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">{t('calc.totalEstimate')}</p>
-                    <div className="flex items-baseline space-x-1">
-                      {(user?.nationality === 'KR' || !user?.nationality) ? (
-                        <>
-                          <p className="text-xl font-bold text-jways-700 dark:text-jways-400">
-                            {formatKRW(result.totalQuoteAmount)}
-                          </p>
-                          <span className="text-xs text-gray-400 dark:text-gray-400">
-                            ({formatUSDInt(result.totalQuoteAmountUSD)})
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-xl font-bold text-jways-700 dark:text-jways-400">
-                            {formatUSDInt(result.totalQuoteAmountUSD)}
-                          </p>
-                          <span className="text-xs text-gray-400 dark:text-gray-400">
-                            (≈ {formatKRW(result.totalQuoteAmount)})
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <button
-                    onClick={scrollToResults}
-                    className="flex items-center bg-jways-600 text-white px-4 py-3 rounded-xl text-sm font-bold shadow-lg shadow-jways-600/25 hover:bg-jways-500 active:scale-95 transition-all"
-                  >
-                    {t('calc.viewDetails')}
-                  </button>
-                </div>
-              </div>
+              <MobileStickyBottomBar
+                result={result}
+                isKorean={isKorean}
+                onViewDetails={scrollToResults}
+              />
             )}
           </>
         ) : (

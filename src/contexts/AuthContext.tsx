@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import * as Sentry from '@sentry/browser';
 import { API_URL, TOKEN_KEY, AUTH_EXPIRED_EVENT } from '@/api/apiClient';
 
 export type UserRole = 'admin' | 'user' | 'member';
@@ -71,7 +72,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const body = await res.json().catch(() => ({}));
       return { success: false, error: body?.error?.message || 'Login failed' };
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return { success: false, error: 'Network error' };
     }
   }, []);
@@ -104,7 +106,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const body = await res.json().catch(() => ({}));
       return { success: false, error: body?.error?.message || 'Registration failed' };
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return { success: false, error: 'Network error' };
     }
   }, []);
@@ -147,7 +150,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const body = await res.json().catch(() => ({}));
       return { success: false, error: body?.error || body?.errors?.[0] || 'Password update failed' };
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       return { success: false, error: 'Network error' };
     }
   }, []);

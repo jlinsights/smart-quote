@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import * as Sentry from '@sentry/browser';
 import { fetchExchangeRates } from '@/api/exchangeRateApi';
 import type { ExchangeRate } from '@/types/dashboard';
 
@@ -32,6 +33,7 @@ export function useExchangeRates(): UseExchangeRatesResult {
       setIsStale(false);
       lastFetchedAt.current = Date.now();
     } catch (err) {
+      Sentry.captureException(err);
       setError(err instanceof Error ? err.message : 'Failed to load exchange rates');
     } finally {
       setLoading(false);

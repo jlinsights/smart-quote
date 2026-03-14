@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import { fetchWithRetry } from '@/lib/fetchWithRetry';
 import { API_URL } from '@/api/apiClient';
 import type { ExchangeRate } from '@/types/dashboard';
@@ -66,8 +67,9 @@ export async function fetchExchangeRates(): Promise<ExchangeRate[]> {
       return data.rates as ExchangeRate[];
     }, 1);
     if (rates.length > 0) return rates;
-  } catch {
+  } catch (e) {
     // Backend proxy unavailable — fall through to direct API
+    Sentry.captureException(e);
   }
 
   // Fallback: direct open.er-api.com call

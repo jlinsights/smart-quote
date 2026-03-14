@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import * as Sentry from '@sentry/browser';
 import { resolveAddonRates, AddonRate } from '@/api/addonRateApi';
 
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
@@ -34,6 +35,7 @@ export function useAddonRates(carrier: 'DHL' | 'UPS') {
         cache[carrier] = { data, timestamp: Date.now() };
       }
     } catch (err) {
+      Sentry.captureException(err);
       if (mountedRef.current) {
         setError(err instanceof Error ? err.message : 'Failed to load addon rates');
       }

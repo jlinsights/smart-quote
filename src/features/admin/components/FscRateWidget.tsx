@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import * as Sentry from '@sentry/browser';
 import { getFscRates, updateFscRate, FscRates } from '@/api/fscApi';
 import { Fuel, RefreshCw, Save, Loader2, ExternalLink, AlertCircle } from 'lucide-react';
 
@@ -19,6 +20,7 @@ export const FscRateWidget: React.FC = () => {
       const result = await getFscRates();
       setData(result);
     } catch (err) {
+      Sentry.captureException(err);
       setLoadError(err instanceof Error ? err.message : 'Failed to load FSC rates');
     } finally {
       setLoading(false);
@@ -43,6 +45,7 @@ export const FscRateWidget: React.FC = () => {
       await fetchRates();
       setEditingCarrier(null);
     } catch (err) {
+      Sentry.captureException(err);
       setSaveError(err instanceof Error ? err.message : 'Failed to save FSC rate');
     } finally {
       setSaving(false);

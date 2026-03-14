@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import { request } from '@/api/apiClient';
 import { QuoteInput, QuoteResult } from '@/types';
 import { COUNTRY_OPTIONS } from '@/config/options';
@@ -34,7 +35,8 @@ export const sendQuoteSlackNotification = async (
         margin: `${result.profitMargin.toFixed(1)}%`,
       }),
     });
-  } catch {
+  } catch (e) {
     // Slack notification is best-effort; never block the save flow
+    Sentry.captureException(e);
   }
 };

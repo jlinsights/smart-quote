@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import * as Sentry from '@sentry/browser';
 import { fetchAuditLogs, AuditLogEntry, AuditLogFilters } from '@/api/auditLogApi';
 import { Search, ChevronLeft, ChevronRight, FileText, Trash2, Mail, RefreshCw, Edit, Download, AlertCircle } from 'lucide-react';
 
@@ -72,6 +73,7 @@ export function AuditLogViewer() {
       setTotalPages(data.pagination.totalPages);
       setTotalCount(data.pagination.totalCount);
     } catch (err) {
+      Sentry.captureException(err);
       const msg = err instanceof Error ? err.message : 'Failed to load audit logs';
       setError(msg.includes('404') || msg.includes('500') ? 'Backend deploying — audit log will be available shortly' : msg);
     } finally {

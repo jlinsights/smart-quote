@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import * as Sentry from '@sentry/browser';
 import { QuoteInput, QuoteResult } from '@/types';
 import { saveQuote } from '@/api/quoteApi';
 import { sendQuoteSlackNotification } from '@/lib/slackNotification';
@@ -43,7 +44,7 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
       setShowNotes(false);
       setNotes('');
       toast('success', `Quote saved: ${detail.referenceNo}`);
-      if (result && user && user.role !== 'admin' && !isDuplicate) {
+      if (result && user && user.role === 'member' && !isDuplicate) {
         sendQuoteSlackNotification(input, result, detail.referenceNo, {
           name: user.name || user.email,
           email: user.email,
@@ -51,7 +52,8 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
         });
       }
       setTimeout(() => { setState('idle'); setSavedRefNo(null); }, 4000);
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       setShowNotes(false);
       setState('error');
       toast('error', 'Failed to save quote');

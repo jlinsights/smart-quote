@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as Sentry from '@sentry/browser';
 import { Percent, RefreshCw, Plus, Save, Loader2, Trash2, X, XCircle, User, Globe, Weight } from 'lucide-react';
 import { useMarginRules } from '@/features/dashboard/hooks/useMarginRules';
 import { createMarginRule, updateMarginRule, deleteMarginRule, type MarginRule } from '@/api/marginRuleApi';
@@ -113,6 +114,7 @@ export const TargetMarginRulesWidget: React.FC = () => {
       cancelEdit();
       await refetch();
     } catch (e) {
+      Sentry.captureException(e);
       toast('error', e instanceof Error ? e.message : 'Failed to save rule');
     } finally {
       setSaving(false);
@@ -126,6 +128,7 @@ export const TargetMarginRulesWidget: React.FC = () => {
       await deleteMarginRule(id);
       await refetch();
     } catch (e) {
+      Sentry.captureException(e);
       toast('error', e instanceof Error ? e.message : 'Failed to delete rule');
     } finally {
       setDeletingId(null);

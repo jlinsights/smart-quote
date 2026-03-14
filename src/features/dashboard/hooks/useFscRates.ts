@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import * as Sentry from '@sentry/browser';
 import { getFscRates, FscRates } from '@/api/fscApi';
 
 const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
@@ -15,6 +16,7 @@ export function useFscRates() {
       const rates = await getFscRates();
       setData(rates);
     } catch (err) {
+      Sentry.captureException(err);
       setError(err instanceof Error ? err.message : 'Failed to load FSC rates');
     } finally {
       setLoading(false);

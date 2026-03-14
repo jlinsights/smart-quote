@@ -130,7 +130,7 @@ export const translations: Record<Language, Record<string, string>> = {
      'pdf.rateDate': '기준일',
 
      // Widgets
-     'widget.weather': '글로벌 주요 항구 기상 및 알람',
+     'widget.weather': '글로벌 주요 항구·공항 기상 및 알람',
      'widget.weather.desc': '실시간 기상 상황에 따라 운송 지연이 발생할 수 있습니다.',
      'widget.weather.loading': '기상 데이터 로딩 중...',
      'widget.weather.error': '기상 데이터를 불러오지 못했습니다.',
@@ -343,7 +343,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'pdf.rateDate': 'Rates as of',
 
     // Widgets
-    'widget.weather': 'Global Major Port Weather & Alerts',
+    'widget.weather': 'Global Port & Airport Weather & Alerts',
     'widget.weather.desc': 'Shipping delays may occur due to real-time weather conditions.',
     'widget.weather.loading': 'Loading weather data...',
     'widget.weather.error': 'Failed to load weather data.',
@@ -562,7 +562,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'pdf.rateDate': '费率日期',
 
     // Widgets
-    'widget.weather': '全球港口天气与预警',
+    'widget.weather': '全球港口·机场天气与预警',
     'widget.weather.desc': '实时天气影响运营。',
     'widget.weather.loading': '天气数据加载中...',
     'widget.weather.error': '天气数据加载失败。',
@@ -760,7 +760,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'pdf.rateDate': 'レート基準日',
 
     // Widgets
-    'widget.weather': 'グローバル港湾天気とアラート',
+    'widget.weather': 'グローバル港湾·空港天気とアラート',
     'widget.weather.desc': 'リアルタイム天気が運営に影響します。',
     'widget.weather.loading': '天気データ読み込み中...',
     'widget.weather.error': '天気データの読み込みに失敗しました。',

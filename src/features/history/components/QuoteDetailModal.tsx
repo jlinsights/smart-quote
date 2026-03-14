@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as Sentry from '@sentry/browser';
 import { QuoteDetail, QuoteStatus } from '@/types';
 import { X, Package, DollarSign, TrendingUp, Copy, Mail, Loader2 } from 'lucide-react';
 import { formatNum } from '@/lib/format';
@@ -37,7 +38,8 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
       onStatusChange?.(quote.id, 'sent');
       toast('success', `Quote sent to ${emailTo}`);
       setTimeout(() => { setShowEmailForm(false); setEmailSent(false); }, 2000);
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       toast('error', 'Failed to send email');
     } finally {
       setEmailSending(false);
@@ -52,7 +54,8 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
       setCurrentStatus(newStatus);
       onStatusChange?.(quote.id, newStatus);
       toast('info', `Status updated to ${newStatus}`);
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       toast('error', 'Failed to update status');
     } finally {
       setIsUpdating(false);

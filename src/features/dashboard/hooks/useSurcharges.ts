@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import * as Sentry from '@sentry/browser';
 import { resolveSurcharges, ResolvedSurcharge } from '@/api/surchargeApi';
 
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
@@ -55,6 +56,7 @@ export function useSurcharges(carrier: string, country?: string, zone?: string) 
       cache.set(key, { data, timestamp: Date.now() });
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
+      Sentry.captureException(err);
       setError(err instanceof Error ? err.message : 'Failed to load surcharges');
       // Keep stale cache data if available
       if (cached) {

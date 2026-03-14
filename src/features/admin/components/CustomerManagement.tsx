@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import * as Sentry from '@sentry/browser';
 import { Customer, CustomerInput, listCustomers, createCustomer, updateCustomer, deleteCustomer } from '@/api/customerApi';
 import { COUNTRY_OPTIONS } from '@/config/options';
 import { Building2, Plus, Search, Pencil, Trash2, X, Loader2 } from 'lucide-react';
@@ -24,6 +25,7 @@ export const CustomerManagement: React.FC = () => {
       const data = await listCustomers(search || undefined);
       setCustomers(data);
     } catch (e) {
+      Sentry.captureException(e);
       setError(e instanceof Error ? e.message : 'Failed to load customers');
     } finally {
       setLoading(false);
@@ -70,6 +72,7 @@ export const CustomerManagement: React.FC = () => {
       resetForm();
       fetchCustomers();
     } catch (e) {
+      Sentry.captureException(e);
       setError(e instanceof Error ? e.message : 'Failed to save customer');
     } finally {
       setSaving(false);
@@ -84,6 +87,7 @@ export const CustomerManagement: React.FC = () => {
       toast('success', `"${deleteTarget.name}" deleted`);
       fetchCustomers();
     } catch (e) {
+      Sentry.captureException(e);
       setError(e instanceof Error ? e.message : 'Failed to delete customer');
     } finally {
       setDeleteTarget(null);

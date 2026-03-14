@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Settings, Key, Eye, EyeOff, Loader2, X } from 'lucide-react';
@@ -24,7 +24,7 @@ export const AccountSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
@@ -33,7 +33,7 @@ export const AccountSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     setShowCurrent(false);
     setShowNew(false);
     onClose();
-  };
+  }, [onClose]);
 
   // Close on Escape key
   useEffect(() => {
@@ -44,7 +44,7 @@ export const AccountSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
       document.addEventListener('keydown', handleKeyDown);
     }
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen, handleClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

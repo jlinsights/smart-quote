@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as Sentry from '@sentry/browser';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -52,7 +53,8 @@ export const SignUpPage: React.FC = () => {
         } else {
           setError(result.error || t('auth.emailExists'));
         }
-      } catch {
+      } catch (e) {
+        Sentry.captureException(e);
         setError(t('auth.emailExists'));
       } finally {
         setIsLoading(false);

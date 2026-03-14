@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import * as Sentry from '@sentry/browser';
 import { QuoteSummary, QuoteDetail, QuoteListParams, QuoteStatus, Pagination } from '@/types';
 import { listQuotes, getQuote, deleteQuote, exportQuotesCsv } from '@/api/quoteApi';
 import { Download, Filter, FileText, DollarSign, TrendingUp, CheckCircle, Loader2 } from 'lucide-react';
@@ -35,6 +36,7 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
       setQuotes(data.quotes);
       setPagination(data.pagination);
     } catch (err) {
+      Sentry.captureException(err);
       setError(err instanceof Error ? err.message : 'Failed to load quotes');
     } finally {
       setIsLoading(false);
@@ -61,7 +63,8 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
     try {
       const detail = await getQuote(id);
       setSelectedQuote(detail);
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       setError('Failed to load quote detail');
     } finally {
       setIsLoadingDetail(false);
@@ -78,7 +81,8 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
       await deleteQuote(deleteTarget.id);
       toast('success', `Quote ${deleteTarget.refNo} deleted`);
       fetchList();
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       setError('Failed to delete quote');
     } finally {
       setDeleteTarget(null);
@@ -89,7 +93,8 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
     try {
       await exportQuotesCsv(params);
       toast('success', 'CSV exported successfully');
-    } catch {
+    } catch (e) {
+      Sentry.captureException(e);
       toast('error', 'Failed to export CSV');
     }
   };
