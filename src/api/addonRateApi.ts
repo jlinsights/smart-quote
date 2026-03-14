@@ -1,6 +1,4 @@
-import { fetchWithRetry } from '@/lib/fetchWithRetry';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { request } from '@/api/apiClient';
 
 export interface AddonRate {
   id: number;
@@ -26,19 +24,9 @@ export interface AddonRate {
   sortOrder: number;
 }
 
-function getAuthHeaders(): Record<string, string> {
-  const token = localStorage.getItem('auth_token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
 export async function resolveAddonRates(carrier: 'DHL' | 'UPS'): Promise<AddonRate[]> {
-  const data = await fetchWithRetry(async () => {
-    const res = await fetch(
-      `${API_URL}/api/v1/addon_rates/resolve?carrier=${carrier}`,
-      { headers: { 'Content-Type': 'application/json', ...getAuthHeaders() } }
-    );
-    if (!res.ok) throw new Error(`Failed to resolve addon rates: ${res.status}`);
-    return res.json();
-  });
+  const data = await request<{ addonRates: AddonRate[] }>(
+    `/api/v1/addon_rates/resolve?carrier=${carrier}`
+  );
   return data.addonRates;
 }

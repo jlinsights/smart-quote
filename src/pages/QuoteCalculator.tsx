@@ -92,8 +92,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const result = useMemo<QuoteResult | null>(() => {
     try {
       return calculateQuote(input);
-    } catch (err) {
-      console.error('Calculation error:', err);
+    } catch {
       return null;
     }
   }, [input]);

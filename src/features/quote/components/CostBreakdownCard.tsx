@@ -129,7 +129,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
                     </div>
                     
                     {/* DHL Add-on Services (Conditional) */}
-                    {result.breakdown.dhlAddOnDetails && result.breakdown.dhlAddOnDetails.length > 0 && (
+                    {result.breakdown.carrierAddOnDetails && result.breakdown.carrierAddOnDetails.length > 0 && (
                         <div className="flex flex-col space-y-1">
                             <div className="flex justify-between items-start text-gray-700 dark:text-gray-300">
                                 <div className="flex items-center">
@@ -137,11 +137,11 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
                                     <span>{result.carrier} Add-ons</span>
                                 </div>
                                 <div className="text-right">
-                                    <span className="block font-medium">{formatCurrency(result.breakdown.dhlAddOnTotal || 0)}</span>
+                                    <span className="block font-medium">{formatCurrency(result.breakdown.carrierAddOnTotal || 0)}</span>
                                 </div>
                             </div>
                             <div className="space-y-0.5 text-xs text-gray-500 dark:text-gray-400 pl-6">
-                                {result.breakdown.dhlAddOnDetails.map((d) => (
+                                {result.breakdown.carrierAddOnDetails.map((d) => (
                                     <div key={d.code} className={`flex justify-between ${result.carrier === 'UPS' ? 'text-blue-700 dark:text-blue-400' : 'text-yellow-700 dark:text-yellow-400'}`}>
                                         <span>{d.nameKo} ({d.code})</span>
                                         <span>{formatCurrency(d.amount + d.fscAmount)}{d.fscAmount > 0 ? ' +FSC' : ''}</span>

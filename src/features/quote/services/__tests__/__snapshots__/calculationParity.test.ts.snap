@@ -6,8 +6,7 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
     "billableWeight": 54,
     "breakdown": {
       "appliedSurcharges": undefined,
-      "destDuty": 0,
-      "dhlAddOnDetails": [
+      "carrierAddOnDetails": [
         {
           "amount": 42800,
           "code": "AHS",
@@ -16,7 +15,8 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
           "nameKo": "비규격품부가요금",
         },
       ],
-      "dhlAddOnTotal": 55640,
+      "carrierAddOnTotal": 55640,
+      "destDuty": 0,
       "handlingFees": 0,
       "intlBase": 658692,
       "intlFsc": 197607.6,
@@ -40,9 +40,9 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
     "billableWeight": 5,
     "breakdown": {
       "appliedSurcharges": undefined,
+      "carrierAddOnDetails": undefined,
+      "carrierAddOnTotal": undefined,
       "destDuty": 0,
-      "dhlAddOnDetails": undefined,
-      "dhlAddOnTotal": undefined,
       "handlingFees": 0,
       "intlBase": 153482,
       "intlFsc": 42974.96000000001,
@@ -66,9 +66,9 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
     "billableWeight": 8,
     "breakdown": {
       "appliedSurcharges": undefined,
+      "carrierAddOnDetails": undefined,
+      "carrierAddOnTotal": undefined,
       "destDuty": 0,
-      "dhlAddOnDetails": undefined,
-      "dhlAddOnTotal": undefined,
       "handlingFees": 0,
       "intlBase": 201818,
       "intlFsc": 60545.399999999994,
@@ -92,9 +92,9 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
     "billableWeight": 10,
     "breakdown": {
       "appliedSurcharges": undefined,
+      "carrierAddOnDetails": undefined,
+      "carrierAddOnTotal": undefined,
       "destDuty": 0,
-      "dhlAddOnDetails": undefined,
-      "dhlAddOnTotal": undefined,
       "handlingFees": 0,
       "intlBase": 114874,
       "intlFsc": 34462.2,
@@ -118,9 +118,9 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
     "billableWeight": 123.75,
     "breakdown": {
       "appliedSurcharges": undefined,
+      "carrierAddOnDetails": undefined,
+      "carrierAddOnTotal": undefined,
       "destDuty": 150000,
-      "dhlAddOnDetails": undefined,
-      "dhlAddOnTotal": undefined,
       "handlingFees": 0,
       "intlBase": 1689000,
       "intlFsc": 0,
@@ -144,9 +144,9 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
     "billableWeight": 68.25,
     "breakdown": {
       "appliedSurcharges": undefined,
+      "carrierAddOnDetails": undefined,
+      "carrierAddOnTotal": undefined,
       "destDuty": 0,
-      "dhlAddOnDetails": undefined,
-      "dhlAddOnTotal": undefined,
       "handlingFees": 0,
       "intlBase": 705000,
       "intlFsc": 0,
@@ -170,8 +170,7 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
     "billableWeight": 222.3,
     "breakdown": {
       "appliedSurcharges": undefined,
-      "destDuty": 0,
-      "dhlAddOnDetails": [
+      "carrierAddOnDetails": [
         {
           "amount": 21400,
           "code": "AHS",
@@ -180,7 +179,8 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
           "nameKo": "비규격품부가요금",
         },
       ],
-      "dhlAddOnTotal": 27820,
+      "carrierAddOnTotal": 27820,
+      "destDuty": 0,
       "handlingFees": 0,
       "intlBase": 2313402,
       "intlFsc": 694020.6,
@@ -204,8 +204,7 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
     "billableWeight": 63,
     "breakdown": {
       "appliedSurcharges": undefined,
-      "destDuty": 0,
-      "dhlAddOnDetails": [
+      "carrierAddOnDetails": [
         {
           "amount": 64200,
           "code": "AHS",
@@ -214,7 +213,8 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
           "nameKo": "비규격품부가요금",
         },
       ],
-      "dhlAddOnTotal": 83460,
+      "carrierAddOnTotal": 83460,
+      "destDuty": 0,
       "handlingFees": 0,
       "intlBase": 478800,
       "intlFsc": 143640,
@@ -238,8 +238,7 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
     "billableWeight": 64.1,
     "breakdown": {
       "appliedSurcharges": undefined,
-      "destDuty": 200000,
-      "dhlAddOnDetails": [
+      "carrierAddOnDetails": [
         {
           "amount": 64200,
           "code": "AHS",
@@ -255,7 +254,8 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
           "nameKo": "DDP 수수료",
         },
       ],
-      "dhlAddOnTotal": 111960,
+      "carrierAddOnTotal": 111960,
+      "destDuty": 200000,
       "handlingFees": 0,
       "intlBase": 792870,
       "intlFsc": 237861,
@@ -279,8 +279,7 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
     "billableWeight": 92.4,
     "breakdown": {
       "appliedSurcharges": undefined,
-      "destDuty": 0,
-      "dhlAddOnDetails": [
+      "carrierAddOnDetails": [
         {
           "amount": 42800,
           "code": "AHS",
@@ -289,7 +288,8 @@ exports[`Calculation Parity Tests (Frontend) > snapshots all fixture outputs for
           "nameKo": "비규격품부가요금",
         },
       ],
-      "dhlAddOnTotal": 55640,
+      "carrierAddOnTotal": 55640,
+      "destDuty": 0,
       "handlingFees": 0,
       "intlBase": 653790,
       "intlFsc": 196137,

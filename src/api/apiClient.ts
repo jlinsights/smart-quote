@@ -2,6 +2,9 @@ export const API_URL: string = import.meta.env.VITE_API_URL || 'http://localhost
 
 export const TOKEN_KEY = 'smartQuoteToken';
 
+/** Fired when the API returns 401 — AuthContext listens for this. */
+export const AUTH_EXPIRED_EVENT = 'auth:expired';
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
@@ -24,12 +27,12 @@ export async function request<T>(path: string, options?: RequestInit): Promise<T
   if (!response.ok) {
     if (response.status === 401) {
       localStorage.removeItem(TOKEN_KEY);
-      window.location.href = '/login';
+      window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT));
     }
     const body = await response.json().catch(() => ({}));
     throw new ApiError(
       response.status,
-      body?.error?.message || `API Error: ${response.status} ${response.statusText || 'Server Error'}`.trim()
+      body?.error?.message || `API Error: ${response.status}`.trim()
     );
   }
 

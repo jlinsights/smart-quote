@@ -1,1 +1,1 @@
-🧪 fix: E2E 랜딩 테스트 — WCA 텍스트 중복 매칭 .first() 적용
+🔒 refactor: 코드 분석 기반 보안·품질 개선 9건 — Slack webhook 백엔드 이전, 토큰 키 통합, 401 soft redirect, FSC 에러 피드백, CostBreakdown 타입 정리, API_URL 통합, console.error 제거, UUID 전환

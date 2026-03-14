@@ -69,7 +69,7 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
   const addItem = () => {
     const lastItem = items[items.length - 1];
     const newItem: CargoItem = {
-      id: Math.random().toString(36).substring(2, 11),
+      id: crypto.randomUUID(),
       width: lastItem?.width || 0,
       length: lastItem?.length || 0,
       height: lastItem?.height || 0,
@@ -83,7 +83,7 @@ export const CargoSection: React.FC<Props> = ({ items, onChange, isMobileView })
     const source = items[index];
     const newItem: CargoItem = {
       ...source,
-      id: Math.random().toString(36).substring(2, 11),
+      id: crypto.randomUUID(),
     };
     const newItems = [...items];
     newItems.splice(index + 1, 0, newItem);

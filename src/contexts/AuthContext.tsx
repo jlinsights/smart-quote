@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { API_URL, TOKEN_KEY } from '@/api/apiClient';
+import { API_URL, TOKEN_KEY, AUTH_EXPIRED_EVENT } from '@/api/apiClient';
 
 export type UserRole = 'admin' | 'user' | 'member';
 
@@ -114,6 +114,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   }, []);
 
+  // Listen for 401 auth expiry events from apiClient
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      setUser(null);
+    };
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+  }, []);
+
   const updatePassword = useCallback(async (currentPassword: string, newPassword: string): Promise<AuthResult> => {
     try {
       const token = localStorage.getItem(TOKEN_KEY);
@@ -143,7 +152,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950">
+        <div className="w-6 h-6 border-2 border-gray-300 border-t-jways-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{

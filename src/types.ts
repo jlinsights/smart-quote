@@ -93,8 +93,8 @@ export enum Incoterm {
     intlSurge: number; // Combined surge total (system + manual)
     intlSystemSurcharge?: number; // DB-driven surcharges (auto-calculated)
     intlManualSurge?: number; // User-entered manual surge override
-    dhlAddOnTotal?: number; // DHL add-on services total
-    dhlAddOnDetails?: Array<{
+    carrierAddOnTotal?: number; // Carrier add-on services total (DHL/UPS)
+    carrierAddOnDetails?: Array<{
       code: string;
       nameKo: string;
       nameEn: string;

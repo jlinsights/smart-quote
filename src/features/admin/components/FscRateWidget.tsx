@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getFscRates, updateFscRate, FscRates } from '@/api/fscApi';
-import { Fuel, RefreshCw, Save, Loader2, ExternalLink } from 'lucide-react';
+import { Fuel, RefreshCw, Save, Loader2, ExternalLink, AlertCircle } from 'lucide-react';
 
 export const FscRateWidget: React.FC = () => {
   const [data, setData] = useState<FscRates | null>(null);
@@ -9,14 +9,17 @@ export const FscRateWidget: React.FC = () => {
   const [intlRate, setIntlRate] = useState(0);
   const [domRate, setDomRate] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const fetchRates = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const result = await getFscRates();
       setData(result);
-    } catch {
-      // silent
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Failed to load FSC rates');
     } finally {
       setLoading(false);
     }
@@ -34,12 +37,13 @@ export const FscRateWidget: React.FC = () => {
   const handleSave = async () => {
     if (!editingCarrier) return;
     setSaving(true);
+    setSaveError(null);
     try {
       await updateFscRate(editingCarrier, intlRate, domRate);
       await fetchRates();
       setEditingCarrier(null);
-    } catch {
-      // silent
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Failed to save FSC rate');
     } finally {
       setSaving(false);
     }
@@ -68,6 +72,13 @@ export const FscRateWidget: React.FC = () => {
         </button>
       </div>
 
+      {loadError && (
+        <div className="px-4 py-2 flex items-center gap-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+          <span className="flex-1">{loadError}</span>
+          <button onClick={fetchRates} className="font-semibold hover:underline">Retry</button>
+        </div>
+      )}
       {loading && !data ? (
         <div className="p-6 text-center text-xs text-gray-400">
           <Loader2 className="w-4 h-4 animate-spin mx-auto" />
@@ -112,6 +123,12 @@ export const FscRateWidget: React.FC = () => {
                     </button>
                   )}
                 </div>
+                {isEditing && saveError && (
+                  <div className="mb-2 flex items-center gap-1.5 text-[10px] text-red-500">
+                    <AlertCircle className="w-3 h-3 shrink-0" />
+                    {saveError}
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <span className="text-[10px] text-gray-500 dark:text-gray-400">International</span>
@@ -119,6 +136,8 @@ export const FscRateWidget: React.FC = () => {
                       <input
                         type="number"
                         step="0.5"
+                        min={0}
+                        max={100}
                         value={intlRate}
                         onChange={(e) => setIntlRate(Number(e.target.value))}
                         className="w-full mt-0.5 px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
@@ -133,6 +152,8 @@ export const FscRateWidget: React.FC = () => {
                       <input
                         type="number"
                         step="0.5"
+                        min={0}
+                        max={100}
                         value={domRate}
                         onChange={(e) => setDomRate(Number(e.target.value))}
                         className="w-full mt-0.5 px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"

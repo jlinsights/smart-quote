@@ -360,9 +360,9 @@ const calculateDhlAddOnCosts = (
   input: QuoteInput,
   billableWeight: number,
   fscPercent: number
-): { total: number; details: NonNullable<import("@/types").CostBreakdown["dhlAddOnDetails"]> } => {
+): { total: number; details: NonNullable<import("@/types").CostBreakdown["carrierAddOnDetails"]> } => {
   const fscRate = (fscPercent || 0) / 100;
-  const details: NonNullable<import("@/types").CostBreakdown["dhlAddOnDetails"]> = [];
+  const details: NonNullable<import("@/types").CostBreakdown["carrierAddOnDetails"]> = [];
   let total = 0;
 
   // Use DB rates if available, otherwise hardcoded
@@ -472,9 +472,9 @@ const calculateUpsAddOnCosts = (
   input: QuoteInput,
   billableWeight: number,
   fscPercent: number
-): { total: number; details: NonNullable<import("@/types").CostBreakdown["dhlAddOnDetails"]> } => {
+): { total: number; details: NonNullable<import("@/types").CostBreakdown["carrierAddOnDetails"]> } => {
   const fscRate = (fscPercent || 0) / 100;
-  const details: NonNullable<import("@/types").CostBreakdown["dhlAddOnDetails"]> = [];
+  const details: NonNullable<import("@/types").CostBreakdown["carrierAddOnDetails"]> = [];
   let total = 0;
 
   // Use DB rates if available, otherwise hardcoded
@@ -654,16 +654,16 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const intlTotal = carrierResult.intlBase + carrierResult.intlFsc + carrierResult.intlWarRisk + surgeCost;
 
   // 3a. Carrier Add-on Services (DHL or UPS)
-  let dhlAddOnTotal = 0;
-  let dhlAddOnDetails: NonNullable<import("@/types").CostBreakdown["dhlAddOnDetails"]> | undefined;
+  let carrierAddOnTotal = 0;
+  let carrierAddOnDetails: NonNullable<import("@/types").CostBreakdown["carrierAddOnDetails"]> | undefined;
   if (carrier === 'DHL') {
     const dhlAddOns = calculateDhlAddOnCosts(input, billableWeight, input.fscPercent);
-    dhlAddOnTotal = dhlAddOns.total;
-    dhlAddOnDetails = dhlAddOns.details.length > 0 ? dhlAddOns.details : undefined;
+    carrierAddOnTotal = dhlAddOns.total;
+    carrierAddOnDetails = dhlAddOns.details.length > 0 ? dhlAddOns.details : undefined;
   } else if (carrier === 'UPS') {
     const upsAddOns = calculateUpsAddOnCosts(input, billableWeight, input.fscPercent);
-    dhlAddOnTotal = upsAddOns.total;
-    dhlAddOnDetails = upsAddOns.details.length > 0 ? upsAddOns.details : undefined;
+    carrierAddOnTotal = upsAddOns.total;
+    carrierAddOnDetails = upsAddOns.details.length > 0 ? upsAddOns.details : undefined;
   }
 
   // 4. Duty
@@ -676,7 +676,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const pickupInSeoul = input.pickupInSeoulCost ?? 0;
 
   // 5. Totals
-  const totalCostAmount = packingTotal + finalHandlingFee + intlTotal + dhlAddOnTotal + destDuty + pickupInSeoul;
+  const totalCostAmount = packingTotal + finalHandlingFee + intlTotal + carrierAddOnTotal + destDuty + pickupInSeoul;
 
   let quoteBasisCost = 0;
   if ([Incoterm.EXW, Incoterm.FOB].includes(input.incoterm)) {
@@ -740,8 +740,8 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
       intlSystemSurcharge: systemSurchargeTotal || undefined,
       intlManualSurge: manualSurgeCost || undefined,
       appliedSurcharges,
-      dhlAddOnTotal: dhlAddOnTotal || undefined,
-      dhlAddOnDetails,
+      carrierAddOnTotal: carrierAddOnTotal || undefined,
+      carrierAddOnDetails: carrierAddOnDetails,
       destDuty,
       totalCost: totalCostAmount
     }
