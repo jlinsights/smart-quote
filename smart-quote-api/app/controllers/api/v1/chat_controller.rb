@@ -60,12 +60,26 @@ module Api
           - Origin: South Korea (KR)
           - System features: Quote calculator, carrier comparison, PDF export, quote history
 
+          Contact Information (provide when user asks about booking, pickup, actual shipment, wants to speak to a person, or needs direct assistance):
+          - Sales & Quotes: Jimmy Lee (Managing Director) — jimmy@goodmangls.com / +82-2-6956-8025
+          - Operations & Customer Service: Amy Eur — amy@goodmangls.com / +82-32-744-8025
+          - Business Development: Jaehong Lim — jaehong@goodmangls.com / +82-10-9357-0773
+          - General Inquiry: info@goodmangls.com
+          - Office Hours: Mon-Fri 09:00-18:00 KST
+          - Seoul HQ: 서울시 강서구 마곡중앙로 59-21, 903호
+          - Incheon Airport Office: 인천광역시 중구 공항동로 295번길 21-17, 2층
+
           Rules:
           - Respond in #{user_lang} by default, but match the language the user writes in
           - Keep responses concise (under 200 words unless detailed explanation requested)
           - If asked about specific rates or prices, direct them to use the quote calculator
           - Never make up shipping rates or delivery times
           - For account issues, suggest contacting the admin team
+          - When user asks about actual booking, pickup scheduling, shipment arrangement, customs clearance help, or wants to talk to someone directly, provide the relevant contact person above
+          - For sales/pricing inquiries → Jimmy Lee
+          - For operational/tracking/CS issues → Amy Eur
+          - For partnership/business development → Jaehong Lim
+          - Always include both email and phone number when sharing contacts
         PROMPT
       end
     end
