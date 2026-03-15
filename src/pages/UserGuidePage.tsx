@@ -26,6 +26,14 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import { guideTranslations, type GuideSection } from './guide/guideTranslations';
+import {
+  QuoteFlowDiagram,
+  DashboardLayoutDiagram,
+  CarrierComparisonVisual,
+  MarginPriorityDiagram,
+  VolWeightFormula,
+  QuoteSaveFlowDiagram,
+} from './guide/GuideVisuals';
 
 const MEMBER_SECTION_KEYS = [
   'gettingStarted',
@@ -170,6 +178,38 @@ const UserGuidePage: React.FC = () => {
               </div>
             ))}
           </div>
+
+          {/* Section-specific visual diagrams */}
+          {key === 'dashboard' && (
+            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800/50">
+              <DashboardLayoutDiagram lang={language as 'en' | 'ko' | 'cn' | 'ja'} />
+            </div>
+          )}
+          {key === 'quoteCalculator' && (
+            <>
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800/50">
+                <QuoteFlowDiagram lang={language as 'en' | 'ko' | 'cn' | 'ja'} />
+              </div>
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800/50">
+                <VolWeightFormula lang={language as 'en' | 'ko' | 'cn' | 'ja'} />
+              </div>
+            </>
+          )}
+          {key === 'savingQuotes' && (
+            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800/50">
+              <QuoteSaveFlowDiagram lang={language as 'en' | 'ko' | 'cn' | 'ja'} />
+            </div>
+          )}
+          {key === 'adminOverview' && (
+            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800/50">
+              <CarrierComparisonVisual lang={language as 'en' | 'ko' | 'cn' | 'ja'} />
+            </div>
+          )}
+          {key === 'marginRules' && (
+            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800/50">
+              <MarginPriorityDiagram lang={language as 'en' | 'ko' | 'cn' | 'ja'} />
+            </div>
+          )}
 
           {/* Section-specific tips and notes */}
           {key === 'gettingStarted' && (
