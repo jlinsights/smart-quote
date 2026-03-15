@@ -1,1 +1,1 @@
-🔧 fix: FSC 요율 DB 영구 저장 전환 + 캐리어 변경 시 자동 FSC 적용
+🐛 fix: AI 챗봇 500 에러 수정 — rescue 클래스명 + 첫 메시지 role 필터링
