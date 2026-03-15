@@ -1,1 +1,1 @@
-🔧 fix: AI 챗봇 에러 핸들링 개선 — API 키 누락 감지 및 에러 메시지 전달
+🐛 fix: AI 챗봇 system → system_ 파라미터명 수정 (anthropic gem v1.23 호환)

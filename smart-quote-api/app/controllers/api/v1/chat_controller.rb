@@ -24,11 +24,11 @@ module Api
         response = client.messages.create(
           model: "claude-sonnet-4-20250514",
           max_tokens: 1024,
-          system: system_prompt,
+          system_: system_prompt,
           messages: messages.map { |m| { role: m["role"] || m[:role], content: m["content"] || m[:content] } }
         )
 
-        reply = response.content.first.text
+        reply = response.content&.first&.text || "No response generated"
 
         render json: { reply: reply }
       rescue Anthropic::Error => e
