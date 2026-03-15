@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Globe, Moon, Sun, LogOut, Settings, Menu, X } from 'lucide-react';
+import { Globe, Moon, Sun, LogOut, Settings, Menu, X, BookOpen } from 'lucide-react';
 import { AccountSettingsModal } from '@/features/dashboard/components/AccountSettingsModal';
 
 const LANGUAGES = [
@@ -71,6 +71,10 @@ export const Header: React.FC = () => {
                    <Link to="/dashboard" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-white transition-colors">
                      {t('nav.dashboard')}
                    </Link>
+                   <Link to="/guide" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-white transition-colors flex items-center gap-1">
+                     <BookOpen className="w-4 h-4" />
+                     {t('nav.guide')}
+                   </Link>
                    <button
                       onClick={() => setIsSettingsOpen(true)}
                       className="p-2 text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-jways-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg flex items-center transition-all"
@@ -80,12 +84,16 @@ export const Header: React.FC = () => {
                     </button>
                 </div>
               ) : (
-                <div className="hidden sm:flex space-x-2">
+                <div className="hidden sm:flex space-x-2 items-center">
                   <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
                     {t('nav.login')}
                   </Link>
                   <Link to="/signup" className="bg-jways-600 text-white hover:bg-jways-700 px-3 py-2 sm:px-4 rounded-md text-sm font-medium shadow-sm transition-colors">
                     {t('nav.signup')}
+                  </Link>
+                  <Link to="/guide" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1">
+                    <BookOpen className="w-4 h-4" />
+                    {t('nav.guide')}
                   </Link>
                 </div>
               )}
@@ -174,6 +182,10 @@ export const Header: React.FC = () => {
                     {t('nav.admin')}
                   </Link>
                 )}
+                <Link to="/guide" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-1.5 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-jways-600">
+                  <BookOpen className="w-4 h-4" />
+                  {t('nav.guide')}
+                </Link>
                 <button onClick={() => { setIsSettingsOpen(true); setIsMobileMenuOpen(false); }} className="block w-full text-left py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-jways-600">
                   {t('settings.account.title')}
                 </button>
@@ -188,6 +200,10 @@ export const Header: React.FC = () => {
                 </Link>
                 <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-jways-600">
                   {t('nav.signup')}
+                </Link>
+                <Link to="/guide" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-1.5 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-jways-600">
+                  <BookOpen className="w-4 h-4" />
+                  {t('nav.guide')}
                 </Link>
               </>
             )}

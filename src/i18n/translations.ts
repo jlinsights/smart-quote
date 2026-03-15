@@ -9,6 +9,7 @@ export const translations: Record<Language, Record<string, string>> = {
      'nav.logout': '로그아웃',
      'nav.dashboard': '대시보드',
      'nav.admin': '관리자 패널',
+     'nav.guide': '가이드',
 
      // Landing Page
      'landing.title.main': '190개국 국제 운임,',
@@ -221,6 +222,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav.logout': 'Logout',
     'nav.dashboard': 'Dashboard',
     'nav.admin': 'Admin Panel',
+    'nav.guide': 'Guide',
     'nav.history': 'Quote History',
 
     // Landing Page
@@ -442,6 +444,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav.logout': '退出',
     'nav.dashboard': '仪表盘',
     'nav.admin': '管理面板',
+    'nav.guide': '指南',
 
     // Landing Page
     'landing.title.main': '190+国家国际运费，',
@@ -640,6 +643,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav.logout': 'ログアウト',
     'nav.dashboard': 'ダッシュボード',
     'nav.admin': '管理パネル',
+    'nav.guide': 'ガイド',
 
     // Landing Page
     'landing.title.main': '190ヶ国の国際運賃を、',
