@@ -11,11 +11,11 @@ module Api
 
         render json: {
           rates: data,
-          updatedAt: Time.current.iso8601
+          updatedAt: FscRate.maximum(:updated_at)&.iso8601 || Time.current.iso8601
         }
       end
 
-      # POST /api/v1/fsc/update (admin only - manual rate update)
+      # POST /api/v1/fsc/update (admin only)
       def update_rates
         unless current_user.role == "admin"
           return render json: { error: { code: "FORBIDDEN", message: "Admin only" } }, status: :forbidden
@@ -29,19 +29,25 @@ module Api
           return render json: { error: { code: "INVALID_CARRIER", message: "Carrier must be UPS or DHL" } }, status: :unprocessable_entity
         end
 
-        current = FscFetcher.current_rates
-        current[carrier] = {
-          "international" => international || current.dig(carrier, "international") || FscFetcher::DEFAULT_RATES.dig(carrier, "international"),
-          "domestic" => domestic || current.dig(carrier, "domestic") || FscFetcher::DEFAULT_RATES.dig(carrier, "domestic")
-        }
+        FscFetcher.update!(
+          carrier: carrier,
+          international: international,
+          domestic: domestic,
+          updated_by: current_user.email
+        )
 
-        Rails.cache.write(FscFetcher::FSC_CACHE_KEY, {
-          rates: current,
-          fetched_at: Time.current.iso8601,
-          source: "manual"
-        }.to_json, expires_in: 24.hours)
+        AuditLog.track!(
+          user: current_user,
+          action: "fsc.updated",
+          resource: FscRate.find_by(carrier: carrier),
+          metadata: { carrier: carrier, international: international, domestic: domestic },
+          ip_address: request.remote_ip
+        )
 
-        render json: { success: true, rates: current }
+        render json: { success: true, rates: FscFetcher.current_rates }
+      rescue StandardError => e
+        Rails.logger.error "[FSC] #{e.class}: #{e.message}"
+        render json: { error: { code: "UPDATE_FAILED", message: e.message } }, status: :unprocessable_entity
       end
     end
   end

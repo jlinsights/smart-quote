@@ -1,1 +1,1 @@
-🐛 fix: AI 챗봇 system → system_ 파라미터명 수정 (anthropic gem v1.23 호환)
+🔧 fix: FSC 요율 DB 영구 저장 전환 + 캐리어 변경 시 자동 FSC 적용

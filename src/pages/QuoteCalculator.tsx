@@ -52,7 +52,6 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
   const [input, setInput] = useState<QuoteInput>(INITIAL_INPUT);
   const [hasSetInitialRate, setHasSetInitialRate] = useState(false);
-  const [hasSetInitialFsc, setHasSetInitialFsc] = useState(false);
   const [lastAutoFscCarrier, setLastAutoFscCarrier] = useState<string | null>(null);
 
   const { data: exchangeRates } = useExchangeRates();
@@ -71,16 +70,20 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   React.useEffect(() => {
     if (fscRates && fscRates.rates) {
       const carrier = input.overseasCarrier || 'UPS';
-      if (!hasSetInitialFsc || lastAutoFscCarrier !== carrier) {
+      // Always update FSC when carrier changes, or on initial load
+      if (lastAutoFscCarrier !== carrier) {
         const rate = fscRates.rates[carrier as 'UPS' | 'DHL']?.international;
-        if (rate !== undefined) {
+        if (rate !== undefined && rate > 0) {
           setInput(prev => ({ ...prev, fscPercent: rate }));
-          setHasSetInitialFsc(true);
+          setLastAutoFscCarrier(carrier);
+        } else if (carrier === 'EMAX') {
+          // EMAX has no FSC
+          setInput(prev => ({ ...prev, fscPercent: 0 }));
           setLastAutoFscCarrier(carrier);
         }
       }
     }
-  }, [fscRates, input.overseasCarrier, hasSetInitialFsc, lastAutoFscCarrier]);
+  }, [fscRates, input.overseasCarrier, lastAutoFscCarrier]);
 
   // Instant frontend calculation — pure function, no API dependency
   const result = useMemo<QuoteResult | null>(() => {
