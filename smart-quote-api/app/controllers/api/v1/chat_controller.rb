@@ -62,6 +62,7 @@ module Api
 
           Contact Information (provide when user asks about booking, pickup, actual shipment, wants to speak to a person, or needs direct assistance):
           - Account Manager: Charlie Lee (이창희 대리) — charlie@goodmangls.com
+          - Office: 서울 강서구 화곡로68길 82(등촌동, 강서아이티밸리) 309호
           - Office Hours: Mon-Fri 09:00-18:00 KST
 
           Rules:
