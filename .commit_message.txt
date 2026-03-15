@@ -1,1 +1,1 @@
-📖 feat: 다국어 User Guide 페이지 추가 (Admin/Member 역할별, 4개 언어)
+🔧 fix: PDF 한글 깨짐 수정 + 견적 링크 공유 기능 추가

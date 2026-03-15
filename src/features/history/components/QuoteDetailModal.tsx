@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import { QuoteDetail, QuoteStatus } from '@/types';
-import { X, Package, DollarSign, TrendingUp, Copy, Mail, Loader2 } from 'lucide-react';
+import { X, Package, DollarSign, TrendingUp, Copy, Mail, Loader2, Link2 } from 'lucide-react';
 import { formatNum } from '@/lib/format';
 import { updateQuoteStatus, sendQuoteEmail } from '@/api/quoteApi';
+import { createShareLink } from '@/api/shareApi';
 import { STATUS_COLORS } from '../constants';
 import { useToast } from '@/components/ui/Toast';
 
@@ -26,6 +27,8 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
   const [emailMsg, setEmailMsg] = useState('');
   const [emailSending, setEmailSending] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const { toast } = useToast();
 
   const handleSendEmail = async () => {
@@ -43,6 +46,22 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
       toast('error', 'Failed to send email');
     } finally {
       setEmailSending(false);
+    }
+  };
+
+  const handleShareLink = async () => {
+    setShareLoading(true);
+    try {
+      const { shareUrl } = await createShareLink(quote.id);
+      await navigator.clipboard.writeText(shareUrl);
+      setShareCopied(true);
+      toast('success', 'Share link copied to clipboard');
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch (e) {
+      Sentry.captureException(e);
+      toast('error', 'Failed to create share link');
+    } finally {
+      setShareLoading(false);
     }
   };
 
@@ -112,6 +131,15 @@ export const QuoteDetailModal: React.FC<Props> = ({ quote, onClose, onDuplicate,
             >
               <Mail className="w-3.5 h-3.5" />
               Email
+            </button>
+            <button
+              onClick={handleShareLink}
+              disabled={shareLoading}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:text-emerald-400 dark:hover:text-emerald-300 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 transition-colors disabled:opacity-50"
+              aria-label="Share quote via link"
+            >
+              {shareLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5" />}
+              {shareCopied ? 'Link Copied!' : 'Share Link'}
             </button>
             {onDuplicate && (
               <button

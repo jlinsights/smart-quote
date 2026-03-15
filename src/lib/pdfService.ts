@@ -18,6 +18,8 @@ const nextLine = (y: number, h = PDF_LAYOUT.LINE_HEIGHT): number => y + h;
 // ─── Header ──────────────────────────────────────────────
 
 const drawHeader = (doc: jsPDF, yPos: number, referenceNo?: string, validityDate?: string): number => {
+  doc.setFont(FONTS.FAMILY, 'normal');
+
   // Logo (left)
   doc.addImage(logoBase64, 'PNG', MARGIN_X, yPos - 8, PDF_LAYOUT.LOGO.WIDTH, PDF_LAYOUT.LOGO.HEIGHT);
 
@@ -80,6 +82,7 @@ const drawShipmentDetails = (doc: jsPDF, input: QuoteInput, yPos: number): numbe
 const drawCargoTable = async (doc: jsPDF, items: QuoteInput['items'], result: QuoteResult, yPos: number): Promise<number> => {
   const autoTable = (await import('jspdf-autotable')).default;
 
+  doc.setFont(FONTS.FAMILY, 'normal');
   doc.setFontSize(FONTS.SIZE_SUBHEADER);
   doc.setTextColor(...COLORS.PRIMARY);
   doc.text('화물 명세 / Cargo Manifest', MARGIN_X, yPos);
@@ -130,6 +133,7 @@ const drawCargoTable = async (doc: jsPDF, items: QuoteInput['items'], result: Qu
 const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number): Promise<number> => {
   const autoTable = (await import('jspdf-autotable')).default;
 
+  doc.setFont(FONTS.FAMILY, 'normal');
   doc.setFontSize(FONTS.SIZE_SUBHEADER);
   doc.setTextColor(...COLORS.PRIMARY);
   doc.text('비용 내역 / Cost Breakdown', MARGIN_X, yPos);
@@ -187,6 +191,8 @@ const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number): Pro
 // ─── Quote Summary Box ───────────────────────────────────
 
 const drawQuoteSummary = (doc: jsPDF, input: QuoteInput, result: QuoteResult, yPos: number): number => {
+  doc.setFont(FONTS.FAMILY, 'normal');
+
   // Blue summary box
   doc.setFillColor(...COLORS.PRIMARY);
   doc.roundedRect(MARGIN_X, yPos, CONTENT_WIDTH, 35, 3, 3, 'F');
@@ -217,6 +223,7 @@ const drawQuoteSummary = (doc: jsPDF, input: QuoteInput, result: QuoteResult, yP
 const drawWarnings = (doc: jsPDF, warnings: string[], yPos: number): number => {
   if (warnings.length === 0) return yPos;
 
+  doc.setFont(FONTS.FAMILY, 'normal');
   doc.setTextColor(...COLORS.WARNING);
   doc.setFontSize(FONTS.SIZE_SMALL);
   doc.text('⚠ 주의사항 / Warnings:', MARGIN_X, yPos);
@@ -233,6 +240,7 @@ const drawWarnings = (doc: jsPDF, warnings: string[], yPos: number): number => {
 // ─── Disclaimer ─────────────────────────────────────────
 
 const drawDisclaimer = (doc: jsPDF, yPos: number): number => {
+  doc.setFont(FONTS.FAMILY, 'normal');
   doc.setFontSize(FONTS.SIZE_SMALL);
   doc.setTextColor(...COLORS.TEXT_LIGHT);
 
@@ -252,6 +260,7 @@ const drawDisclaimer = (doc: jsPDF, yPos: number): number => {
 // ─── Footer ──────────────────────────────────────────────
 
 const drawFooter = (doc: jsPDF) => {
+  doc.setFont(FONTS.FAMILY, 'normal');
   const pageHeight = doc.internal.pageSize.height;
 
   doc.setDrawColor(...COLORS.PRIMARY);
@@ -305,7 +314,9 @@ export const generatePDF = async (input: QuoteInput, result: QuoteResult, refere
   yPos = drawHeader(doc, yPos, referenceNo, validityDate);
   yPos = drawShipmentDetails(doc, input, yPos);
   yPos = await drawCargoTable(doc, input.items, result, yPos);
+  doc.setFont(FONTS.FAMILY, 'normal');
   yPos = await drawCostTable(doc, result, yPos);
+  doc.setFont(FONTS.FAMILY, 'normal');
   yPos = drawQuoteSummary(doc, input, result, yPos);
   yPos = drawWarnings(doc, result.warnings, yPos);
   drawDisclaimer(doc, yPos);
@@ -342,6 +353,7 @@ export const generateComparisonPDF = async (
   // Shipment info
   yPos = drawShipmentDetails(doc, input, yPos);
   yPos = await drawCargoTable(doc, input.items, upsResult, yPos);
+  doc.setFont(FONTS.FAMILY, 'normal');
 
   // Comparison table
   const carriers = emaxResult ? ['UPS', 'DHL', 'EMAX'] : ['UPS', 'DHL'];
@@ -399,6 +411,7 @@ export const generateComparisonPDF = async (
   });
 
   yPos = getLastAutoTableY(doc) + 10;
+  doc.setFont(FONTS.FAMILY, 'normal');
 
   // Savings note
   if (amounts.filter(a => a !== minAmount).length > 0) {

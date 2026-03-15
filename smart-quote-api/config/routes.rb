@@ -59,6 +59,10 @@ Rails.application.routes.draw do
       get "fsc/rates", to: "fsc#rates"
       post "fsc/update", to: "fsc#update_rates"
 
+      # Quote Sharing
+      post "quotes/:quote_id/share", to: "quote_shares#create"
+      get "shared/:token", to: "quote_shares#show"
+
       # AI Chat
       post "chat", to: "chat#create"
     end
