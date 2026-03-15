@@ -8,7 +8,6 @@ export const FscRateWidget: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [editingCarrier, setEditingCarrier] = useState<'UPS' | 'DHL' | null>(null);
   const [intlRate, setIntlRate] = useState(0);
-  const [domRate, setDomRate] = useState(0);
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -33,7 +32,6 @@ export const FscRateWidget: React.FC = () => {
     if (!data) return;
     setEditingCarrier(carrier);
     setIntlRate(data.rates[carrier].international);
-    setDomRate(data.rates[carrier].domestic);
   };
 
   const handleSave = async () => {
@@ -41,7 +39,7 @@ export const FscRateWidget: React.FC = () => {
     setSaving(true);
     setSaveError(null);
     try {
-      await updateFscRate(editingCarrier, intlRate, domRate);
+      await updateFscRate(editingCarrier, intlRate, intlRate);
       await fetchRates();
       setEditingCarrier(null);
     } catch (err) {
@@ -63,7 +61,7 @@ export const FscRateWidget: React.FC = () => {
         <div className="flex items-center gap-2">
           <Fuel className="w-4 h-4 text-jways-500" />
           <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
-            FSC Rates
+            FSC Rates (International)
           </h4>
         </div>
         <button
@@ -98,9 +96,9 @@ export const FscRateWidget: React.FC = () => {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-gray-900 dark:text-white">{carrier}</span>
-                    <a 
-                      href={link} 
-                      target="_blank" 
+                    <a
+                      href={link}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-gray-400 hover:text-jways-500 transition-colors"
                       title={`${carrier} 공식 연료 할증료 페이지 열기`}
@@ -109,14 +107,22 @@ export const FscRateWidget: React.FC = () => {
                     </a>
                   </div>
                   {isEditing ? (
-                    <button
-                      onClick={handleSave}
-                      disabled={saving}
-                      className="flex items-center gap-1 text-[10px] font-semibold text-jways-600 hover:text-jways-700"
-                    >
-                      {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
-                      Save
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setEditingCarrier(null)}
+                        className="text-[10px] font-semibold text-gray-400 hover:text-gray-600"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="flex items-center gap-1 text-[10px] font-semibold text-jways-600 hover:text-jways-700"
+                      >
+                        {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                        Save
+                      </button>
+                    </div>
                   ) : (
                     <button
                       onClick={() => startEdit(carrier)}
@@ -132,40 +138,23 @@ export const FscRateWidget: React.FC = () => {
                     {saveError}
                   </div>
                 )}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <span className="text-[10px] text-gray-500 dark:text-gray-400">International</span>
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        step="0.5"
-                        min={0}
-                        max={100}
-                        value={intlRate}
-                        onChange={(e) => setIntlRate(Number(e.target.value))}
-                        className="w-full mt-0.5 px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                      />
-                    ) : (
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">{rates.international}%</p>
-                    )}
+                {isEditing ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      step="0.5"
+                      min={0}
+                      max={100}
+                      value={intlRate}
+                      onChange={(e) => setIntlRate(Number(e.target.value))}
+                      className="w-24 px-2 py-1 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                      autoFocus
+                    />
+                    <span className="text-sm text-gray-500">%</span>
                   </div>
-                  <div>
-                    <span className="text-[10px] text-gray-500 dark:text-gray-400">Domestic</span>
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        step="0.5"
-                        min={0}
-                        max={100}
-                        value={domRate}
-                        onChange={(e) => setDomRate(Number(e.target.value))}
-                        className="w-full mt-0.5 px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                      />
-                    ) : (
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">{rates.domestic}%</p>
-                    )}
-                  </div>
-                </div>
+                ) : (
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">{rates.international}%</p>
+                )}
               </div>
             );
           })}
