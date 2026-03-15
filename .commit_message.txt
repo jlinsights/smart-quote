@@ -1,1 +1,1 @@
-🔧 fix: AI 챗봇 담당자를 Charlie Lee(이창희 대리)로 일원화
+✨ feat: AI 챗봇 지식베이스 대폭 강화 — NotebookLM 기반 물류 전문 지식 내장
