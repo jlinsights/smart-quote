@@ -147,7 +147,7 @@ module Api
         params.permit(
           :originCountry, :destinationCountry, :destinationZip,
           :domesticRegionCode, :isJejuPickup,
-          :incoterm, :packingType,
+          :incoterm, :packingType, :shippingMode,
           :marginPercent, :dutyTaxEstimate,
           :exchangeRate, :fscPercent,
           :manualDomesticCost, :manualPackingCost, :manualSurgeCost,
@@ -159,7 +159,8 @@ module Api
           resolvedAddonRates: [ :code, :carrier, :nameEn, :nameKo, :chargeType,
                                 :unit, :amount, :perKgRate, :ratePercent, :minAmount,
                                 :fscApplicable, :autoDetect, :selectable, :condition,
-                                detectRules: {} ]
+                                detectRules: {} ],
+          resolvedSurcharges: [ :code, :name, :nameKo, :chargeType, :amount, :sourceUrl ]
         ).to_h
       end
 

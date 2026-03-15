@@ -54,11 +54,11 @@ export const fetchQuote = async (input: QuoteInput): Promise<QuoteResult> => {
 export const saveQuote = async (
   input: QuoteInput,
   notes?: string,
-  result?: QuoteResult
 ): Promise<QuoteDetail> => {
+  // Send only input fields — backend recalculates result via QuoteCalculator
   return request<QuoteDetail>('/api/v1/quotes', {
     method: 'POST',
-    body: JSON.stringify({ ...input, ...result, notes }),
+    body: JSON.stringify({ ...input, notes }),
   });
 };
 

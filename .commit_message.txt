@@ -1,1 +1,1 @@
-🔧 fix: FSC 기본값 수정 (UPS 38.5%, DHL 30.5%) + Naver 환율 링크 제거
+🐛 fix: Save Quote 실패 수정 — result 병합 제거, resolvedSurcharges/shippingMode permit 추가

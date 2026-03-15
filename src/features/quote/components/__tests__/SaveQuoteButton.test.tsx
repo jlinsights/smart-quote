@@ -109,7 +109,7 @@ describe('SaveQuoteButton', () => {
     await userEvent.click(screen.getByText('Save Quote'));
     await userEvent.click(screen.getByRole('button', { name: /save/i }));
 
-    expect(saveQuote).toHaveBeenCalledWith(mockInput, undefined, mockResult);
+    expect(saveQuote).toHaveBeenCalledWith(mockInput, undefined);
   });
 
   it('shows Saved! with reference number after successful save', async () => {
@@ -190,7 +190,7 @@ describe('SaveQuoteButton', () => {
     await userEvent.keyboard('{Enter}');
 
     await waitFor(() => {
-      expect(saveQuote).toHaveBeenCalledWith(mockInput, 'rush order', mockResult);
+      expect(saveQuote).toHaveBeenCalledWith(mockInput, 'rush order');
     });
   });
 

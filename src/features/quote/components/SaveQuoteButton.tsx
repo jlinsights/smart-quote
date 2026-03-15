@@ -37,7 +37,7 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
   const doSave = async (isDuplicate = false) => {
     setState('saving');
     try {
-      const detail = await saveQuote(input, notes || undefined, result || undefined);
+      const detail = await saveQuote(input, notes || undefined);
       setSavedRefNo(detail.referenceNo);
       setLastSavedHash(inputHash);
       setState('saved');
@@ -56,8 +56,10 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
       Sentry.captureException(e);
       setShowNotes(false);
       setState('error');
-      toast('error', 'Failed to save quote');
-      setTimeout(() => setState('idle'), 3000);
+      const msg = e instanceof Error ? e.message : 'Unknown error';
+      toast('error', `Failed to save quote: ${msg}`);
+      console.error('[SaveQuote]', e);
+      setTimeout(() => setState('idle'), 5000);
     }
   };
 
