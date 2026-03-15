@@ -58,6 +58,9 @@ Rails.application.routes.draw do
       # FSC Rates
       get "fsc/rates", to: "fsc#rates"
       post "fsc/update", to: "fsc#update_rates"
+
+      # AI Chat
+      post "chat", to: "chat#create"
     end
   end
 end

@@ -1,1 +1,1 @@
-🔧 fix: /quote 페이지에서 Member도 Save Quote/History 사용 가능하도록 수정
+💬 feat: Intercom 스타일 AI 챗봇 위젯 추가 (AiChatWidget + chatApi)
