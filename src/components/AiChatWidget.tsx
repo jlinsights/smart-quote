@@ -156,10 +156,11 @@ export const AiChatWidget: React.FC = () => {
       if (!isOpen) {
         setHasUnread(true);
       }
-    } catch {
+    } catch (e) {
+      const apiMsg = e instanceof Error ? e.message : '';
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: l.error },
+        { role: 'assistant', content: apiMsg || l.error },
       ]);
     } finally {
       setIsLoading(false);

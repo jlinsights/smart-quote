@@ -10,10 +10,16 @@ module Api
 
         return render json: { error: { message: "Messages required" } }, status: :unprocessable_entity if messages.empty?
 
+        api_key = ENV["ANTHROPIC_API_KEY"]
+        unless api_key.present?
+          Rails.logger.error "[CHAT] ANTHROPIC_API_KEY not configured"
+          return render json: { error: { message: "AI service not configured. Please set ANTHROPIC_API_KEY." } }, status: :service_unavailable
+        end
+
         # Build system prompt with logistics context
         system_prompt = build_system_prompt
 
-        client = Anthropic::Client.new(api_key: ENV["ANTHROPIC_API_KEY"])
+        client = Anthropic::Client.new(api_key: api_key)
 
         response = client.messages.create(
           model: "claude-sonnet-4-20250514",
