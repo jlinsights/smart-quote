@@ -1,1 +1,1 @@
-🐛 fix: Save Quote 실패 수정 — result 병합 제거, resolvedSurcharges/shippingMode permit 추가
+🔧 fix: /quote 페이지에서 Member도 Save Quote/History 사용 가능하도록 수정
