@@ -32,7 +32,7 @@ const INITIAL_INPUT: QuoteInput = {
   marginPercent: 15,
   dutyTaxEstimate: 0,
   exchangeRate: 1400,
-  fscPercent: 30,
+  fscPercent: 38.5,
   overseasCarrier: 'UPS',
   manualPackingCost: undefined
 };

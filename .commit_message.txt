@@ -1,1 +1,1 @@
-📝 docs: CLAUDE.md/README.md 전면 업데이트 + Admin/Member User Guide 생성
+🔧 fix: FSC 기본값 수정 (UPS 38.5%, DHL 30.5%) + Naver 환율 링크 제거

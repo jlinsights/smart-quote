@@ -31,8 +31,8 @@ module Api
 
         current = FscFetcher.current_rates
         current[carrier] = {
-          "international" => international || current.dig(carrier, "international") || 30.0,
-          "domestic" => domestic || current.dig(carrier, "domestic") || 28.0
+          "international" => international || current.dig(carrier, "international") || FscFetcher::DEFAULT_RATES.dig(carrier, "international"),
+          "domestic" => domestic || current.dig(carrier, "domestic") || FscFetcher::DEFAULT_RATES.dig(carrier, "domestic")
         }
 
         Rails.cache.write(FscFetcher::FSC_CACHE_KEY, {

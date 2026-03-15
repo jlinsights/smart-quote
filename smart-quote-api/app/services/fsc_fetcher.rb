@@ -7,9 +7,12 @@ class FscFetcher
   # Known FSC rates - updated manually or via scraping
   # UPS: https://www.ups.com/us/en/support/shipping-support/shipping-costs-rates/fuel-surcharges.page
   # DHL: https://www.dhl.com/kr-en/home/our-divisions/express/customer-service/fuel-surcharge.html
+  # Last verified: 2026-03-15
+  # UPS: https://www.ups.com/kr/ko/support/shipping-support/shipping-costs-rates/fuel-surcharges.page
+  # DHL: https://mydhl.express.dhl/kr/ko/ship/surcharges.html#/fuel_surcharge
   DEFAULT_RATES = {
-    "UPS" => { "international" => 30.0, "domestic" => 28.0 },
-    "DHL" => { "international" => 29.5, "domestic" => 27.5 }
+    "UPS" => { "international" => 38.5, "domestic" => 36.5 },
+    "DHL" => { "international" => 30.5, "domestic" => 28.5 }
   }.freeze
 
   class << self
