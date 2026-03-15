@@ -18,25 +18,53 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 
 - **Zone-based pricing**: Country-to-zone mapping (Z1-Z10 for UPS, Z1-Z8 for DHL, per-country for EMAX) with exact rate tables (0.5-20kg in 0.5kg steps) and range rates (>20kg per-kg)
 - **Shared rate lookup**: Common `lookupCarrierRate()` engine for UPS/DHL (exact table -> range table -> fallback)
-- **Surcharges**: FSC% fuel surcharge, war risk (5%), manual surge fees (applied to all carriers)
+- **Surcharges**: FSC% fuel surcharge, war risk (5%), manual surge fees, carrier-specific add-ons (AHS, large package, remote area, etc.)
+- **Carrier comparison**: Side-by-side cost comparison across all carriers
 
 ### Calculation Pipeline
 
-1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L×W×H / 5000 for UPS & DHL, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
+1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L x W x H / 5000 for UPS & DHL, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
 2. **Carrier Costs** - Zone lookup -> `lookupCarrierRate()` -> FSC -> war risk
 3. **Margin** - Dynamic margin resolution via `MarginRuleResolver` (priority-based first-match-wins algorithm with 5min cache), admin CRUD management, hardcoded fallback if API unavailable. Revenue = cost / (1 - margin%), rounded up to nearest KRW 100
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
 
-### Dashboard, Header & Widgets
+### Role-Based Access
+
+| Feature | Admin | Member |
+|---------|:-----:|:------:|
+| Customer Dashboard | O | O |
+| Quote Calculator | O | O |
+| Margin breakdown visible | O | X |
+| Margin slider control | O | X |
+| Quote History | O | O |
+| PDF Export | O | O |
+| Admin Management Panel | O | X |
+| Slack notification on save | X | O (auto) |
+
+### Dashboard & Widgets
 
 - **Customer Dashboard**: Landing page after login with welcome banner, recent quotes, and live widgets
-- **Global Header**: Context-aware navigation with dark mode/i18n toggles, and an integrated **Account Settings Modal** for password changes.
-- **Exchange Rate Widget**: Real-time KRW rates for 6 currencies (USD, EUR, JPY, CNY, GBP, SGD) via open.er-api.com with localStorage caching, stale detection (6min threshold), visibility/online auto-refresh, and live indicator
-- **Weather Widget**: 47 global port/airport weather conditions via Open-Meteo API with paginated carousel
-- **Notice Widget**: Company announcements and real-time logistics news RSS feed with paginated display
-- **Account Manager Widget**: Contact information for assigned logistics managers
-- **FSC Rates Widget (Admin)**: Tracks live DHL/UPS fuel surcharges with direct external verification links and manual override capabilities.
-- **Target Margin Rules Widget (Admin)**: DB-driven margin rule CRUD with priority-based grouping (P100 Per-User Flat > P90 Per-User Weight-Based > P50 Nationality > P0 Default), inline add/edit, soft delete with confirmation dialog
+- **Exchange Rate Widget**: Real-time KRW rates for 6 currencies (USD, EUR, JPY, CNY, GBP, SGD) via open.er-api.com with localStorage caching, stale detection, and live indicator
+- **Currency Calculator Widget**: Quick currency conversion tool
+- **Weather Widget**: 47 global port & airport weather conditions via Open-Meteo API with paginated carousel and delay alerts
+- **Notice Widget**: Real-time logistics news RSS feed with paginated display
+- **Global Header**: Dark mode/i18n toggles, account settings modal
+
+### Admin Management Panel (Admin only)
+
+| Widget | Purpose |
+|--------|---------|
+| **Target Margin Rules** | DB-driven margin rule CRUD with priority tiers (P100/P90/P50/P0) |
+| **FSC Rate Management** | Track/update DHL & UPS fuel surcharge percentages |
+| **Surcharge Management** | Carrier-specific surcharge CRUD |
+| **Customer Management** | Customer records with quote count badges |
+| **User Management** | Role assignment, company, nationality, network access |
+| **Rate Table Viewer** | Read-only carrier rate table reference |
+| **Audit Log** | Full audit trail of all admin actions |
+
+### Slack Notifications
+
+When a **Member** saves a quote, a Slack notification is automatically sent to the admin channel with reference number, carrier, destination, billable weight, total quote amount, and margin percentage.
 
 ### Internationalization (i18n)
 
@@ -48,11 +76,15 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 
 - Save quotes with auto-generated reference numbers (`SQ-YYYY-NNNN`), duplicate detection
 - Search, filter by country/date/status, paginated list
-- Detail modal with keyboard (Esc) support, CSV export, quote deletion
+- Detail modal with status tracking (Draft -> Sent -> Accepted), CSV export, email, deletion
 
 ### Professional Output
 
-- **PDF Generator**: Branded PDF with route, cargo manifest, cost breakdown, compliance warnings, optional reference number pass-through
+- **PDF Generator**: Branded PDF with route, cargo manifest, cost breakdown, compliance warnings, optional reference number
+
+### Error Tracking
+
+- **Sentry** integration across all error boundaries and catch blocks for production monitoring
 
 ## Tech Stack
 
@@ -60,67 +92,43 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 | ------------ | ---------------------------------------------------------------------------- |
 | **Frontend** | React 19, TypeScript 5.8, Vite 6, Tailwind CSS                               |
 | **Backend**  | Rails 8 API-only, Ruby 3.4, PostgreSQL                                       |
-| **Testing**  | Vitest + Testing Library (25 files, 208 tests), RSpec + FactoryBot (backend) |
+| **Testing**  | Vitest + Testing Library (28 files, 1,166 tests), RSpec + FactoryBot (backend) |
 | **Deploy**   | Vercel (frontend), Render.com (backend, Docker, Singapore)                   |
 | **APIs**     | open.er-api.com (exchange rates), Open-Meteo (weather), Supabase (auth)      |
-| **Other**    | jsPDF, Lucide React, React Router v6, Zustand                                |
+| **Other**    | jsPDF, Sentry, Lucide React, React Router v7, ChannelTalk                    |
 
 ## Project Structure
 
 ```
 /                              # Frontend
   src/
-    api/                       # API clients
-      quoteApi.ts              # Rails backend client (VITE_API_URL)
-      marginRuleApi.ts         # Margin rule CRUD + resolve API
-      exchangeRateApi.ts       # Exchange rate API (open.er-api.com, localStorage cache)
-      weatherApi.ts            # Open-Meteo weather API (47 ports/airports)
-      noticeApi.ts             # Notice/announcement API
+    api/                       # API clients (apiClient, quoteApi, marginRuleApi, exchangeRateApi, weatherApi, noticeApi)
     types.ts                   # Core TypeScript types & enums
-    types/dashboard.ts         # Dashboard-specific types (ExchangeRate, PortWeather, etc.)
     i18n/translations.ts       # 4-language translation dictionary (en/ko/cn/ja)
-    config/                    # Rate tables, tariffs, business rules
-      ups_tariff.ts            # UPS Z1-Z10 rates (synced with backend)
-      dhl_tariff.ts            # DHL Z1-Z8 rates (synced with backend)
-      emax_tariff.ts           # EMAX per-country rates (CN, VN)
-      rates.ts                 # KRW cost constants, market defaults
-      business-rules.ts        # Surge thresholds, weight limits
-      options.ts               # Country/carrier dropdown options
-    contexts/                  # React Context providers
-      AuthContext.tsx           # Supabase auth state
-      LanguageContext.tsx       # i18n language selection
-      ThemeContext.tsx          # Dark/light mode
+    config/                    # Rate tables (ups/dhl/emax tariff), business rules, options
+    contexts/                  # AuthContext, LanguageContext, ThemeContext
     features/
       quote/
-        components/            # InputSection, ResultSection, SaveQuoteButton
-        components/widgets/    # ExchangeRateWidget, WeatherWidget, NoticeWidget, AccountManagerWidget
+        components/            # InputSection, ResultSection, SaveQuoteButton, CarrierComparisonCard
+        components/widgets/    # ExchangeRateWidget, WeatherWidget, NoticeWidget, AccountManagerWidget, ExchangeRateCalculatorWidget
         services/              # calculationService.ts (mirrored calculation logic)
       history/
         components/            # QuoteHistoryPage, QuoteHistoryTable, QuoteSearchBar, QuotePagination, QuoteDetailModal
       admin/
-        components/            # TargetMarginRulesWidget, FscRateWidget
+        components/            # TargetMarginRulesWidget, FscRateWidget, UserManagementWidget, CustomerManagement, AuditLogViewer, RateTableViewer
+        components/surcharge/  # SurchargeManagementWidget, SurchargeForm, SurchargeTable
       dashboard/
-        components/            # WelcomeBanner, QuoteHistoryCompact, WidgetError, WidgetSkeleton
-        hooks/                 # useExchangeRates, usePortWeather, useLogisticsNews, useMarginRules, useResolvedMargin
-    pages/                     # Route-level pages
-      LandingPage.tsx          # Public landing page (/)
-      LoginPage.tsx            # Auth login (/login)
-      SignUpPage.tsx            # Auth signup (/signup)
-      CustomerDashboard.tsx    # Dashboard with widgets (/dashboard)
-      QuoteCalculator.tsx      # Quote calculator (/quote, /admin)
-    components/layout/         # Header, MobileLayout, NavigationTabs, AccountSettingsModal
-    lib/
-      format.ts                # Currency/number formatters (formatKRW, formatUSD, etc.)
-      pdfService.ts            # jsPDF-based PDF generation
+        components/            # WelcomeBanner, QuoteHistoryCompact, AccountSettingsModal
+        hooks/                 # useExchangeRates, usePortWeather, useLogisticsNews, useMarginRules, useResolvedMargin, useFscRates, useSurcharges, useAddonRates
+    pages/                     # LandingPage, LoginPage, SignUpPage, CustomerDashboard, QuoteCalculator
+      components/              # CalculatorActionBar, AdminWidgets, MobileStickyBottomBar
+    components/                # Header, ProtectedRoute, ErrorBoundary, ChannelTalk
+    lib/                       # format.ts, pdfService.ts, slackNotification.ts, fetchWithRetry.ts
 smart-quote-api/               # Backend (Rails 8 API)
-  app/models/
-    margin_rule.rb             # Margin rule model (validations, scopes, soft delete)
-  app/services/
-    quote_calculator.rb        # Main calculator orchestrator
-    margin_rule_resolver.rb    # Priority-based margin resolution with cache
-    calculators/               # Individual calculators (ups, dhl, emax, item, surge, domestic)
-  app/controllers/api/v1/
-    margin_rules_controller.rb # CRUD + resolve endpoint (admin guard)
+  app/models/                  # MarginRule, AuditLog, Quote, User, Customer, Surcharge, AddonRate
+  app/services/                # QuoteCalculator, QuoteSearcher, QuoteExporter, QuoteSerializer, MarginRuleResolver
+    calculators/               # ItemCost, SurgeCost, UpsCost, DhlCost, EmaxCost, DomesticCost
+  app/controllers/api/v1/      # Quotes, MarginRules, Surcharges, AddonRates, Customers, Users, Auth, Fsc, AuditLogs, Notifications
   lib/constants/               # Tariff tables (synced with frontend)
 ```
 
@@ -138,9 +146,7 @@ npm install
 npm run dev          # Dev server on http://localhost:5173
 npm run build        # Production build (tsc + vite)
 npm run lint         # ESLint (--max-warnings 0)
-npm run test         # Vitest watch mode
-npx vitest run       # Run tests once (25 files, 208 tests)
-npx tsc --noEmit     # Type check only
+npx vitest run       # Run tests once (28 files, 1,166 tests)
 ```
 
 ### Backend (from `smart-quote-api/`)
@@ -167,28 +173,32 @@ bin/rubocop          # Ruby linting
 ### API Endpoints
 
 ```
+# Quotes
 POST   /api/v1/quotes/calculate  # Stateless calculation
 POST   /api/v1/quotes            # Calculate + save
 GET    /api/v1/quotes            # List (page, per_page, q, destination_country, date_from, date_to, status)
 GET    /api/v1/quotes/:id        # Detail
+PATCH  /api/v1/quotes/:id        # Update status/notes/customer
 DELETE /api/v1/quotes/:id        # Delete
 GET    /api/v1/quotes/export     # CSV download
 
-# Authentication & Auth
+# Authentication
 POST   /api/v1/auth/login        # JWT Login
 POST   /api/v1/auth/register     # Account creation
-PUT    /api/v1/auth/password     # Change Password (Requires Authenticated Token)
+PUT    /api/v1/auth/password     # Change Password
 
-# Core Admin Configuration
-GET    /api/v1/fsc/rates         # View Fuel Surcharges (DHL/UPS)
-POST   /api/v1/fsc/update        # Update global FSC% rates
+# Admin Configuration
+GET    /api/v1/fsc/rates         # View Fuel Surcharges
+POST   /api/v1/fsc/update        # Update FSC rates
+CRUD   /api/v1/margin_rules      # Margin rule management + GET resolve
+CRUD   /api/v1/surcharges        # Surcharge management
+CRUD   /api/v1/addon_rates       # Add-on rate management
+CRUD   /api/v1/customers         # Customer management
+GET    /api/v1/users             # User management
+GET    /api/v1/audit_logs        # Audit log viewer
 
-# Margin Rules (Admin CRUD + Authenticated Resolve)
-GET    /api/v1/margin_rules          # List all rules (admin)
-POST   /api/v1/margin_rules          # Create rule (admin)
-PUT    /api/v1/margin_rules/:id      # Update rule (admin)
-DELETE /api/v1/margin_rules/:id      # Soft delete rule (admin)
-GET    /api/v1/margin_rules/resolve  # Resolve margin (authenticated)
+# Notifications
+POST   /api/v1/notifications/slack  # Slack webhook proxy
 ```
 
 ## Environment Variables
@@ -199,14 +209,13 @@ GET    /api/v1/margin_rules/resolve  # Resolve margin (authenticated)
 | `VITE_SUPABASE_URL`      | Supabase project URL | -                       |
 | `VITE_SUPABASE_ANON_KEY` | Supabase anon key    | -                       |
 
-## Market Defaults
+## Documentation
 
-| Setting                         | Value           |
-| ------------------------------- | --------------- |
-| Default Exchange Rate (KRW/USD) | 1,400           |
-| Default FSC%                    | 30%             |
-| Packing Material                | 15,000 KRW/m²   |
-| Packing Labor                   | 50,000 KRW/item |
+| Document | Description |
+|----------|-------------|
+| [Admin User Guide](docs/USER_GUIDE_ADMIN.md) | Complete guide for Admin users |
+| [Member User Guide](docs/USER_GUIDE_MEMBER.md) | Complete guide for Member users |
+| [CLAUDE.md](CLAUDE.md) | AI assistant project context |
 
 ---
 

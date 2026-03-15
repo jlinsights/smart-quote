@@ -1,1 +1,1 @@
-🔧 refactor: 코드 품질 개선 (Sentry 로깅, 컴포넌트 분리, 컨트롤러 리팩토링, 날씨 위젯 타이틀 수정)
+📝 docs: CLAUDE.md/README.md 전면 업데이트 + Admin/Member User Guide 생성

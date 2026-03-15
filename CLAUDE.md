@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Smart Quote System for **Goodman GLS & J-Ways** - an internal logistics quoting tool that calculates international shipping costs across carriers (UPS, DHL, EMAX). React frontend with a Rails API backend, sharing mirrored calculation logic. Includes customer dashboard with live exchange rates, weather, notices, and account manager widgets.
+Smart Quote System for **Goodman GLS & J-Ways** - an internal logistics quoting tool that calculates international shipping costs across carriers (UPS, DHL, EMAX). React frontend with a Rails API backend, sharing mirrored calculation logic. Includes customer dashboard with live exchange rates, weather, notices, and account manager widgets. Role-based access (Admin/Member) with Slack notifications and Sentry error tracking.
 
 ## Development Commands
 
@@ -15,7 +15,7 @@ npm run dev          # Dev server on http://localhost:5173
 npm run build        # tsc + vite build
 npm run lint         # ESLint (--max-warnings 0)
 npm run test         # Vitest in watch mode
-npx vitest run       # Run tests once (25 files, 208 tests)
+npx vitest run       # Run tests once (28 files, 1166 tests)
 npx tsc --noEmit     # Type check only
 ```
 
@@ -46,6 +46,7 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
 /                              # Frontend
   src/
     api/                       # API clients
+      apiClient.ts             # Centralized fetch client (auth token, 401 handling)
       quoteApi.ts              # Rails backend (fetch-based, VITE_API_URL)
       marginRuleApi.ts         # Margin rule CRUD + resolve API
       exchangeRateApi.ts       # open.er-api.com (KRW base, localStorage cache for previous rates)
@@ -62,40 +63,49 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
       business-rules.ts        # Surge thresholds (AHS weight/dim, large package, over max)
       options.ts               # Country options, carrier options, incoterm options
     contexts/                  # React Context providers
-      AuthContext.tsx           # Supabase auth (user, session, login/logout)
+      AuthContext.tsx           # JWT auth (user, session, login/logout)
       LanguageContext.tsx       # i18n (useLanguage hook, localStorage persistence)
       ThemeContext.tsx          # Dark/light mode (useTheme hook)
     features/
       quote/
-        components/            # InputSection, ResultSection, SaveQuoteButton
-        components/widgets/    # ExchangeRateWidget, WeatherWidget, NoticeWidget, AccountManagerWidget
+        components/            # InputSection, ResultSection, SaveQuoteButton, CarrierComparisonCard
+        components/widgets/    # ExchangeRateWidget, WeatherWidget, NoticeWidget, AccountManagerWidget, ExchangeRateCalculatorWidget
         services/              # calculationService.ts (mirrored calculation logic, lookupCarrierRate)
       history/
         components/            # QuoteHistoryPage, QuoteHistoryTable, QuoteSearchBar, QuotePagination, QuoteDetailModal
         constants.ts           # Shared constants (STATUS_COLORS)
       admin/
-        components/            # TargetMarginRulesWidget, FscRateWidget
+        components/            # TargetMarginRulesWidget, FscRateWidget, UserManagementWidget, CustomerManagement, AuditLogViewer, RateTableViewer
+        components/surcharge/  # SurchargeManagementWidget, SurchargeForm, SurchargeTable, SurchargeCarrierLinks, SurchargeNotice
       dashboard/
-        components/            # WelcomeBanner, QuoteHistoryCompact, WidgetError, WidgetSkeleton
-        hooks/                 # useExchangeRates, usePortWeather, useLogisticsNews, useMarginRules, useResolvedMargin
+        components/            # WelcomeBanner, QuoteHistoryCompact, AccountSettingsModal, WidgetError, WidgetSkeleton
+        hooks/                 # useExchangeRates, usePortWeather, useLogisticsNews, useMarginRules, useResolvedMargin, useFscRates, useSurcharges, useAddonRates
     pages/                     # Route-level pages
       LandingPage.tsx          # Public landing (/)
       LoginPage.tsx            # Auth login (/login)
-      SignUpPage.tsx            # Auth signup (/signup)
+      SignUpPage.tsx           # Auth signup (/signup)
       CustomerDashboard.tsx    # Dashboard with widgets (/dashboard)
       QuoteCalculator.tsx      # Calculator + history (/quote, /admin)
+      components/              # CalculatorActionBar, AdminWidgets, MobileStickyBottomBar
     components/
       layout/                  # Header, MobileLayout, NavigationTabs
       ProtectedRoute.tsx       # Auth guard (requireAdmin prop for /admin)
+      ErrorBoundary.tsx        # React error boundary with Sentry
+      ChannelTalk.tsx          # ChannelTalk chat widget
     lib/
       format.ts                # Currency/number formatters (formatKRW, formatUSD, formatNum, formatUSDInt)
       pdfService.ts            # jsPDF-based PDF generation (optional referenceNo pass-through)
       fetchWithRetry.ts        # Generic fetch retry wrapper
+      slackNotification.ts     # Slack notification for member quote saves
 smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL)
   app/models/
     margin_rule.rb             # Margin rule model (validations, scopes, soft delete)
+    audit_log.rb               # Audit trail model
   app/services/
     quote_calculator.rb        # Main orchestrator
+    quote_searcher.rb          # Search/filter chain for quotes
+    quote_exporter.rb          # CSV export with 10K limit
+    quote_serializer.rb        # Quote summary/detail serialization
     margin_rule_resolver.rb    # Priority-based margin resolution (5min cache, first-match-wins)
     calculators/
       item_cost.rb             # Packing dimensions, volumetric weight, material/labor
@@ -105,7 +115,16 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
       emax_cost.rb
       domestic_cost.rb         # Domestic pickup cost
   app/controllers/api/v1/
+    quotes_controller.rb       # Quote CRUD (uses QuoteSearcher, QuoteExporter, QuoteSerializer)
     margin_rules_controller.rb # CRUD + resolve endpoint (admin guard, audit log)
+    surcharges_controller.rb   # Surcharge CRUD
+    addon_rates_controller.rb  # Add-on rate management
+    customers_controller.rb    # Customer CRUD
+    users_controller.rb        # User management
+    auth_controller.rb         # JWT login/register/password
+    fsc_controller.rb          # FSC rate view/update
+    audit_logs_controller.rb   # Audit log viewer
+    notifications_controller.rb # Slack webhook proxy
   lib/constants/               # Tariff tables (ups_tariff.rb, dhl_tariff.rb, emax_tariff.rb)
 ```
 
@@ -123,11 +142,23 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
 
 Context providers wrap the app: `ThemeProvider > LanguageProvider > BrowserRouter > AuthProvider`
 
+### Role-Based Access
+
+| Feature | Admin | Member |
+|---------|:-----:|:------:|
+| Dashboard & widgets | O | O |
+| Quote calculator | O | O |
+| Margin breakdown visible | O | X |
+| Quote history | O | O |
+| Admin widgets panel | O | X |
+| Slack notification on save | X | O (auto) |
+
 ### Data Flow
 
 1. User edits input -> frontend `calculateQuote()` runs instantly via `useMemo` (no debounce, pure function)
 2. "Save Quote" -> `POST /api/v1/quotes` -> backend `QuoteCalculator.call(params)` recalculates + persists to PostgreSQL (ref: `SQ-YYYY-NNNN`)
-3. History tab -> `GET /api/v1/quotes` with pagination/search/filter params
+3. Member save -> Slack notification via `POST /api/v1/notifications/slack` (best-effort, condition: `user.role === 'member' && !isDuplicate`)
+4. History tab -> `GET /api/v1/quotes` with pagination/search/filter params
 
 ### Mirrored Calculation Logic
 
@@ -139,10 +170,6 @@ Frontend (`src/features/quote/services/calculationService.ts`) and backend (`sma
 2. **Carrier Costs** - Zone lookup (country -> zone code), shared `lookupCarrierRate()` engine (exact table 0.5-20kg -> range table >20kg -> fallback), FSC% surcharge
 3. **Margin** - Dynamic margin via `MarginRuleResolver` (priority-based: P100 per-user flat > P90 per-user weight > P50 nationality > P0 default), `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100. Admin can manually override at any time.
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
-
-### Surge Charges (All Carriers)
-
-Manual surge input (`manualSurgeCost`) applies to UPS, DHL, and EMAX equally. Reflected in `breakdown.intlSurge` and cost breakdown UI. Auto-calculation is disabled; users enter surge fees manually.
 
 ### UPS Zone Mapping (Z1-Z10)
 
@@ -160,10 +187,14 @@ Z1: SG/TW/MO/CN, Z2: JP/VN, Z3: TH/PH, Z4: AU/IN, Z5: CA/US, Z6: ES/IT/GB/FR, Z7
 - **Auto-refresh**: `visibilitychange` + `online` event listeners trigger `refreshIfStale()`
 - **Live indicator**: Green pulse (fresh) / gray dot (stale) in widget header
 
+### ExchangeRateCalculatorWidget
+
+- Quick currency conversion calculator on the dashboard sidebar
+
 ### WeatherWidget
 
 - **API**: Open-Meteo (no API key required)
-- **Coverage**: 47 global ports/airports
+- **Coverage**: 47 global ports & airports
 - **Hook**: `usePortWeather` with paginated carousel (8 ports per page)
 
 ### NoticeWidget / AccountManagerWidget
@@ -171,20 +202,15 @@ Z1: SG/TW/MO/CN, Z2: JP/VN, Z3: TH/PH, Z4: AU/IN, Z5: CA/US, Z6: ES/IT/GB/FR, Z7
 - NoticeWidget dynamically fetches real-time logistics news via a Vite proxy / edge function pulling from RSS feeds.
 - AccountManagerWidget displays static/mock contact information with a paginated carousel display
 
-### FscRateWidget (Admin)
+### Admin Widgets (visible at /admin only)
 
-- Custom Admin widget located at `src/features/admin/components/FscRateWidget.tsx`.
-- Calls `GET /api/v1/fsc/rates` to display the actual tracked fuel surcharge percentages for UPS and DHL.
-- Displays external links for visual verification and provides a secure `update` mutation for overriding.
-
-### TargetMarginRulesWidget (Admin)
-
-- DB-driven margin rule CRUD at `src/features/admin/components/TargetMarginRulesWidget.tsx`.
-- Groups rules by priority tier (P100 Per-User Flat, P90 Per-User Weight-Based, P50 Nationality, P0 Default).
-- Inline add/edit form, soft delete with confirmation dialog, manual refresh.
-- Backend: `MarginRuleResolver` service with 5min cache, first-match-wins algorithm, audit logging.
-- QuoteCalculator auto-resolves margin via `useResolvedMargin` hook with hardcoded fallback if API fails.
-- Admin users can manually change the Target Margin at any time via the margin slider.
+- **FscRateWidget**: Tracks live DHL/UPS fuel surcharges with external verification links and manual override
+- **TargetMarginRulesWidget**: DB-driven margin rule CRUD, priority-based grouping (P100/P90/P50/P0), inline add/edit, soft delete
+- **SurchargeManagementWidget**: Carrier-specific surcharge CRUD (split into SurchargeForm, SurchargeTable, SurchargeCarrierLinks, SurchargeNotice sub-components)
+- **CustomerManagement**: Customer CRUD with quote count badges
+- **UserManagementWidget**: User role/company/nationality/network management
+- **RateTableViewer**: Read-only carrier rate table viewer
+- **AuditLogViewer**: All admin actions audit trail with search/filter
 
 ## External APIs
 
@@ -194,6 +220,7 @@ Z1: SG/TW/MO/CN, Z2: JP/VN, Z3: TH/PH, Z4: AU/IN, Z5: CA/US, Z6: ES/IT/GB/FR, Z7
 | open.er-api.com | `/v6/latest/KRW`                        | Exchange rates (KRW base) |
 | Open-Meteo      | `api.open-meteo.com/v1/forecast`        | Port/airport weather      |
 | Supabase        | `VITE_SUPABASE_URL`                     | Authentication            |
+| Slack Webhook   | `/api/v1/notifications/slack`           | Member quote save alerts  |
 
 ## i18n System
 
@@ -201,24 +228,6 @@ Z1: SG/TW/MO/CN, Z2: JP/VN, Z3: TH/PH, Z4: AU/IN, Z5: CA/US, Z6: ES/IT/GB/FR, Z7
 - **Hook**: `useLanguage()` from `LanguageContext` returns `{ language, setLanguage, t }`
 - **Persistence**: localStorage key `'language'`
 - **Usage**: `t('key.name')` in all components
-- **Widget keys**: `widget.exchange.*`, `widget.weather.*`, `widget.notice.*`, `widget.manager.*`, `widget.common.*`
-
-## Key Types
-
-```typescript
-// src/types.ts
-enum Incoterm { EXW, FOB, CNF, CIF, DAP, DDP }
-enum PackingType { NONE, WOODEN_BOX, SKID, VACUUM }
-type DomesticRegionCode = 'A' | 'B' | ... | 'T'
-interface QuoteInput { originCountry, destinationCountry, destinationZip, incoterm, packingType, items, marginUSD, dutyTaxEstimate, exchangeRate, fscPercent, overseasCarrier?, manualPackingCost?, manualSurgeCost? }
-interface QuoteResult { totalQuoteAmount, totalCostAmount, profitMargin, billableWeight, appliedZone, carrier, warnings[], breakdown: CostBreakdown }
-
-// src/types/dashboard.ts
-interface ExchangeRate { currency, code, flag, rate, previousClose, change, changePercent, trend }
-interface PortWeather { port, code, latitude, longitude, temperature, weatherCode, windSpeed, condition, status, type }
-interface LogisticsNews { title, link, pubDate, source }
-interface AccountManager { name, nameKo, role, department, phone, mobile, email, available, workingHours }
-```
 
 ## API Endpoints
 
@@ -227,24 +236,31 @@ POST   /api/v1/quotes/calculate  # Stateless calculation
 POST   /api/v1/quotes            # Calculate + save
 GET    /api/v1/quotes            # List (page, per_page, q, destination_country, date_from, date_to, status)
 GET    /api/v1/quotes/:id        # Detail
+PATCH  /api/v1/quotes/:id        # Update status/notes/customer
 DELETE /api/v1/quotes/:id        # Delete
 GET    /api/v1/quotes/export     # CSV download
 
-# Authentication & Auth
+# Authentication
 POST   /api/v1/auth/login        # JWT Login
 POST   /api/v1/auth/register     # Account creation
-PUT    /api/v1/auth/password     # Change Password (Requires Authenticated Token)
+PUT    /api/v1/auth/password     # Change Password
 
-# Core Admin Configuration
+# Admin Configuration
 GET    /api/v1/fsc/rates         # View Fuel Surcharges (DHL/UPS)
 POST   /api/v1/fsc/update        # Update global FSC% rates
+GET    /api/v1/margin_rules          # List all rules
+POST   /api/v1/margin_rules          # Create rule
+PUT    /api/v1/margin_rules/:id      # Update rule
+DELETE /api/v1/margin_rules/:id      # Soft delete rule
+GET    /api/v1/margin_rules/resolve  # Resolve margin
+CRUD   /api/v1/surcharges            # Surcharge management
+CRUD   /api/v1/addon_rates           # Add-on rate management
+CRUD   /api/v1/customers             # Customer management
+GET    /api/v1/users                 # User list/management
+GET    /api/v1/audit_logs            # Audit log viewer
 
-# Margin Rules (Admin CRUD + Authenticated Resolve)
-GET    /api/v1/margin_rules          # List all rules (admin)
-POST   /api/v1/margin_rules          # Create rule (admin)
-PUT    /api/v1/margin_rules/:id      # Update rule (admin)
-DELETE /api/v1/margin_rules/:id      # Soft delete rule (admin)
-GET    /api/v1/margin_rules/resolve  # Resolve margin (authenticated)
+# Notifications
+POST   /api/v1/notifications/slack   # Slack webhook proxy
 ```
 
 ## Configuration
@@ -254,26 +270,29 @@ GET    /api/v1/margin_rules/resolve  # Resolve margin (authenticated)
 - **Environment**: `VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 - **Tariff sync**: Frontend tariff files in `src/config/` must stay in sync with backend `lib/constants/`
 - **Market defaults**: `DEFAULT_EXCHANGE_RATE=1400`, `DEFAULT_FSC_PERCENT=30` in `src/config/rates.ts`
+- **Error tracking**: Sentry (`@sentry/browser`) integrated across all catch blocks
 
 ## Testing
 
 - **Frontend**: Vitest + @testing-library/react, jsdom environment, setup in `src/test/setup.ts`
   - Tests use `vitest/globals` (no imports needed for `describe`, `it`, `expect`)
-  - 25 test files, 208 tests:
-    - calculationService (34), ExchangeRateWidget (10), exchangeRateApi (10)
-    - SaveQuoteButton (9), NoticeWidget (9), AccountManagerWidget (11)
-    - WeatherWidget (8), weatherApi (7), weatherCodes (8)
-    - QuoteHistoryTable (7), QuoteSearchBar (7), QuotePagination (6)
-    - CustomerDashboard (4), quoteApi (4), noticeApi (3), pdfService (1)
-    - marginRuleApi (6), TargetMarginRulesWidget (9)
+  - 28 test files, 1166 tests
 - **Backend**: RSpec + FactoryBot + Shoulda Matchers, factories in `spec/factories/`
-  - margin_rule model spec, margin_rule_resolver service spec, margin_rules request spec
 
 ## Deployment
 
 - **Frontend**: Vercel (production: `smart-quote-main.vercel.app`)
 - **Backend**: Render.com (Docker, Singapore region, PostgreSQL)
 - **Config**: `render.yaml` for backend infrastructure
+
+## User Guides
+
+When adding, modifying, or removing user-facing features, **always update the corresponding User Guide**:
+
+- **Admin Guide**: `docs/USER_GUIDE_ADMIN.md` — Admin-only features (margin rules, FSC, surcharges, user/customer management, audit log)
+- **Member Guide**: `docs/USER_GUIDE_MEMBER.md` — Member features (dashboard, quote calculator, history, PDF)
+
+Update the "Last Updated" date and version in the guide header when making changes.
 
 ## Commit Messages
 
