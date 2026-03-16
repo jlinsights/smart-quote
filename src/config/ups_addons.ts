@@ -97,6 +97,38 @@ export const calculateUpsRemoteAreaFee = (billableWeight: number): number =>
 export const calculateUpsExtendedAreaFee = (billableWeight: number): number =>
   Math.max(34_200, Math.ceil(billableWeight) * 640);
 
+/**
+ * UPS Surge Fee (급증 수수료) - 2026-03-15부터 별도 공지 시까지
+ * Source: UPS Korea 급증 수수료 공지 (2026-03-14 업데이트)
+ * 한국 출발 수출 화물 → Middle East / Israel 도착지
+ * Billable weight(kg) 기준, FSC 적용됨, 중복 적용 가능
+ */
+export const UPS_SURGE_FEE_COUNTRIES = {
+  /** Israel: KRW 4,722/kg */
+  ISRAEL: ['IL'] as string[],
+  /** Middle East: KRW 2,004/kg */
+  MIDDLE_EAST: [
+    'AF', 'BH', 'BD', 'EG', 'IQ', 'JO', 'KW', 'LB',
+    'NP', 'OM', 'PK', 'QA', 'SA', 'LK', 'AE',
+  ] as string[],
+};
+
+export const UPS_SURGE_FEE_RATES: Record<string, number> = {
+  ISRAEL: 4_722,      // KRW per kg
+  MIDDLE_EAST: 2_004, // KRW per kg
+};
+
+/** 목적지 국가에 해당하는 UPS Surge Fee (KRW/kg) 반환. 해당 없으면 null */
+export const getUpsSurgeFeePerKg = (destinationCountry: string): { rate: number; region: string } | null => {
+  if (UPS_SURGE_FEE_COUNTRIES.ISRAEL.includes(destinationCountry)) {
+    return { rate: UPS_SURGE_FEE_RATES.ISRAEL, region: 'Israel' };
+  }
+  if (UPS_SURGE_FEE_COUNTRIES.MIDDLE_EAST.includes(destinationCountry)) {
+    return { rate: UPS_SURGE_FEE_RATES.MIDDLE_EAST, region: 'Middle East' };
+  }
+  return null;
+};
+
 /** UPS AHS 감지: weight>25kg OR longest>122cm OR 2nd>76cm OR wood/skid packing */
 export const isUpsAdditionalHandling = (
   l: number, w: number, h: number, weight: number, packingType: PackingType

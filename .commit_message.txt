@@ -1,1 +1,1 @@
-🎨 feat: User Guide 시각 자료 추가 (플로우 다이어그램, 레이아웃 모형, 인코텀즈 차트)
+🔧 fix: UPS Zone 매핑 수정 (BH/EG/SA/PK/ZA/KW/QA → Z8, IL/JO/LB → Z9) + Surge Fee 자동 적용

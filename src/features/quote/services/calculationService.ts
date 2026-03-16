@@ -33,6 +33,7 @@ import {
   isUpsAdditionalHandling,
   calculateUpsRemoteAreaFee,
   calculateUpsExtendedAreaFee,
+  getUpsSurgeFeePerKg,
 } from "@/config/ups_addons";
 
 // --- Types for Internal Calculations ---
@@ -84,11 +85,12 @@ export const determineUpsZone = (country: string): { rateKey: string; label: str
    if (['DK', 'NO', 'SE', 'FI', 'DE', 'NL', 'BE', 'IE', 'CH', 'AT', 'PT', 'CZ', 'PL', 'HU', 'RO', 'BG'].includes(country))
      return { rateKey: 'Z7', label: 'EEU/DK/NO' };
 
-   // Z8: AR, BR, CL, CO, AE, TR
-   if (['AR', 'BR', 'CL', 'CO', 'AE', 'TR'].includes(country)) return { rateKey: 'Z8', label: 'S.Am/AE/TR' };
+   // Z8: S.America, Middle East, Africa (per UPS 2026 Service Guide)
+   if (['AR', 'BR', 'CL', 'CO', 'AE', 'TR', 'ZA', 'EG', 'BH', 'SA', 'PK', 'KW', 'QA'].includes(country))
+     return { rateKey: 'Z8', label: 'S.Am/ME/Africa' };
 
-   // Z9: ZA, EG, BH, IL, JO, LB, SA, PK
-   if (['ZA', 'EG', 'BH', 'IL', 'JO', 'LB', 'SA', 'PK'].includes(country)) return { rateKey: 'Z9', label: 'Africa/ME/PK' };
+   // Z9: Israel, Jordan, Lebanon
+   if (['IL', 'JO', 'LB'].includes(country)) return { rateKey: 'Z9', label: 'IL/JO/LB' };
 
    // Z10: HK (+ default)
    if (['HK'].includes(country)) return { rateKey: 'Z10', label: 'HK' };
@@ -543,7 +545,22 @@ const calculateUpsAddOnCosts = (
     }
   }
 
-  // 3. User-selected add-ons
+  // 3. Auto-detected: UPS Surge Fee (급증 수수료) — Middle East / Israel destinations
+  const surgeFeeInfo = getUpsSurgeFeePerKg(input.destinationCountry);
+  if (surgeFeeInfo) {
+    const surgeAmount = Math.ceil(billableWeight) * surgeFeeInfo.rate;
+    const surgeFsc = surgeAmount * fscRate;
+    details.push({
+      code: "SGF",
+      nameKo: `급증수수료 (${surgeFeeInfo.region})`,
+      nameEn: `Surge Fee (${surgeFeeInfo.region})`,
+      amount: surgeAmount,
+      fscAmount: surgeFsc,
+    });
+    total += surgeAmount + surgeFsc;
+  }
+
+  // 4. User-selected add-ons
   const selectedCodes = input.upsAddOns || [];
   selectedCodes.forEach((code) => {
     const addon = findRate(code);

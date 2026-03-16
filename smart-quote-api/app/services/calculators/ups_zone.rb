@@ -32,11 +32,11 @@ module Calculators
         return result('Z7', 'EEU/DK/NO')
       end
 
-      # Zone 8: 남미, AE, TR
-      return result('Z8', 'S.Am/AE/TR') if %w[AR BR CL CO AE TR].include?(@country)
+      # Zone 8: 남미, 중동, 아프리카 (UPS 2026 Service Guide 기준)
+      return result('Z8', 'S.Am/ME/Africa') if %w[AR BR CL CO AE TR ZA EG BH SA PK KW QA].include?(@country)
 
-      # Zone 9: 아프리카, 중동, 파키스탄
-      return result('Z9', 'Africa/ME/PK') if %w[ZA EG BH IL JO LB SA PK].include?(@country)
+      # Zone 9: 이스라엘, 요르단, 레바논
+      return result('Z9', 'IL/JO/LB') if %w[IL JO LB].include?(@country)
 
       # Zone 10: 홍콩
       return result('Z10', 'HK') if %w[HK].include?(@country)
