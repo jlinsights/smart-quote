@@ -1,1 +1,1 @@
-🔧 fix: UPS Zone 매핑 수정 (BH/EG/SA/PK/ZA/KW/QA → Z8, IL/JO/LB → Z9) + Surge Fee 자동 적용
+✨ feat: Special Packing 항목별 가격 상세 및 안내 패널 추가
