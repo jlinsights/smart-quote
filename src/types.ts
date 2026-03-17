@@ -48,6 +48,9 @@ export enum Incoterm {
     dhlAddOns?: string[]; // Selected DHL add-on codes (e.g. ['SAT', 'RES'])
     dhlDeclaredValue?: number; // Declared value for insurance calculation (KRW)
 
+    // Quote validity
+    validityDays?: number; // Default quote validity in days (default 7)
+
     // UPS Add-on Services
     upsAddOns?: string[]; // Selected UPS add-on codes (e.g. ['RES', 'RMT'])
 

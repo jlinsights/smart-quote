@@ -89,8 +89,8 @@ export const QuoteHistoryTable: React.FC<Props> = ({
                     {expiry && (
                       <span className={`flex items-center gap-0.5 text-[10px] font-medium ${
                         expiry.expired ? 'text-red-500 dark:text-red-400' :
-                        expiry.daysLeft <= 2 ? 'text-amber-500 dark:text-amber-400' :
-                        'text-gray-400'
+                        expiry.daysLeft <= 3 ? 'text-amber-500 dark:text-amber-400' :
+                        'text-green-500 dark:text-green-400'
                       }`}>
                         <Clock className="w-2.5 h-2.5" />
                         {expiry.expired ? 'Expired' : `${expiry.daysLeft}d left`}
@@ -191,8 +191,8 @@ export const QuoteHistoryTable: React.FC<Props> = ({
                     return (
                       <div className={`flex items-center gap-0.5 mt-0.5 text-[10px] font-medium ${
                         expired ? 'text-red-500 dark:text-red-400' :
-                        daysLeft <= 2 ? 'text-amber-500 dark:text-amber-400' :
-                        'text-gray-400 dark:text-gray-400'
+                        daysLeft <= 3 ? 'text-amber-500 dark:text-amber-400' :
+                        'text-green-500 dark:text-green-400'
                       }`}>
                         <Clock className="w-2.5 h-2.5" />
                         {expired ? 'Expired' : `${daysLeft}d left`}
