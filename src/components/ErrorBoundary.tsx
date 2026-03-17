@@ -1,4 +1,5 @@
 import React, { Component, type ReactNode } from 'react';
+import { translations, type Language } from '@/i18n/translations';
 
 interface Props {
   children: ReactNode;
@@ -9,6 +10,14 @@ interface State {
   hasError: boolean;
   error: Error | null;
 }
+
+/** Resolve the user's language from localStorage (safe for class components). */
+const getErrorBoundaryTranslation = (key: string): string => {
+  const lang = (typeof localStorage !== 'undefined'
+    ? (localStorage.getItem('language') as Language)
+    : null) ?? 'ko';
+  return translations[lang]?.[key] ?? translations.en[key] ?? key;
+};
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -41,7 +50,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </svg>
             </div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              Something went wrong
+              {getErrorBoundaryTranslation('error.somethingWrong')}
             </h2>
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
               {this.state.error?.message || 'An unexpected error occurred.'}
@@ -51,13 +60,13 @@ export class ErrorBoundary extends Component<Props, State> {
                 onClick={this.handleRetry}
                 className="px-6 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium"
               >
-                Try Again
+                {getErrorBoundaryTranslation('error.tryAgain')}
               </button>
               <button
                 onClick={() => window.location.reload()}
                 className="px-6 py-2.5 bg-jways-500 text-white rounded-lg hover:bg-jways-600 transition-colors font-medium"
               >
-                Reload Page
+                {getErrorBoundaryTranslation('error.reloadPage')}
               </button>
             </div>
           </div>

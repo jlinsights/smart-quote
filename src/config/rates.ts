@@ -11,6 +11,13 @@ export const WAR_RISK_SURCHARGE_RATE = 0; // DEC-006: War risk surcharge removed
 export const PACKING_MATERIAL_BASE_COST = 15000; // per m2
 export const PACKING_LABOR_UNIT_COST = 50000; // per item
 
+// Transit Time Constants
+export const TRANSIT_TIMES = {
+  UPS: '2-4 Business Days',
+  DHL: '3-7 Business Days (DHL)',
+  EMAX: '5-10 Business Days (E-MAX)',
+} as const;
+
 // Market Defaults
 export const DEFAULT_EXCHANGE_RATE = 1400;
 export const DEFAULT_FSC_PERCENT = 38.5; // UPS default, verified 2026-03-15

@@ -419,8 +419,7 @@ export const generateComparisonPDF = async (
     columnStyles: {
       0: { halign: 'left', fontStyle: 'bold', cellWidth: 55 },
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    didParseCell: (data: { row: { index: number }; column: { index: number }; cell: { styles: any } }) => {
+    didParseCell: (data: import('jspdf-autotable').CellHookData) => {
       // Highlight cheapest carrier in the quote row
       if (data.row.index === 6 && data.column.index > 0) {
         const carrierIdx = data.column.index - 1;

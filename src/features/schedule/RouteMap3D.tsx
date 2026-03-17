@@ -210,13 +210,19 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
     container.appendChild(map3d);
     mapRef.current = map3d;
 
-    // Wait for the custom element to render, then add overlays
-    const timer = setTimeout(() => {
-      addMarkersAndRoutes(map3d);
-    }, 1500);
+    // Wait for the custom element to be connected and rendered before adding overlays
+    let rafId: number;
+    const waitForMap = () => {
+      if (map3d.isConnected && map3d.offsetHeight > 0) {
+        addMarkersAndRoutes(map3d);
+      } else {
+        rafId = requestAnimationFrame(waitForMap);
+      }
+    };
+    rafId = requestAnimationFrame(waitForMap);
 
     return () => {
-      clearTimeout(timer);
+      cancelAnimationFrame(rafId);
       // Clean up: wipe all children from container (including the map)
       container.innerHTML = '';
       mapRef.current = null;

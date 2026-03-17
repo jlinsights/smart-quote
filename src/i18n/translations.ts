@@ -271,6 +271,29 @@ export const translations: Record<Language, Record<string, string>> = {
     'schedule.routeMap.pax': '여객',
     'schedule.routeMap.loading': '3D 지도 로딩 중...',
     'schedule.routeMap.error': '3D 지도 로딩 실패',
+    'schedule.noFlightsMatch': '현재 필터에 일치하는 항공편이 없습니다.',
+    'schedule.remarksLabel': '비고:',
+    'schedule.flightsShown': '편 표시',
+    'schedule.timezoneNote': '모든 시각은 현지 기준 (출발: KST, 도착: 목적지 시간대)',
+    'schedule.active': '운항 중',
+    'schedule.airline': '항공사',
+    'schedule.type': '유형',
+    'schedule.status': '상태',
+    'schedule.filters': '필터',
+    'schedule.form.logo': '로고 (이모지)',
+    'schedule.form.country': '국가',
+    'schedule.form.hubCity': '허브 도시',
+    'schedule.form.gssaGroup': 'GSSA 그룹',
+    'schedule.form.contractType': '계약 유형',
+
+    // Error Boundary
+    'error.somethingWrong': '문제가 발생했습니다',
+    'error.tryAgain': '다시 시도',
+    'error.reloadPage': '페이지 새로고침',
+
+    // Reset Quote
+    'calc.resetTitle': '견적 초기화',
+    'calc.resetMessage': '모든 입력값을 기본값으로 초기화하시겠습니까?',
   },
   en: {
     // Navigation / General
@@ -551,6 +574,29 @@ export const translations: Record<Language, Record<string, string>> = {
     'schedule.routeMap.pax': 'Passenger',
     'schedule.routeMap.loading': 'Loading 3D Map...',
     'schedule.routeMap.error': 'Failed to load 3D map',
+    'schedule.noFlightsMatch': 'No flights match the current filters.',
+    'schedule.remarksLabel': 'Remarks:',
+    'schedule.flightsShown': 'flights shown',
+    'schedule.timezoneNote': 'All times local (DEP: KST, ARR: destination timezone)',
+    'schedule.active': 'Active',
+    'schedule.airline': 'Airline',
+    'schedule.type': 'Type',
+    'schedule.status': 'Status',
+    'schedule.filters': 'Filters',
+    'schedule.form.logo': 'Logo (emoji)',
+    'schedule.form.country': 'Country',
+    'schedule.form.hubCity': 'Hub City',
+    'schedule.form.gssaGroup': 'GSSA Group',
+    'schedule.form.contractType': 'Contract Type',
+
+    // Error Boundary
+    'error.somethingWrong': 'Something went wrong',
+    'error.tryAgain': 'Try Again',
+    'error.reloadPage': 'Reload Page',
+
+    // Reset Quote
+    'calc.resetTitle': 'Reset Quote',
+    'calc.resetMessage': 'Are you sure you want to reset all inputs to defaults?',
   },
   cn: {
     // Navigation / General
@@ -808,6 +854,29 @@ export const translations: Record<Language, Record<string, string>> = {
     'schedule.routeMap.pax': '旅客',
     'schedule.routeMap.loading': '加载3D地图...',
     'schedule.routeMap.error': '无法加载3D地图',
+    'schedule.noFlightsMatch': '当前筛选条件下没有航班。',
+    'schedule.remarksLabel': '备注:',
+    'schedule.flightsShown': '个航班显示',
+    'schedule.timezoneNote': '所有时间为当地时间 (出发: KST, 到达: 目的地时区)',
+    'schedule.active': '运营中',
+    'schedule.airline': '航空公司',
+    'schedule.type': '类型',
+    'schedule.status': '状态',
+    'schedule.filters': '筛选',
+    'schedule.form.logo': '标志 (emoji)',
+    'schedule.form.country': '国家',
+    'schedule.form.hubCity': '枢纽城市',
+    'schedule.form.gssaGroup': 'GSSA 集团',
+    'schedule.form.contractType': '合同类型',
+
+    // Error Boundary
+    'error.somethingWrong': '出现错误',
+    'error.tryAgain': '重试',
+    'error.reloadPage': '刷新页面',
+
+    // Reset Quote
+    'calc.resetTitle': '重置报价',
+    'calc.resetMessage': '确定要将所有输入重置为默认值吗？',
   },
   ja: {
     // Navigation / General
@@ -1065,5 +1134,28 @@ export const translations: Record<Language, Record<string, string>> = {
     'schedule.routeMap.pax': '旅客',
     'schedule.routeMap.loading': '3Dマップを読み込み中...',
     'schedule.routeMap.error': '3Dマップの読み込みに失敗',
+    'schedule.noFlightsMatch': '現在のフィルターに一致するフライトがありません。',
+    'schedule.remarksLabel': '備考:',
+    'schedule.flightsShown': '便表示',
+    'schedule.timezoneNote': '全て現地時間 (出発: KST, 到着: 目的地タイムゾーン)',
+    'schedule.active': '運航中',
+    'schedule.airline': '航空会社',
+    'schedule.type': 'タイプ',
+    'schedule.status': 'ステータス',
+    'schedule.filters': 'フィルター',
+    'schedule.form.logo': 'ロゴ (絵文字)',
+    'schedule.form.country': '国',
+    'schedule.form.hubCity': 'ハブ都市',
+    'schedule.form.gssaGroup': 'GSSA グループ',
+    'schedule.form.contractType': '契約タイプ',
+
+    // Error Boundary
+    'error.somethingWrong': 'エラーが発生しました',
+    'error.tryAgain': '再試行',
+    'error.reloadPage': 'ページを再読み込み',
+
+    // Reset Quote
+    'calc.resetTitle': '見積リセット',
+    'calc.resetMessage': 'すべての入力をデフォルトにリセットしますか？',
   },
 };

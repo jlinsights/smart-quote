@@ -10,7 +10,8 @@ import {
   DEFAULT_EXCHANGE_RATE,
   PACKING_MATERIAL_BASE_COST,
   PACKING_LABOR_UNIT_COST,
-  WAR_RISK_SURCHARGE_RATE
+  WAR_RISK_SURCHARGE_RATE,
+  TRANSIT_TIMES
 } from "@/config/rates";
 import { UPS_EXACT_RATES, UPS_RANGE_RATES } from "@/config/ups_tariff";
 import { DHL_EXACT_RATES, DHL_RANGE_RATES } from "@/config/dhl_tariff";
@@ -149,7 +150,7 @@ export const calculateUpsCosts = (
       intlFsc,
       intlWarRisk,
       appliedZone: zoneInfo.label,
-      transitTime: '2-4 Business Days'
+      transitTime: TRANSIT_TIMES.UPS
     };
 };
 
@@ -172,7 +173,7 @@ export const calculateDhlCosts = (
     intlFsc,
     intlWarRisk,
     appliedZone: zoneInfo.label,
-    transitTime: '3-7 Business Days (DHL)',
+    transitTime: TRANSIT_TIMES.DHL,
   };
 };
 
@@ -191,7 +192,7 @@ export const calculateEmaxCosts = (
     intlFsc: 0,
     intlWarRisk: 0,
     appliedZone: `E-MAX ${countryKey}`,
-    transitTime: '5-10 Business Days (E-MAX)',
+    transitTime: TRANSIT_TIMES.EMAX,
   };
 };
 

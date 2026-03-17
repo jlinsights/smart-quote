@@ -53,7 +53,7 @@ export const AirlineFormModal: React.FC<AirlineFormModalProps> = ({ onSave, onCa
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Logo (emoji)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('schedule.form.logo')}</label>
               <input
                 type="text"
                 value={form.logo}
@@ -88,7 +88,7 @@ export const AirlineFormModal: React.FC<AirlineFormModalProps> = ({ onSave, onCa
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('schedule.form.country')}</label>
               <input
                 type="text"
                 value={form.country}
@@ -97,7 +97,7 @@ export const AirlineFormModal: React.FC<AirlineFormModalProps> = ({ onSave, onCa
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hub City</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('schedule.form.hubCity')}</label>
               <input
                 type="text"
                 value={form.hubCity}
@@ -108,7 +108,7 @@ export const AirlineFormModal: React.FC<AirlineFormModalProps> = ({ onSave, onCa
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GSSA Group</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('schedule.form.gssaGroup')}</label>
             <div className="flex gap-2">
               {(['goodman', 'gac'] as const).map((g) => (
                 <button
@@ -127,7 +127,7 @@ export const AirlineFormModal: React.FC<AirlineFormModalProps> = ({ onSave, onCa
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contract Type</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('schedule.form.contractType')}</label>
             <input
               type="text"
               value={form.contractType}

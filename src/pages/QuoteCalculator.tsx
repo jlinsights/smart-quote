@@ -278,9 +278,9 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
       <ConfirmDialog
         open={showResetConfirm}
-        title="Reset Quote"
-        message="Are you sure you want to reset all inputs to defaults?"
-        confirmLabel="Reset"
+        title={t('calc.resetTitle')}
+        message={t('calc.resetMessage')}
+        confirmLabel={t('calc.resetQuote')}
         variant="warning"
         onConfirm={() => { setShowResetConfirm(false); setInput(INITIAL_INPUT); }}
         onCancel={() => setShowResetConfirm(false)}
