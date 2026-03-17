@@ -71,6 +71,15 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     contractType: 'GSSA — Currently Suspended',
   },
   {
+    code: '2C',
+    name: 'CMA CGM Air Cargo',
+    nameKo: 'CMA CGM 항공화물',
+    logo: '🇫🇷',
+    country: 'France',
+    hubCity: 'Paris (CDG)',
+    contractType: 'GSSA — Cargo Sales Agent (via Globe Air Cargo / ECS Group)',
+  },
+  {
     code: 'AM',
     name: 'Aero Mexico',
     nameKo: '아에로멕시코',
@@ -270,6 +279,52 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     maxCargoKg: 20000,
     remarks: 'Currently SUSPENDED (sanctions)',
   },
+  // CMA CGM Air Cargo (2C) — operated as 5Y, AWB prefix 003
+  {
+    airline: 'CMA CGM Air Cargo',
+    airlineCode: '2C',
+    flightNo: '5Y 8527',
+    aircraftType: 'B777-200F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'HAN',
+    departureDays: [2], // D3 = Tuesday
+    departureTime: '21:45',
+    arrivalTime: '00:55',
+    flightDuration: '4h 10m',
+    maxCargoKg: 100000,
+    remarks: 'AACT T1 · Cut-off 4h prior (1445L) · AWB: 003',
+  },
+  {
+    airline: 'CMA CGM Air Cargo',
+    airlineCode: '2C',
+    flightNo: '5Y 8529',
+    aircraftType: 'B777-200F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'HAN',
+    departureDays: [4], // D5 = Thursday
+    departureTime: '18:45',
+    arrivalTime: '21:55',
+    flightDuration: '4h 10m',
+    maxCargoKg: 100000,
+    remarks: 'AACT T1 · Cut-off 4h prior (1445L) · AWB: 003',
+  },
+  {
+    airline: 'CMA CGM Air Cargo',
+    airlineCode: '2C',
+    flightNo: '5Y 8531',
+    aircraftType: 'B777-200F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'HAN',
+    departureDays: [6], // D7 = Saturday
+    departureTime: '18:45',
+    arrivalTime: '21:55',
+    flightDuration: '4h 10m',
+    maxCargoKg: 100000,
+    remarks: 'AACT T1 · Cut-off 4h prior (1445L) · AWB: 003',
+  },
   // Aero Mexico (AM)
   {
     airline: 'Aero Mexico',
@@ -365,6 +420,12 @@ export const AIRLINE_COLORS: Record<string, { bg: string; text: string; border: 
     text: 'text-red-700 dark:text-red-300',
     border: 'border-red-200 dark:border-red-800',
     badge: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
+  },
+  '2C': {
+    bg: 'bg-rose-50 dark:bg-rose-900/20',
+    text: 'text-rose-700 dark:text-rose-300',
+    border: 'border-rose-200 dark:border-rose-800',
+    badge: 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300',
   },
   AM: {
     bg: 'bg-emerald-50 dark:bg-emerald-900/20',

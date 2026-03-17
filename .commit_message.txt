@@ -1,1 +1,1 @@
-✈️ feat: Aero Mexico(AM) + Condor Airlines(DE) 항공사 2개 추가 (총 7개, 16편)
+✈️ feat: CMA CGM Air Cargo(2C) 추가 — ICN→HAN B777F 화물기 3편 (총 8개 항공사, 19편)
