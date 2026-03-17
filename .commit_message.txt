@@ -1,1 +1,1 @@
-✈️ feat: Admin 전용 Flight Schedule 페이지 — GSSA 항공사 5개 ICN발 스케줄
+✈️ feat: Aero Mexico(AM) + Condor Airlines(DE) 항공사 2개 추가 (총 7개, 16편)
