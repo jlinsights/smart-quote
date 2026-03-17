@@ -1,59 +1,488 @@
-import React, { useState, useMemo } from 'react';
-import { Plane, Clock, MapPin, Calendar, Weight, AlertTriangle, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useMemo, useCallback } from 'react';
+import {
+  Plane, Clock, MapPin, Calendar, Weight, AlertTriangle,
+  Filter, ChevronDown, ChevronUp, Pencil, Trash2, Plus,
+  RotateCcw, Settings, X,
+} from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Header } from '@/components/layout/Header';
 import {
-  FLIGHT_SCHEDULES,
-  AIRLINE_INFO,
   AIRLINE_COLORS,
   DAY_LABELS,
   DAY_LABELS_KO,
   type FlightSchedule,
+  type AirlineInfo,
 } from '@/config/flight-schedules';
+import { useFlightSchedules } from '@/features/schedule/useFlightSchedules';
 
 type FlightTypeFilter = 'all' | 'cargo' | 'passenger';
 
+const EMPTY_FORM: Omit<FlightSchedule, 'id'> = {
+  airline: '',
+  airlineCode: '',
+  flightNo: '',
+  aircraftType: '',
+  flightType: 'cargo',
+  origin: 'ICN',
+  destination: '',
+  departureDays: [],
+  departureTime: '',
+  arrivalTime: '',
+  flightDuration: '',
+  maxCargoKg: 0,
+  remarks: '',
+};
+
+const EMPTY_AIRLINE: AirlineInfo = {
+  code: '',
+  name: '',
+  nameKo: '',
+  logo: '',
+  country: '',
+  hubCity: '',
+  contractType: '',
+};
+
+/* ------------------------------------------------------------------ */
+/*  FlightFormModal                                                    */
+/* ------------------------------------------------------------------ */
+interface FlightFormModalProps {
+  schedule: Omit<FlightSchedule, 'id'>;
+  airlines: AirlineInfo[];
+  title: string;
+  onSave: (data: Omit<FlightSchedule, 'id'>) => void;
+  onCancel: () => void;
+  t: (key: string) => string;
+  language: string;
+}
+
+const FlightFormModal: React.FC<FlightFormModalProps> = ({
+  schedule, airlines, title, onSave, onCancel, t, language,
+}) => {
+  const [form, setForm] = useState<Omit<FlightSchedule, 'id'>>(schedule);
+
+  const handleDayToggle = (day: number) => {
+    setForm((prev) => ({
+      ...prev,
+      departureDays: prev.departureDays.includes(day)
+        ? prev.departureDays.filter((d) => d !== day)
+        : [...prev.departureDays, day].sort((a, b) => a - b),
+    }));
+  };
+
+  const handleAirlineChange = (code: string) => {
+    const info = airlines.find((a) => a.code === code);
+    setForm((prev) => ({
+      ...prev,
+      airlineCode: code,
+      airline: info ? info.name : prev.airline,
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(form);
+  };
+
+  const dayLabels = language === 'ko' ? DAY_LABELS_KO : DAY_LABELS;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h2>
+          <button onClick={onCancel} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          {/* Airline */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('schedule.airlineCode')}
+            </label>
+            <select
+              value={form.airlineCode}
+              onChange={(e) => handleAirlineChange(e.target.value)}
+              required
+              className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+            >
+              <option value="">--</option>
+              {airlines.map((a) => (
+                <option key={a.code} value={a.code}>
+                  {a.code} — {language === 'ko' ? a.nameKo : a.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          {/* Flight No */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('schedule.flightNo')}
+            </label>
+            <input
+              type="text"
+              value={form.flightNo}
+              onChange={(e) => setForm((p) => ({ ...p, flightNo: e.target.value }))}
+              required
+              placeholder="e.g. WS 7701"
+              className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+            />
+          </div>
+          {/* Aircraft Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('schedule.aircraftType')}
+            </label>
+            <input
+              type="text"
+              value={form.aircraftType}
+              onChange={(e) => setForm((p) => ({ ...p, aircraftType: e.target.value }))}
+              required
+              placeholder="e.g. B737-800BCF"
+              className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+            />
+          </div>
+          {/* Flight Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('schedule.flightType')}
+            </label>
+            <div className="flex gap-3">
+              {(['cargo', 'passenger', 'combi'] as const).map((ft) => (
+                <label key={ft} className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="flightType"
+                    value={ft}
+                    checked={form.flightType === ft}
+                    onChange={() => setForm((p) => ({ ...p, flightType: ft }))}
+                    className="accent-jways-500"
+                  />
+                  {ft === 'cargo' ? t('schedule.cargo') : ft === 'passenger' ? t('schedule.passenger') : t('schedule.combi')}
+                </label>
+              ))}
+            </div>
+          </div>
+          {/* Origin / Destination */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t('schedule.origin')}
+              </label>
+              <input
+                type="text"
+                value={form.origin}
+                onChange={(e) => setForm((p) => ({ ...p, origin: e.target.value.toUpperCase() }))}
+                required
+                maxLength={3}
+                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t('schedule.destination')}
+              </label>
+              <input
+                type="text"
+                value={form.destination}
+                onChange={(e) => setForm((p) => ({ ...p, destination: e.target.value.toUpperCase() }))}
+                required
+                maxLength={3}
+                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+              />
+            </div>
+          </div>
+          {/* Departure Days */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('schedule.departureDays')}
+            </label>
+            <div className="flex gap-1.5">
+              {DAY_LABELS.map((label, i) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => handleDayToggle(i)}
+                  className={`w-9 h-9 text-xs font-semibold rounded-full transition-colors ${
+                    form.departureDays.includes(i)
+                      ? 'bg-jways-500 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  {dayLabels[i]}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Times */}
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t('schedule.departureTime')}
+              </label>
+              <input
+                type="time"
+                value={form.departureTime}
+                onChange={(e) => setForm((p) => ({ ...p, departureTime: e.target.value }))}
+                required
+                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t('schedule.arrivalTime')}
+              </label>
+              <input
+                type="time"
+                value={form.arrivalTime}
+                onChange={(e) => setForm((p) => ({ ...p, arrivalTime: e.target.value }))}
+                required
+                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t('schedule.flightDuration')}
+              </label>
+              <input
+                type="text"
+                value={form.flightDuration}
+                onChange={(e) => setForm((p) => ({ ...p, flightDuration: e.target.value }))}
+                required
+                placeholder="e.g. 10h 30m"
+                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+              />
+            </div>
+          </div>
+          {/* Max Cargo */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('schedule.maxCargoKg')}
+            </label>
+            <input
+              type="number"
+              value={form.maxCargoKg || ''}
+              onChange={(e) => setForm((p) => ({ ...p, maxCargoKg: parseInt(e.target.value) || 0 }))}
+              required
+              min={0}
+              className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+            />
+          </div>
+          {/* Remarks */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('schedule.remarks')}
+            </label>
+            <input
+              type="text"
+              value={form.remarks || ''}
+              onChange={(e) => setForm((p) => ({ ...p, remarks: e.target.value }))}
+              className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+            />
+          </div>
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            >
+              {t('schedule.cancel')}
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 text-sm font-medium rounded-lg bg-jways-500 text-white hover:bg-jways-600 transition-colors shadow-sm"
+            >
+              {t('schedule.save')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  AirlineFormModal                                                   */
+/* ------------------------------------------------------------------ */
+interface AirlineFormModalProps {
+  onSave: (airline: AirlineInfo) => void;
+  onCancel: () => void;
+  t: (key: string) => string;
+}
+
+const AirlineFormModal: React.FC<AirlineFormModalProps> = ({ onSave, onCancel, t }) => {
+  const [form, setForm] = useState<AirlineInfo>(EMPTY_AIRLINE);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(form);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('schedule.addAirline')}</h2>
+          <button onClick={onCancel} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t('schedule.airlineCode')}
+              </label>
+              <input
+                type="text"
+                value={form.code}
+                onChange={(e) => setForm((p) => ({ ...p, code: e.target.value.toUpperCase() }))}
+                required
+                maxLength={3}
+                placeholder="e.g. WS"
+                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Logo (emoji)</label>
+              <input
+                type="text"
+                value={form.logo}
+                onChange={(e) => setForm((p) => ({ ...p, logo: e.target.value }))}
+                placeholder="e.g. flag emoji"
+                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('schedule.airlineName')} (EN)
+            </label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+              required
+              className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('schedule.airlineName')} (KO)
+            </label>
+            <input
+              type="text"
+              value={form.nameKo}
+              onChange={(e) => setForm((p) => ({ ...p, nameKo: e.target.value }))}
+              className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
+              <input
+                type="text"
+                value={form.country}
+                onChange={(e) => setForm((p) => ({ ...p, country: e.target.value }))}
+                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hub City</label>
+              <input
+                type="text"
+                value={form.hubCity}
+                onChange={(e) => setForm((p) => ({ ...p, hubCity: e.target.value }))}
+                placeholder="e.g. Seoul (ICN)"
+                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contract Type</label>
+            <input
+              type="text"
+              value={form.contractType}
+              onChange={(e) => setForm((p) => ({ ...p, contractType: e.target.value }))}
+              placeholder="e.g. GSSA - Cargo Sales Agent"
+              className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2"
+            />
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button type="button" onClick={onCancel} className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+              {t('schedule.cancel')}
+            </button>
+            <button type="submit" className="px-4 py-2 text-sm font-medium rounded-lg bg-jways-500 text-white hover:bg-jways-600 transition-colors shadow-sm">
+              {t('schedule.save')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  FlightSchedulePage                                                 */
+/* ------------------------------------------------------------------ */
 const FlightSchedulePage: React.FC = () => {
   const { t, language } = useLanguage();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
+  const {
+    schedules, airlines,
+    addSchedule, updateSchedule, deleteSchedule,
+    addAirline, resetToDefaults, isCustomized,
+  } = useFlightSchedules();
+
   const [selectedAirline, setSelectedAirline] = useState<string>('all');
   const [flightTypeFilter, setFlightTypeFilter] = useState<FlightTypeFilter>('all');
   const [dayFilter, setDayFilter] = useState<number | null>(null);
   const [expandedAirlines, setExpandedAirlines] = useState<Set<string>>(new Set());
   const [isMobileView] = useState(() => window.innerWidth < 768);
 
+  // Edit mode state
+  const [editMode, setEditMode] = useState(false);
+  const [showFlightModal, setShowFlightModal] = useState(false);
+  const [showAirlineModal, setShowAirlineModal] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState<FlightSchedule | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
   const dayLabels = language === 'ko' ? DAY_LABELS_KO : DAY_LABELS;
 
   const filteredSchedules = useMemo(() => {
-    let schedules = [...FLIGHT_SCHEDULES];
+    let filtered = [...schedules];
 
     if (selectedAirline !== 'all') {
-      schedules = schedules.filter((s) => s.airlineCode === selectedAirline);
+      filtered = filtered.filter((s) => s.airlineCode === selectedAirline);
     }
     if (flightTypeFilter !== 'all') {
-      schedules = schedules.filter((s) => s.flightType === flightTypeFilter);
+      filtered = filtered.filter((s) => s.flightType === flightTypeFilter);
     }
     if (dayFilter !== null) {
-      schedules = schedules.filter((s) => s.departureDays.includes(dayFilter));
+      filtered = filtered.filter((s) => s.departureDays.includes(dayFilter));
     }
 
-    // Sort by departure time
-    schedules.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
+    filtered.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
+    return filtered;
+  }, [schedules, selectedAirline, flightTypeFilter, dayFilter]);
 
-    return schedules;
-  }, [selectedAirline, flightTypeFilter, dayFilter]);
-
-  const toggleAirlineCard = (code: string) => {
+  const toggleAirlineCard = useCallback((code: string) => {
     setExpandedAirlines((prev) => {
       const next = new Set(prev);
       if (next.has(code)) next.delete(code);
       else next.add(code);
       return next;
     });
-  };
+  }, []);
 
-  const handleAirlineCardClick = (code: string) => {
+  const handleAirlineCardClick = useCallback((code: string) => {
     setSelectedAirline((prev) => (prev === code ? 'all' : code));
-  };
+  }, []);
 
   const isSuspended = (schedule: FlightSchedule) =>
     schedule.remarks?.toLowerCase().includes('suspended');
@@ -62,6 +491,50 @@ const FlightSchedulePage: React.FC = () => {
     if (kg >= 1000) return `${(kg / 1000).toFixed(0)}t`;
     return `${kg.toLocaleString()}kg`;
   };
+
+  const handleAddFlight = useCallback(() => {
+    setEditingSchedule(null);
+    setShowFlightModal(true);
+  }, []);
+
+  const handleEditFlight = useCallback((schedule: FlightSchedule) => {
+    setEditingSchedule(schedule);
+    setShowFlightModal(true);
+  }, []);
+
+  const handleSaveFlight = useCallback((data: Omit<FlightSchedule, 'id'>) => {
+    if (editingSchedule) {
+      updateSchedule(editingSchedule.id, data);
+    } else {
+      addSchedule(data);
+    }
+    setShowFlightModal(false);
+    setEditingSchedule(null);
+  }, [editingSchedule, updateSchedule, addSchedule]);
+
+  const handleDeleteFlight = useCallback((id: string) => {
+    deleteSchedule(id);
+    setConfirmDeleteId(null);
+  }, [deleteSchedule]);
+
+  const handleReset = useCallback(() => {
+    if (window.confirm(t('schedule.resetConfirm'))) {
+      resetToDefaults();
+    }
+  }, [resetToDefaults, t]);
+
+  const handleSaveAirline = useCallback((airline: AirlineInfo) => {
+    addAirline(airline);
+    setShowAirlineModal(false);
+  }, [addAirline]);
+
+  const getAirlineColors = (code: string) =>
+    AIRLINE_COLORS[code] || {
+      bg: 'bg-gray-50 dark:bg-gray-900/20',
+      text: 'text-gray-700 dark:text-gray-300',
+      border: 'border-gray-200 dark:border-gray-800',
+      badge: 'bg-gray-100 dark:bg-gray-900/40 text-gray-700 dark:text-gray-300',
+    };
 
   const renderDayDots = (departureDays: number[]) => (
     <div className="flex gap-0.5">
@@ -114,35 +587,111 @@ const FlightSchedulePage: React.FC = () => {
     );
   };
 
+  const renderActionButtons = (schedule: FlightSchedule) => {
+    if (!editMode) return null;
+    return (
+      <div className="flex items-center gap-1">
+        <button
+          onClick={(e) => { e.stopPropagation(); handleEditFlight(schedule); }}
+          className="p-1.5 text-gray-400 hover:text-jways-500 dark:hover:text-jways-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          title={t('schedule.editFlight')}
+        >
+          <Pencil className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(schedule.id); }}
+          className="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          title={t('schedule.deleteFlight')}
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Page Header */}
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 sm:p-6 transition-colors duration-200">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="p-2 bg-jways-50 dark:bg-jways-900/30 rounded-lg">
-              <Plane className="w-6 h-6 text-jways-600 dark:text-jways-400" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="p-2 bg-jways-50 dark:bg-jways-900/30 rounded-lg">
+                <Plane className="w-6 h-6 text-jways-600 dark:text-jways-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                    {t('schedule.title')}
+                  </h1>
+                  {isCustomized && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+                      {t('schedule.customized')}
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5">
+                  <MapPin className="w-3.5 h-3.5" />
+                  {t('schedule.subtitle')}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                {t('schedule.title')}
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5">
-                <MapPin className="w-3.5 h-3.5" />
-                {t('schedule.subtitle')}
-              </p>
-            </div>
+            {/* Admin: Manage button */}
+            {isAdmin && (
+              <div className="flex items-center gap-2">
+                {editMode && isCustomized && (
+                  <button
+                    onClick={handleReset}
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span className="hidden sm:inline">{t('schedule.resetDefaults')}</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setEditMode((p) => !p)}
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    editMode
+                      ? 'bg-jways-500 text-white hover:bg-jways-600 shadow-sm'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">{t('schedule.manage')}</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Edit Mode Action Bar */}
+        {editMode && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={handleAddFlight}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-jways-500 text-white hover:bg-jways-600 transition-colors shadow-sm"
+            >
+              <Plus className="w-4 h-4" />
+              {t('schedule.addFlight')}
+            </button>
+            <button
+              onClick={() => setShowAirlineModal(true)}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              {t('schedule.addAirline')}
+            </button>
+          </div>
+        )}
+
         {/* Airline Info Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          {AIRLINE_INFO.map((airline) => {
-            const colors = AIRLINE_COLORS[airline.code];
+          {airlines.map((airline) => {
+            const colors = getAirlineColors(airline.code);
             const isSelected = selectedAirline === airline.code;
             const isExpanded = expandedAirlines.has(airline.code);
-            const flightCount = FLIGHT_SCHEDULES.filter(
+            const flightCount = schedules.filter(
               (s) => s.airlineCode === airline.code
             ).length;
 
@@ -215,7 +764,7 @@ const FlightSchedulePage: React.FC = () => {
                 className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:ring-jways-500 focus:border-jways-500 transition-colors"
               >
                 <option value="all">{t('schedule.filterAll')}</option>
-                {AIRLINE_INFO.map((a) => (
+                {airlines.map((a) => (
                   <option key={a.code} value={a.code}>
                     {a.code} — {language === 'ko' ? a.nameKo : a.name}
                   </option>
@@ -283,17 +832,17 @@ const FlightSchedulePage: React.FC = () => {
               </div>
             )}
             {filteredSchedules.map((schedule) => {
-              const colors = AIRLINE_COLORS[schedule.airlineCode];
+              const colors = getAirlineColors(schedule.airlineCode);
               const suspended = isSuspended(schedule);
               return (
                 <div
-                  key={schedule.flightNo}
+                  key={schedule.id}
                   className={`bg-white dark:bg-gray-900 rounded-xl border shadow-sm transition-colors duration-200 ${
                     suspended ? 'border-red-200 dark:border-red-800 opacity-60' : `${colors.border}`
                   }`}
                 >
                   <div className="p-4 space-y-3">
-                    {/* Top row: airline + flight type */}
+                    {/* Top row: airline + flight type + actions */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className={`text-sm font-bold px-2 py-0.5 rounded ${colors.badge}`}>
@@ -306,6 +855,7 @@ const FlightSchedulePage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         {renderFlightTypeBadge(schedule.flightType)}
                         {renderStatusBadge(schedule)}
+                        {renderActionButtons(schedule)}
                       </div>
                     </div>
 
@@ -404,22 +954,27 @@ const FlightSchedulePage: React.FC = () => {
                     <th className="text-center px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
                       Status
                     </th>
+                    {editMode && (
+                      <th className="text-center px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider w-20">
+                        Actions
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                   {filteredSchedules.length === 0 && (
                     <tr>
-                      <td colSpan={11} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                      <td colSpan={editMode ? 12 : 11} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                         No flights match the current filters.
                       </td>
                     </tr>
                   )}
                   {filteredSchedules.map((schedule) => {
-                    const colors = AIRLINE_COLORS[schedule.airlineCode];
+                    const colors = getAirlineColors(schedule.airlineCode);
                     const suspended = isSuspended(schedule);
                     return (
                       <tr
-                        key={schedule.flightNo}
+                        key={schedule.id}
                         className={`transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 ${
                           suspended ? 'opacity-50' : ''
                         } ${schedule.flightType === 'cargo' ? `${colors.bg}` : ''}`}
@@ -476,6 +1031,12 @@ const FlightSchedulePage: React.FC = () => {
                         <td className="px-4 py-3 text-center">
                           {renderStatusBadge(schedule)}
                         </td>
+                        {/* Actions (edit mode only) */}
+                        {editMode && (
+                          <td className="px-4 py-3 text-center">
+                            {renderActionButtons(schedule)}
+                          </td>
+                        )}
                       </tr>
                     );
                   })}
@@ -490,7 +1051,7 @@ const FlightSchedulePage: React.FC = () => {
                   {filteredSchedules
                     .filter((s) => s.remarks)
                     .map((s) => (
-                      <li key={s.flightNo} className={isSuspended(s) ? 'text-red-500 dark:text-red-400' : ''}>
+                      <li key={s.id} className={isSuspended(s) ? 'text-red-500 dark:text-red-400' : ''}>
                         <span className="font-medium">{s.flightNo}:</span> {s.remarks}
                       </li>
                     ))}
@@ -507,7 +1068,7 @@ const FlightSchedulePage: React.FC = () => {
           </span>
           <span>&middot;</span>
           <span>
-            {AIRLINE_INFO.length} GSSA airlines
+            {airlines.length} GSSA airlines
           </span>
           <span>&middot;</span>
           <span>
@@ -515,6 +1076,53 @@ const FlightSchedulePage: React.FC = () => {
           </span>
         </div>
       </div>
+
+      {/* Flight Form Modal */}
+      {showFlightModal && (
+        <FlightFormModal
+          schedule={editingSchedule ? { ...editingSchedule } : { ...EMPTY_FORM }}
+          airlines={airlines}
+          title={editingSchedule ? t('schedule.editFlight') : t('schedule.addFlight')}
+          onSave={handleSaveFlight}
+          onCancel={() => { setShowFlightModal(false); setEditingSchedule(null); }}
+          t={t}
+          language={language}
+        />
+      )}
+
+      {/* Airline Form Modal */}
+      {showAirlineModal && (
+        <AirlineFormModal
+          onSave={handleSaveAirline}
+          onCancel={() => setShowAirlineModal(false)}
+          t={t}
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 max-w-sm w-full">
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+              {t('schedule.confirmDelete')}
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              >
+                {t('schedule.cancel')}
+              </button>
+              <button
+                onClick={() => handleDeleteFlight(confirmDeleteId)}
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors shadow-sm"
+              >
+                {t('schedule.deleteFlight')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

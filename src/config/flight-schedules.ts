@@ -1,4 +1,5 @@
 export interface FlightSchedule {
+  id: string;
   airline: string;
   airlineCode: string;
   flightNo: string;
@@ -111,6 +112,7 @@ export const AIRLINE_INFO: AirlineInfo[] = [
 export const FLIGHT_SCHEDULES: FlightSchedule[] = [
   // WestJet Cargo (WS)
   {
+    id: 'default-ws-7701',
     airline: 'WestJet Cargo',
     airlineCode: 'WS',
     flightNo: 'WS 7701',
@@ -125,6 +127,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     maxCargoKg: 18000,
   },
   {
+    id: 'default-ws-7703',
     airline: 'WestJet Cargo',
     airlineCode: 'WS',
     flightNo: 'WS 7703',
@@ -140,6 +143,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
   },
   // ShunFeng Airlines (O3)
   {
+    id: 'default-o3-6201',
     airline: 'ShunFeng Airlines',
     airlineCode: 'O3',
     flightNo: 'O3 6201',
@@ -154,6 +158,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     maxCargoKg: 25000,
   },
   {
+    id: 'default-o3-6203',
     airline: 'ShunFeng Airlines',
     airlineCode: 'O3',
     flightNo: 'O3 6203',
@@ -169,6 +174,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
   },
   // Air Busan (BX)
   {
+    id: 'default-bx-131',
     airline: 'Air Busan',
     airlineCode: 'BX',
     flightNo: 'BX 131',
@@ -184,6 +190,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo only',
   },
   {
+    id: 'default-bx-173',
     airline: 'Air Busan',
     airlineCode: 'BX',
     flightNo: 'BX 173',
@@ -199,6 +206,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo only',
   },
   {
+    id: 'default-bx-741',
     airline: 'Air Busan',
     airlineCode: 'BX',
     flightNo: 'BX 741',
@@ -214,6 +222,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo only',
   },
   {
+    id: 'default-bx-395',
     airline: 'Air Busan',
     airlineCode: 'BX',
     flightNo: 'BX 395',
@@ -230,6 +239,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
   },
   // Aero Mongolia (M0)
   {
+    id: 'default-m0-562',
     airline: 'Aero Mongolia',
     airlineCode: 'M0',
     flightNo: 'M0 562',
@@ -244,6 +254,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     maxCargoKg: 3000,
   },
   {
+    id: 'default-m0-564',
     airline: 'Aero Mongolia',
     airlineCode: 'M0',
     flightNo: 'M0 564',
@@ -259,6 +270,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
   },
   // Aeroflot (SU) — suspended
   {
+    id: 'default-su-251',
     airline: 'Aeroflot',
     airlineCode: 'SU',
     flightNo: 'SU 251',
@@ -274,6 +286,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Currently SUSPENDED (sanctions)',
   },
   {
+    id: 'default-su-253',
     airline: 'Aeroflot',
     airlineCode: 'SU',
     flightNo: 'SU 253',
@@ -290,6 +303,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
   },
   // CMA CGM Air Cargo (2C) — operated as 5Y, AWB prefix 003
   {
+    id: 'default-5y-8527',
     airline: 'CMA CGM Air Cargo',
     airlineCode: '2C',
     flightNo: '5Y 8527',
@@ -305,6 +319,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'AACT T1 · Cut-off 4h prior (1445L) · AWB: 003',
   },
   {
+    id: 'default-5y-8529',
     airline: 'CMA CGM Air Cargo',
     airlineCode: '2C',
     flightNo: '5Y 8529',
@@ -320,6 +335,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'AACT T1 · Cut-off 4h prior (1445L) · AWB: 003',
   },
   {
+    id: 'default-5y-8531',
     airline: 'CMA CGM Air Cargo',
     airlineCode: '2C',
     flightNo: '5Y 8531',
@@ -336,6 +352,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
   },
   // Aeromexico Cargo (AM) — via Globe Air Cargo / ECS Group
   {
+    id: 'default-am-091',
     airline: 'Aeromexico Cargo',
     airlineCode: 'AM',
     flightNo: 'AM 091',
@@ -352,6 +369,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
   },
   // Air Premia (YP) — Effective 2026.03.29~, B787-9, belly cargo
   {
+    id: 'default-yp-101',
     airline: 'Air Premia',
     airlineCode: 'YP',
     flightNo: 'YP 101',
@@ -367,6 +385,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo · Swissport ICN T-B',
   },
   {
+    id: 'default-yp-103',
     airline: 'Air Premia',
     airlineCode: 'YP',
     flightNo: 'YP 103',
@@ -382,6 +401,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo · 2nd daily LAX',
   },
   {
+    id: 'default-yp-131',
     airline: 'Air Premia',
     airlineCode: 'YP',
     flightNo: 'YP 131',
@@ -397,6 +417,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo · Newark (New York)',
   },
   {
+    id: 'default-yp-111',
     airline: 'Air Premia',
     airlineCode: 'YP',
     flightNo: 'YP 111',
@@ -412,6 +433,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo',
   },
   {
+    id: 'default-yp-151',
     airline: 'Air Premia',
     airlineCode: 'YP',
     flightNo: 'YP 151',
@@ -427,6 +449,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo · Honolulu',
   },
   {
+    id: 'default-yp-731',
     airline: 'Air Premia',
     airlineCode: 'YP',
     flightNo: 'YP 731',
@@ -442,6 +465,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo · Narita',
   },
   {
+    id: 'default-yp-735',
     airline: 'Air Premia',
     airlineCode: 'YP',
     flightNo: 'YP 735',
@@ -457,6 +481,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo · 2nd daily NRT (from 3/29)',
   },
   {
+    id: 'default-yp-601',
     airline: 'Air Premia',
     airlineCode: 'YP',
     flightNo: 'YP 601',
@@ -472,6 +497,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo · Bangkok',
   },
   {
+    id: 'default-yp-621',
     airline: 'Air Premia',
     airlineCode: 'YP',
     flightNo: 'YP 621',
@@ -487,6 +513,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo · Da Nang',
   },
   {
+    id: 'default-yp-801',
     airline: 'Air Premia',
     airlineCode: 'YP',
     flightNo: 'YP 801',
@@ -503,6 +530,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
   },
   // Condor Airlines (DE)
   {
+    id: 'default-de-2025',
     airline: 'Condor Airlines',
     airlineCode: 'DE',
     flightNo: 'DE 2025',
@@ -518,6 +546,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Seasonal (Summer IATA schedule)',
   },
   {
+    id: 'default-de-2027',
     airline: 'Condor Airlines',
     airlineCode: 'DE',
     flightNo: 'DE 2027',
