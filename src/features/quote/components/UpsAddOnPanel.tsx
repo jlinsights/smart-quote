@@ -4,8 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import {
   isUpsAdditionalHandling,
 } from '@/config/ups_addons';
-import { normalizeUpsRates } from '@/config/addon-utils';
-import type { NormalizedRate } from '@/config/addon-utils';
+import { normalizeUpsRates, calcAddonFee } from '@/config/addon-utils';
 import type { AddonRate } from '@/api/addonRateApi';
 import { AlertTriangle, Package, Info, MapPin } from 'lucide-react';
 import { lookupEasSurcharge, preloadEasData, type EasSurchargeType } from '@/config/ups_eas_lookup';
@@ -99,16 +98,8 @@ export const UpsAddOnPanel: React.FC<Props> = ({
   const selectableAddOns = rates.filter((a) => a.selectable);
   const fscRate = (fscPercent || 0) / 100;
 
-  const calcFee = (rate: NormalizedRate, bw: number): number => {
-    if (rate.chargeType === 'calculated' && rate.perKgRate) {
-      const min = rate.minAmount ?? rate.amount;
-      return Math.max(min, Math.ceil(bw) * rate.perKgRate);
-    }
-    return rate.amount;
-  };
-
-  const getDisplayAmount = (code: string, rate: NormalizedRate): string => {
-    if (code === 'RMT' || code === 'EXT') return `${calcFee(rate, billableWeight).toLocaleString()}`;
+  const getDisplayAmount = (code: string, rate: { chargeType: string; amount: number; perKgRate?: number | null; ratePercent?: number | null; minAmount?: number | null }): string => {
+    if (code === 'RMT' || code === 'EXT') return `${calcAddonFee(rate, billableWeight, 0).toLocaleString()}`;
     if (code === 'ADC') {
       const totalCartons = items.reduce((s, i) => s + i.quantity, 0);
       return `${(rate.amount * totalCartons).toLocaleString()} (${totalCartons}${isEn ? 'pcs' : '카톤'})`;
@@ -125,7 +116,7 @@ export const UpsAddOnPanel: React.FC<Props> = ({
       let amount = addon.amount;
 
       if (addon.chargeType === 'calculated') {
-        amount = calcFee(addon, billableWeight);
+        amount = calcAddonFee(addon, billableWeight, 0);
       } else if (code === 'ADC') {
         const totalCartons = items.reduce((s, i) => s + i.quantity, 0);
         amount = addon.amount * totalCartons;
@@ -178,7 +169,7 @@ export const UpsAddOnPanel: React.FC<Props> = ({
               const isRemote = detectedEas === 'RAS';
               const code = isRemote ? 'RMT' : 'EXT';
               const rate = rates.find(r => r.code === code);
-              const fee = rate ? calcFee(rate, billableWeight) : 0;
+              const fee = rate ? calcAddonFee(rate, billableWeight, 0) : 0;
               const labelMap: Record<string, { ko: string; en: string }> = {
                 EAS: { ko: '외곽 지역', en: 'Extended Area' },
                 RAS: { ko: '원거리 지역', en: 'Remote Area' },

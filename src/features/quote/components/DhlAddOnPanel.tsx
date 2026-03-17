@@ -5,8 +5,7 @@ import {
   isDhlOversizePiece,
   isDhlOverWeight,
 } from '@/config/dhl_addons';
-import { normalizeDhlRates } from '@/config/addon-utils';
-import type { NormalizedRate } from '@/config/addon-utils';
+import { normalizeDhlRates, calcAddonFee } from '@/config/addon-utils';
 import type { AddonRate } from '@/api/addonRateApi';
 import { AlertTriangle, Package, Shield } from 'lucide-react';
 import { applyPackingDimensions } from '@/lib/packing-utils';
@@ -84,28 +83,11 @@ export const DhlAddOnPanel: React.FC<Props> = ({
   const selectableAddOns = rates.filter((a) => a.selectable);
   const fscRate = (fscPercent || 0) / 100;
 
-  // Calculate fee for calculated types using DB params
-  const calcFee = (rate: NormalizedRate, bw: number, dv: number): number => {
-    if (rate.chargeType === 'calculated') {
-      if (rate.code === 'RMT' || rate.perKgRate) {
-        const pkr = rate.perKgRate ?? 750;
-        const min = rate.minAmount ?? rate.amount;
-        return Math.max(min, Math.ceil(bw) * pkr);
-      }
-      if (rate.code === 'INS' || rate.ratePercent) {
-        const pct = rate.ratePercent ?? 1.0;
-        const min = rate.minAmount ?? rate.amount;
-        return Math.max(dv * pct / 100, min);
-      }
-    }
-    return rate.amount;
-  };
-
-  const getDisplayAmount = (code: string, rate: NormalizedRate): string => {
-    if (code === 'RMT') return `${calcFee(rate, billableWeight, 0).toLocaleString()}`;
+  const getDisplayAmount = (code: string, rate: { chargeType: string; amount: number; perKgRate?: number | null; ratePercent?: number | null; minAmount?: number | null }): string => {
+    if (code === 'RMT') return `${calcAddonFee(rate, billableWeight, 0).toLocaleString()}`;
     if (code === 'INS') {
       if (!declaredValue || declaredValue <= 0) return `min ${(rate.minAmount ?? 17000).toLocaleString()}`;
-      return `${calcFee(rate, 0, declaredValue).toLocaleString()}`;
+      return `${calcAddonFee(rate, 0, declaredValue).toLocaleString()}`;
     }
     if (code === 'IRR') {
       const totalPieces = items.reduce((s, i) => s + i.quantity, 0);
@@ -123,7 +105,7 @@ export const DhlAddOnPanel: React.FC<Props> = ({
       let amount = addon.amount;
 
       if (addon.chargeType === 'calculated') {
-        amount = calcFee(addon, billableWeight, declaredValue || 0);
+        amount = calcAddonFee(addon, billableWeight, declaredValue || 0);
       } else if (code === 'IRR') {
         const totalPieces = items.reduce((s, i) => s + i.quantity, 0);
         amount = addon.amount * totalPieces;
@@ -259,9 +241,10 @@ export const DhlAddOnPanel: React.FC<Props> = ({
             />
             {declaredValue && declaredValue > 0 && (() => {
               const insRate = rates.find(r => r.code === 'INS');
+              if (!insRate) return null;
               return (
                 <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium whitespace-nowrap">
-                  = {calcFee(insRate!, 0, declaredValue).toLocaleString()} KRW
+                  = {calcAddonFee(insRate, 0, declaredValue).toLocaleString()} KRW
                 </span>
               );
             })()}

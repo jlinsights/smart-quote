@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { QuoteInput, PackingType, Incoterm } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SEOUL_PICKUP_ZONES } from '@/config/options';
@@ -9,6 +9,7 @@ import { UpsAddOnPanel } from './UpsAddOnPanel';
 import { PackingTypeInfo } from './PackingTypeInfo';
 import { useSurcharges } from '@/features/dashboard/hooks/useSurcharges';
 import { useAddonRates } from '@/features/dashboard/hooks/useAddonRates';
+import { useSyncToInput } from '@/features/quote/hooks/useSyncToInput';
 import { UI_TEXT } from '@/config/text';
 import { HelpCircle, X } from 'lucide-react';
 
@@ -36,51 +37,52 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
   // DB-driven add-on rates (fallback to hardcoded in panels if API fails)
   const { rates: dbAddonRates } = useAddonRates(carrier as 'DHL' | 'UPS');
 
+  // Generic field setter (cast to bypass generic constraint for useSyncToInput)
+  const setField = onFieldChange as (key: string, value: unknown) => void;
+
   // Sync resolved surcharges into QuoteInput for calculateQuote()
-  const prevSurchargesRef = useRef<string>('');
-  useEffect(() => {
-    const mapped = surcharges.map(s => ({
-      code: s.code,
-      name: s.name,
-      nameKo: s.name_ko,
-      chargeType: s.charge_type,
-      amount: s.amount,
-      sourceUrl: s.source_url,
-    }));
-    const key = JSON.stringify(mapped);
-    if (key !== prevSurchargesRef.current) {
-      prevSurchargesRef.current = key;
-      onFieldChange('resolvedSurcharges', mapped.length > 0 ? mapped : undefined);
-    }
-  }, [surcharges, onFieldChange]);
+  const transformSurcharges = useCallback(
+    (src: typeof surcharges) => {
+      const mapped = src.map(s => ({
+        code: s.code,
+        name: s.name,
+        nameKo: s.name_ko,
+        chargeType: s.charge_type,
+        amount: s.amount,
+        sourceUrl: s.source_url,
+      }));
+      return mapped.length > 0 ? mapped : undefined;
+    },
+    [],
+  );
+  useSyncToInput(surcharges, 'resolvedSurcharges', setField, { transform: transformSurcharges });
 
   // Sync resolved addon rates into QuoteInput for calculateQuote()
-  const prevAddonRatesRef = useRef<string>('');
-  useEffect(() => {
-    if (dbAddonRates.length === 0) return;
-    const mapped = dbAddonRates.map(r => ({
-      code: r.code,
-      carrier: r.carrier,
-      nameEn: r.nameEn,
-      nameKo: r.nameKo,
-      chargeType: r.chargeType,
-      unit: r.unit,
-      amount: r.amount,
-      perKgRate: r.perKgRate,
-      ratePercent: r.ratePercent,
-      minAmount: r.minAmount,
-      fscApplicable: r.fscApplicable,
-      autoDetect: r.autoDetect,
-      selectable: r.selectable,
-      condition: r.condition,
-      detectRules: r.detectRules,
-    }));
-    const key = JSON.stringify(mapped);
-    if (key !== prevAddonRatesRef.current) {
-      prevAddonRatesRef.current = key;
-      onFieldChange('resolvedAddonRates', mapped);
-    }
-  }, [dbAddonRates, onFieldChange]);
+  const transformAddonRates = useCallback(
+    (src: typeof dbAddonRates) =>
+      src.map(r => ({
+        code: r.code,
+        carrier: r.carrier,
+        nameEn: r.nameEn,
+        nameKo: r.nameKo,
+        chargeType: r.chargeType,
+        unit: r.unit,
+        amount: r.amount,
+        perKgRate: r.perKgRate,
+        ratePercent: r.ratePercent,
+        minAmount: r.minAmount,
+        fscApplicable: r.fscApplicable,
+        autoDetect: r.autoDetect,
+        selectable: r.selectable,
+        condition: r.condition,
+        detectRules: r.detectRules,
+      })),
+    [],
+  );
+  useSyncToInput(dbAddonRates, 'resolvedAddonRates', setField, {
+    transform: transformAddonRates,
+    skip: dbAddonRates.length === 0,
+  });
 
   return (
     <div className={cardClass}>

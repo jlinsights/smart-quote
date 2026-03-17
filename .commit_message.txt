@@ -1,1 +1,1 @@
-♻️ refactor: Critical 3건 + Warning 5건 해결 — 공유 모듈 추출, 중복 제거, 성능 최적화
+♻️ refactor: 남은 Warning 4건 해결 — calcFee 통합, zone 분리, useSyncToInput 훅 추출
