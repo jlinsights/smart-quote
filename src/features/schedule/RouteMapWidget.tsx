@@ -119,7 +119,7 @@ const GridLines: React.FC = () => {
   const lngLines = [0, 30, 60, 90, 120, 150, 180, -150, -120, -90, -60, -30];
 
   return (
-    <g opacity="0.12" stroke="#64748b" strokeWidth="0.3" fill="none">
+    <g opacity="0.05" stroke="#4a6fa5" strokeWidth="0.3" fill="none">
       {latLines.map((lat) => {
         const y = latToY(lat);
         return <line key={`lat-${lat}`} x1="0" y1={y} x2={SVG_W} y2={y} />;
@@ -138,9 +138,9 @@ const WorldMap: React.FC = () => (
       <path
         key={i}
         d={d}
-        fill="#253349"
-        stroke="#3b5278"
-        strokeWidth="0.6"
+        fill="#1a2744"
+        stroke="#4a6fa5"
+        strokeWidth="0.8"
         strokeLinejoin="round"
       />
     ))}
@@ -294,7 +294,7 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
   const hoveredRouteInfo = hoveredRoute ? routes.find((r) => r.destination === hoveredRoute) : null;
 
   return (
-    <div className="rounded-2xl overflow-hidden w-full bg-gradient-to-br from-[#0a1628] to-[#0c1a30] relative">
+    <div className="rounded-2xl overflow-hidden w-full bg-[#070f1b] relative">
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-3 pb-1">
         <h3 className="text-sm font-semibold text-white/80 tracking-wide">
@@ -348,7 +348,7 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
           </defs>
 
           {/* Ocean background */}
-          <rect x="0" y={CROP_Y} width={SVG_W} height={CROP_H} fill="#0d1b2a" />
+          <rect x="0" y={CROP_Y} width={SVG_W} height={CROP_H} fill="#070f1b" />
 
           {/* Grid lines */}
           <GridLines />
