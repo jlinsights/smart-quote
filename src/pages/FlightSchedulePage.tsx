@@ -11,8 +11,10 @@ import {
   AIRLINE_COLORS,
   DAY_LABELS,
   DAY_LABELS_KO,
+  GSSA_GROUP_LABELS,
   type FlightSchedule,
   type AirlineInfo,
+  type GssaGroup,
 } from '@/config/flight-schedules';
 import { useFlightSchedules } from '@/features/schedule/useFlightSchedules';
 
@@ -42,6 +44,7 @@ const EMPTY_AIRLINE: AirlineInfo = {
   country: '',
   hubCity: '',
   contractType: '',
+  gssaGroup: 'goodman',
 };
 
 /* ------------------------------------------------------------------ */
@@ -402,6 +405,25 @@ const AirlineFormModal: React.FC<AirlineFormModalProps> = ({ onSave, onCancel, t
             </div>
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GSSA Group</label>
+            <div className="flex gap-2">
+              {(['goodman', 'gac'] as const).map((g) => (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => setForm((p) => ({ ...p, gssaGroup: g }))}
+                  className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg border transition-all ${
+                    form.gssaGroup === g
+                      ? GSSA_GROUP_LABELS[g].badge + ' ring-2 ring-offset-1 ring-current'
+                      : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {GSSA_GROUP_LABELS[g].en}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contract Type</label>
             <input
               type="text"
@@ -440,6 +462,7 @@ const FlightSchedulePage: React.FC = () => {
   } = useFlightSchedules();
 
   const [selectedAirline, setSelectedAirline] = useState<string>('all');
+  const [gssaFilter, setGssaFilter] = useState<GssaGroup | 'all'>('all');
   const [flightTypeFilter, setFlightTypeFilter] = useState<FlightTypeFilter>('all');
   const [dayFilter, setDayFilter] = useState<number | null>(null);
   const [expandedAirlines, setExpandedAirlines] = useState<Set<string>>(new Set());
@@ -454,9 +477,20 @@ const FlightSchedulePage: React.FC = () => {
 
   const dayLabels = language === 'ko' ? DAY_LABELS_KO : DAY_LABELS;
 
+  // Airlines filtered by GSSA group
+  const filteredAirlines = useMemo(() => {
+    if (gssaFilter === 'all') return airlines;
+    return airlines.filter((a) => a.gssaGroup === gssaFilter);
+  }, [airlines, gssaFilter]);
+
   const filteredSchedules = useMemo(() => {
     let filtered = [...schedules];
 
+    // GSSA group filter
+    if (gssaFilter !== 'all') {
+      const airlineCodes = filteredAirlines.map((a) => a.code);
+      filtered = filtered.filter((s) => airlineCodes.includes(s.airlineCode));
+    }
     if (selectedAirline !== 'all') {
       filtered = filtered.filter((s) => s.airlineCode === selectedAirline);
     }
@@ -469,7 +503,7 @@ const FlightSchedulePage: React.FC = () => {
 
     filtered.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
     return filtered;
-  }, [schedules, selectedAirline, flightTypeFilter, dayFilter]);
+  }, [schedules, selectedAirline, gssaFilter, filteredAirlines, flightTypeFilter, dayFilter]);
 
   const toggleAirlineCard = useCallback((code: string) => {
     setExpandedAirlines((prev) => {
@@ -685,9 +719,32 @@ const FlightSchedulePage: React.FC = () => {
           </div>
         )}
 
+        {/* GSSA Group Filter */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mr-1">GSSA:</span>
+          {(['all', 'goodman', 'gac'] as const).map((group) => {
+            const isActive = gssaFilter === group;
+            const label = group === 'all'
+              ? (language === 'ko' ? '전체' : 'All')
+              : GSSA_GROUP_LABELS[group][language === 'ko' ? 'ko' : 'en'];
+            const badgeClass = group === 'all'
+              ? (isActive ? 'bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-900' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400')
+              : (isActive ? GSSA_GROUP_LABELS[group].badge + ' ring-2 ring-offset-1 ring-current' : 'border ' + GSSA_GROUP_LABELS[group].badge + ' opacity-60');
+            return (
+              <button
+                key={group}
+                onClick={() => { setGssaFilter(group); setSelectedAirline('all'); }}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${badgeClass}`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
         {/* Airline Info Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          {airlines.map((airline) => {
+          {filteredAirlines.map((airline) => {
             const colors = getAirlineColors(airline.code);
             const isSelected = selectedAirline === airline.code;
             const isExpanded = expandedAirlines.has(airline.code);
@@ -717,6 +774,9 @@ const FlightSchedulePage: React.FC = () => {
                       <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                         {language === 'ko' ? airline.nameKo : airline.name}
                       </p>
+                      <span className={`inline-block mt-0.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full border ${GSSA_GROUP_LABELS[airline.gssaGroup].badge}`}>
+                        {airline.gssaGroup === 'goodman' ? 'GLS' : 'GAC'}
+                      </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">

@@ -1,1 +1,1 @@
-✨ feat: Flight Schedule Admin CRUD — localStorage 기반 스케줄 관리 (추가/수정/삭제/초기화)
+✨ feat: GSSA 그룹 필터 + 배지 — Goodman GLS / Globe Air Cargo(ECS) 구분

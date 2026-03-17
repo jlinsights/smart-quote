@@ -15,6 +15,8 @@ export interface FlightSchedule {
   remarks?: string;
 }
 
+export type GssaGroup = 'goodman' | 'gac';
+
 export interface AirlineInfo {
   code: string;
   name: string;
@@ -23,7 +25,13 @@ export interface AirlineInfo {
   country: string;
   hubCity: string;
   contractType: string;
+  gssaGroup: GssaGroup; // 'goodman' = Goodman GLS, 'gac' = Globe Air Cargo (ECS Group)
 }
+
+export const GSSA_GROUP_LABELS = {
+  goodman: { en: 'Goodman GLS', ko: 'Goodman GLS', badge: 'bg-jways-100 dark:bg-jways-900/40 text-jways-700 dark:text-jways-300 border-jways-200 dark:border-jways-700' },
+  gac: { en: 'Globe Air Cargo (ECS)', ko: 'Globe Air Cargo (ECS)', badge: 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700' },
+} as const;
 
 export const AIRLINE_INFO: AirlineInfo[] = [
   {
@@ -34,6 +42,7 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     country: 'Canada',
     hubCity: 'Calgary (YYC)',
     contractType: 'GSSA — Cargo Sales Agent',
+    gssaGroup: 'goodman',
   },
   {
     code: 'O3',
@@ -43,6 +52,7 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     country: 'China',
     hubCity: 'Shenzhen (SZX)',
     contractType: 'GSSA — Cargo Sales Agent',
+    gssaGroup: 'goodman',
   },
   {
     code: 'BX',
@@ -52,6 +62,7 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     country: 'South Korea',
     hubCity: 'Busan (PUS)',
     contractType: 'GSSA — Belly Cargo Sales',
+    gssaGroup: 'goodman',
   },
   {
     code: 'M0',
@@ -61,6 +72,7 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     country: 'Mongolia',
     hubCity: 'Ulaanbaatar (UBN)',
     contractType: 'GSSA — Passenger & Cargo',
+    gssaGroup: 'goodman',
   },
   {
     code: 'SU',
@@ -70,6 +82,7 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     country: 'Russia',
     hubCity: 'Moscow (SVO)',
     contractType: 'GSSA — Currently Suspended',
+    gssaGroup: 'goodman',
   },
   {
     code: '2C',
@@ -79,6 +92,7 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     country: 'France',
     hubCity: 'Paris (CDG)',
     contractType: 'GSSA — Cargo Sales Agent (via Globe Air Cargo / ECS Group)',
+    gssaGroup: 'gac',
   },
   {
     code: 'AM',
@@ -88,6 +102,7 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     country: 'Mexico',
     hubCity: 'Mexico City (MEX)',
     contractType: 'GSSA — Cargo Sales Agent (via Globe Air Cargo / ECS Group)',
+    gssaGroup: 'gac',
   },
   {
     code: 'YP',
@@ -97,6 +112,7 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     country: 'South Korea',
     hubCity: 'Seoul (ICN)',
     contractType: 'GSSA — Belly Cargo Sales',
+    gssaGroup: 'goodman',
   },
   {
     code: 'DE',
@@ -106,6 +122,7 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     country: 'Germany',
     hubCity: 'Frankfurt (FRA)',
     contractType: 'GSSA — Cargo Sales Agent (via Globe Air Cargo / ECS Group)',
+    gssaGroup: 'gac',
   },
 ];
 
