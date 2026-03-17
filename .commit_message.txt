@@ -1,1 +1,1 @@
-🌍 feat: Google Maps 3D 노선도 — 사실적 위성지도 + 비행 경로 애니메이션
+🔧 fix: RouteMap3D React/WebComponent DOM 충돌 해결 — ref 기반 imperative 렌더링

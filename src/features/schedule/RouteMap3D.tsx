@@ -179,8 +179,8 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
   language,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapElementRef = useRef<google.maps.maps3d.Map3DElement | null>(null);
-  const [mapReady, setMapReady] = useState(false);
+  const mapRef = useRef<google.maps.maps3d.Map3DElement | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const isKo = language === 'ko';
   const t = useTranslations(language);
@@ -247,144 +247,172 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
       );
   }, [airlines, schedules, isKo]);
 
-  /* ---- Initialize Google Maps 3D ---- */
+  /* ---- Helper: add markers and polylines to map element ---- */
+  const addMarkersAndRoutes = useCallback(
+    (map3d: google.maps.maps3d.Map3DElement) => {
+      const icn = AIRPORTS.ICN;
+
+      // ICN hub marker
+      const icnMarker = document.createElement(
+        'gmp-marker-3d',
+      ) as google.maps.maps3d.Marker3DElement;
+      icnMarker.position = { lat: icn.lat, lng: icn.lng, altitude: 0 };
+      icnMarker.label = 'ICN';
+      icnMarker.altitudeMode = 'CLAMP_TO_GROUND';
+      icnMarker.extruded = true;
+      map3d.appendChild(icnMarker);
+
+      // Route polylines + destination markers
+      routes.forEach((route) => {
+        const airport = AIRPORTS[route.destination];
+        if (!airport) return;
+
+        const isHighlighted =
+          selectedAirline === 'all' ||
+          route.airlineCodes.includes(selectedAirline);
+        const primaryCode = route.airlineCodes[0];
+        const color = AIRLINE_HEX_COLORS[primaryCode] ?? DEFAULT_COLOR;
+
+        // Generate arc points
+        const arcPoints = generateArcPoints(
+          { lat: icn.lat, lng: icn.lng },
+          { lat: airport.lat, lng: airport.lng },
+          50,
+          300000,
+        );
+
+        // Create polyline
+        const polyline = document.createElement(
+          'gmp-polyline-3d',
+        ) as google.maps.maps3d.Polyline3DElement;
+        polyline.altitudeMode = 'ABSOLUTE';
+        polyline.strokeColor = isHighlighted ? color : '#4b5563';
+        polyline.strokeWidth = route.isCargo && !route.isPassenger ? 4 : 2;
+        polyline.drawsOccludedSegments = true;
+
+        if (!isHighlighted) {
+          polyline.setAttribute('style', 'opacity: 0.15;');
+        }
+
+        // Build coordinates element
+        const coordsEl = document.createElement('gmp-polyline-3d-coordinates');
+        const coordStr = arcPoints
+          .map((p) => `${p.lat},${p.lng},${p.altitude}`)
+          .join(' ');
+        coordsEl.setAttribute('coords', coordStr);
+        polyline.appendChild(coordsEl);
+
+        map3d.appendChild(polyline);
+
+        // Destination marker
+        const marker = document.createElement(
+          'gmp-marker-3d',
+        ) as google.maps.maps3d.Marker3DElement;
+        marker.position = {
+          lat: airport.lat,
+          lng: airport.lng,
+          altitude: 0,
+        };
+        marker.label = route.destination;
+        marker.altitudeMode = 'CLAMP_TO_GROUND';
+
+        if (!isHighlighted) {
+          marker.setAttribute('style', 'opacity: 0.3;');
+        }
+
+        map3d.appendChild(marker);
+      });
+    },
+    [routes, selectedAirline],
+  );
+
+  /* ---- Load Google Maps 3D API ---- */
   useEffect(() => {
     let cancelled = false;
 
-    async function init() {
-      try {
-        await loadGoogleMaps3D();
-        if (cancelled || !containerRef.current) return;
-
-        // Create Map3DElement
-        const mapEl = document.createElement(
-          'gmp-map-3d',
-        ) as google.maps.maps3d.Map3DElement;
-        mapEl.setAttribute('style', 'width:100%;height:100%;');
-
-        // Initial camera — zoomed out to see the full route network
-        mapEl.center = { lat: 37.46, lng: 126.44, altitude: 0 };
-        mapEl.range = 12000000;
-        mapEl.tilt = 45;
-        mapEl.heading = -30;
-        mapEl.defaultLabelsDisabled = false;
-
-        containerRef.current.innerHTML = '';
-        containerRef.current.appendChild(mapEl);
-        mapElementRef.current = mapEl;
-
-        // Wait for the map element to be ready
-        await customElements.whenDefined('gmp-map-3d');
-
-        // Small delay to let the map render before adding overlays
-        await new Promise((r) => setTimeout(r, 500));
-        if (cancelled) return;
-
-        setMapReady(true);
-      } catch (err) {
+    loadGoogleMaps3D()
+      .then(() => {
+        if (!cancelled) setLoaded(true);
+      })
+      .catch((err) => {
         if (!cancelled) {
           setLoadError(
             err instanceof Error ? err.message : 'Unknown error loading map',
           );
         }
-      }
-    }
-
-    init();
+      });
 
     return () => {
       cancelled = true;
     };
   }, []);
 
-  /* ---- Render markers and polylines ---- */
+  /* ---- Create map element imperatively (once, when API is loaded) ---- */
   useEffect(() => {
-    const mapEl = mapElementRef.current;
-    if (!mapReady || !mapEl) return;
+    if (!loaded || !containerRef.current) return;
 
-    // Clear existing children (markers + polylines) — keep only the map element itself
-    const existingOverlays = mapEl.querySelectorAll(
-      'gmp-marker-3d, gmp-polyline-3d',
-    );
-    existingOverlays.forEach((el) => el.remove());
+    const container = containerRef.current;
 
-    const icn = AIRPORTS.ICN;
+    // Clear any previous content
+    container.innerHTML = '';
 
-    // Add ICN marker
-    const icnMarker = document.createElement(
-      'gmp-marker-3d',
-    ) as google.maps.maps3d.Marker3DElement;
-    icnMarker.position = { lat: icn.lat, lng: icn.lng, altitude: 0 };
-    icnMarker.label = 'ICN';
-    icnMarker.altitudeMode = 'CLAMP_TO_GROUND';
-    icnMarker.extruded = true;
-    mapEl.appendChild(icnMarker);
+    // Create Map3DElement imperatively
+    const map3d = document.createElement(
+      'gmp-map-3d',
+    ) as google.maps.maps3d.Map3DElement;
+    map3d.setAttribute('style', 'width:100%;height:100%;');
 
-    // Add routes & destination markers
-    routes.forEach((route) => {
-      const airport = AIRPORTS[route.destination];
-      if (!airport) return;
+    // Initial camera — zoomed out to see the full route network
+    map3d.center = { lat: 37.46, lng: 126.44, altitude: 0 };
+    map3d.range = 12000000;
+    map3d.tilt = 45;
+    map3d.heading = -30;
+    map3d.defaultLabelsDisabled = false;
 
-      const isHighlighted =
-        selectedAirline === 'all' ||
-        route.airlineCodes.includes(selectedAirline);
-      const primaryCode = route.airlineCodes[0];
-      const color = AIRLINE_HEX_COLORS[primaryCode] ?? DEFAULT_COLOR;
+    container.appendChild(map3d);
+    mapRef.current = map3d;
 
-      // Polyline (arc)
-      const arcPoints = generateArcPoints(
-        { lat: icn.lat, lng: icn.lng },
-        { lat: airport.lat, lng: airport.lng },
-        50,
-        300000,
-      );
+    // Wait for the custom element to be defined, then add overlays
+    const timer = setTimeout(() => {
+      addMarkersAndRoutes(map3d);
+    }, 1000);
 
-      const polyline = document.createElement(
-        'gmp-polyline-3d',
-      ) as google.maps.maps3d.Polyline3DElement;
-      polyline.altitudeMode = 'ABSOLUTE';
-      polyline.strokeColor = isHighlighted ? color : '#4b5563';
-      polyline.strokeWidth = route.isCargo && !route.isPassenger ? 4 : 2;
-      polyline.drawsOccludedSegments = true;
+    return () => {
+      clearTimeout(timer);
+      // Clean up: wipe all children from container (including the map)
+      container.innerHTML = '';
+      mapRef.current = null;
+    };
+    // Re-create map only when loaded status changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded]);
 
-      if (!isHighlighted) {
-        polyline.setAttribute('style', 'opacity: 0.15;');
+  /* ---- Update markers/routes when routes or selectedAirline change ---- */
+  useEffect(() => {
+    const map3d = mapRef.current;
+    if (!map3d || !loaded) return;
+
+    // Remove existing markers and polylines, but keep the map element itself
+    // Use a safe approach: collect children first, then remove them
+    const children = Array.from(map3d.children);
+    children.forEach((child) => {
+      const tag = child.tagName?.toUpperCase();
+      if (tag === 'GMP-MARKER-3D' || tag === 'GMP-POLYLINE-3D') {
+        try {
+          map3d.removeChild(child);
+        } catch {
+          // Silently skip if the node was already removed by the web component
+        }
       }
-
-      // Build coordinates element
-      const coordsEl = document.createElement('gmp-polyline-3d-coordinates');
-      const coordStr = arcPoints
-        .map((p) => `${p.lat},${p.lng},${p.altitude}`)
-        .join(' ');
-      coordsEl.setAttribute('coords', coordStr);
-      polyline.appendChild(coordsEl);
-
-      mapEl.appendChild(polyline);
-
-      // Destination marker
-      const marker = document.createElement(
-        'gmp-marker-3d',
-      ) as google.maps.maps3d.Marker3DElement;
-      marker.position = {
-        lat: airport.lat,
-        lng: airport.lng,
-        altitude: 0,
-      };
-      marker.label = route.destination;
-      marker.altitudeMode = 'CLAMP_TO_GROUND';
-
-      if (!isHighlighted) {
-        marker.setAttribute('style', 'opacity: 0.3;');
-      }
-
-      mapEl.appendChild(marker);
     });
-  }, [mapReady, routes, selectedAirline]);
+
+    addMarkersAndRoutes(map3d);
+  }, [loaded, routes, selectedAirline, addMarkersAndRoutes]);
 
   /* ---- Camera animation on airline filter change ---- */
   useEffect(() => {
-    const mapEl = mapElementRef.current;
-    if (!mapReady || !mapEl) return;
+    const map3d = mapRef.current;
+    if (!map3d || !loaded) return;
 
     // Only animate when the airline filter actually changes
     if (prevAirlineRef.current === selectedAirline) return;
@@ -392,15 +420,19 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
 
     if (selectedAirline === 'all') {
       // Reset to overview
-      mapEl.flyCameraTo({
-        endCamera: {
-          center: { lat: 37.46, lng: 126.44, altitude: 0 },
-          range: 12000000,
-          tilt: 45,
-          heading: -30,
-        },
-        durationMillis: 1500,
-      });
+      try {
+        map3d.flyCameraTo({
+          endCamera: {
+            center: { lat: 37.46, lng: 126.44, altitude: 0 },
+            range: 12000000,
+            tilt: 45,
+            heading: -30,
+          },
+          durationMillis: 1500,
+        });
+      } catch {
+        // flyCameraTo may not be available yet
+      }
       return;
     }
 
@@ -431,16 +463,20 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
     const maxSpread = Math.max(latSpread, lngSpread);
     const range = Math.max(2000000, maxSpread * 80000);
 
-    mapEl.flyCameraTo({
-      endCamera: {
-        center: { lat: centerLat, lng: centerLng, altitude: 0 },
-        range: Math.min(range, 15000000),
-        tilt: 50,
-        heading: -20,
-      },
-      durationMillis: 1200,
-    });
-  }, [mapReady, selectedAirline, routes]);
+    try {
+      map3d.flyCameraTo({
+        endCamera: {
+          center: { lat: centerLat, lng: centerLng, altitude: 0 },
+          range: Math.min(range, 15000000),
+          tilt: 50,
+          heading: -20,
+        },
+        durationMillis: 1200,
+      });
+    } catch {
+      // flyCameraTo may not be available yet
+    }
+  }, [loaded, selectedAirline, routes]);
 
   /* ---- Loading / Error states ---- */
   if (loadError) {
@@ -456,12 +492,12 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
 
   return (
     <div className="rounded-2xl overflow-hidden w-full bg-[#070f1b] relative">
-      {/* Map container */}
+      {/* Map container — managed entirely via imperative DOM APIs */}
       <div
         ref={containerRef}
         className="w-full h-[350px] md:h-[500px] relative"
       >
-        {!mapReady && (
+        {!loaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#070f1b]">
             <div className="flex flex-col items-center gap-3">
               <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
@@ -474,7 +510,7 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
       </div>
 
       {/* Header overlay */}
-      {mapReady && (
+      {loaded && (
         <div className="absolute top-3 left-4 z-10">
           <h3 className="text-sm font-semibold text-white/90 tracking-wide drop-shadow-lg bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-lg">
             {t('schedule.routeMap.title')}
@@ -483,7 +519,7 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
       )}
 
       {/* Type legend overlay */}
-      {mapReady && (
+      {loaded && (
         <div className="absolute top-3 right-4 z-10 flex items-center gap-3 text-[10px] text-white/70 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-lg">
           <span className="flex items-center gap-1">
             <span className="inline-block w-5 h-[2px] bg-white/60 rounded" />
