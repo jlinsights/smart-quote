@@ -179,7 +179,10 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
   language,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<google.maps.maps3d.Map3DElement | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mapRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const libRef = useRef<any>(null);
   const [loaded, setLoaded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const isKo = language === 'ko';
@@ -249,18 +252,20 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
 
   /* ---- Helper: add markers and polylines to map element ---- */
   const addMarkersAndRoutes = useCallback(
-    (map3d: google.maps.maps3d.Map3DElement) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (map3d: any) => {
+      if (!libRef.current) return;
+      const { Marker3DElement, Polyline3DElement } = libRef.current;
       const icn = AIRPORTS.ICN;
 
       // ICN hub marker
-      const icnMarker = document.createElement(
-        'gmp-marker-3d',
-      ) as google.maps.maps3d.Marker3DElement;
-      icnMarker.position = { lat: icn.lat, lng: icn.lng, altitude: 0 };
-      icnMarker.label = 'ICN';
-      icnMarker.altitudeMode = 'CLAMP_TO_GROUND';
-      icnMarker.extruded = true;
-      map3d.appendChild(icnMarker);
+      const icnMarker = new Marker3DElement({
+        position: { lat: icn.lat, lng: icn.lng, altitude: 0 },
+        label: 'ICN — Seoul/Incheon',
+        altitudeMode: 'CLAMP_TO_GROUND',
+        extruded: true,
+      });
+      map3d.append(icnMarker);
 
       // Route polylines + destination markers
       routes.forEach((route) => {
@@ -281,46 +286,41 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
           300000,
         );
 
-        // Create polyline
-        const polyline = document.createElement(
-          'gmp-polyline-3d',
-        ) as google.maps.maps3d.Polyline3DElement;
-        polyline.altitudeMode = 'ABSOLUTE';
-        polyline.strokeColor = isHighlighted ? color : '#4b5563';
-        polyline.strokeWidth = route.isCargo && !route.isPassenger ? 4 : 2;
-        polyline.drawsOccludedSegments = true;
+        // Create polyline using constructor
+        try {
+          const polyline = new Polyline3DElement({
+            altitudeMode: 'ABSOLUTE',
+            strokeColor: isHighlighted ? color : '#4b5563',
+            strokeWidth: route.isCargo && !route.isPassenger ? 4 : 2,
+            drawsOccludedSegments: true,
+            coordinates: arcPoints.map((p) => ({
+              lat: p.lat,
+              lng: p.lng,
+              altitude: p.altitude,
+            })),
+          });
 
-        if (!isHighlighted) {
-          polyline.setAttribute('style', 'opacity: 0.15;');
+          if (!isHighlighted) {
+            polyline.style.opacity = '0.15';
+          }
+
+          map3d.append(polyline);
+        } catch {
+          // Polyline3DElement may not be available in all alpha builds
         }
-
-        // Build coordinates element
-        const coordsEl = document.createElement('gmp-polyline-3d-coordinates');
-        const coordStr = arcPoints
-          .map((p) => `${p.lat},${p.lng},${p.altitude}`)
-          .join(' ');
-        coordsEl.setAttribute('coords', coordStr);
-        polyline.appendChild(coordsEl);
-
-        map3d.appendChild(polyline);
 
         // Destination marker
-        const marker = document.createElement(
-          'gmp-marker-3d',
-        ) as google.maps.maps3d.Marker3DElement;
-        marker.position = {
-          lat: airport.lat,
-          lng: airport.lng,
-          altitude: 0,
-        };
-        marker.label = route.destination;
-        marker.altitudeMode = 'CLAMP_TO_GROUND';
+        const marker = new Marker3DElement({
+          position: { lat: airport.lat, lng: airport.lng, altitude: 0 },
+          label: route.destination,
+          altitudeMode: 'CLAMP_TO_GROUND',
+        });
 
         if (!isHighlighted) {
-          marker.setAttribute('style', 'opacity: 0.3;');
+          marker.style.opacity = '0.3';
         }
 
-        map3d.appendChild(marker);
+        map3d.append(marker);
       });
     },
     [routes, selectedAirline],
@@ -331,8 +331,11 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
     let cancelled = false;
 
     loadGoogleMaps3D()
-      .then(() => {
-        if (!cancelled) setLoaded(true);
+      .then((lib) => {
+        if (!cancelled) {
+          libRef.current = lib;
+          setLoaded(true);
+        }
       })
       .catch((err) => {
         if (!cancelled) {
@@ -349,33 +352,32 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
 
   /* ---- Create map element imperatively (once, when API is loaded) ---- */
   useEffect(() => {
-    if (!loaded || !containerRef.current) return;
+    if (!loaded || !containerRef.current || !libRef.current) return;
 
     const container = containerRef.current;
+    const { Map3DElement } = libRef.current;
 
     // Clear any previous content
     container.innerHTML = '';
 
-    // Create Map3DElement imperatively
-    const map3d = document.createElement(
-      'gmp-map-3d',
-    ) as google.maps.maps3d.Map3DElement;
-    map3d.setAttribute('style', 'width:100%;height:100%;');
-
-    // Initial camera — zoomed out to see the full route network
-    map3d.center = { lat: 37.46, lng: 126.44, altitude: 0 };
-    map3d.range = 12000000;
-    map3d.tilt = 45;
-    map3d.heading = -30;
-    map3d.defaultLabelsDisabled = false;
+    // Create Map3DElement using the constructor from importLibrary
+    const map3d = new Map3DElement({
+      center: { lat: 37.46, lng: 126.44, altitude: 0 },
+      range: 12000000,
+      tilt: 45,
+      heading: -30,
+      defaultLabelsDisabled: false,
+    });
+    map3d.style.width = '100%';
+    map3d.style.height = '100%';
 
     container.appendChild(map3d);
     mapRef.current = map3d;
 
-    // Wait for the custom element to be defined, then add overlays
+    // Wait for the custom element to render, then add overlays
     const timer = setTimeout(() => {
       addMarkersAndRoutes(map3d);
-    }, 1000);
+    }, 1500);
 
     return () => {
       clearTimeout(timer);
@@ -394,8 +396,8 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
 
     // Remove existing markers and polylines, but keep the map element itself
     // Use a safe approach: collect children first, then remove them
-    const children = Array.from(map3d.children);
-    children.forEach((child) => {
+    const children = Array.from(map3d.children) as HTMLElement[];
+    children.forEach((child: HTMLElement) => {
       const tag = child.tagName?.toUpperCase();
       if (tag === 'GMP-MARKER-3D' || tag === 'GMP-POLYLINE-3D') {
         try {

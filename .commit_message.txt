@@ -1,1 +1,1 @@
-🔧 fix: RouteMap3D React/WebComponent DOM 충돌 해결 — ref 기반 imperative 렌더링
+🔧 fix: Google Maps 3D 생성자 패턴으로 전환 — importLibrary + new Map3DElement()

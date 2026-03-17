@@ -1,11 +1,19 @@
 /**
  * Google Maps 3D API loader (alpha version).
- * Uses dynamic script injection to load the alpha build with maps3d + marker libraries.
+ * Loads the script and imports the maps3d library, returning constructors.
  */
 
-let loadPromise: Promise<void> | null = null;
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-export function loadGoogleMaps3D(): Promise<void> {
+interface Maps3DLib {
+  Map3DElement: any;
+  Marker3DElement: any;
+  Polyline3DElement: any;
+}
+
+let loadPromise: Promise<Maps3DLib> | null = null;
+
+export function loadGoogleMaps3D(): Promise<Maps3DLib> {
   if (loadPromise) return loadPromise;
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
@@ -13,22 +21,36 @@ export function loadGoogleMaps3D(): Promise<void> {
     return Promise.reject(new Error('Google Maps API key not configured'));
   }
 
-  // Already loaded (e.g. by another script tag)
-  if (typeof google !== 'undefined' && google.maps) {
-    return Promise.resolve();
-  }
-
-  loadPromise = new Promise<void>((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=alpha&libraries=maps3d,marker`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => resolve();
-    script.onerror = () => {
-      loadPromise = null;
-      reject(new Error('Failed to load Google Maps'));
+  loadPromise = new Promise<Maps3DLib>((resolve, reject) => {
+    // Load the script first
+    const loadScript = (): Promise<void> => {
+      if (typeof google !== 'undefined' && google.maps) {
+        return Promise.resolve();
+      }
+      return new Promise((res, rej) => {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=alpha&libraries=maps3d,marker`;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => res();
+        script.onerror = () => rej(new Error('Failed to load Google Maps'));
+        document.head.appendChild(script);
+      });
     };
-    document.head.appendChild(script);
+
+    loadScript()
+      .then(() => (google.maps as any).importLibrary('maps3d'))
+      .then((lib: any) => {
+        resolve({
+          Map3DElement: lib.Map3DElement,
+          Marker3DElement: lib.Marker3DElement,
+          Polyline3DElement: lib.Polyline3DElement,
+        });
+      })
+      .catch((err) => {
+        loadPromise = null;
+        reject(err);
+      });
   });
 
   return loadPromise;
