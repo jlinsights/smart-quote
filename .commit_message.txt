@@ -1,1 +1,1 @@
-✨ feat: UPS Extended/Remote Area Surcharge 우편번호 기반 자동감지 (86개국, 39,876 zip ranges)
+♻️ refactor: Critical 3건 + Warning 5건 해결 — 공유 모듈 추출, 중복 제거, 성능 최적화

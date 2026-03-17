@@ -7,17 +7,11 @@ import {
 } from "@/types";
 import {
   FUMIGATION_FEE,
-  SURGE_RATES,
   DEFAULT_EXCHANGE_RATE,
   PACKING_MATERIAL_BASE_COST,
   PACKING_LABOR_UNIT_COST,
   WAR_RISK_SURCHARGE_RATE
 } from "@/config/rates";
-import {
-  SURGE_THRESHOLDS,
-  PACKING_WEIGHT_BUFFER,
-  PACKING_WEIGHT_ADDITION
-} from "@/config/business-rules";
 import { UPS_EXACT_RATES, UPS_RANGE_RATES } from "@/config/ups_tariff";
 import { DHL_EXACT_RATES, DHL_RANGE_RATES } from "@/config/dhl_tariff";
 import { EMAX_RATES, EMAX_HANDLING_CHARGE } from "@/config/emax_tariff";
@@ -35,6 +29,9 @@ import {
   calculateUpsExtendedAreaFee,
   getUpsSurgeFeePerKg,
 } from "@/config/ups_addons";
+import { calcAddonFee, findRate } from "@/config/addon-utils";
+import type { AddonRateLike } from "@/config/addon-utils";
+import { applyPackingDimensions } from "@/lib/packing-utils";
 
 // --- Types for Internal Calculations ---
 interface ItemCalculationResult {
@@ -60,104 +57,121 @@ export const calculateVolumetricWeight = (l: number, w: number, h: number, divis
   return (Math.ceil(l) * Math.ceil(w) * Math.ceil(h)) / divisor;
 };
 
-export const determineUpsZone = (country: string): { rateKey: string; label: string } => {
-   // Aligned with backend Calculators::UpsZone (Z1-Z10)
+// --- Zone Mappings (WARNING 1: config-driven) ---
 
-   // Z1: SG, TW, MO, CN
-   if (['SG', 'TW', 'MO', 'CN'].includes(country)) return { rateKey: 'Z1', label: 'SG/TW/MO/CN' };
-
-   // Z2: JP, VN
-   if (['JP', 'VN'].includes(country)) return { rateKey: 'Z2', label: 'JP/VN' };
-
-   // Z3: TH, PH
-   if (['TH', 'PH'].includes(country)) return { rateKey: 'Z3', label: 'TH/PH' };
-
-   // Z4: AU, IN
-   if (['AU', 'IN'].includes(country)) return { rateKey: 'Z4', label: 'AU/IN' };
-
-   // Z5: CA, US
-   if (['CA', 'US'].includes(country)) return { rateKey: 'Z5', label: 'CA/US' };
-
-   // Z6: ES, IT, GB, FR
-   if (['ES', 'IT', 'GB', 'FR'].includes(country)) return { rateKey: 'Z6', label: 'ES/IT/GB/FR' };
-
-   // Z7: DK, NO, SE, FI, DE, NL, BE, IE, CH, AT, PT, CZ, PL, HU, RO, BG
-   if (['DK', 'NO', 'SE', 'FI', 'DE', 'NL', 'BE', 'IE', 'CH', 'AT', 'PT', 'CZ', 'PL', 'HU', 'RO', 'BG'].includes(country))
-     return { rateKey: 'Z7', label: 'EEU/DK/NO' };
-
-   // Z8: S.America, Middle East, Africa (per UPS 2026 Service Guide)
-   if (['AR', 'BR', 'CL', 'CO', 'AE', 'TR', 'ZA', 'EG', 'BH', 'SA', 'PK', 'KW', 'QA'].includes(country))
-     return { rateKey: 'Z8', label: 'S.Am/ME/Africa' };
-
-   // Z9: Israel, Jordan, Lebanon
-   if (['IL', 'JO', 'LB'].includes(country)) return { rateKey: 'Z9', label: 'IL/JO/LB' };
-
-   // Z10: HK (+ default)
-   if (['HK'].includes(country)) return { rateKey: 'Z10', label: 'HK' };
-
-   // Default catch-all
-   return { rateKey: 'Z10', label: 'Rest of World' };
+const UPS_ZONE_MAP: Record<string, { rateKey: string; label: string }> = {
+  SG: { rateKey: 'Z1', label: 'SG/TW/MO/CN' },
+  TW: { rateKey: 'Z1', label: 'SG/TW/MO/CN' },
+  MO: { rateKey: 'Z1', label: 'SG/TW/MO/CN' },
+  CN: { rateKey: 'Z1', label: 'SG/TW/MO/CN' },
+  JP: { rateKey: 'Z2', label: 'JP/VN' },
+  VN: { rateKey: 'Z2', label: 'JP/VN' },
+  TH: { rateKey: 'Z3', label: 'TH/PH' },
+  PH: { rateKey: 'Z3', label: 'TH/PH' },
+  AU: { rateKey: 'Z4', label: 'AU/IN' },
+  IN: { rateKey: 'Z4', label: 'AU/IN' },
+  CA: { rateKey: 'Z5', label: 'CA/US' },
+  US: { rateKey: 'Z5', label: 'CA/US' },
+  ES: { rateKey: 'Z6', label: 'ES/IT/GB/FR' },
+  IT: { rateKey: 'Z6', label: 'ES/IT/GB/FR' },
+  GB: { rateKey: 'Z6', label: 'ES/IT/GB/FR' },
+  FR: { rateKey: 'Z6', label: 'ES/IT/GB/FR' },
+  DK: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  NO: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  SE: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  FI: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  DE: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  NL: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  BE: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  IE: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  CH: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  AT: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  PT: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  CZ: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  PL: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  HU: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  RO: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  BG: { rateKey: 'Z7', label: 'EEU/DK/NO' },
+  AR: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  BR: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  CL: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  CO: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  AE: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  TR: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  ZA: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  EG: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  BH: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  SA: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  PK: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  KW: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  QA: { rateKey: 'Z8', label: 'S.Am/ME/Africa' },
+  IL: { rateKey: 'Z9', label: 'IL/JO/LB' },
+  JO: { rateKey: 'Z9', label: 'IL/JO/LB' },
+  LB: { rateKey: 'Z9', label: 'IL/JO/LB' },
+  HK: { rateKey: 'Z10', label: 'HK' },
 };
 
-// Retained for future reactivation of carrier surge auto-calculation.
-// Currently tested but not called in production code path.
-export const calculateItemSurge = (
-  l: number,
-  w: number,
-  h: number,
-  weight: number,
-  packingType: PackingType,
-  itemIndex: number
-): { surgeCost: number; warnings: string[] } => {
-    let surgeCost = 0;
-    const warnings: string[] = [];
+const UPS_DEFAULT_ZONE = { rateKey: 'Z10', label: 'Rest of World' };
 
-    const sortedDims = [l, w, h].sort((a, b) => b - a);
-    const longest = sortedDims[0];
-    const secondLongest = sortedDims[1];
-    const actualGirth = longest + (2 * secondLongest) + (2 * sortedDims[2]);
+export const determineUpsZone = (country: string): { rateKey: string; label: string } =>
+  UPS_ZONE_MAP[country] || UPS_DEFAULT_ZONE;
 
-    let packageSurgeApplied = false;
-    let surgeReason = "";
-
-    if (longest > SURGE_THRESHOLDS.MAX_LIMIT_LENGTH_CM || weight > 70 || actualGirth > SURGE_THRESHOLDS.MAX_LIMIT_GIRTH_CM) {
-        surgeCost += SURGE_RATES.OVER_MAX;
-        warnings.push(`Box #${itemIndex + 1}: Exceeds Max Limits (L>${SURGE_THRESHOLDS.MAX_LIMIT_LENGTH_CM}cm or >70kg). Heavy penalty applied.`);
-        packageSurgeApplied = true;
-    }
-    else if (actualGirth > SURGE_THRESHOLDS.LPS_LENGTH_GIRTH_CM) {
-        surgeCost += SURGE_RATES.LARGE_PACKAGE;
-        surgeReason = "Large Package (L+Girth > 300cm)";
-        packageSurgeApplied = true;
-    }
-
-    if (!packageSurgeApplied || surgeReason.includes("Large Package")) {
-        if (weight > SURGE_THRESHOLDS.AHS_WEIGHT_KG) {
-             surgeCost += SURGE_RATES.AHS_WEIGHT;
-             if (!packageSurgeApplied) surgeReason = "AHS Weight (>25kg)";
-             else surgeReason += " + AHS Weight";
-             packageSurgeApplied = true;
-        }
-        else if (!surgeReason.includes("Large Package")) {
-            if (longest > SURGE_THRESHOLDS.AHS_DIM_LONG_SIDE_CM || secondLongest > SURGE_THRESHOLDS.AHS_DIM_SECOND_SIDE_CM) {
-                surgeCost += SURGE_RATES.AHS_DIMENSION;
-                surgeReason = "AHS Dim (L>122 or W>76)";
-                packageSurgeApplied = true;
-            }
-            else if ([PackingType.WOODEN_BOX, PackingType.SKID].includes(packingType)) {
-                surgeCost += SURGE_RATES.AHS_DIMENSION;
-                surgeReason = "AHS Packing (Wood/Skid)";
-                packageSurgeApplied = true;
-            }
-        }
-    }
-
-    if (packageSurgeApplied && warnings.length === 0) {
-         warnings.push(`Box #${itemIndex + 1}: ${surgeReason} applied.`);
-    }
-
-    return { surgeCost, warnings };
+const DHL_ZONE_MAP: Record<string, { rateKey: string; label: string }> = {
+  CN: { rateKey: 'Z1', label: 'China/HK/SG' },
+  HK: { rateKey: 'Z1', label: 'China/HK/SG' },
+  MO: { rateKey: 'Z1', label: 'China/HK/SG' },
+  SG: { rateKey: 'Z1', label: 'China/HK/SG' },
+  TW: { rateKey: 'Z1', label: 'China/HK/SG' },
+  JP: { rateKey: 'Z2', label: 'Japan' },
+  PH: { rateKey: 'Z3', label: 'PH/VN/TH' },
+  VN: { rateKey: 'Z3', label: 'PH/VN/TH' },
+  TH: { rateKey: 'Z3', label: 'PH/VN/TH' },
+  AU: { rateKey: 'Z4', label: 'AU/KH/IN' },
+  KH: { rateKey: 'Z4', label: 'AU/KH/IN' },
+  IN: { rateKey: 'Z4', label: 'AU/KH/IN' },
+  US: { rateKey: 'Z5', label: 'US/CA' },
+  CA: { rateKey: 'Z5', label: 'US/CA' },
+  GB: { rateKey: 'Z6', label: 'Europe' },
+  FR: { rateKey: 'Z6', label: 'Europe' },
+  DE: { rateKey: 'Z6', label: 'Europe' },
+  IT: { rateKey: 'Z6', label: 'Europe' },
+  ES: { rateKey: 'Z6', label: 'Europe' },
+  DK: { rateKey: 'Z6', label: 'Europe' },
+  NL: { rateKey: 'Z6', label: 'Europe' },
+  BE: { rateKey: 'Z6', label: 'Europe' },
+  CH: { rateKey: 'Z6', label: 'Europe' },
+  FI: { rateKey: 'Z6', label: 'Europe' },
+  SE: { rateKey: 'Z6', label: 'Europe' },
+  NO: { rateKey: 'Z6', label: 'Europe' },
+  AT: { rateKey: 'Z6', label: 'Europe' },
+  PT: { rateKey: 'Z6', label: 'Europe' },
+  IE: { rateKey: 'Z6', label: 'Europe' },
+  MC: { rateKey: 'Z6', label: 'Europe' },
+  CZ: { rateKey: 'Z7', label: 'Eastern Europe' },
+  PL: { rateKey: 'Z7', label: 'Eastern Europe' },
+  HU: { rateKey: 'Z7', label: 'Eastern Europe' },
+  RO: { rateKey: 'Z7', label: 'Eastern Europe' },
+  BG: { rateKey: 'Z7', label: 'Eastern Europe' },
+  BR: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  AR: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  CL: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  CO: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  ZA: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  EG: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  AE: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  TR: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  BH: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  IL: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  JO: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  LB: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  SA: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
+  PK: { rateKey: 'Z8', label: 'S.Am/Africa/ME' },
 };
+
+const DHL_DEFAULT_ZONE = { rateKey: 'Z8', label: 'Rest of World' };
+
+export const determineDhlZone = (country: string): { rateKey: string; label: string } =>
+  DHL_ZONE_MAP[country] || DHL_DEFAULT_ZONE;
 
 // --- Common Rate Lookup for UPS/DHL ---
 const roundToHalf = (num: number) => Math.ceil(num * 2) / 2;
@@ -207,18 +221,11 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
   const warnings: string[] = [];
 
   items.forEach((item) => {
-    let l = item.length;
-    let w = item.width;
-    let h = item.height;
-    let weight = item.weight;
+    const packed = applyPackingDimensions(item.length, item.width, item.height, item.weight, packingType);
+    const { l, w, h, weight } = packed;
 
     // Packing impact
     if (packingType !== PackingType.NONE) {
-      l += 10;
-      w += 10;
-      h += 15;
-      weight = weight * PACKING_WEIGHT_BUFFER + PACKING_WEIGHT_ADDITION;
-
       const surfaceAreaM2 = (2 * (l*w + l*h + w*h)) / 10000;
       packingMaterialCost += surfaceAreaM2 * PACKING_MATERIAL_BASE_COST * item.quantity;
       packingLaborCost += PACKING_LABOR_UNIT_COST * item.quantity;
@@ -274,30 +281,6 @@ export const calculateUpsCosts = (
 
 // --- DHL Calculator ---
 
-export const determineDhlZone = (country: string): { rateKey: string; label: string } => {
-  // Aligned with DHL Express Korea 공식 항공요금표 (2026-02)
-  // Z1: 중국, 홍콩, 싱가포르 (TW/MO not in PDF — kept provisionally, verify with DHL)
-  if (['CN', 'HK', 'MO', 'SG', 'TW'].includes(country)) return { rateKey: 'Z1', label: 'China/HK/SG' };
-  // Z2: 일본
-  if (['JP'].includes(country)) return { rateKey: 'Z2', label: 'Japan' };
-  // Z3: 필리핀, 베트남, 태국
-  if (['PH', 'VN', 'TH'].includes(country)) return { rateKey: 'Z3', label: 'PH/VN/TH' };
-  // Z4: 호주, 캄보디아, 인도
-  if (['AU', 'KH', 'IN'].includes(country)) return { rateKey: 'Z4', label: 'AU/KH/IN' };
-  // Z5: 미국, 캐나다
-  if (['US', 'CA'].includes(country)) return { rateKey: 'Z5', label: 'US/CA' };
-  // Z6: 유럽 (서유럽 + 북유럽)
-  if (['GB', 'FR', 'DE', 'IT', 'ES', 'DK', 'NL', 'BE', 'CH', 'FI', 'SE', 'NO', 'AT', 'PT', 'IE', 'MC'].includes(country))
-    return { rateKey: 'Z6', label: 'Europe' };
-  // Z7: 동유럽
-  if (['CZ', 'PL', 'HU', 'RO', 'BG'].includes(country))
-    return { rateKey: 'Z7', label: 'Eastern Europe' };
-  // Z8: 남미, 아프리카, 중동
-  if (['BR', 'AR', 'CL', 'CO', 'ZA', 'EG', 'AE', 'TR', 'BH', 'IL', 'JO', 'LB', 'SA', 'PK'].includes(country))
-    return { rateKey: 'Z8', label: 'S.Am/Africa/ME' };
-  return { rateKey: 'Z8', label: 'Rest of World' };
-};
-
 export const calculateDhlCosts = (
   billableWeight: number,
   country: string,
@@ -339,25 +322,6 @@ export const calculateEmaxCosts = (
 
 // --- DHL Add-on Cost Calculator ---
 
-// Generic add-on fee calculator for 'calculated' charge types using DB params
-const calcAddonFee = (
-  rate: { chargeType: string; amount: number; perKgRate?: number | null; ratePercent?: number | null; minAmount?: number | null },
-  billableWeight: number,
-  declaredValue: number
-): number => {
-  if (rate.chargeType === 'calculated') {
-    if (rate.perKgRate) {
-      const min = rate.minAmount ?? rate.amount;
-      return Math.max(min, Math.ceil(billableWeight) * rate.perKgRate);
-    }
-    if (rate.ratePercent) {
-      const min = rate.minAmount ?? rate.amount;
-      return Math.max(declaredValue * rate.ratePercent / 100, min);
-    }
-  }
-  return rate.amount;
-};
-
 const calculateDhlAddOnCosts = (
   input: QuoteInput,
   billableWeight: number,
@@ -371,38 +335,18 @@ const calculateDhlAddOnCosts = (
   const dbRates = input.resolvedAddonRates?.filter(r => r.carrier === 'DHL');
   const useDb = dbRates && dbRates.length > 0;
 
-  type AddonRateLike = {
-    code: string; nameKo: string; nameEn: string; amount: number;
-    chargeType: string; fscApplicable: boolean;
-    perKgRate?: number | null; ratePercent?: number | null; minAmount?: number | null;
-    detectRules?: Record<string, number | string[]> | null;
-  };
-
-  const findRate = (code: string): AddonRateLike | null => {
-    if (useDb) {
-      const r = dbRates!.find(a => a.code === code);
-      return r ? { ...r } : null;
-    }
-    const h = DHL_ADDON_RATES.find(a => a.code === code);
-    return h ? { code: h.code, nameKo: h.nameKo, nameEn: h.nameEn, amount: h.amount, chargeType: h.chargeType, fscApplicable: h.fscApplicable } : null;
-  };
+  const findDhlRate = (code: string): AddonRateLike | null =>
+    findRate(code, useDb ? dbRates : undefined, DHL_ADDON_RATES);
 
   // 1. Auto-detected: OSP and OWT
   let ospCount = 0;
   let owtCount = 0;
-  const ospDef = findRate("OSP");
-  const owtDef = findRate("OWT");
+  const ospDef = findDhlRate("OSP");
+  const owtDef = findDhlRate("OWT");
 
   input.items.forEach((item) => {
-    let l = item.length;
-    let w = item.width;
-    let h = item.height;
-    let weight = item.weight;
-
-    if (input.packingType !== PackingType.NONE) {
-      l += 10; w += 10; h += 15;
-      weight = weight * PACKING_WEIGHT_BUFFER + PACKING_WEIGHT_ADDITION;
-    }
+    const packed = applyPackingDimensions(item.length, item.width, item.height, item.weight, input.packingType);
+    const { l, w, h, weight } = packed;
 
     // OSP detection using DB detectRules or hardcoded
     if (useDb && ospDef?.detectRules) {
@@ -440,7 +384,7 @@ const calculateDhlAddOnCosts = (
   // 2. User-selected add-ons
   const selectedCodes = input.dhlAddOns || [];
   selectedCodes.forEach((code) => {
-    const addon = findRate(code);
+    const addon = findDhlRate(code);
     if (!addon) return;
 
     let amount: number;
@@ -483,36 +427,16 @@ const calculateUpsAddOnCosts = (
   const dbRates = input.resolvedAddonRates?.filter(r => r.carrier === 'UPS');
   const useDb = dbRates && dbRates.length > 0;
 
-  type AddonRateLike = {
-    code: string; nameKo: string; nameEn: string; amount: number;
-    chargeType: string; fscApplicable: boolean;
-    perKgRate?: number | null; ratePercent?: number | null; minAmount?: number | null;
-    detectRules?: Record<string, number | string[]> | null;
-  };
-
-  const findRate = (code: string): AddonRateLike | null => {
-    if (useDb) {
-      const r = dbRates!.find(a => a.code === code);
-      return r ? { ...r } : null;
-    }
-    const h = UPS_ADDON_RATES.find(a => a.code === code);
-    return h ? { code: h.code, nameKo: h.nameKo, nameEn: h.nameEn, amount: h.amount, chargeType: h.chargeType, fscApplicable: h.fscApplicable } : null;
-  };
+  const findUpsRate = (code: string): AddonRateLike | null =>
+    findRate(code, useDb ? dbRates : undefined, UPS_ADDON_RATES);
 
   // 1. Auto-detected: AHS (Additional Handling)
   let ahsCount = 0;
-  const ahsDef = findRate("AHS");
+  const ahsDef = findUpsRate("AHS");
 
   input.items.forEach((item) => {
-    let l = item.length;
-    let w = item.width;
-    let h = item.height;
-    let weight = item.weight;
-
-    if (input.packingType !== PackingType.NONE) {
-      l += 10; w += 10; h += 15;
-      weight = weight * PACKING_WEIGHT_BUFFER + PACKING_WEIGHT_ADDITION;
-    }
+    const packed = applyPackingDimensions(item.length, item.width, item.height, item.weight, input.packingType);
+    const { l, w, h, weight } = packed;
 
     if (useDb && ahsDef?.detectRules) {
       const rules = ahsDef.detectRules;
@@ -538,14 +462,14 @@ const calculateUpsAddOnCosts = (
 
   // 2. Auto-detected: DDP Service Fee
   if (input.incoterm === Incoterm.DDP) {
-    const ddpDef = findRate("DDP");
+    const ddpDef = findUpsRate("DDP");
     if (ddpDef) {
       details.push({ code: "DDP", nameKo: ddpDef.nameKo, nameEn: ddpDef.nameEn, amount: ddpDef.amount, fscAmount: 0 });
       total += ddpDef.amount;
     }
   }
 
-  // 3. Auto-detected: UPS Surge Fee (급증 수수료) — Middle East / Israel destinations
+  // 3. Auto-detected: UPS Surge Fee — Middle East / Israel destinations
   const surgeFeeInfo = getUpsSurgeFeePerKg(input.destinationCountry);
   if (surgeFeeInfo) {
     const surgeAmount = Math.ceil(billableWeight) * surgeFeeInfo.rate;
@@ -563,7 +487,7 @@ const calculateUpsAddOnCosts = (
   // 4. User-selected add-ons
   const selectedCodes = input.upsAddOns || [];
   selectedCodes.forEach((code) => {
-    const addon = findRate(code);
+    const addon = findUpsRate(code);
     if (!addon) return;
 
     let amount: number;
@@ -606,7 +530,6 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
     packingFumigationCost = FUMIGATION_FEE;
   }
 
-  const finalHandlingFee = 0;
   // Packing & Docs = user-entered manualPackingCost only. No auto handling fee.
   // When manualPackingCost is set: material=override, labor=0, fumigation=0, handling=0
   // When manualPackingCost is empty: material=auto, labor=auto, fumigation=auto, handling=0
@@ -692,12 +615,12 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   // 4a. Extra Pick-up in Seoul cost
   const pickupInSeoul = input.pickupInSeoulCost ?? 0;
 
-  // 5. Totals
-  const totalCostAmount = packingTotal + finalHandlingFee + intlTotal + carrierAddOnTotal + destDuty + pickupInSeoul;
+  // 5. Totals (WARNING 2: finalHandlingFee removed — was always 0)
+  const totalCostAmount = packingTotal + intlTotal + carrierAddOnTotal + destDuty + pickupInSeoul;
 
   let quoteBasisCost = 0;
   if ([Incoterm.EXW, Incoterm.FOB].includes(input.incoterm)) {
-     quoteBasisCost = packingTotal + finalHandlingFee;
+     quoteBasisCost = packingTotal;
      userWarnings.push("Collect Term: International Freight calculated for reference but may be billed to Consignee/Partner.");
   } else {
      quoteBasisCost = totalCostAmount;
@@ -705,18 +628,18 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
 
   // 6. Margin & Revenue (% based)
   const exchangeRate = input.exchangeRate || DEFAULT_EXCHANGE_RATE;
-  
+
   // Calculate target revenue based on margin percentage
-  // Target Revenue = Cost / (1 - Margin/100) 
+  // Target Revenue = Cost / (1 - Margin/100)
   // e.g. 15% margin -> Revenue = Cost / 0.85
   const safeMarginPercent = Math.max(input.marginPercent ?? 15, 0);
-  
+
   let targetRevenue = quoteBasisCost;
   // Prevent division by zero if margin is set to 100% or higher
   if (safeMarginPercent < 100) {
      targetRevenue = quoteBasisCost / (1 - (safeMarginPercent / 100));
   }
-  
+
   const marginAmount = targetRevenue - quoteBasisCost;
   const totalQuoteAmount = Math.ceil(targetRevenue / 100) * 100; // Round up to nearest 100 KRW
   const totalQuoteAmountUSD = totalQuoteAmount / exchangeRate;
@@ -748,7 +671,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
       packingMaterial: itemResult.packingMaterialCost,
       packingLabor: itemResult.packingLaborCost,
       packingFumigation: packingFumigationCost,
-      handlingFees: finalHandlingFee,
+      handlingFees: 0,
       pickupInSeoul,
       intlBase: carrierResult.intlBase,
       intlFsc: carrierResult.intlFsc,

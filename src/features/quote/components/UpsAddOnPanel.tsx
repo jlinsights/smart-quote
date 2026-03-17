@@ -2,65 +2,14 @@ import React from 'react';
 import { CargoItem, PackingType, Incoterm } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
-  UPS_ADDON_RATES,
   isUpsAdditionalHandling,
 } from '@/config/ups_addons';
+import { normalizeUpsRates } from '@/config/addon-utils';
+import type { NormalizedRate } from '@/config/addon-utils';
 import type { AddonRate } from '@/api/addonRateApi';
 import { AlertTriangle, Package, Info, MapPin } from 'lucide-react';
 import { lookupEasSurcharge, preloadEasData, type EasSurchargeType } from '@/config/ups_eas_lookup';
-
-// Unified shape for both hardcoded and DB rates
-interface NormalizedRate {
-  code: string;
-  nameKo: string;
-  nameEn: string;
-  amount: number;
-  chargeType: string;
-  unit: string;
-  fscApplicable: boolean;
-  autoDetect: boolean;
-  selectable: boolean;
-  condition: string | null;
-  perKgRate: number | null;
-  minAmount: number | null;
-  detectRules: Record<string, number | string[]> | null;
-}
-
-function normalizeRates(dbRates?: AddonRate[]): NormalizedRate[] {
-  if (dbRates && dbRates.length > 0) {
-    return dbRates.map(r => ({
-      code: r.code,
-      nameKo: r.nameKo,
-      nameEn: r.nameEn,
-      amount: r.amount,
-      chargeType: r.chargeType,
-      unit: r.unit,
-      fscApplicable: r.fscApplicable,
-      autoDetect: r.autoDetect,
-      selectable: r.selectable,
-      condition: r.condition,
-      perKgRate: r.perKgRate,
-      minAmount: r.minAmount,
-      detectRules: r.detectRules,
-    }));
-  }
-  // Hardcoded fallback
-  return UPS_ADDON_RATES.map(r => ({
-    code: r.code,
-    nameKo: r.nameKo,
-    nameEn: r.nameEn,
-    amount: r.amount,
-    chargeType: r.chargeType,
-    unit: r.unit,
-    fscApplicable: r.fscApplicable,
-    autoDetect: r.autoDetect ?? false,
-    selectable: r.selectable,
-    condition: r.condition ?? null,
-    perKgRate: r.code === 'RMT' ? 570 : r.code === 'EXT' ? 640 : null,
-    minAmount: r.code === 'RMT' ? 31400 : r.code === 'EXT' ? 34200 : null,
-    detectRules: r.code === 'AHS' ? { weight_threshold: 25, max_longest: 122, max_second: 76, packing_types: ['WOODEN_BOX', 'SKID'] } : null,
-  }));
-}
+import { applyPackingDimensions } from '@/lib/packing-utils';
 
 interface Props {
   selectedAddOns: string[];
@@ -92,7 +41,7 @@ export const UpsAddOnPanel: React.FC<Props> = ({
   const { language } = useLanguage();
   const isEn = language === 'en';
 
-  const rates = React.useMemo(() => normalizeRates(dbRates), [dbRates]);
+  const rates = React.useMemo(() => normalizeUpsRates(dbRates), [dbRates]);
 
   // EAS/RAS auto-detect from destination postal code
   const [detectedEas, setDetectedEas] = React.useState<EasSurchargeType>(null);
@@ -118,15 +67,8 @@ export const UpsAddOnPanel: React.FC<Props> = ({
     const ahsRate = rates.find(r => r.code === 'AHS');
     let count = 0;
     items.forEach((item) => {
-      let l = item.length;
-      let w = item.width;
-      let h = item.height;
-      let weight = item.weight;
-
-      if (packingType !== PackingType.NONE) {
-        l += 10; w += 10; h += 15;
-        weight = weight * 1.1 + 10;
-      }
+      const packed = applyPackingDimensions(item.length, item.width, item.height, item.weight, packingType);
+      const { l, w, h, weight } = packed;
 
       if (ahsRate?.autoDetect && ahsRate.detectRules) {
         const wt = (ahsRate.detectRules.weight_threshold as number) ?? 25;

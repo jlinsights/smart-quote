@@ -2,66 +2,14 @@ import React from 'react';
 import { CargoItem, PackingType } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
-  DHL_ADDON_RATES,
   isDhlOversizePiece,
   isDhlOverWeight,
 } from '@/config/dhl_addons';
+import { normalizeDhlRates } from '@/config/addon-utils';
+import type { NormalizedRate } from '@/config/addon-utils';
 import type { AddonRate } from '@/api/addonRateApi';
 import { AlertTriangle, Package, Shield } from 'lucide-react';
-
-// Unified shape for both hardcoded and DB rates
-interface NormalizedRate {
-  code: string;
-  nameKo: string;
-  nameEn: string;
-  amount: number;
-  chargeType: string;
-  unit: string;
-  fscApplicable: boolean;
-  autoDetect: boolean;
-  selectable: boolean;
-  perKgRate: number | null;
-  ratePercent: number | null;
-  minAmount: number | null;
-  detectRules: Record<string, number | string[]> | null;
-}
-
-function normalizeRates(dbRates?: AddonRate[]): NormalizedRate[] {
-  if (dbRates && dbRates.length > 0) {
-    return dbRates.map(r => ({
-      code: r.code,
-      nameKo: r.nameKo,
-      nameEn: r.nameEn,
-      amount: r.amount,
-      chargeType: r.chargeType,
-      unit: r.unit,
-      fscApplicable: r.fscApplicable,
-      autoDetect: r.autoDetect,
-      selectable: r.selectable,
-      perKgRate: r.perKgRate,
-      ratePercent: r.ratePercent,
-      minAmount: r.minAmount,
-      detectRules: r.detectRules,
-    }));
-  }
-  // Hardcoded fallback
-  return DHL_ADDON_RATES.map(r => ({
-    code: r.code,
-    nameKo: r.nameKo,
-    nameEn: r.nameEn,
-    amount: r.amount,
-    chargeType: r.chargeType,
-    unit: r.unit,
-    fscApplicable: r.fscApplicable,
-    autoDetect: r.autoDetect ?? false,
-    selectable: r.selectable,
-    perKgRate: r.code === 'RMT' ? 750 : null,
-    ratePercent: r.code === 'INS' ? 1.0 : null,
-    minAmount: r.code === 'RMT' ? 35000 : r.code === 'INS' ? 17000 : null,
-    detectRules: r.code === 'OSP' ? { max_longest: 100, max_second: 80 } as Record<string, number | string[]>
-      : r.code === 'OWT' ? { weight_threshold: 70 } as Record<string, number | string[]> : null,
-  }));
-}
+import { applyPackingDimensions } from '@/lib/packing-utils';
 
 interface Props {
   selectedAddOns: string[];
@@ -91,7 +39,7 @@ export const DhlAddOnPanel: React.FC<Props> = ({
   const { language } = useLanguage();
   const isEn = language === 'en';
 
-  const rates = React.useMemo(() => normalizeRates(dbRates), [dbRates]);
+  const rates = React.useMemo(() => normalizeDhlRates(dbRates), [dbRates]);
 
   // Auto-detect OSP and OWT from cargo
   const autoDetected = React.useMemo(() => {
@@ -100,15 +48,8 @@ export const DhlAddOnPanel: React.FC<Props> = ({
     const detected: { osp: number; owt: number } = { osp: 0, owt: 0 };
 
     items.forEach((item) => {
-      let l = item.length;
-      let w = item.width;
-      let h = item.height;
-      let weight = item.weight;
-
-      if (packingType !== PackingType.NONE) {
-        l += 10; w += 10; h += 15;
-        weight = weight * 1.1 + 10;
-      }
+      const packed = applyPackingDimensions(item.length, item.width, item.height, item.weight, packingType);
+      const { l, w, h, weight } = packed;
 
       // OSP detection (use DB rules or hardcoded)
       if (ospRate?.autoDetect) {

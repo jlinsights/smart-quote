@@ -7,6 +7,7 @@
  * type: 'EAS' = Extended Area, 'RAS' = Remote Area, 'DAS' = Delivery Area
  *
  * Lazy-loaded from /data/ups_eas_data.json to avoid bloating the bundle.
+ * Uses binary search for O(log n) lookups on sorted zip ranges.
  */
 
 export type EasSurchargeType = 'EAS' | 'RAS' | 'DAS' | null;
@@ -37,6 +38,25 @@ const loadEasData = async (): Promise<EasData> => {
   return loadPromise;
 };
 
+/** Binary search for sorted zip ranges — O(log n) instead of O(n) */
+const binarySearchZip = (ranges: [string, string, string][], zip: string): string | null => {
+  let lo = 0;
+  let hi = ranges.length - 1;
+  while (lo <= hi) {
+    const mid = Math.floor((lo + hi) / 2);
+    const [low, high, type] = ranges[mid];
+    const hiVal = high || low;
+    if (zip < low) {
+      hi = mid - 1;
+    } else if (zip > hiVal) {
+      lo = mid + 1;
+    } else {
+      return type;
+    }
+  }
+  return null;
+};
+
 /**
  * Look up EAS/RAS/DAS surcharge for a destination postal code.
  * Returns the surcharge type or null if no surcharge applies.
@@ -52,15 +72,7 @@ export const lookupEasSurcharge = async (
   if (!ranges) return null;
 
   const zip = postalCode.replace(/[\s-]/g, '').toUpperCase();
-
-  for (const [low, high, type] of ranges) {
-    const hi = high || low;
-    if (zip >= low && zip <= hi) {
-      return type as EasSurchargeType;
-    }
-  }
-
-  return null;
+  return binarySearchZip(ranges, zip) as EasSurchargeType;
 };
 
 /**
@@ -77,15 +89,7 @@ export const lookupEasSurchargeSync = (
   if (!ranges) return null;
 
   const zip = postalCode.replace(/[\s-]/g, '').toUpperCase();
-
-  for (const [low, high, type] of ranges) {
-    const hi = high || low;
-    if (zip >= low && zip <= hi) {
-      return type as EasSurchargeType;
-    }
-  }
-
-  return null;
+  return binarySearchZip(ranges, zip) as EasSurchargeType;
 };
 
 /** Pre-load EAS data (call early to warm cache) */
