@@ -102,6 +102,9 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
                    </button>
                  )}
              </div>
+             <p className="mt-1 text-[9px] text-gray-400 dark:text-gray-500">
+               {t('calc.financial.exchangeHint')}
+             </p>
          </div>
          <div>
              <label className={lc}>FSC %</label>
@@ -133,6 +136,9 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
                    </button>
                  )}
              </div>
+             <p className="mt-1 text-[9px] text-gray-400 dark:text-gray-500">
+               {t('calc.financial.fscHint')}
+             </p>
          </div>
          {!hideMargin && (
              <div>

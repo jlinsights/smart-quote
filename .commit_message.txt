@@ -1,1 +1,1 @@
-📖 docs: User Guide v3.1 — Special Packing/Surge Fee/EAS/DHL 부가서비스 반영
+💡 feat: 환율/FSC 갱신 주기 안내 추가 (UPS 매주, DHL 매월, 환율 5분)
