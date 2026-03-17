@@ -1,1 +1,1 @@
-♻️ refactor: 남은 Warning 4건 해결 — calcFee 통합, zone 분리, useSyncToInput 훅 추출
+♻️ refactor: 95+ 목표 — AddOn 계산 분리, IIFE 제거, 타입 단언 제거

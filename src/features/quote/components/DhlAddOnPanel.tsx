@@ -155,30 +155,24 @@ export const DhlAddOnPanel: React.FC<Props> = ({
         {/* Auto-detected warnings */}
         {(autoDetected.osp > 0 || autoDetected.owt > 0) && (
           <div className="mb-3 space-y-1">
-            {autoDetected.osp > 0 && (() => {
-              const ospRate = rates.find(r => r.code === 'OSP');
-              return (
-                <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-2.5 py-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                  <span>
-                    <b>Oversize Piece (OSP)</b> {isEn ? 'auto-detected' : '자동 감지'}: {autoDetected.osp}{isEn ? ' pcs' : '개'}
-                    {' '}— {((ospRate?.amount ?? 30_000) * autoDetected.osp).toLocaleString()} KRW (+FSC)
-                  </span>
-                </div>
-              );
-            })()}
-            {autoDetected.owt > 0 && (() => {
-              const owtRate = rates.find(r => r.code === 'OWT');
-              return (
-                <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-2.5 py-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                  <span>
-                    <b>Over Weight (&gt;70kg)</b> {isEn ? 'auto-detected' : '자동 감지'}: {autoDetected.owt}{isEn ? ' cartons' : '카톤'}
-                    {' '}— {((owtRate?.amount ?? 150_000) * autoDetected.owt).toLocaleString()} KRW (+FSC)
-                  </span>
-                </div>
-              );
-            })()}
+            {autoDetected.osp > 0 && (
+              <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-2.5 py-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  <b>Oversize Piece (OSP)</b> {isEn ? 'auto-detected' : '자동 감지'}: {autoDetected.osp}{isEn ? ' pcs' : '개'}
+                  {' '}— {((rates.find(r => r.code === 'OSP')?.amount ?? 30_000) * autoDetected.osp).toLocaleString()} KRW (+FSC)
+                </span>
+              </div>
+            )}
+            {autoDetected.owt > 0 && (
+              <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-2.5 py-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  <b>Over Weight (&gt;70kg)</b> {isEn ? 'auto-detected' : '자동 감지'}: {autoDetected.owt}{isEn ? ' cartons' : '카톤'}
+                  {' '}— {((rates.find(r => r.code === 'OWT')?.amount ?? 150_000) * autoDetected.owt).toLocaleString()} KRW (+FSC)
+                </span>
+              </div>
+            )}
           </div>
         )}
 
@@ -239,15 +233,11 @@ export const DhlAddOnPanel: React.FC<Props> = ({
               className="flex-1 text-xs border-0 bg-transparent text-gray-900 dark:text-white focus:ring-0 p-0 tabular-nums"
               inputMode="numeric"
             />
-            {declaredValue && declaredValue > 0 && (() => {
-              const insRate = rates.find(r => r.code === 'INS');
-              if (!insRate) return null;
-              return (
-                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium whitespace-nowrap">
-                  = {calcAddonFee(insRate, 0, declaredValue).toLocaleString()} KRW
-                </span>
-              );
-            })()}
+            {declaredValue && declaredValue > 0 && rates.find(r => r.code === 'INS') && (
+              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium whitespace-nowrap">
+                = {calcAddonFee(rates.find(r => r.code === 'INS')!, 0, declaredValue).toLocaleString()} KRW
+              </span>
+            )}
           </div>
         )}
       </div>

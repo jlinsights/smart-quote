@@ -144,6 +144,71 @@ export const UpsAddOnPanel: React.FC<Props> = ({
     return total;
   }, [selectedAddOns, ahsCount, isDDP, billableWeight, fscRate, items, rates]);
 
+  const renderEasBanner = () => {
+    if (!detectedEas) return null;
+    const isRemote = detectedEas === 'RAS';
+    const code = isRemote ? 'RMT' : 'EXT';
+    const rate = rates.find(r => r.code === code);
+    const fee = rate ? calcAddonFee(rate, billableWeight, 0) : 0;
+    const labelMap: Record<string, { ko: string; en: string }> = {
+      EAS: { ko: '외곽 지역', en: 'Extended Area' },
+      RAS: { ko: '원거리 지역', en: 'Remote Area' },
+      DAS: { ko: '배송 지역', en: 'Delivery Area' },
+    };
+    const label = labelMap[detectedEas] || labelMap.EAS;
+    return (
+      <div className="flex items-start gap-1.5 text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 rounded-lg px-2.5 py-1.5">
+        <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+        <div>
+          <span>
+            <b>{isEn ? label.en : label.ko} Surcharge ({detectedEas})</b>{' '}
+            {isEn ? 'auto-detected for' : '자동 감지'}: {destinationCountry} {destinationZip}
+            {fee > 0 && <>{' '}&mdash; {fee.toLocaleString()} KRW (+FSC)</>}
+          </span>
+          {!selectedAddOns.includes(code) && (
+            <button
+              type="button"
+              onClick={() => onAddOnsChange([...selectedAddOns, code])}
+              className="ml-2 inline-flex items-center gap-0.5 text-[10px] font-bold text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/40 px-1.5 py-0.5 rounded hover:bg-orange-200 dark:hover:bg-orange-900/60 transition-colors"
+            >
+              + {isEn ? 'Apply' : '적용'}
+            </button>
+          )}
+          {selectedAddOns.includes(code) && (
+            <span className="ml-2 text-[10px] font-bold text-green-600 dark:text-green-400">✓ {isEn ? 'Applied' : '적용됨'}</span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderAhsWarning = () => {
+    if (ahsCount <= 0) return null;
+    const ahsRate = rates.find(r => r.code === 'AHS');
+    return (
+      <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-2.5 py-1.5">
+        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+        <span>
+          <b>Additional Handling (AHS)</b> {isEn ? 'auto-detected' : '자동 감지'}: {ahsCount}{isEn ? ' cartons' : '카톤'}
+          {' '}&mdash; {((ahsRate?.amount ?? 21_400) * ahsCount).toLocaleString()} KRW (+FSC)
+        </span>
+      </div>
+    );
+  };
+
+  const renderDdpWarning = () => {
+    if (!isDDP) return null;
+    const ddpRate = rates.find(r => r.code === 'DDP');
+    return (
+      <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded-lg px-2.5 py-1.5">
+        <Info className="w-3.5 h-3.5 shrink-0" />
+        <span>
+          <b>DDP Service Fee</b> {isEn ? 'auto-applied' : '자동 적용'}: {(ddpRate?.amount ?? 28_500).toLocaleString()} KRW
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div className="col-span-full">
       <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/10 p-3">
@@ -165,65 +230,9 @@ export const UpsAddOnPanel: React.FC<Props> = ({
         {/* Auto-detected warnings */}
         {(ahsCount > 0 || isDDP || detectedEas) && (
           <div className="mb-3 space-y-1">
-            {detectedEas && (() => {
-              const isRemote = detectedEas === 'RAS';
-              const code = isRemote ? 'RMT' : 'EXT';
-              const rate = rates.find(r => r.code === code);
-              const fee = rate ? calcAddonFee(rate, billableWeight, 0) : 0;
-              const labelMap: Record<string, { ko: string; en: string }> = {
-                EAS: { ko: '외곽 지역', en: 'Extended Area' },
-                RAS: { ko: '원거리 지역', en: 'Remote Area' },
-                DAS: { ko: '배송 지역', en: 'Delivery Area' },
-              };
-              const label = labelMap[detectedEas] || labelMap.EAS;
-              return (
-                <div className="flex items-start gap-1.5 text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 rounded-lg px-2.5 py-1.5">
-                  <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                  <div>
-                    <span>
-                      <b>{isEn ? label.en : label.ko} Surcharge ({detectedEas})</b>{' '}
-                      {isEn ? 'auto-detected for' : '자동 감지'}: {destinationCountry} {destinationZip}
-                      {fee > 0 && <>{' '}&mdash; {fee.toLocaleString()} KRW (+FSC)</>}
-                    </span>
-                    {!selectedAddOns.includes(code) && (
-                      <button
-                        type="button"
-                        onClick={() => onAddOnsChange([...selectedAddOns, code])}
-                        className="ml-2 inline-flex items-center gap-0.5 text-[10px] font-bold text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/40 px-1.5 py-0.5 rounded hover:bg-orange-200 dark:hover:bg-orange-900/60 transition-colors"
-                      >
-                        + {isEn ? 'Apply' : '적용'}
-                      </button>
-                    )}
-                    {selectedAddOns.includes(code) && (
-                      <span className="ml-2 text-[10px] font-bold text-green-600 dark:text-green-400">✓ {isEn ? 'Applied' : '적용됨'}</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })()}
-            {ahsCount > 0 && (() => {
-              const ahsRate = rates.find(r => r.code === 'AHS');
-              return (
-                <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-2.5 py-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                  <span>
-                    <b>Additional Handling (AHS)</b> {isEn ? 'auto-detected' : '자동 감지'}: {ahsCount}{isEn ? ' cartons' : '카톤'}
-                    {' '}&mdash; {((ahsRate?.amount ?? 21_400) * ahsCount).toLocaleString()} KRW (+FSC)
-                  </span>
-                </div>
-              );
-            })()}
-            {isDDP && (() => {
-              const ddpRate = rates.find(r => r.code === 'DDP');
-              return (
-                <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded-lg px-2.5 py-1.5">
-                  <Info className="w-3.5 h-3.5 shrink-0" />
-                  <span>
-                    <b>DDP Service Fee</b> {isEn ? 'auto-applied' : '자동 적용'}: {(ddpRate?.amount ?? 28_500).toLocaleString()} KRW
-                  </span>
-                </div>
-              );
-            })()}
+            {renderEasBanner()}
+            {renderAhsWarning()}
+            {renderDdpWarning()}
           </div>
         )}
 
