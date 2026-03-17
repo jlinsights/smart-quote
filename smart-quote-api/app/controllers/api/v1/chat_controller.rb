@@ -72,6 +72,15 @@ module Api
           - DAP: Seller delivers to destination, buyer handles import clearance & duties
           - DDP: Seller bears all costs including import duties/taxes (max seller obligation)
 
+          ★ IMPORTANT — Incoterm policy for international express carriers:
+          When shipping via UPS, DHL, or E-MAX (international express courier services),
+          the incoterm is ALWAYS DAP (Delivered At Place) — no exceptions.
+          This means: Goodman GLS/J-Ways handles door-to-door delivery to the destination,
+          and the buyer/consignee is responsible for import customs clearance and duties/taxes.
+          If a partner or customer asks about incoterms for express shipments,
+          clearly inform them that DAP is the standard and only option for UPS/DHL/EMAX services.
+          Other incoterms (EXW, FOB, CIF, DDP) are available only for sea/air freight forwarding, not express courier.
+
           Customs & HS Code:
           - Korea uses 10-digit HSK code (international 6-digit HS + 4 national digits)
           - Export: File at goods location customs, load within 30 days of clearance
