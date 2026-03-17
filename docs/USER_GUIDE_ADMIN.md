@@ -2,7 +2,7 @@
 
 > **Goodman GLS & J-Ways** Internal Logistics Quoting System
 >
-> Version 3.0 | Last Updated: 2026-03-15
+> Version 3.1 | Last Updated: 2026-03-17
 
 ---
 
@@ -83,8 +83,60 @@ Item Costs → Carrier Costs → FSC → Margin → Final Quote
 | Item Costs | Packing dimensions, volumetric weight, material/labor |
 | Carrier Costs | Zone lookup → rate table → billable weight pricing |
 | FSC | Fuel surcharge % applied to carrier cost |
+| Carrier Add-Ons | Auto-detected surcharges (Surge Fee, EAS/RAS, AHS) + manual add-ons |
 | Margin | `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100 |
 | Warnings | Low margin (<10%), surcharges, collect terms |
+
+### Special Packing Info Panel
+
+When selecting **WOODEN_BOX**, **SKID**, or **VACUUM** packing type, a detailed info panel displays:
+
+| Detail | Description |
+|--------|-------------|
+| Material Cost | Surface area × ₩15,000/m² |
+| Labor Cost | ₩50,000/box standard, ₩75,000 for vacuum (×1.5) |
+| Fumigation Fee | ₩30,000 fixed per shipment |
+| Dimension Impact | +10 (W) / +10 (L) / +15 (H) cm |
+| Weight Impact | Actual weight × 1.1 + 10 kg |
+| Estimated Total | Live preview based on current cargo inputs |
+
+> If the cargo triggers AHS (Additional Handling Surcharge), a warning is shown in the panel.
+
+### UPS Surge Fee Auto-Detection
+
+For **Middle East and Israel** destinations, UPS Surge Fee is automatically calculated:
+
+| Region | Rate |
+|--------|------|
+| Israel (IL) | KRW 4,722/kg + FSC |
+| Middle East (15 countries) | KRW 2,004/kg + FSC |
+
+The surge fee appears as a carrier add-on (code: **SGF**) and is included in the carrier cost automatically.
+
+### EAS/RAS Postal Code Auto-Detection
+
+When a destination ZIP code is entered, the system checks against **86 countries and 39,876 postal code ranges**:
+
+- Detects **Extended Area (EAS)**, **Remote Area (RAS)**, or **Delivery Area (DAS)** surcharges
+- Shows an orange banner with a one-click **Apply** button
+- Maps to **RMT** (Remote) or **EXT** (Extended) add-on codes
+
+### DHL Add-On Services (Expanded)
+
+Six new selectable DHL add-ons are available:
+
+| Code | Name | Amount |
+|------|------|--------|
+| EMG | Emergency Situation Surcharge | Variable |
+| TSD | Trade Sanctions Delivery | ₩50,000 |
+| NSC | Non-Stackable Cargo | ₩440,000 |
+| MWB | Manual Waybill Entry | ₩15,000 |
+| LBI | Lithium Ion Battery | ₩10,000 |
+| LBM | Lithium Metal Battery | ₩10,000 |
+
+### Incoterm Policy
+
+> **Note**: UPS/DHL/EMAX express shipments use **DAP only** — no exceptions.
 
 ---
 
@@ -261,6 +313,16 @@ Same as Member with additional capabilities:
 
 Format: `SQ-YYYY-NNNN` (e.g., `SQ-2026-0042`)
 
+### Quote Validity Visual
+
+Color-coded expiry indicators on each quote:
+
+| Color | Meaning |
+|-------|---------|
+| 🟢 Green | More than 3 days remaining |
+| 🟡 Yellow/Amber | 1–3 days remaining |
+| 🔴 Red | Expired |
+
 ### Status Flow
 
 ```
@@ -330,4 +392,4 @@ A: Surcharge rates have changed since the quote was saved. The customer should r
 
 ---
 
-*Goodman GLS & J-Ways - Smart Quote System v3.0 (Admin)*
+*Goodman GLS & J-Ways - Smart Quote System v3.1 (Admin)*

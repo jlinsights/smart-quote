@@ -2,7 +2,7 @@
 
 > **Goodman GLS & J-Ways** International Logistics Quoting System
 >
-> Version 3.0 | Last Updated: 2026-03-15
+> Version 3.1 | Last Updated: 2026-03-17
 
 ---
 
@@ -99,10 +99,33 @@ Click **+ Add Item** for multi-piece shipments. The system automatically:
 | Exchange Rate | Auto-fetched live USD/KRW rate (editable) |
 | FSC % | Fuel surcharge percentage (auto-fetched per carrier) |
 
+### Special Packing Info Panel
+
+When selecting **WOODEN_BOX**, **SKID**, or **VACUUM**, a detailed info panel shows:
+
+- **Material cost**: Surface area × ₩15,000/m²
+- **Labor cost**: ₩50,000/box (standard), ₩75,000 for vacuum (×1.5)
+- **Fumigation fee**: ₩30,000 fixed
+- **Dimension/weight impact**: +10/+10/+15 cm, weight ×1.1 + 10 kg
+- **Estimated total** based on current cargo inputs
+- AHS auto-detect warning if applicable
+
 ### Carrier Add-On Panels
 
-- **UPS Add-Ons**: Additional Handling Surcharge (AHS), Large Package, Over Maximum, etc.
-- **DHL Add-Ons**: Non-Stackable, Overweight, Remote Area, etc.
+- **UPS Add-Ons**: Additional Handling Surcharge (AHS), Large Package, Over Maximum, Surge Fee (auto-detected for Middle East/Israel), etc.
+- **DHL Add-Ons**: Non-Stackable, Overweight, Remote Area, Emergency Situation (EMG), Trade Sanctions (TSD), Manual Waybill (MWB), Lithium Battery (LBI/LBM), etc.
+
+### UPS Surge Fee Auto-Detection
+
+For Middle East and Israel destinations, UPS Surge Fee is automatically calculated (Israel: KRW 4,722/kg + FSC; Middle East 15 countries: KRW 2,004/kg + FSC). Shown as carrier add-on code **SGF**.
+
+### EAS/RAS Postal Code Auto-Detection
+
+When entering a destination ZIP code, the system automatically checks against 86 countries and 39,876 postal code ranges to detect Extended Area (EAS), Remote Area (RAS), or Delivery Area (DAS) surcharges. An orange banner appears with a one-click **Apply** button.
+
+### Incoterm Policy
+
+> **Note**: UPS/DHL/EMAX express shipments use **DAP only** — no exceptions.
 
 ### Carrier Comparison
 
@@ -158,6 +181,8 @@ If you attempt to save the same quote inputs twice, a confirmation dialog appear
 1. After calculation, click the **PDF** icon
 2. A professionally formatted quotation PDF downloads automatically
 3. The PDF includes all quote details, cost breakdown, and company branding
+4. **Packing details**: Packing type name (Korean/English) and cost sub-breakdown (material, labor, fumigation)
+5. **Carrier add-on details**: All applied add-ons (SGF, EXT, RMT, etc.) with amounts
 
 ---
 
@@ -177,6 +202,7 @@ Access via the **History** tab in the quote calculator.
 | **CSV Export** | Download filtered results as CSV |
 | **Email** | Send quote details via email from the detail modal |
 | **Status** | Track quote status (Draft, Sent, Accepted, Expired) |
+| **Validity Visual** | Color-coded expiry: green (>3 days), yellow (1–3 days), red (expired) |
 
 ---
 
@@ -214,4 +240,4 @@ A: Click the language selector (globe icon) in the header.
 
 ---
 
-*Goodman GLS & J-Ways - Smart Quote System v3.0*
+*Goodman GLS & J-Ways - Smart Quote System v3.1*

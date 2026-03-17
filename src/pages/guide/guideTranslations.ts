@@ -106,11 +106,19 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: '③ Additional Services',
-            description: 'Configure Seoul pickup costs, review system-applied surcharges (AHS, large package, etc.), and add manual surcharges if needed.',
+            description: 'Configure Seoul pickup costs, review system-applied surcharges (AHS, large package, etc.), and add manual surcharges if needed. DHL now supports 6 additional add-ons including EMG, TSD, NSC, MWB, LBI, and LBM.',
+          },
+          {
+            title: 'Special Packing Info',
+            description: 'Selecting WOODEN_BOX, SKID, or VACUUM packing shows a detailed cost panel: material cost (surface area × ₩15,000/m²), labor (₩50,000/box, ₩75,000 vacuum), fumigation (₩30,000 fixed), and dimension/weight impact. AHS auto-detect warning is also shown.',
+          },
+          {
+            title: 'UPS Surge Fee & EAS/RAS',
+            description: 'For Middle East/Israel destinations, UPS Surge Fee (SGF) is auto-calculated. When entering a ZIP code, the system checks 86 countries and 39,876 postal ranges to detect Extended/Remote Area surcharges with one-click apply.',
           },
           {
             title: '④ Financial Settings',
-            description: 'Review applied exchange rates and FSC percentages. The system uses live rates but allows admin overrides.',
+            description: 'Review applied exchange rates and FSC percentages. The system uses live rates but allows admin overrides. Express shipments (UPS/DHL/EMAX) use DAP incoterm only.',
           },
           {
             title: 'Results & Comparison',
@@ -135,7 +143,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: 'Quote Validity',
-            description: 'Saved quotes have a validity period. Expired quotes are marked accordingly. Surcharge changes may also flag a quote for re-verification.',
+            description: 'Saved quotes have a validity period with color-coded indicators: green (>3 days), yellow (1–3 days), red (expired). Surcharge changes may also flag a quote for re-verification.',
           },
         ],
       },
@@ -148,7 +156,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: 'PDF Contents',
-            description: 'The generated PDF includes: company header, reference number, origin/destination, itemized cost breakdown, applied margin, final price in KRW and USD, and validity disclaimers.',
+            description: 'The generated PDF includes: company header, reference number, origin/destination, itemized cost breakdown, packing type with cost sub-breakdown (material, labor, fumigation), carrier add-on details (SGF, EXT, RMT, etc.), applied margin, final price in KRW and USD, and validity disclaimers.',
           },
         ],
       },
@@ -402,11 +410,19 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: '③ 부가 서비스',
-            description: '서울 픽업 비용을 설정하고, 시스템 적용 할증료(AHS, 대형 화물 등)를 확인하며, 필요 시 수동 할증료를 추가할 수 있습니다.',
+            description: '서울 픽업 비용을 설정하고, 시스템 적용 할증료(AHS, 대형 화물 등)를 확인하며, 필요 시 수동 할증료를 추가할 수 있습니다. DHL은 EMG, TSD, NSC, MWB, LBI, LBM 등 6개 부가서비스가 추가되었습니다.',
+          },
+          {
+            title: '특수 포장 정보',
+            description: 'WOODEN_BOX, SKID, VACUUM 포장 선택 시 상세 비용 패널이 표시됩니다: 재료비(표면적 × ₩15,000/m²), 인건비(₩50,000/박스, 진공 ₩75,000), 훈증비(₩30,000 고정), 치수/중량 영향. AHS 자동 감지 경고도 표시됩니다.',
+          },
+          {
+            title: 'UPS Surge Fee & EAS/RAS',
+            description: '중동/이스라엘 도착지의 경우 UPS Surge Fee(SGF)가 자동 계산됩니다. 우편번호 입력 시 86개국 39,876개 우편번호 범위를 자동으로 확인하여 원격지/확장 지역 할증료를 감지하고 원클릭 적용할 수 있습니다.',
           },
           {
             title: '④ 재무 설정',
-            description: '적용된 환율과 FSC 비율을 확인합니다. 시스템은 실시간 환율을 사용하지만 관리자 수동 설정도 가능합니다.',
+            description: '적용된 환율과 FSC 비율을 확인합니다. 시스템은 실시간 환율을 사용하지만 관리자 수동 설정도 가능합니다. 특송(UPS/DHL/EMAX)은 DAP 인코텀만 적용됩니다.',
           },
           {
             title: '결과 및 비교',
@@ -431,7 +447,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: '견적 유효기간',
-            description: '저장된 견적에는 유효기간이 있습니다. 만료된 견적은 해당 표시가 됩니다. 할증료 변경 시에도 재확인 필요 플래그가 표시될 수 있습니다.',
+            description: '저장된 견적에는 유효기간이 있으며 색상 코드로 표시됩니다: 초록색(3일 이상), 노란색(1~3일), 빨간색(만료). 할증료 변경 시에도 재확인 필요 플래그가 표시될 수 있습니다.',
           },
         ],
       },
@@ -444,7 +460,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: 'PDF 내용',
-            description: '생성된 PDF에는 회사 헤더, 참조번호, 출발지/도착지, 항목별 비용 내역, 적용 마진, KRW 및 USD 최종 가격, 유효기간 면책조항이 포함됩니다.',
+            description: '생성된 PDF에는 회사 헤더, 참조번호, 출발지/도착지, 항목별 비용 내역, 포장 유형 및 세부 비용(재료비, 인건비, 훈증비), 운송사 부가서비스 내역(SGF, EXT, RMT 등), 적용 마진, KRW 및 USD 최종 가격, 유효기간 면책조항이 포함됩니다.',
           },
         ],
       },
@@ -698,11 +714,19 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: '③ 附加服务',
-            description: '设置首尔取货费用，查看系统自动应用的附加费（AHS、大件等），如需可手动添加附加费。',
+            description: '设置首尔取货费用，查看系统自动应用的附加费（AHS、大件等），如需可手动添加附加费。DHL新增6项附加服务：EMG、TSD、NSC、MWB、LBI、LBM。',
+          },
+          {
+            title: '特殊包装信息',
+            description: '选择WOODEN_BOX、SKID或VACUUM包装时显示详细费用面板：材料费（表面积 × ₩15,000/m²）、人工费（₩50,000/箱，真空₩75,000）、熏蒸费（₩30,000固定）、尺寸/重量影响。还会显示AHS自动检测警告。',
+          },
+          {
+            title: 'UPS Surge Fee & EAS/RAS',
+            description: '中东/以色列目的地会自动计算UPS Surge Fee（SGF）。输入邮编时，系统自动检查86个国家39,876个邮编范围，检测偏远/扩展区域附加费并支持一键应用。',
           },
           {
             title: '④ 财务设置',
-            description: '查看应用的汇率和FSC百分比。系统使用实时汇率，但允许管理员手动覆盖。',
+            description: '查看应用的汇率和FSC百分比。系统使用实时汇率，但允许管理员手动覆盖。快递（UPS/DHL/EMAX）仅适用DAP贸易术语。',
           },
           {
             title: '结果与比较',
@@ -727,7 +751,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: '报价有效期',
-            description: '保存的报价有有效期限。过期报价会标注相应状态。附加费变更也可能标记报价需要重新验证。',
+            description: '保存的报价有有效期限，以颜色标识：绿色（>3天）、黄色（1-3天）、红色（已过期）。附加费变更也可能标记报价需要重新验证。',
           },
         ],
       },
@@ -740,7 +764,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: 'PDF内容',
-            description: '生成的PDF包含：公司抬头、参考编号、始发地/目的地、逐项费用明细、应用利润率、KRW和USD最终价格及有效期免责声明。',
+            description: '生成的PDF包含：公司抬头、参考编号、始发地/目的地、逐项费用明细、包装类型及费用细分（材料费、人工费、熏蒸费）、承运商附加服务明细（SGF、EXT、RMT等）、应用利润率、KRW和USD最终价格及有效期免责声明。',
           },
         ],
       },
@@ -994,11 +1018,19 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: '③ 付加サービス',
-            description: 'ソウル集荷費用を設定し、システム適用のサーチャージ（AHS、大型荷物など）を確認し、必要に応じて手動サーチャージを追加できます。',
+            description: 'ソウル集荷費用を設定し、システム適用のサーチャージ（AHS、大型荷物など）を確認し、必要に応じて手動サーチャージを追加できます。DHLはEMG、TSD、NSC、MWB、LBI、LBMなど6つの付加サービスが追加されました。',
+          },
+          {
+            title: '特殊梱包情報',
+            description: 'WOODEN_BOX、SKID、VACUUM梱包選択時に詳細コストパネルが表示されます：材料費（表面積 × ₩15,000/m²）、人件費（₩50,000/箱、真空₩75,000）、燻蒸費（₩30,000固定）、寸法/重量への影響。AHS自動検出警告も表示されます。',
+          },
+          {
+            title: 'UPS Surge Fee & EAS/RAS',
+            description: '中東/イスラエル向けの場合、UPS Surge Fee（SGF）が自動計算されます。郵便番号入力時、86カ国39,876の郵便番号範囲を自動チェックし、遠隔地/拡張エリアサーチャージをワンクリックで適用できます。',
           },
           {
             title: '④ 財務設定',
-            description: '適用された為替レートとFSC率を確認します。システムはリアルタイムレートを使用しますが、管理者による手動設定も可能です。',
+            description: '適用された為替レートとFSC率を確認します。システムはリアルタイムレートを使用しますが、管理者による手動設定も可能です。エクスプレス（UPS/DHL/EMAX）はDAPインコタームのみ適用されます。',
           },
           {
             title: '結果と比較',
@@ -1023,7 +1055,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: '見積もり有効期限',
-            description: '保存された見積もりには有効期限があります。期限切れの見積もりは適切に表示されます。サーチャージの変更により、再確認フラグが表示されることもあります。',
+            description: '保存された見積もりには有効期限があり、カラーコードで表示されます：緑（3日以上）、黄色（1〜3日）、赤（期限切れ）。サーチャージの変更により、再確認フラグが表示されることもあります。',
           },
         ],
       },
@@ -1036,7 +1068,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: 'PDF内容',
-            description: '生成されるPDFには、会社ヘッダー、参照番号、発送元/配送先、項目別費用内訳、適用マージン、KRWおよびUSDの最終価格、有効期限の免責事項が含まれます。',
+            description: '生成されるPDFには、会社ヘッダー、参照番号、発送元/配送先、項目別費用内訳、梱包タイプと費用内訳（材料費、人件費、燻蒸費）、キャリア付加サービス詳細（SGF、EXT、RMTなど）、適用マージン、KRWおよびUSDの最終価格、有効期限の免責事項が含まれます。',
           },
         ],
       },

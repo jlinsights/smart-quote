@@ -1,1 +1,1 @@
-📝 docs: README.md & CLAUDE.md 전면 업데이트 — 세션 전체 변경사항 반영
+📖 docs: User Guide v3.1 — Special Packing/Surge Fee/EAS/DHL 부가서비스 반영
