@@ -3,12 +3,10 @@
  * Loads the script and imports the maps3d library, returning constructors.
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-interface Maps3DLib {
-  Map3DElement: any;
-  Marker3DElement: any;
-  Polyline3DElement: any;
+export interface Maps3DLib {
+  Map3DElement: typeof google.maps.maps3d.Map3DElement;
+  Marker3DElement: typeof google.maps.maps3d.Marker3DElement;
+  Polyline3DElement: typeof google.maps.maps3d.Polyline3DElement;
 }
 
 let loadPromise: Promise<Maps3DLib> | null = null;
@@ -39,12 +37,13 @@ export function loadGoogleMaps3D(): Promise<Maps3DLib> {
     };
 
     loadScript()
-      .then(() => (google.maps as any).importLibrary('maps3d'))
-      .then((lib: any) => {
+      .then(() => google.maps.importLibrary('maps3d'))
+      .then((lib) => {
+        const maps3d = lib as unknown as Maps3DLib;
         resolve({
-          Map3DElement: lib.Map3DElement,
-          Marker3DElement: lib.Marker3DElement,
-          Polyline3DElement: lib.Polyline3DElement,
+          Map3DElement: maps3d.Map3DElement,
+          Marker3DElement: maps3d.Marker3DElement,
+          Polyline3DElement: maps3d.Polyline3DElement,
         });
       })
       .catch((err) => {

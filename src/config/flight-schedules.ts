@@ -638,6 +638,21 @@ export const AIRLINE_COLORS: Record<string, { bg: string; text: string; border: 
   },
 };
 
+/** Hex colors per airline code — used by route map components (SVG & 3D) */
+export const AIRLINE_HEX_COLORS: Record<string, string> = {
+  WS: '#2dd4bf', // teal-400
+  O3: '#fb923c', // orange-400
+  BX: '#60a5fa', // blue-400
+  M0: '#38bdf8', // sky-400
+  SU: '#f87171', // red-400
+  '2C': '#fb7185', // rose-400
+  AM: '#34d399', // emerald-400
+  YP: '#a78bfa', // violet-400
+  DE: '#facc15', // yellow-400
+};
+
+export const DEFAULT_HEX_COLOR = '#94a3b8'; // slate-400
+
 /** Day labels for display */
 export const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 export const DAY_LABELS_KO = ['일', '월', '화', '수', '목', '금', '토'] as const;

@@ -1,1 +1,1 @@
-🔧 fix: Google Maps 3D 생성자 패턴으로 전환 — importLibrary + new Map3DElement()
+♻️ refactor: Schedule 기능 대규모 리팩토링 — God File 분리, 중복 제거, Dead Code 정리

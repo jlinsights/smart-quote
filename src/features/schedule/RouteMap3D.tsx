@@ -1,7 +1,11 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import type { FlightSchedule, AirlineInfo } from '@/config/flight-schedules';
-import { AIRLINE_COLORS } from '@/config/flight-schedules';
-import { loadGoogleMaps3D } from '@/lib/googleMapsLoader';
+import { AIRLINE_COLORS, AIRLINE_HEX_COLORS, DEFAULT_HEX_COLOR } from '@/config/flight-schedules';
+import { AIRPORTS } from '@/config/airports';
+import { loadGoogleMaps3D, type Maps3DLib } from '@/lib/googleMapsLoader';
+import { useAggregatedRoutes } from './hooks/useAggregatedRoutes';
+import { useAirlineLegend } from './hooks/useAirlineLegend';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 /* ------------------------------------------------------------------ */
 /*  Types & Constants                                                  */
@@ -13,68 +17,6 @@ export interface RouteMap3DProps {
   selectedAirline: string;
   onAirlineSelect: (code: string) => void;
   language: string;
-}
-
-interface AirportData {
-  lat: number;
-  lng: number;
-  city: string;
-  cityKo: string;
-}
-
-const AIRPORTS: Record<string, AirportData> = {
-  ICN: { lat: 37.46, lng: 126.44, city: 'Seoul/Incheon', cityKo: '인천' },
-  // North America
-  LAX: { lat: 33.94, lng: -118.41, city: 'Los Angeles', cityKo: '로스앤젤레스' },
-  YYC: { lat: 51.13, lng: -114.02, city: 'Calgary', cityKo: '캘거리' },
-  YVR: { lat: 49.19, lng: -123.18, city: 'Vancouver', cityKo: '밴쿠버' },
-  EWR: { lat: 40.69, lng: -74.17, city: 'Newark', cityKo: '뉴어크' },
-  SFO: { lat: 37.62, lng: -122.38, city: 'San Francisco', cityKo: '샌프란시스코' },
-  HNL: { lat: 21.32, lng: -157.92, city: 'Honolulu', cityKo: '호놀룰루' },
-  MEX: { lat: 19.44, lng: -99.07, city: 'Mexico City', cityKo: '멕시코시티' },
-  // Asia
-  NRT: { lat: 35.76, lng: 140.39, city: 'Tokyo/Narita', cityKo: '도쿄/나리타' },
-  FUK: { lat: 33.59, lng: 130.45, city: 'Fukuoka', cityKo: '후쿠오카' },
-  KIX: { lat: 34.43, lng: 135.24, city: 'Osaka/Kansai', cityKo: '오사카/간사이' },
-  PVG: { lat: 31.14, lng: 121.81, city: 'Shanghai', cityKo: '상하이' },
-  SZX: { lat: 22.64, lng: 113.81, city: 'Shenzhen', cityKo: '선전' },
-  HAN: { lat: 21.22, lng: 105.81, city: 'Hanoi', cityKo: '하노이' },
-  BKK: { lat: 13.68, lng: 100.75, city: 'Bangkok', cityKo: '방콕' },
-  DAD: { lat: 16.04, lng: 108.2, city: 'Da Nang', cityKo: '다낭' },
-  CEB: { lat: 10.31, lng: 123.98, city: 'Cebu', cityKo: '세부' },
-  HKG: { lat: 22.31, lng: 113.91, city: 'Hong Kong', cityKo: '홍콩' },
-  UBN: { lat: 47.85, lng: 106.77, city: 'Ulaanbaatar', cityKo: '울란바토르' },
-  // Europe
-  SVO: { lat: 55.97, lng: 37.41, city: 'Moscow', cityKo: '모스크바' },
-  FRA: { lat: 50.03, lng: 8.57, city: 'Frankfurt', cityKo: '프랑크푸르트' },
-};
-
-/** Hex colors per airline code — matches SVG widget palette */
-const AIRLINE_HEX_COLORS: Record<string, string> = {
-  WS: '#2dd4bf',
-  O3: '#fb923c',
-  BX: '#60a5fa',
-  M0: '#38bdf8',
-  SU: '#f87171',
-  '2C': '#fb7185',
-  AM: '#34d399',
-  YP: '#a78bfa',
-  DE: '#facc15',
-};
-
-const DEFAULT_COLOR = '#94a3b8';
-
-/* ------------------------------------------------------------------ */
-/*  Route aggregation                                                  */
-/* ------------------------------------------------------------------ */
-
-interface RouteInfo {
-  destination: string;
-  airlineCodes: string[];
-  flightCount: number;
-  isCargo: boolean;
-  isPassenger: boolean;
-  weeklyFlights: number;
 }
 
 /* ------------------------------------------------------------------ */
@@ -117,57 +59,6 @@ function generateArcPoints(
 }
 
 /* ------------------------------------------------------------------ */
-/*  Translation helper                                                 */
-/* ------------------------------------------------------------------ */
-
-function useTranslations(language: string) {
-  return useCallback(
-    (key: string): string => {
-      const translations: Record<string, Record<string, string>> = {
-        'schedule.routeMap.title': {
-          en: 'Route Network',
-          ko: '노선 네트워크',
-          cn: '航线网络',
-          ja: '路線ネットワーク',
-        },
-        'schedule.routeMap.flights': {
-          en: 'flights/wk',
-          ko: '편/주',
-          cn: '航班/周',
-          ja: '便/週',
-        },
-        'schedule.routeMap.cargo': {
-          en: 'Cargo',
-          ko: '화물',
-          cn: '貨物',
-          ja: '貨物',
-        },
-        'schedule.routeMap.pax': {
-          en: 'Passenger',
-          ko: '여객',
-          cn: '旅客',
-          ja: '旅客',
-        },
-        'schedule.routeMap.loading': {
-          en: 'Loading 3D Map...',
-          ko: '3D 지도 로딩 중...',
-          cn: '加载3D地图...',
-          ja: '3Dマップを読み込み中...',
-        },
-        'schedule.routeMap.error': {
-          en: 'Failed to load 3D map',
-          ko: '3D 지도 로딩 실패',
-          cn: '无法加载3D地图',
-          ja: '3Dマップの読み込みに失敗',
-        },
-      };
-      return translations[key]?.[language] ?? translations[key]?.en ?? key;
-    },
-    [language],
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /*  RouteMap3D Component                                               */
 /* ------------------------------------------------------------------ */
 
@@ -179,81 +70,25 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
   language,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mapRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const libRef = useRef<any>(null);
+  const mapRef = useRef<google.maps.maps3d.Map3DElement | null>(null);
+  const libRef = useRef<Maps3DLib | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const isKo = language === 'ko';
-  const t = useTranslations(language);
+  const { t } = useLanguage();
 
   // Track previous selectedAirline to detect changes for camera animation
   const prevAirlineRef = useRef(selectedAirline);
 
   /* ---- Aggregate routes ---- */
-  const routes = useMemo<RouteInfo[]>(() => {
-    const map = new Map<string, RouteInfo>();
-    const activeSchedules = schedules.filter(
-      (s) => !s.remarks?.toLowerCase().includes('suspended'),
-    );
-
-    activeSchedules.forEach((s) => {
-      const dest = s.destination;
-      if (!AIRPORTS[dest]) return;
-
-      const weeklyCount = s.departureDays.length;
-      const existing = map.get(dest);
-
-      if (existing) {
-        if (!existing.airlineCodes.includes(s.airlineCode)) {
-          existing.airlineCodes.push(s.airlineCode);
-        }
-        existing.flightCount += 1;
-        existing.weeklyFlights += weeklyCount;
-        if (s.flightType === 'cargo') existing.isCargo = true;
-        else existing.isPassenger = true;
-      } else {
-        map.set(dest, {
-          destination: dest,
-          airlineCodes: [s.airlineCode],
-          flightCount: 1,
-          isCargo: s.flightType === 'cargo',
-          isPassenger: s.flightType !== 'cargo',
-          weeklyFlights: weeklyCount,
-        });
-      }
-    });
-
-    return Array.from(map.values());
-  }, [schedules]);
+  const routes = useAggregatedRoutes(schedules);
 
   /* ---- Legend data ---- */
-  const legendData = useMemo(() => {
-    return airlines
-      .map((a) => {
-        const activeFlights = schedules.filter(
-          (s) =>
-            s.airlineCode === a.code &&
-            !s.remarks?.toLowerCase().includes('suspended'),
-        );
-        if (activeFlights.length === 0) return null;
-        return {
-          code: a.code,
-          name: isKo ? a.nameKo : a.name,
-          count: activeFlights.length,
-        };
-      })
-      .filter(
-        (item): item is { code: string; name: string; count: number } =>
-          item !== null,
-      );
-  }, [airlines, schedules, isKo]);
+  const legendData = useAirlineLegend(airlines, schedules, isKo);
 
   /* ---- Helper: add markers and polylines to map element ---- */
   const addMarkersAndRoutes = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (map3d: any) => {
+    (map3d: google.maps.maps3d.Map3DElement) => {
       if (!libRef.current) return;
       const { Marker3DElement, Polyline3DElement } = libRef.current;
       const icn = AIRPORTS.ICN;
@@ -276,7 +111,7 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
           selectedAirline === 'all' ||
           route.airlineCodes.includes(selectedAirline);
         const primaryCode = route.airlineCodes[0];
-        const color = AIRLINE_HEX_COLORS[primaryCode] ?? DEFAULT_COLOR;
+        const color = AIRLINE_HEX_COLORS[primaryCode] ?? DEFAULT_HEX_COLOR;
 
         // Generate arc points
         const arcPoints = generateArcPoints(
@@ -395,7 +230,6 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
     if (!map3d || !loaded) return;
 
     // Remove existing markers and polylines, but keep the map element itself
-    // Use a safe approach: collect children first, then remove them
     const children = Array.from(map3d.children) as HTMLElement[];
     children.forEach((child: HTMLElement) => {
       const tag = child.tagName?.toUpperCase();
@@ -548,7 +382,7 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
       {/* Airline legend */}
       <div className="flex items-center gap-2 px-4 py-2 flex-wrap">
         {legendData.map((item) => {
-          const color = AIRLINE_HEX_COLORS[item.code] ?? DEFAULT_COLOR;
+          const color = AIRLINE_HEX_COLORS[item.code] ?? DEFAULT_HEX_COLOR;
           const isActive = selectedAirline === item.code;
           const tailwindColors = AIRLINE_COLORS[item.code];
           return (
