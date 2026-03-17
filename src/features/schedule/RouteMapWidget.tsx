@@ -114,23 +114,7 @@ function arcPath(from: { x: number; y: number }, to: { x: number; y: number }): 
 /*  Grid Lines Component                                               */
 /* ------------------------------------------------------------------ */
 
-const GridLines: React.FC = () => {
-  const latLines = [-60, -30, 0, 30, 60];
-  const lngLines = [0, 30, 60, 90, 120, 150, 180, -150, -120, -90, -60, -30];
-
-  return (
-    <g opacity="0.05" stroke="#4a6fa5" strokeWidth="0.3" fill="none">
-      {latLines.map((lat) => {
-        const y = latToY(lat);
-        return <line key={`lat-${lat}`} x1="0" y1={y} x2={SVG_W} y2={y} />;
-      })}
-      {lngLines.map((lng) => {
-        const x = lngToX(lng);
-        return <line key={`lng-${lng}`} x1={x} y1="0" x2={x} y2={SVG_H} />;
-      })}
-    </g>
-  );
-};
+// Grid lines removed — they obscured the map
 
 const WorldMap: React.FC = () => (
   <g>
@@ -138,9 +122,9 @@ const WorldMap: React.FC = () => (
       <path
         key={i}
         d={d}
-        fill="#1a2744"
-        stroke="#4a6fa5"
-        strokeWidth="0.8"
+        fill="#192d4a"
+        stroke="#3d6399"
+        strokeWidth="0.7"
         strokeLinejoin="round"
       />
     ))}
@@ -349,9 +333,6 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
 
           {/* Ocean background */}
           <rect x="0" y={CROP_Y} width={SVG_W} height={CROP_H} fill="#070f1b" />
-
-          {/* Grid lines */}
-          <GridLines />
 
           {/* World map (Natural Earth 110m) */}
           <WorldMap />
