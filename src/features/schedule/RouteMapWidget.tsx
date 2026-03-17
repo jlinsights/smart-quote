@@ -117,14 +117,14 @@ function arcPath(from: { x: number; y: number }, to: { x: number; y: number }): 
 // Grid lines removed — they obscured the map
 
 const WorldMap: React.FC = () => (
-  <g>
+  <g clipPath="url(#map-clip)">
     {WORLD_MAP_PATHS.map((d, i) => (
       <path
         key={i}
         d={d}
-        fill="#192d4a"
-        stroke="#3d6399"
-        strokeWidth="0.7"
+        fill="#1c3354"
+        stroke="#2e5a8f"
+        strokeWidth="0.8"
         strokeLinejoin="round"
       />
     ))}
@@ -308,6 +308,10 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
+            {/* Clip to visible area — removes horizontal line artifacts from world map paths */}
+            <clipPath id="map-clip">
+              <rect x="0" y={CROP_Y} width={SVG_W} height={CROP_H} />
+            </clipPath>
             {/* Glow filter for hovered routes */}
             <filter id="route-glow" x="-30%" y="-30%" width="160%" height="160%">
               <feGaussianBlur stdDeviation="4" result="blur" />
