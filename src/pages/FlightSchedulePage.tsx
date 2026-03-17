@@ -17,7 +17,6 @@ import {
   type GssaGroup,
 } from '@/config/flight-schedules';
 import { useFlightSchedules } from '@/features/schedule/useFlightSchedules';
-import RouteMapWidget from '@/features/schedule/RouteMapWidget';
 import { CargoCapacityWidget } from '@/features/schedule/components/CargoCapacityWidget';
 import { FlightFormModal } from '@/features/schedule/components/FlightFormModal';
 import { AirlineFormModal } from '@/features/schedule/components/AirlineFormModal';
@@ -312,16 +311,12 @@ const FlightSchedulePage: React.FC = () => {
           </div>
         )}
 
-        {/* Route Map Widget -- 3D with SVG fallback */}
+        {/* 3D Route Map */}
         <Suspense
           fallback={
-            <RouteMapWidget
-              schedules={filteredSchedules}
-              airlines={filteredAirlines}
-              selectedAirline={selectedAirline}
-              onAirlineSelect={(code) => setSelectedAirline(prev => prev === code ? 'all' : code)}
-              language={language}
-            />
+            <div className="rounded-2xl bg-slate-900 flex items-center justify-center" style={{ height: '500px' }}>
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-white/30 border-t-white" />
+            </div>
           }
         >
           <RouteMap3D

@@ -1,1 +1,1 @@
-♻️ refactor: Warning 3건 해결 — CargoWidget i18n 키 이관, ICN 좌표 참조, 번역 40키 추가
+🗑️ chore: SVG RouteMapWidget + worldMapPaths 삭제 — Google Maps 3D 단일 사용
