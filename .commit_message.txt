@@ -1,1 +1,1 @@
-⛽ feat: 유가/항공유 지수 위젯 — USGC Jet Fuel 추이 차트 + 수동 입력
+🙈 chore: JetFuelPriceWidget 임시 숨김 처리

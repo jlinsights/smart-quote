@@ -269,6 +269,7 @@ interface JetFuelPriceWidgetProps {
   t: (key: string) => string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const JetFuelPriceWidget: React.FC<JetFuelPriceWidgetProps> = ({ editMode, t }) => {
   const [prices, setPrices] = useState<JetFuelPrice[]>(() => loadJetFuelPrices());
   const [showAddForm, setShowAddForm] = useState(false);
@@ -1239,8 +1240,8 @@ const FlightSchedulePage: React.FC = () => {
           language={language}
         />
 
-        {/* Jet Fuel Price Index Widget */}
-        <JetFuelPriceWidget editMode={editMode} t={t} />
+        {/* Jet Fuel Price Index Widget — hidden for now */}
+        {/* <JetFuelPriceWidget editMode={editMode} t={t} /> */}
 
         {/* Airline Info Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
