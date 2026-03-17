@@ -1,1 +1,1 @@
-✈️ feat: AM 스케줄 PDF 기준 수정 + Air Premia(YP) 11편 추가 (총 10개 항공사, 28편)
+🔧 fix: Condor Airlines contractType → via Globe Air Cargo / ECS Group

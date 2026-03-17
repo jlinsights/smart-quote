@@ -104,7 +104,7 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     logo: '🇩🇪',
     country: 'Germany',
     hubCity: 'Frankfurt (FRA)',
-    contractType: 'GSSA — Passenger & Cargo',
+    contractType: 'GSSA — Cargo Sales Agent (via Globe Air Cargo / ECS Group)',
   },
 ];
 
