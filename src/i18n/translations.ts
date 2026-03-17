@@ -256,6 +256,13 @@ export const translations: Record<Language, Record<string, string>> = {
     'schedule.flightDuration': '비행시간',
     'schedule.combi': '겸용',
     'schedule.resetConfirm': '모든 사용자 설정을 초기화하시겠습니까?',
+    'schedule.jetFuel.title': '항공유 가격 지수',
+    'schedule.jetFuel.source': 'USGC 등유 · USD/gal',
+    'schedule.jetFuel.current': '현재가',
+    'schedule.jetFuel.weekChange': '주간 변동',
+    'schedule.jetFuel.trend': '12주 추이',
+    'schedule.jetFuel.addPrice': '가격 추가',
+    'schedule.jetFuel.fscNote': 'DHL FSC는 USGC 기준 월별 조정 · UPS FSC는 DOE 지수 기준 주간 조정',
   },
   en: {
     // Navigation / General
@@ -521,6 +528,13 @@ export const translations: Record<Language, Record<string, string>> = {
     'schedule.flightDuration': 'Flight Duration',
     'schedule.combi': 'Combi',
     'schedule.resetConfirm': 'Reset all customizations to default data?',
+    'schedule.jetFuel.title': 'Jet Fuel Price Index',
+    'schedule.jetFuel.source': 'USGC Kerosene-Type · USD/gal',
+    'schedule.jetFuel.current': 'Current',
+    'schedule.jetFuel.weekChange': 'Week Change',
+    'schedule.jetFuel.trend': '12-Week Trend',
+    'schedule.jetFuel.addPrice': 'Add Price',
+    'schedule.jetFuel.fscNote': 'DHL FSC: monthly adjustment based on USGC · UPS FSC: weekly adjustment based on DOE index',
   },
   cn: {
     // Navigation / General
@@ -763,6 +777,13 @@ export const translations: Record<Language, Record<string, string>> = {
     'schedule.flightDuration': '飞行时间',
     'schedule.combi': '混合',
     'schedule.resetConfirm': '确定要恢复所有默认设置吗？',
+    'schedule.jetFuel.title': '航空燃油价格指数',
+    'schedule.jetFuel.source': 'USGC航空煤油 · USD/gal',
+    'schedule.jetFuel.current': '当前',
+    'schedule.jetFuel.weekChange': '周变化',
+    'schedule.jetFuel.trend': '12周趋势',
+    'schedule.jetFuel.addPrice': '添加价格',
+    'schedule.jetFuel.fscNote': 'DHL FSC基于USGC月度调整 · UPS FSC基于DOE指数周度调整',
   },
   ja: {
     // Navigation / General
@@ -1005,5 +1026,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'schedule.flightDuration': '飛行時間',
     'schedule.combi': 'コンビ',
     'schedule.resetConfirm': 'すべてのカスタマイズをリセットしますか？',
+    'schedule.jetFuel.title': 'ジェット燃料価格指数',
+    'schedule.jetFuel.source': 'USGCケロシン · USD/gal',
+    'schedule.jetFuel.current': '現在',
+    'schedule.jetFuel.weekChange': '週間変動',
+    'schedule.jetFuel.trend': '12週トレンド',
+    'schedule.jetFuel.addPrice': '価格追加',
+    'schedule.jetFuel.fscNote': 'DHL FSCはUSGC基準で月次調整 · UPS FSCはDOE指数基準で週次調整',
   },
 };

@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import {
   Plane, Clock, MapPin, Calendar, Weight, AlertTriangle,
   Filter, ChevronDown, ChevronUp, Pencil, Trash2, Plus,
-  RotateCcw, Settings, X, BarChart3, Package,
+  RotateCcw, Settings, X, BarChart3, Package, Fuel, TrendingUp, TrendingDown,
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -219,6 +219,319 @@ const CargoCapacityWidget: React.FC<CargoCapacityWidgetProps> = ({ schedules, ai
           <p className="text-xs text-gray-400 text-center py-4">{isKo ? '해당 항공편 없음' : 'No flights'}</p>
         )}
       </div>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  JetFuelPriceWidget                                                 */
+/* ------------------------------------------------------------------ */
+interface JetFuelPrice {
+  date: string;     // YYYY-MM-DD (week ending date)
+  price: number;    // USD per gallon (USGC Kerosene-Type Jet Fuel)
+  source?: string;  // e.g. "EIA", "manual"
+}
+
+const JET_FUEL_STORAGE_KEY = 'jet_fuel_prices';
+
+const DEFAULT_JET_FUEL_DATA: JetFuelPrice[] = [
+  { date: '2026-01-03', price: 2.25, source: 'EIA' },
+  { date: '2026-01-10', price: 2.28, source: 'EIA' },
+  { date: '2026-01-17', price: 2.31, source: 'EIA' },
+  { date: '2026-01-24', price: 2.27, source: 'EIA' },
+  { date: '2026-01-31', price: 2.22, source: 'EIA' },
+  { date: '2026-02-07', price: 2.19, source: 'EIA' },
+  { date: '2026-02-14', price: 2.24, source: 'EIA' },
+  { date: '2026-02-21', price: 2.30, source: 'EIA' },
+  { date: '2026-02-28', price: 2.26, source: 'EIA' },
+  { date: '2026-03-07', price: 2.21, source: 'EIA' },
+  { date: '2026-03-14', price: 2.18, source: 'EIA' },
+];
+
+function loadJetFuelPrices(): JetFuelPrice[] {
+  try {
+    const raw = localStorage.getItem(JET_FUEL_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as JetFuelPrice[];
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch { /* ignore */ }
+  localStorage.setItem(JET_FUEL_STORAGE_KEY, JSON.stringify(DEFAULT_JET_FUEL_DATA));
+  return DEFAULT_JET_FUEL_DATA;
+}
+
+function saveJetFuelPrices(prices: JetFuelPrice[]) {
+  localStorage.setItem(JET_FUEL_STORAGE_KEY, JSON.stringify(prices));
+}
+
+interface JetFuelPriceWidgetProps {
+  editMode: boolean;
+  t: (key: string) => string;
+}
+
+const JetFuelPriceWidget: React.FC<JetFuelPriceWidgetProps> = ({ editMode, t }) => {
+  const [prices, setPrices] = useState<JetFuelPrice[]>(() => loadJetFuelPrices());
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newDate, setNewDate] = useState('');
+  const [newPrice, setNewPrice] = useState('');
+
+  // Sort by date ascending, take last 12 for chart
+  const sorted = useMemo(() => [...prices].sort((a, b) => a.date.localeCompare(b.date)), [prices]);
+  const chartData = useMemo(() => sorted.slice(-12), [sorted]);
+
+  // Metrics
+  const current = chartData.length > 0 ? chartData[chartData.length - 1] : null;
+  const previous = chartData.length > 1 ? chartData[chartData.length - 2] : null;
+  const oldest = chartData.length > 0 ? chartData[0] : null;
+
+  const weekChange = current && previous ? current.price - previous.price : 0;
+  const weekChangePct = previous ? (weekChange / previous.price) * 100 : 0;
+  const trendChange = current && oldest ? current.price - oldest.price : 0;
+  const trendPct = oldest ? (trendChange / oldest.price) * 100 : 0;
+
+  // SVG chart dimensions
+  const chartW = 520;
+  const chartH = 120;
+  const padL = 40;
+  const padR = 10;
+  const padT = 10;
+  const padB = 25;
+  const innerW = chartW - padL - padR;
+  const innerH = chartH - padT - padB;
+
+  const priceValues = chartData.map((d) => d.price);
+  const minPrice = priceValues.length > 0 ? Math.min(...priceValues) : 0;
+  const maxPrice = priceValues.length > 0 ? Math.max(...priceValues) : 1;
+  const pRange = maxPrice - minPrice || 0.1;
+
+  const points = chartData.map((d, i) => {
+    const x = padL + (chartData.length > 1 ? (i / (chartData.length - 1)) * innerW : innerW / 2);
+    const y = padT + innerH - ((d.price - minPrice) / pRange) * innerH;
+    return { x, y, ...d };
+  });
+
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+  const areaPath = points.length > 0
+    ? `${linePath} L${points[points.length - 1].x},${padT + innerH} L${points[0].x},${padT + innerH} Z`
+    : '';
+
+  // X-axis labels: show every ~4 weeks
+  const xLabels = chartData
+    .filter((_, i) => i === 0 || i === chartData.length - 1 || (i > 0 && i % 4 === 0))
+    .map((d) => {
+      const idx = chartData.indexOf(d);
+      const x = padL + (chartData.length > 1 ? (idx / (chartData.length - 1)) * innerW : innerW / 2);
+      const label = d.date.slice(5); // MM-DD
+      return { x, label };
+    });
+
+  const handleAddPrice = () => {
+    if (!newDate || !newPrice) return;
+    const price = parseFloat(newPrice);
+    if (isNaN(price) || price <= 0) return;
+    const updated = [...prices.filter((p) => p.date !== newDate), { date: newDate, price, source: 'manual' }];
+    setPrices(updated);
+    saveJetFuelPrices(updated);
+    setNewDate('');
+    setNewPrice('');
+    setShowAddForm(false);
+  };
+
+  const handleDelete = (date: string) => {
+    const updated = prices.filter((p) => p.date !== date);
+    setPrices(updated);
+    saveJetFuelPrices(updated);
+  };
+
+  const formatChange = (val: number) => (val >= 0 ? '+' : '') + val.toFixed(2);
+  const formatPct = (val: number) => (val >= 0 ? '+' : '') + val.toFixed(1) + '%';
+
+  return (
+    <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden">
+      {/* Header */}
+      <div className="px-5 py-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Fuel className="w-4.5 h-4.5 text-amber-600 dark:text-amber-400" />
+            <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200">
+              {t('schedule.jetFuel.title')}
+            </h3>
+          </div>
+          <span className="text-[10px] text-gray-400 dark:text-gray-500">
+            {t('schedule.jetFuel.source')}
+          </span>
+        </div>
+      </div>
+
+      {/* SVG Chart */}
+      <div className="px-5 pt-3 pb-1 overflow-x-auto">
+        <svg viewBox={`0 0 ${chartW} ${chartH}`} className="w-full h-auto min-w-[320px]" preserveAspectRatio="xMidYMid meet">
+          {/* Grid lines */}
+          <line x1={padL} y1={padT} x2={padL} y2={padT + innerH} stroke="currentColor" className="text-gray-200 dark:text-gray-700" strokeWidth="0.5" />
+          <line x1={padL} y1={padT + innerH} x2={padL + innerW} y2={padT + innerH} stroke="currentColor" className="text-gray-200 dark:text-gray-700" strokeWidth="0.5" />
+          {/* Min/Max Y labels */}
+          <text x={padL - 4} y={padT + 4} textAnchor="end" className="fill-gray-400 dark:fill-gray-500" fontSize="8">
+            ${maxPrice.toFixed(2)}
+          </text>
+          <text x={padL - 4} y={padT + innerH} textAnchor="end" className="fill-gray-400 dark:fill-gray-500" fontSize="8">
+            ${minPrice.toFixed(2)}
+          </text>
+          {/* Area fill */}
+          {areaPath && (
+            <path d={areaPath} className="fill-amber-100 dark:fill-amber-900/30" />
+          )}
+          {/* Line */}
+          {linePath && (
+            <path d={linePath} fill="none" className="stroke-amber-500 dark:stroke-amber-400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          )}
+          {/* Data points */}
+          {points.map((p, i) => (
+            <circle
+              key={p.date}
+              cx={p.x}
+              cy={p.y}
+              r={i === points.length - 1 ? 4 : 2}
+              className={i === points.length - 1
+                ? 'fill-amber-600 dark:fill-amber-300 stroke-white dark:stroke-gray-900'
+                : 'fill-amber-400 dark:fill-amber-500'
+              }
+              strokeWidth={i === points.length - 1 ? 2 : 0}
+            />
+          ))}
+          {/* Current price label */}
+          {current && points.length > 0 && (
+            <text
+              x={points[points.length - 1].x}
+              y={points[points.length - 1].y - 8}
+              textAnchor="middle"
+              className="fill-amber-700 dark:fill-amber-300 font-bold"
+              fontSize="9"
+            >
+              ${current.price.toFixed(2)}
+            </text>
+          )}
+          {/* X-axis labels */}
+          {xLabels.map((l) => (
+            <text key={l.label + l.x} x={l.x} y={padT + innerH + 14} textAnchor="middle" className="fill-gray-400 dark:fill-gray-500" fontSize="7">
+              {l.label}
+            </text>
+          ))}
+        </svg>
+      </div>
+
+      {/* Key Metrics */}
+      <div className="grid grid-cols-3 divide-x divide-gray-100 dark:divide-gray-800 border-t border-gray-100 dark:border-gray-800">
+        <div className="px-4 py-3 text-center">
+          <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            {t('schedule.jetFuel.current')}
+          </p>
+          <p className="text-xl font-bold text-amber-600 dark:text-amber-400 mt-0.5">
+            ${current?.price.toFixed(2) ?? '—'}
+          </p>
+          <p className="text-[10px] text-gray-400">/gal</p>
+        </div>
+        <div className="px-4 py-3 text-center">
+          <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            {t('schedule.jetFuel.weekChange')}
+          </p>
+          <p className={`text-lg font-bold mt-0.5 flex items-center justify-center gap-1 ${weekChange >= 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+            {weekChange >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+            {formatChange(weekChange)}
+          </p>
+          <p className={`text-[10px] ${weekChange >= 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+            {formatPct(weekChangePct)}
+          </p>
+        </div>
+        <div className="px-4 py-3 text-center">
+          <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            {t('schedule.jetFuel.trend')}
+          </p>
+          <p className={`text-lg font-bold mt-0.5 flex items-center justify-center gap-1 ${trendChange >= 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+            {trendChange >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+            {formatPct(trendPct)}
+          </p>
+          <p className="text-[10px] text-gray-400">{chartData.length} weeks</p>
+        </div>
+      </div>
+
+      {/* FSC Correlation Note */}
+      <div className="px-5 py-2.5 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800">
+        <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed">
+          {t('schedule.jetFuel.fscNote')}
+        </p>
+        <div className="flex gap-3 mt-1">
+          <a href="https://www.dhl.com/kr-ko/home/our-divisions/freight/customer-tools/fuel-surcharge.html" target="_blank" rel="noopener noreferrer"
+            className="text-[10px] text-amber-600 dark:text-amber-400 hover:underline">DHL FSC →</a>
+          <a href="https://www.ups.com/kr/ko/support/shipping-support/fuel-surcharge.page" target="_blank" rel="noopener noreferrer"
+            className="text-[10px] text-amber-600 dark:text-amber-400 hover:underline">UPS FSC →</a>
+        </div>
+      </div>
+
+      {/* Admin Edit Mode: Add/Delete prices */}
+      {editMode && (
+        <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-800 space-y-2">
+          {!showAddForm ? (
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              {t('schedule.jetFuel.addPrice')}
+            </button>
+          ) : (
+            <div className="flex flex-wrap items-end gap-2">
+              <div>
+                <label className="block text-[10px] text-gray-500 mb-0.5">Date</label>
+                <input
+                  type="date"
+                  value={newDate}
+                  onChange={(e) => setNewDate(e.target.value)}
+                  className="text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-2 py-1.5"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] text-gray-500 mb-0.5">USD/gal</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={newPrice}
+                  onChange={(e) => setNewPrice(e.target.value)}
+                  placeholder="2.25"
+                  className="text-xs border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-2 py-1.5 w-24"
+                />
+              </div>
+              <button
+                onClick={handleAddPrice}
+                className="px-3 py-1.5 text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-colors"
+              >
+                {t('schedule.save')}
+              </button>
+              <button
+                onClick={() => { setShowAddForm(false); setNewDate(''); setNewPrice(''); }}
+                className="px-3 py-1.5 text-xs font-semibold text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+              >
+                {t('schedule.cancel')}
+              </button>
+            </div>
+          )}
+          {/* Price list with delete */}
+          <div className="max-h-32 overflow-y-auto space-y-0.5">
+            {sorted.slice().reverse().slice(0, 12).map((p) => (
+              <div key={p.date} className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400 py-0.5">
+                <span>{p.date} — ${p.price.toFixed(2)} {p.source && <span className="text-gray-300 dark:text-gray-600">({p.source})</span>}</span>
+                <button
+                  onClick={() => handleDelete(p.date)}
+                  className="text-red-400 hover:text-red-600 dark:hover:text-red-300 ml-2"
+                  title="Delete"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -925,6 +1238,9 @@ const FlightSchedulePage: React.FC = () => {
           gssaFilter={gssaFilter}
           language={language}
         />
+
+        {/* Jet Fuel Price Index Widget */}
+        <JetFuelPriceWidget editMode={editMode} t={t} />
 
         {/* Airline Info Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
