@@ -6,7 +6,8 @@ import {
   isUpsAdditionalHandling,
 } from '@/config/ups_addons';
 import type { AddonRate } from '@/api/addonRateApi';
-import { AlertTriangle, Package, Info } from 'lucide-react';
+import { AlertTriangle, Package, Info, MapPin } from 'lucide-react';
+import { lookupEasSurcharge, preloadEasData, type EasSurchargeType } from '@/config/ups_eas_lookup';
 
 // Unified shape for both hardcoded and DB rates
 interface NormalizedRate {
@@ -71,6 +72,8 @@ interface Props {
   isMobileView: boolean;
   incoterm: string;
   dbRates?: AddonRate[];
+  destinationCountry?: string;
+  destinationZip?: string;
 }
 
 export const UpsAddOnPanel: React.FC<Props> = ({
@@ -83,11 +86,32 @@ export const UpsAddOnPanel: React.FC<Props> = ({
   isMobileView,
   incoterm,
   dbRates,
+  destinationCountry,
+  destinationZip,
 }) => {
   const { language } = useLanguage();
   const isEn = language === 'en';
 
   const rates = React.useMemo(() => normalizeRates(dbRates), [dbRates]);
+
+  // EAS/RAS auto-detect from destination postal code
+  const [detectedEas, setDetectedEas] = React.useState<EasSurchargeType>(null);
+
+  React.useEffect(() => {
+    preloadEasData();
+  }, []);
+
+  React.useEffect(() => {
+    if (!destinationCountry || !destinationZip || destinationZip.length < 2) {
+      setDetectedEas(null);
+      return;
+    }
+    let cancelled = false;
+    lookupEasSurcharge(destinationCountry, destinationZip).then((result) => {
+      if (!cancelled) setDetectedEas(result);
+    });
+    return () => { cancelled = true; };
+  }, [destinationCountry, destinationZip]);
 
   // Auto-detect AHS from cargo
   const ahsCount = React.useMemo(() => {
@@ -206,8 +230,44 @@ export const UpsAddOnPanel: React.FC<Props> = ({
         </div>
 
         {/* Auto-detected warnings */}
-        {(ahsCount > 0 || isDDP) && (
+        {(ahsCount > 0 || isDDP || detectedEas) && (
           <div className="mb-3 space-y-1">
+            {detectedEas && (() => {
+              const isRemote = detectedEas === 'RAS';
+              const code = isRemote ? 'RMT' : 'EXT';
+              const rate = rates.find(r => r.code === code);
+              const fee = rate ? calcFee(rate, billableWeight) : 0;
+              const labelMap: Record<string, { ko: string; en: string }> = {
+                EAS: { ko: '외곽 지역', en: 'Extended Area' },
+                RAS: { ko: '원거리 지역', en: 'Remote Area' },
+                DAS: { ko: '배송 지역', en: 'Delivery Area' },
+              };
+              const label = labelMap[detectedEas] || labelMap.EAS;
+              return (
+                <div className="flex items-start gap-1.5 text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 rounded-lg px-2.5 py-1.5">
+                  <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <div>
+                    <span>
+                      <b>{isEn ? label.en : label.ko} Surcharge ({detectedEas})</b>{' '}
+                      {isEn ? 'auto-detected for' : '자동 감지'}: {destinationCountry} {destinationZip}
+                      {fee > 0 && <>{' '}&mdash; {fee.toLocaleString()} KRW (+FSC)</>}
+                    </span>
+                    {!selectedAddOns.includes(code) && (
+                      <button
+                        type="button"
+                        onClick={() => onAddOnsChange([...selectedAddOns, code])}
+                        className="ml-2 inline-flex items-center gap-0.5 text-[10px] font-bold text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/40 px-1.5 py-0.5 rounded hover:bg-orange-200 dark:hover:bg-orange-900/60 transition-colors"
+                      >
+                        + {isEn ? 'Apply' : '적용'}
+                      </button>
+                    )}
+                    {selectedAddOns.includes(code) && (
+                      <span className="ml-2 text-[10px] font-bold text-green-600 dark:text-green-400">✓ {isEn ? 'Applied' : '적용됨'}</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
             {ahsCount > 0 && (() => {
               const ahsRate = rates.find(r => r.code === 'AHS');
               return (

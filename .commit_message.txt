@@ -1,1 +1,1 @@
-✨ feat: Special Packing 항목별 가격 상세 및 안내 패널 추가
+✨ feat: UPS Extended/Remote Area Surcharge 우편번호 기반 자동감지 (86개국, 39,876 zip ranges)

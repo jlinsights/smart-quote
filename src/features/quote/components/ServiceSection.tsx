@@ -146,6 +146,8 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
             isMobileView={isMobileView}
             incoterm={input.incoterm}
             dbRates={dbAddonRates.length > 0 ? dbAddonRates : undefined}
+            destinationCountry={input.destinationCountry}
+            destinationZip={input.destinationZip}
           />
         )}
 
