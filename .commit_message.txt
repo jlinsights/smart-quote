@@ -1,1 +1,1 @@
-✨ feat: GSSA 그룹 필터 + 배지 — Goodman GLS / Globe Air Cargo(ECS) 구분
+📊 feat: 항공사별 화물량 현황 위젯 — 주간/월간 capacity, 캐리어 바 차트
