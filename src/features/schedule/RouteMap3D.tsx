@@ -293,12 +293,13 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
             strokeColor: isHighlighted ? color : '#4b5563',
             strokeWidth: route.isCargo && !route.isPassenger ? 4 : 2,
             drawsOccludedSegments: true,
-            coordinates: arcPoints.map((p) => ({
-              lat: p.lat,
-              lng: p.lng,
-              altitude: p.altitude,
-            })),
           });
+          // Use 'path' instead of deprecated 'coordinates'
+          polyline.path = arcPoints.map((p) => ({
+            lat: p.lat,
+            lng: p.lng,
+            altitude: p.altitude,
+          }));
 
           if (!isHighlighted) {
             polyline.style.opacity = '0.15';
