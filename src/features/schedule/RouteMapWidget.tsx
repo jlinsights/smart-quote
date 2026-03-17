@@ -60,24 +60,25 @@ const DEFAULT_COLOR = '#94a3b8'; // slate-400
 /*  Projection Helpers                                                 */
 /* ------------------------------------------------------------------ */
 
-// SVG viewBox: 0 0 1000 500
-// Equirectangular centered so ICN (~lng 126) sits at x ≈ 320
-// Longitude range mapped: 0 → 360 (wrapping) offset so 20°E → left edge
-const LNG_OFFSET = 20; // left edge of map is 20°E
+// SVG uses original projection: viewBox 0 0 1000 500, lat [-70,80], lng offset 20°E
+// But we CROP the viewBox to show only the active route area
+const LNG_OFFSET = 20;
 const SVG_W = 1000;
 const SVG_H = 500;
 
+// Crop viewBox to focus on route network (lat -5°→65°, all longitudes)
+// In the original projection: lat 65° → y=50, lat -5° → y=283
+const CROP_Y = 50;    // top of crop (lat ~65°)
+const CROP_H = 233;   // height of crop (lat -5° to 65°)
+
 function lngToX(lng: number): number {
-  // Shift longitude so 20°E = 0, then wrap
   let shifted = lng - LNG_OFFSET;
   if (shifted < 0) shifted += 360;
   return (shifted / 360) * SVG_W;
 }
 
 function latToY(lat: number): number {
-  // Simple Mercator-like: clamp lat to [-70, 80]
   const clamped = Math.max(-70, Math.min(80, lat));
-  // Map 80 → top(0), -70 → bottom(500)
   return ((80 - clamped) / 150) * SVG_H;
 }
 
@@ -216,27 +217,30 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
     [language],
   );
 
-  // Aggregate routes by destination
+  // Aggregate routes by destination — skip fully suspended routes
   const routes = useMemo<RouteInfo[]>(() => {
     const map = new Map<string, RouteInfo>();
 
-    schedules.forEach((s) => {
+    // Filter out suspended flights entirely
+    const activeSchedules = schedules.filter(
+      (s) => !s.remarks?.toLowerCase().includes('suspended')
+    );
+
+    activeSchedules.forEach((s) => {
       const dest = s.destination;
       if (!AIRPORTS[dest]) return;
 
-      const existing = map.get(dest);
-      const suspended = !!s.remarks?.toLowerCase().includes('suspended');
       const weeklyCount = s.departureDays.length;
+      const existing = map.get(dest);
 
       if (existing) {
         if (!existing.airlineCodes.includes(s.airlineCode)) {
           existing.airlineCodes.push(s.airlineCode);
         }
         existing.flightCount += 1;
-        existing.weeklyFlights += suspended ? 0 : weeklyCount;
+        existing.weeklyFlights += weeklyCount;
         if (s.flightType === 'cargo') existing.isCargo = true;
         else existing.isPassenger = true;
-        if (suspended) existing.isSuspended = true;
       } else {
         map.set(dest, {
           destination: dest,
@@ -244,8 +248,8 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
           flightCount: 1,
           isCargo: s.flightType === 'cargo',
           isPassenger: s.flightType !== 'cargo',
-          isSuspended: suspended,
-          weeklyFlights: suspended ? 0 : weeklyCount,
+          isSuspended: false,
+          weeklyFlights: weeklyCount,
         });
       }
     });
@@ -253,13 +257,15 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
     return Array.from(map.values());
   }, [schedules]);
 
-  // Airline legend data
+  // Airline legend data — active only
   const legendData = useMemo(() => {
     return airlines
       .map((a) => {
-        const count = schedules.filter((s) => s.airlineCode === a.code).length;
-        if (count === 0) return null;
-        return { code: a.code, name: isKo ? a.nameKo : a.name, count };
+        const activeFlights = schedules.filter(
+          (s) => s.airlineCode === a.code && !s.remarks?.toLowerCase().includes('suspended')
+        );
+        if (activeFlights.length === 0) return null;
+        return { code: a.code, name: isKo ? a.nameKo : a.name, count: activeFlights.length };
       })
       .filter(Boolean) as { code: string; name: string; count: number }[];
   }, [airlines, schedules, isKo]);
@@ -311,9 +317,9 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
       </div>
 
       {/* SVG Map */}
-      <div className="relative w-full" style={{ aspectRatio: '5 / 3', maxHeight: '420px' }}>
+      <div className="relative w-full" style={{ aspectRatio: '2.2 / 1' }}>
         <svg
-          viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+          viewBox={`0 ${CROP_Y} ${SVG_W} ${CROP_H}`}
           className="w-full h-full"
           preserveAspectRatio="xMidYMid meet"
         >
@@ -342,7 +348,7 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
           </defs>
 
           {/* Ocean background */}
-          <rect x="0" y="0" width={SVG_W} height={SVG_H} fill="#0d1b2a" />
+          <rect x="0" y={CROP_Y} width={SVG_W} height={CROP_H} fill="#0d1b2a" />
 
           {/* Grid lines */}
           <GridLines />
@@ -357,7 +363,6 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
 
             const primaryCode = route.airlineCodes[0];
             const color = AIRLINE_SVG_COLORS[primaryCode] ?? DEFAULT_COLOR;
-            const isSusp = route.isSuspended && route.weeklyFlights === 0;
             const isHighlighted =
               selectedAirline === 'all' || route.airlineCodes.includes(selectedAirline);
             const isHovered = hoveredRoute === route.destination;
@@ -370,16 +375,14 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
                 <path
                   d={pathD}
                   fill="none"
-                  stroke={isSusp ? '#ef4444' : color}
-                  strokeWidth={isHovered ? strokeW + 1 : strokeW}
+                  stroke={color}
+                  strokeWidth={isHovered ? strokeW + 1.5 : strokeW}
                   strokeDasharray={
-                    isSusp
-                      ? '6 4'
-                      : route.isPassenger && !route.isCargo
-                        ? '8 3'
-                        : 'none'
+                    route.isPassenger && !route.isCargo
+                      ? '8 3'
+                      : 'none'
                   }
-                  opacity={isSusp ? 0.3 : isHighlighted ? (isHovered ? 1 : 0.8) : 0.15}
+                  opacity={isHighlighted ? (isHovered ? 1 : 0.8) : 0.15}
                   strokeLinecap="round"
                   filter={isHovered ? 'url(#route-glow)' : isHighlighted ? 'url(#route-soft-glow)' : undefined}
                   className="transition-opacity duration-200"
@@ -425,7 +428,6 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
 
             const primaryCode = route.airlineCodes[0];
             const color = AIRLINE_SVG_COLORS[primaryCode] ?? DEFAULT_COLOR;
-            const isSusp = route.isSuspended && route.weeklyFlights === 0;
             const isHighlighted =
               selectedAirline === 'all' || route.airlineCodes.includes(selectedAirline);
             const isHovered = hoveredRoute === route.destination;
@@ -444,7 +446,7 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
                   cy={destPos.y}
                   r={isHovered ? 6 : 4}
                   fill="none"
-                  stroke={isSusp ? '#ef4444' : color}
+                  stroke={color}
                   strokeWidth="1.5"
                   opacity={isHighlighted ? (isHovered ? 1 : 0.85) : 0.2}
                   className="transition-all duration-200"
@@ -510,9 +512,6 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
             </div>
             <div className="mt-1 text-white/50">
               {hoveredRouteInfo.weeklyFlights} {t('schedule.routeMap.flights')}
-              {hoveredRouteInfo.isSuspended && hoveredRouteInfo.weeklyFlights === 0 && (
-                <span className="ml-1 text-red-400">(Suspended)</span>
-              )}
             </div>
           </div>
         )}
