@@ -11,6 +11,8 @@ declare namespace google.maps.maps3d {
     range?: number;
     tilt?: number;
     heading?: number;
+    mode?: 'SATELLITE' | 'HYBRID';
+    defaultUIHidden?: boolean;
     defaultLabelsDisabled?: boolean;
   }
 
@@ -41,6 +43,8 @@ declare namespace google.maps.maps3d {
     range: number;
     tilt: number;
     heading: number;
+    mode: string;
+    defaultUIHidden: boolean;
     defaultLabelsDisabled: boolean;
     flyCameraTo(options: FlyCameraToOptions): void;
     flyCameraAround(options: FlyCameraAroundOptions): void;

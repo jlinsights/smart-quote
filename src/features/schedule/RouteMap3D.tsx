@@ -202,6 +202,7 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
       range: 12000000,
       tilt: 45,
       heading: -30,
+      mode: 'SATELLITE',
     });
     map3d.style.width = '100%';
     map3d.style.height = '100%';
