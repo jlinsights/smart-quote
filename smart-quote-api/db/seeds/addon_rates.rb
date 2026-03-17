@@ -65,6 +65,36 @@ dhl_rates = [
     fsc_applicable: true, auto_detect: true, selectable: false, sort_order: 13,
     description: "최대 긴 변 >100cm 또는 두 번째 긴 변 >80cm",
     detect_rules: { "max_longest" => 100, "max_second" => 80 } },
+
+  # --- 2026-03-17 추가: DHL Korea 공식 부가서비스 페이지 기준 ---
+  { code: "EMG", carrier: "DHL", name_en: "Emergency Situation Surcharge", name_ko: "비상 상황 추가요금",
+    charge_type: "fixed", unit: "shipment", amount: 0,
+    fsc_applicable: true, selectable: true, sort_order: 14,
+    description: "DHL이 통제할 수 없는 비상 상황 발생 시 적용 (금액 변동)" },
+
+  { code: "TSD", carrier: "DHL", name_en: "Trade Sanctions Delivery", name_ko: "무역 제재국 배송",
+    charge_type: "fixed", unit: "shipment", amount: 50_000,
+    fsc_applicable: true, selectable: true, sort_order: 15,
+    description: "UN 제재 국가 배송 (IR, KP, LY, SO)" },
+
+  { code: "NSC", carrier: "DHL", name_en: "Non-Stackable Cargo", name_ko: "상단 적재 불가 화물",
+    charge_type: "fixed", unit: "shipment", amount: 440_000,
+    fsc_applicable: true, selectable: true, sort_order: 16,
+    description: "팔레트 상단 적재 불가 (25kg 이상 팔레트만 적용)" },
+
+  { code: "MWB", carrier: "DHL", name_en: "Manual Waybill Entry", name_ko: "수기 운송장 발행",
+    charge_type: "fixed", unit: "shipment", amount: 15_000,
+    fsc_applicable: false, selectable: true, sort_order: 17 },
+
+  { code: "LBI", carrier: "DHL", name_en: "Lithium Ion Battery (PI966 Sec II)", name_ko: "리튬 이온 배터리",
+    charge_type: "fixed", unit: "shipment", amount: 10_000,
+    fsc_applicable: false, selectable: true, sort_order: 18,
+    description: "리튬 이온 배터리 포함 물품" },
+
+  { code: "LBM", carrier: "DHL", name_en: "Lithium Metal Battery (PI969 Sec II)", name_ko: "리튬 메탈 배터리",
+    charge_type: "fixed", unit: "shipment", amount: 10_000,
+    fsc_applicable: false, selectable: true, sort_order: 19,
+    description: "리튬 메탈 배터리 포함 물품" },
 ]
 
 ups_rates = [

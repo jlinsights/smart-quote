@@ -29,10 +29,7 @@ class QuoteCalculator
       packing_fumigation_cost = FUMIGATION_FEE
     end
 
-    final_handling_fee = 0
     # Packing & Docs = user-entered manualPackingCost only. No auto handling fee.
-    # When manualPackingCost is set: material=override, labor=0, fumigation=0, handling=0
-    # When manualPackingCost is empty: material=auto, labor=auto, fumigation=auto, handling=0
     if @input[:manualPackingCost] && @input[:manualPackingCost] >= 0
       packing_fumigation_cost = 0
     end
@@ -82,9 +79,20 @@ class QuoteCalculator
     )
     system_surcharge_total = surcharge_result[:total]
 
+    # UPS Surge Fee (급증수수료) — auto-detect for Middle East / Israel destinations
+    ups_surge_fee_result = nil
+    if carrier == 'UPS'
+      ups_surge_fee_result = Calculators::UpsSurgeFee.call(
+        country: @input[:destinationCountry],
+        billable_weight: billable_weight,
+        fsc_percent: @input[:fscPercent] || DEFAULT_FSC_PERCENT
+      )
+    end
+
     # Manual surge: additional on top of system surcharges
     manual_surge_cost = @input[:manualSurgeCost] || 0
-    surge_cost = system_surcharge_total + manual_surge_cost
+    ups_surge_total = ups_surge_fee_result ? ups_surge_fee_result[:total] : 0
+    surge_cost = system_surcharge_total + manual_surge_cost + ups_surge_total
     overseas_total = overseas_result[:intl_base] + overseas_result[:intl_fsc] + overseas_result[:intl_war_risk] + surge_cost
 
     # 5. Duty
@@ -97,11 +105,11 @@ class QuoteCalculator
     pickup_in_seoul = @input[:pickupInSeoulCost] || 0
 
     # 6. Totals
-    total_cost_amount = packing_total + final_handling_fee + overseas_total + dest_duty + pickup_in_seoul
+    total_cost_amount = packing_total + 0 + overseas_total + dest_duty + pickup_in_seoul
 
     quote_basis_cost = 0
     if ['EXW', 'FOB'].include?(@input[:incoterm])
-      quote_basis_cost = packing_total + final_handling_fee
+      quote_basis_cost = packing_total + 0
       user_warnings << "Collect Term: International Freight calculated for reference but may be billed to Consignee/Partner."
     else
       quote_basis_cost = total_cost_amount
@@ -147,7 +155,7 @@ class QuoteCalculator
         packingMaterial: item_result[:packing_material_cost],
         packingLabor: item_result[:packing_labor_cost],
         packingFumigation: packing_fumigation_cost,
-        handlingFees: final_handling_fee,
+        handlingFees: 0,
         intlBase: overseas_result[:intl_base],
         intlFsc: overseas_result[:intl_fsc],
         intlWarRisk: overseas_result[:intl_war_risk],
