@@ -2,10 +2,11 @@ import React from 'react';
 import { QuoteInput } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { UPS_FSC_URL, DHL_FSC_URL } from '@/config/rates';
-import { TrendingUp, ExternalLink, RefreshCw } from 'lucide-react';
+import { TrendingUp, ExternalLink, RefreshCw, Target } from 'lucide-react';
 import { inputStyles } from './input-styles';
 import { useExchangeRates } from '@/features/dashboard/hooks/useExchangeRates';
 import { useFscRates } from '@/features/dashboard/hooks/useFscRates';
+import type { ResolvedMargin } from '@/api/marginRuleApi';
 
 interface Props {
   input: QuoteInput;
@@ -13,13 +14,15 @@ interface Props {
   isMobileView: boolean;
   effectiveMarginPercent?: number;
   hideMargin?: boolean;
+  resolvedMargin?: ResolvedMargin | null;
 }
 
-export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobileView, hideMargin }) => {
+export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobileView, hideMargin, resolvedMargin }) => {
   const { inputClass, labelClass, grayCardClass } = inputStyles;
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isKo = language === 'ko';
   const { data: exchangeRates, loading: ratesLoading } = useExchangeRates();
   const { data: fscRates, loading: fscLoading } = useFscRates();
 
@@ -159,6 +162,21 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
                          <span className="text-gray-500 sm:text-sm font-bold">%</span>
                      </div>
                  </div>
+                 {resolvedMargin && (
+                   <div className={`mt-1.5 flex items-start gap-1.5 text-[9px] leading-relaxed ${
+                     resolvedMargin.fallback
+                       ? 'text-gray-400 dark:text-gray-500'
+                       : 'text-emerald-600 dark:text-emerald-400'
+                   }`}>
+                     <Target className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                     <span>
+                       {resolvedMargin.matchedRule
+                         ? `${isKo ? '적용 룰' : 'Rule'}: ${resolvedMargin.matchedRule.name} → ${resolvedMargin.marginPercent}%`
+                         : `${isKo ? '기본값 적용' : 'Default fallback'}: ${resolvedMargin.marginPercent}%`
+                       }
+                     </span>
+                   </div>
+                 )}
              </div>
          )}
       </div>

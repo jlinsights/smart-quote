@@ -4,6 +4,7 @@ import { RouteSection } from './RouteSection';
 import { FinancialSection } from './FinancialSection';
 import { CargoSection } from './CargoSection';
 import { ServiceSection } from './ServiceSection';
+import type { ResolvedMargin } from '@/api/marginRuleApi';
 
 interface Props {
   input: QuoteInput;
@@ -13,9 +14,10 @@ interface Props {
   hideMargin?: boolean;
   intlBase?: number;
   billableWeight?: number;
+  resolvedMargin?: ResolvedMargin | null;
 }
 
-export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = false, effectiveMarginPercent, hideMargin, intlBase, billableWeight }) => {
+export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = false, effectiveMarginPercent, hideMargin, intlBase, billableWeight, resolvedMargin }) => {
 
   const updateField = <K extends keyof QuoteInput>(key: K, value: QuoteInput[K]) => {
     onChange({ ...input, [key]: value });
@@ -30,7 +32,7 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
       <RouteSection input={input} onFieldChange={updateField} isMobileView={isMobileView} />
       <CargoSection items={input.items} onChange={handleCargoChange} isMobileView={isMobileView} />
       <ServiceSection input={input} onFieldChange={updateField} isMobileView={isMobileView} intlBase={intlBase} billableWeight={billableWeight} />
-      <FinancialSection input={input} onFieldChange={updateField} isMobileView={isMobileView} effectiveMarginPercent={effectiveMarginPercent} hideMargin={hideMargin} />
+      <FinancialSection input={input} onFieldChange={updateField} isMobileView={isMobileView} effectiveMarginPercent={effectiveMarginPercent} hideMargin={hideMargin} resolvedMargin={resolvedMargin} />
     </div>
   );
 };

@@ -1,1 +1,1 @@
-💡 feat: 환율/FSC 갱신 주기 안내 추가 (UPS 매주, DHL 매월, 환율 5분)
+🎯 feat: Target Margin 아래 적용된 마진 룰 이름/비율 안내 표시 (Admin 전용)
