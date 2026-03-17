@@ -198,7 +198,7 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
 
     // Create Map3DElement using the constructor from importLibrary
     const map3d = new Map3DElement({
-      center: { lat: 37.46, lng: 126.44, altitude: 0 },
+      center: { lat: AIRPORTS.ICN.lat, lng: AIRPORTS.ICN.lng, altitude: 0 },
       range: 12000000,
       tilt: 45,
       heading: -30,
@@ -259,7 +259,7 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
       try {
         map3d.flyCameraTo({
           endCamera: {
-            center: { lat: 37.46, lng: 126.44, altitude: 0 },
+            center: { lat: AIRPORTS.ICN.lat, lng: AIRPORTS.ICN.lng, altitude: 0 },
             range: 12000000,
             tilt: 45,
             heading: -30,

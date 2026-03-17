@@ -1,1 +1,1 @@
-♻️ refactor: Schedule 기능 대규모 리팩토링 — God File 분리, 중복 제거, Dead Code 정리
+♻️ refactor: Warning 3건 해결 — CargoWidget i18n 키 이관, ICN 좌표 참조, 번역 40키 추가

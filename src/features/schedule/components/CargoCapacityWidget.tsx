@@ -7,6 +7,7 @@ import {
   type AirlineInfo,
   type GssaGroup,
 } from '@/config/flight-schedules';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface CargoCapacityWidgetProps {
   schedules: FlightSchedule[];
@@ -22,6 +23,7 @@ export const CargoCapacityWidget: React.FC<CargoCapacityWidgetProps> = ({
   language,
 }) => {
   const isKo = language === 'ko';
+  const { t } = useLanguage();
 
   const airlineStats = useMemo(() => {
     const stats: {
@@ -105,7 +107,7 @@ export const CargoCapacityWidget: React.FC<CargoCapacityWidgetProps> = ({
           <div className="flex items-center gap-2">
             <BarChart3 className="w-4.5 h-4.5 text-jways-600 dark:text-jways-400" />
             <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200">
-              {isKo ? '항공사별 화물량 현황' : 'Cargo Capacity by Airline'}
+              {t('schedule.cargo.title')}
             </h3>
             <span className="text-[10px] text-gray-400 dark:text-gray-500">({gssaLabel})</span>
           </div>
@@ -116,24 +118,24 @@ export const CargoCapacityWidget: React.FC<CargoCapacityWidgetProps> = ({
       <div className="grid grid-cols-3 divide-x divide-gray-100 dark:divide-gray-800 border-b border-gray-100 dark:border-gray-800">
         <div className="px-4 py-3 text-center">
           <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-            {isKo ? '주간 운항' : 'Weekly Flights'}
+            {t('schedule.cargo.weeklyFlights')}
           </p>
           <p className="text-xl font-bold text-gray-900 dark:text-white mt-0.5">{totalWeeklyFlights}</p>
-          <p className="text-[10px] text-gray-400">{isKo ? '편/주' : 'flights/wk'}</p>
+          <p className="text-[10px] text-gray-400">{t('schedule.cargo.flightsPerWk')}</p>
         </div>
         <div className="px-4 py-3 text-center">
           <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-            {isKo ? '주간 화물량' : 'Weekly Capacity'}
+            {t('schedule.cargo.weeklyCapacity')}
           </p>
           <p className="text-xl font-bold text-jways-600 dark:text-jways-400 mt-0.5">{formatTons(totalWeeklyKg)}</p>
-          <p className="text-[10px] text-gray-400">{isKo ? '최대 적재량' : 'max payload'}</p>
+          <p className="text-[10px] text-gray-400">{t('schedule.cargo.maxPayload')}</p>
         </div>
         <div className="px-4 py-3 text-center">
           <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-            {isKo ? '월간 화물량' : 'Monthly Capacity'}
+            {t('schedule.cargo.monthlyCapacity')}
           </p>
           <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">{formatTons(totalMonthlyKg)}</p>
-          <p className="text-[10px] text-gray-400">{isKo ? '예상 (×4주)' : 'est. (×4wk)'}</p>
+          <p className="text-[10px] text-gray-400">{t('schedule.cargo.estMonthly')}</p>
         </div>
       </div>
 
@@ -163,7 +165,7 @@ export const CargoCapacityWidget: React.FC<CargoCapacityWidgetProps> = ({
                 <div className="flex items-center gap-2 flex-shrink-0 text-[10px]">
                   <span className="text-gray-500 dark:text-gray-400">
                     {stat.weeklyFlights}
-                    {isKo ? '편' : 'flt'}/wk
+                    {t('schedule.cargo.fltWk')}
                   </span>
                   {stat.cargoFlights > 0 && (
                     <span className="flex items-center gap-0.5 text-blue-600 dark:text-blue-400">
@@ -199,7 +201,7 @@ export const CargoCapacityWidget: React.FC<CargoCapacityWidgetProps> = ({
           );
         })}
         {airlineStats.length === 0 && (
-          <p className="text-xs text-gray-400 text-center py-4">{isKo ? '해당 항공편 없음' : 'No flights'}</p>
+          <p className="text-xs text-gray-400 text-center py-4">{t('schedule.cargo.noFlights')}</p>
         )}
       </div>
     </div>
