@@ -118,7 +118,7 @@ const GridLines: React.FC = () => {
   const lngLines = [0, 30, 60, 90, 120, 150, 180, -150, -120, -90, -60, -30];
 
   return (
-    <g opacity="0.06" stroke="#94a3b8" strokeWidth="0.5" fill="none">
+    <g opacity="0.12" stroke="#64748b" strokeWidth="0.3" fill="none">
       {latLines.map((lat) => {
         const y = latToY(lat);
         return <line key={`lat-${lat}`} x1="0" y1={y} x2={SVG_W} y2={y} />;
@@ -137,9 +137,10 @@ const WorldMap: React.FC = () => (
       <path
         key={i}
         d={d}
-        fill="#1e293b"
-        stroke="#334155"
-        strokeWidth="0.5"
+        fill="#253349"
+        stroke="#3b5278"
+        strokeWidth="0.6"
+        strokeLinejoin="round"
       />
     ))}
   </g>
@@ -287,7 +288,7 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
   const hoveredRouteInfo = hoveredRoute ? routes.find((r) => r.destination === hoveredRoute) : null;
 
   return (
-    <div className="rounded-2xl overflow-hidden w-full bg-gradient-to-br from-slate-900 to-blue-950 relative">
+    <div className="rounded-2xl overflow-hidden w-full bg-gradient-to-br from-[#0a1628] to-[#0c1a30] relative">
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-3 pb-1">
         <h3 className="text-sm font-semibold text-white/80 tracking-wide">
@@ -310,7 +311,7 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
       </div>
 
       {/* SVG Map */}
-      <div className="relative w-full" style={{ aspectRatio: '2 / 1', maxHeight: '300px' }}>
+      <div className="relative w-full" style={{ aspectRatio: '5 / 3', maxHeight: '420px' }}>
         <svg
           viewBox={`0 0 ${SVG_W} ${SVG_H}`}
           className="w-full h-full"
@@ -318,8 +319,16 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
         >
           <defs>
             {/* Glow filter for hovered routes */}
-            <filter id="route-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
+            <filter id="route-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            {/* Subtle glow for route lines */}
+            <filter id="route-soft-glow" x="-10%" y="-10%" width="120%" height="120%">
+              <feGaussianBlur stdDeviation="1.5" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -331,6 +340,9 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
               <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
             </radialGradient>
           </defs>
+
+          {/* Ocean background */}
+          <rect x="0" y="0" width={SVG_W} height={SVG_H} fill="#0d1b2a" />
 
           {/* Grid lines */}
           <GridLines />
@@ -351,7 +363,7 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
             const isHovered = hoveredRoute === route.destination;
 
             const pathD = arcPath(icnPos, destPos);
-            const strokeW = route.isCargo && !route.isPassenger ? 2 : 1.5;
+            const strokeW = route.isCargo && !route.isPassenger ? 2.5 : 2;
 
             return (
               <g key={route.destination}>
@@ -367,9 +379,9 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
                         ? '8 3'
                         : 'none'
                   }
-                  opacity={isSusp ? 0.3 : isHighlighted ? (isHovered ? 0.95 : 0.7) : 0.15}
+                  opacity={isSusp ? 0.3 : isHighlighted ? (isHovered ? 1 : 0.8) : 0.15}
                   strokeLinecap="round"
-                  filter={isHovered ? 'url(#route-glow)' : undefined}
+                  filter={isHovered ? 'url(#route-glow)' : isHighlighted ? 'url(#route-soft-glow)' : undefined}
                   className="transition-opacity duration-200"
                   style={{ cursor: 'pointer' }}
                   onMouseEnter={(e) => handleRouteHover(route.destination, e)}
@@ -381,19 +393,29 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
           })}
 
           {/* ICN hub — pulsing rings */}
-          <circle cx={icnPos.x} cy={icnPos.y} r="18" fill="url(#icn-pulse)" className="animate-ping" style={{ animationDuration: '2s' }} />
-          <circle cx={icnPos.x} cy={icnPos.y} r="10" fill="url(#icn-pulse)" className="animate-ping" style={{ animationDuration: '3s', animationDelay: '0.5s' }} />
-          <circle cx={icnPos.x} cy={icnPos.y} r="5" fill="#3b82f6" stroke="white" strokeWidth="1.5" />
+          <circle cx={icnPos.x} cy={icnPos.y} r="22" fill="url(#icn-pulse)" className="animate-ping" style={{ animationDuration: '2s' }} />
+          <circle cx={icnPos.x} cy={icnPos.y} r="14" fill="url(#icn-pulse)" className="animate-ping" style={{ animationDuration: '3s', animationDelay: '0.5s' }} />
+          <circle cx={icnPos.x} cy={icnPos.y} r="7" fill="#3b82f6" stroke="white" strokeWidth="2" />
           <text
             x={icnPos.x}
-            y={icnPos.y - 10}
+            y={icnPos.y - 14}
             textAnchor="middle"
             fill="white"
-            fontSize="10"
-            fontWeight="700"
+            fontSize="11"
+            fontWeight="800"
             className="select-none"
           >
             ICN
+          </text>
+          <text
+            x={icnPos.x}
+            y={icnPos.y + 18}
+            textAnchor="middle"
+            fill="#94a3b8"
+            fontSize="6"
+            className="select-none"
+          >
+            SEOUL
           </text>
 
           {/* Destination dots */}
@@ -407,7 +429,6 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
             const isHighlighted =
               selectedAirline === 'all' || route.airlineCodes.includes(selectedAirline);
             const isHovered = hoveredRoute === route.destination;
-            const showLabel = isHovered || selectedAirline !== 'all';
 
             return (
               <g
@@ -421,37 +442,35 @@ const RouteMapWidget: React.FC<RouteMapWidgetProps> = ({
                 <circle
                   cx={destPos.x}
                   cy={destPos.y}
-                  r={isHovered ? 5 : 3.5}
+                  r={isHovered ? 6 : 4}
                   fill="none"
                   stroke={isSusp ? '#ef4444' : color}
                   strokeWidth="1.5"
-                  opacity={isHighlighted ? (isHovered ? 1 : 0.8) : 0.2}
+                  opacity={isHighlighted ? (isHovered ? 1 : 0.85) : 0.2}
                   className="transition-all duration-200"
                 />
                 {/* Inner dot */}
                 <circle
                   cx={destPos.x}
                   cy={destPos.y}
-                  r={isHovered ? 2.5 : 1.5}
+                  r={isHovered ? 3 : 2}
                   fill="white"
-                  opacity={isHighlighted ? (isHovered ? 1 : 0.9) : 0.2}
+                  opacity={isHighlighted ? (isHovered ? 1 : 0.9) : 0.25}
                   className="transition-all duration-200"
                 />
-                {/* Label */}
-                {showLabel && (
-                  <text
-                    x={destPos.x}
-                    y={destPos.y - 8}
-                    textAnchor="middle"
-                    fill="white"
-                    fontSize="7"
-                    fontWeight="600"
-                    opacity={isHighlighted ? 0.9 : 0.3}
-                    className="select-none"
-                  >
-                    {route.destination}
-                  </text>
-                )}
+                {/* Label — always visible */}
+                <text
+                  x={destPos.x}
+                  y={destPos.y - (isHovered ? 10 : 8)}
+                  textAnchor="middle"
+                  fill="white"
+                  fontSize={isHovered ? '9' : '7'}
+                  fontWeight={isHovered ? '700' : '500'}
+                  opacity={isHighlighted ? (isHovered ? 1 : 0.75) : 0.2}
+                  className="select-none transition-all duration-200"
+                >
+                  {route.destination}
+                </text>
               </g>
             );
           })}
