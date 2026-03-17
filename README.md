@@ -16,17 +16,22 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 
 ### Multi-Carrier Quoting (UPS, DHL, EMAX)
 
-- **Zone-based pricing**: Country-to-zone mapping (Z1-Z10 for UPS, Z1-Z8 for DHL, per-country for EMAX) with exact rate tables (0.5-20kg in 0.5kg steps) and range rates (>20kg per-kg)
+- **Zone-based pricing**: Config-driven country-to-zone mapping (Z1-Z10 for UPS, Z1-Z8 for DHL, per-country for EMAX) with exact rate tables (0.5-20kg in 0.5kg steps) and range rates (>20kg per-kg)
 - **Shared rate lookup**: Common `lookupCarrierRate()` engine for UPS/DHL (exact table -> range table -> fallback)
-- **Surcharges**: FSC% fuel surcharge, war risk (5%), manual surge fees, carrier-specific add-ons (AHS, large package, remote area, etc.)
+- **UPS Surge Fee**: Auto-detected for Middle East (KRW 2,004/kg) and Israel (KRW 4,722/kg) destinations, FSC applicable
+- **EAS/RAS Auto-Detection**: Postal code-based Extended/Remote Area Surcharge lookup (86 countries, 39,876 zip ranges, binary search O(log n), lazy-loaded)
+- **Surcharges**: FSC% fuel surcharge, DB-driven surcharges, manual surge fees, carrier-specific add-ons (UPS: 6 types, DHL: 19 types)
 - **Carrier comparison**: Side-by-side cost comparison across all carriers
+- **Incoterm Policy**: UPS/DHL/EMAX express shipments use DAP exclusively
 
 ### Calculation Pipeline
 
-1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L x W x H / 5000 for UPS & DHL, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
-2. **Carrier Costs** - Zone lookup -> `lookupCarrierRate()` -> FSC -> war risk
-3. **Margin** - Dynamic margin resolution via `MarginRuleResolver` (priority-based first-match-wins algorithm with 5min cache), admin CRUD management, hardcoded fallback if API unavailable. Revenue = cost / (1 - margin%), rounded up to nearest KRW 100
-4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
+1. **Item Costs** - Packing dimensions via `applyPackingDimensions()` utility (+10/+10/+15cm), volumetric weight (L x W x H / 5000 for UPS & DHL, /6000 for EMAX), packing material/labor, Special Packing info panel (WOODEN_BOX/SKID/VACUUM with live cost preview)
+2. **Carrier Costs** - Config-driven zone lookup -> `lookupCarrierRate()` -> FSC -> UPS Surge Fee (auto) -> EAS/RAS (auto)
+3. **Add-on Services** - Auto-detected (AHS, OSP, OWT, DDP, Surge Fee, EAS/RAS) + user-selectable (19 DHL / 6 UPS add-ons)
+4. **Margin** - Dynamic margin resolution via `MarginRuleResolver` (priority-based first-match-wins algorithm with 5min cache), admin CRUD management, hardcoded fallback if API unavailable. Revenue = cost / (1 - margin%), rounded up to nearest KRW 100
+5. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
+6. **PDF Output** - Branded PDF with packing type/cost breakdown, carrier add-on details, surcharge info
 
 ### Role-Based Access
 
@@ -80,7 +85,19 @@ When a **Member** saves a quote, a Slack notification is automatically sent to t
 
 ### Professional Output
 
-- **PDF Generator**: Branded PDF with route, cargo manifest, cost breakdown, compliance warnings, optional reference number
+- **PDF Generator**: Branded PDF with route, cargo manifest, packing type/cost breakdown, carrier add-on details, surcharge info, compliance warnings, optional reference number
+
+### AI Chat Assistant
+
+- **Smart Quote Assistant**: In-app chatbot powered by Claude API for system usage help and logistics Q&A
+- **Logistics knowledge**: Incoterms, customs, HS codes, ULD, common industry terms
+- **DAP policy enforcement**: Automatically informs users that UPS/DHL/EMAX shipments require DAP incoterm
+- **Role-aware**: Different guides for Admin vs Member users
+
+### Quote Validity Management
+
+- **Validity tracking**: Color-coded expiry indicators (green: >3 days, yellow: 1-3 days, red: expired)
+- **Configurable**: `validityDays` field for default quote validity period
 
 ### Error Tracking
 
@@ -105,13 +122,18 @@ When a **Member** saves a quote, a Slack notification is automatically sent to t
     api/                       # API clients (apiClient, quoteApi, marginRuleApi, exchangeRateApi, weatherApi, noticeApi)
     types.ts                   # Core TypeScript types & enums
     i18n/translations.ts       # 4-language translation dictionary (en/ko/cn/ja)
-    config/                    # Rate tables (ups/dhl/emax tariff), business rules, options
+    config/                    # Rate tables, business rules, shared utilities
+      ups_zones.ts / dhl_zones.ts  # Config-driven zone mappings
+      addon-utils.ts             # Shared add-on types, normalizers, fee calculators
+      ups_addons.ts / dhl_addons.ts  # Carrier add-on rates + surge fee config
+      ups_eas_lookup.ts          # EAS/RAS postal code lookup (binary search, lazy-load)
     contexts/                  # AuthContext, LanguageContext, ThemeContext
     features/
       quote/
         components/            # InputSection, ResultSection, SaveQuoteButton, CarrierComparisonCard
         components/widgets/    # ExchangeRateWidget, WeatherWidget, NoticeWidget, AccountManagerWidget, ExchangeRateCalculatorWidget
-        services/              # calculationService.ts (mirrored calculation logic)
+        services/              # calculationService.ts, dhlAddonCalculator.ts, upsAddonCalculator.ts
+        hooks/                 # useSyncToInput (generic data sync hook)
       history/
         components/            # QuoteHistoryPage, QuoteHistoryTable, QuoteSearchBar, QuotePagination, QuoteDetailModal
       admin/
@@ -123,12 +145,13 @@ When a **Member** saves a quote, a Slack notification is automatically sent to t
     pages/                     # LandingPage, LoginPage, SignUpPage, CustomerDashboard, QuoteCalculator
       components/              # CalculatorActionBar, AdminWidgets, MobileStickyBottomBar
     components/                # Header, ProtectedRoute, ErrorBoundary, ChannelTalk
-    lib/                       # format.ts, pdfService.ts, slackNotification.ts, fetchWithRetry.ts
+    lib/                       # format.ts, pdfService.ts, packing-utils.ts, slackNotification.ts, fetchWithRetry.ts
+  public/data/                 # ups_eas_data.json (86 countries, 39,876 zip ranges, lazy-loaded)
 smart-quote-api/               # Backend (Rails 8 API)
   app/models/                  # MarginRule, AuditLog, Quote, User, Customer, Surcharge, AddonRate
   app/services/                # QuoteCalculator, QuoteSearcher, QuoteExporter, QuoteSerializer, MarginRuleResolver
-    calculators/               # ItemCost, SurgeCost, UpsCost, DhlCost, EmaxCost, DomesticCost
-  app/controllers/api/v1/      # Quotes, MarginRules, Surcharges, AddonRates, Customers, Users, Auth, Fsc, AuditLogs, Notifications
+    calculators/               # ItemCost, SurgeCost, UpsCost, DhlCost, EmaxCost, DomesticCost, UpsSurgeFee
+  app/controllers/api/v1/      # Quotes, MarginRules, Surcharges, AddonRates, Customers, Users, Auth, Fsc, AuditLogs, Notifications, Chat
   lib/constants/               # Tariff tables (synced with frontend)
 ```
 

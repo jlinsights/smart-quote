@@ -1,1 +1,1 @@
-💬 feat: 챗봇 시스템 프롬프트에 UPS/DHL/EMAX → DAP 필수 인코텀 안내 추가
+📝 docs: README.md & CLAUDE.md 전면 업데이트 — 세션 전체 변경사항 반영

@@ -59,9 +59,14 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
       ups_tariff.ts            # UPS Z1-Z10 rate tables (synced with backend)
       dhl_tariff.ts            # DHL Z1-Z8 rate tables (synced with backend)
       emax_tariff.ts           # EMAX per-country rate tables (CN, VN only)
-      rates.ts                 # KRW cost constants, DEFAULT_EXCHANGE_RATE=1400, DEFAULT_FSC_PERCENT=30
-      business-rules.ts        # Surge thresholds (AHS weight/dim, large package, over max)
+      rates.ts                 # KRW cost constants, DEFAULT_EXCHANGE_RATE=1400, DEFAULT_FSC_PERCENT=38.5
+      business-rules.ts        # Surge thresholds, packing weight buffer/addition
       options.ts               # Country options, carrier options, incoterm options
+      addon-utils.ts           # Shared AddonRateLike/NormalizedRate types, calcAddonFee(), findRate()
+      ups_zones.ts / dhl_zones.ts  # Config-driven zone mappings (Record<string, ZoneInfo>)
+      ups_addons.ts            # UPS add-on rates (6) + Surge Fee config (Israel/ME)
+      dhl_addons.ts            # DHL add-on rates (19) with auto-detect (OSP, OWT)
+      ups_eas_lookup.ts        # EAS/RAS postal code lookup (binary search, lazy-load from public/data/)
     contexts/                  # React Context providers
       AuthContext.tsx           # JWT auth (user, session, login/logout)
       LanguageContext.tsx       # i18n (useLanguage hook, localStorage persistence)
@@ -70,7 +75,9 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
       quote/
         components/            # InputSection, ResultSection, SaveQuoteButton, CarrierComparisonCard
         components/widgets/    # ExchangeRateWidget, WeatherWidget, NoticeWidget, AccountManagerWidget, ExchangeRateCalculatorWidget
-        services/              # calculationService.ts (mirrored calculation logic, lookupCarrierRate)
+        services/              # calculationService.ts (orchestrator, 369 lines), dhlAddonCalculator.ts, upsAddonCalculator.ts
+        hooks/                 # useSyncToInput (generic data sync hook)
+        components/PackingTypeInfo.tsx  # Packing type info panel with live cost preview
       history/
         components/            # QuoteHistoryPage, QuoteHistoryTable, QuoteSearchBar, QuotePagination, QuoteDetailModal
         constants.ts           # Shared constants (STATUS_COLORS)
@@ -94,7 +101,8 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
       ChannelTalk.tsx          # ChannelTalk chat widget
     lib/
       format.ts                # Currency/number formatters (formatKRW, formatUSD, formatNum, formatUSDInt)
-      pdfService.ts            # jsPDF-based PDF generation (optional referenceNo pass-through)
+      pdfService.ts            # jsPDF-based PDF (packing details, carrier add-ons, surcharge info)
+      packing-utils.ts         # applyPackingDimensions() shared utility (eliminates 6x duplication)
       fetchWithRetry.ts        # Generic fetch retry wrapper
       slackNotification.ts     # Slack notification for member quote saves
 smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL)
@@ -111,6 +119,7 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
       item_cost.rb             # Packing dimensions, volumetric weight, material/labor
       surge_cost.rb            # Surcharge logic
       ups_cost.rb / ups_zone.rb
+      ups_surge_fee.rb         # UPS Surge Fee auto-calc (Israel/Middle East)
       dhl_cost.rb / dhl_zone.rb
       emax_cost.rb
       domestic_cost.rb         # Domestic pickup cost
@@ -124,7 +133,9 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
     auth_controller.rb         # JWT login/register/password
     fsc_controller.rb          # FSC rate view/update
     audit_logs_controller.rb   # Audit log viewer
+    chat_controller.rb         # AI chatbot (Claude API, role-aware system prompt)
     notifications_controller.rb # Slack webhook proxy
+  db/seeds/addon_rates.rb      # DHL 19 + UPS 6 add-on rate seed data
   lib/constants/               # Tariff tables (ups_tariff.rb, dhl_tariff.rb, emax_tariff.rb)
 ```
 
@@ -171,9 +182,29 @@ Frontend (`src/features/quote/services/calculationService.ts`) and backend (`sma
 3. **Margin** - Dynamic margin via `MarginRuleResolver` (priority-based: P100 per-user flat > P90 per-user weight > P50 nationality > P0 default), `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100. Admin can manually override at any time.
 4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
 
-### UPS Zone Mapping (Z1-Z10)
+### UPS Zone Mapping (Z1-Z10) — per UPS 2026 Service Guide
 
-Z1: SG/TW/MO/CN, Z2: JP/VN, Z3: TH/PH, Z4: AU/IN, Z5: CA/US, Z6: ES/IT/GB/FR, Z7: DK/NO/SE/FI/DE/NL/BE/IE/CH/AT/PT/CZ/PL/HU/RO/BG, Z8: AR/BR/CL/CO/AE/TR, Z9: ZA/EG/BH/IL/JO/LB/SA/PK, Z10: HK+default
+Z1: SG/TW/MO/CN, Z2: JP/VN, Z3: TH/PH, Z4: AU/IN, Z5: CA/US, Z6: ES/IT/GB/FR, Z7: DK/NO/SE/FI/DE/NL/BE/IE/CH/AT/PT/CZ/PL/HU/RO/BG, Z8: AR/BR/CL/CO/AE/TR/ZA/EG/BH/SA/PK/KW/QA, Z9: IL/JO/LB, Z10: HK+default
+
+Zone mappings are config-driven (`src/config/ups_zones.ts`, `src/config/dhl_zones.ts`).
+
+### UPS Surge Fee (2026-03-15~)
+
+- Israel (IL): KRW 4,722/kg + FSC
+- Middle East (AF/BH/BD/EG/IQ/JO/KW/LB/NP/OM/PK/QA/SA/LK/AE): KRW 2,004/kg + FSC
+- Auto-detected in `ups_addons.ts` → applied as UPS Add-on (code: SGF)
+- Backend: `calculators/ups_surge_fee.rb`
+
+### EAS/RAS Auto-Detection
+
+- 86 countries, 39,876 zip ranges in `public/data/ups_eas_data.json` (lazy-loaded)
+- Binary search O(log n) in `src/config/ups_eas_lookup.ts`
+- Detects EAS (Extended), RAS (Remote), DAS (Delivery) surcharges by postal code
+- Shows auto-detect banner in UpsAddOnPanel with one-click apply
+
+### Incoterm Policy
+
+UPS/DHL/EMAX express shipments → **DAP only** (no exceptions). AI chatbot enforces this in responses.
 
 ## Dashboard Widgets
 
@@ -269,7 +300,7 @@ POST   /api/v1/notifications/slack   # Slack webhook proxy
 - **Tailwind**: Custom `jways-*` color palette (blue theme), class-based dark mode
 - **Environment**: `VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 - **Tariff sync**: Frontend tariff files in `src/config/` must stay in sync with backend `lib/constants/`
-- **Market defaults**: `DEFAULT_EXCHANGE_RATE=1400`, `DEFAULT_FSC_PERCENT=30` in `src/config/rates.ts`
+- **Market defaults**: `DEFAULT_EXCHANGE_RATE=1400`, `DEFAULT_FSC_PERCENT=38.5` in `src/config/rates.ts`
 - **Error tracking**: Sentry (`@sentry/browser`) integrated across all catch blocks
 
 ## Testing
@@ -281,9 +312,11 @@ POST   /api/v1/notifications/slack   # Slack webhook proxy
 
 ## Deployment
 
-- **Frontend**: Vercel (production: `smart-quote-main.vercel.app`)
-- **Backend**: Render.com (Docker, Singapore region, PostgreSQL)
+- **Frontend**: Vercel (production: `smart-quote-main.vercel.app`) — auto-deploy on push to `origin/main`
+- **Backend**: Render.com (Docker, Singapore region, PostgreSQL) — deploys from separate `smart-quote-api.git` repo
 - **Config**: `render.yaml` for backend infrastructure
+- **Backend push**: `git subtree push --prefix=smart-quote-api api-deploy main` (required for backend changes)
+- **Seed**: After backend deploy, run `rails runner db/seeds/addon_rates.rb` in Render Shell for new add-on rates
 
 ## User Guides
 
