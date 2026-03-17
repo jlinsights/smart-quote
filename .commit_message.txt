@@ -1,1 +1,1 @@
-🙈 chore: JetFuelPriceWidget 임시 숨김 처리
+🗺️ feat: 세계 노선도 위젯 — ICN 중심 항공사별 목적지 연결 지도

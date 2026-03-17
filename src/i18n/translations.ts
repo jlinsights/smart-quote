@@ -263,6 +263,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'schedule.jetFuel.trend': '12주 추이',
     'schedule.jetFuel.addPrice': '가격 추가',
     'schedule.jetFuel.fscNote': 'DHL FSC는 USGC 기준 월별 조정 · UPS FSC는 DOE 지수 기준 주간 조정',
+    'schedule.routeMap.title': '노선 네트워크',
+    'schedule.routeMap.flights': '편/주',
+    'schedule.routeMap.cargo': '화물',
+    'schedule.routeMap.pax': '여객',
   },
   en: {
     // Navigation / General
@@ -535,6 +539,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'schedule.jetFuel.trend': '12-Week Trend',
     'schedule.jetFuel.addPrice': 'Add Price',
     'schedule.jetFuel.fscNote': 'DHL FSC: monthly adjustment based on USGC · UPS FSC: weekly adjustment based on DOE index',
+    'schedule.routeMap.title': 'Route Network',
+    'schedule.routeMap.flights': 'flights/wk',
+    'schedule.routeMap.cargo': 'Cargo',
+    'schedule.routeMap.pax': 'Passenger',
   },
   cn: {
     // Navigation / General
@@ -784,6 +792,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'schedule.jetFuel.trend': '12周趋势',
     'schedule.jetFuel.addPrice': '添加价格',
     'schedule.jetFuel.fscNote': 'DHL FSC基于USGC月度调整 · UPS FSC基于DOE指数周度调整',
+    'schedule.routeMap.title': '航线网络',
+    'schedule.routeMap.flights': '航班/周',
+    'schedule.routeMap.cargo': '貨物',
+    'schedule.routeMap.pax': '旅客',
   },
   ja: {
     // Navigation / General
@@ -1033,5 +1045,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'schedule.jetFuel.trend': '12週トレンド',
     'schedule.jetFuel.addPrice': '価格追加',
     'schedule.jetFuel.fscNote': 'DHL FSCはUSGC基準で月次調整 · UPS FSCはDOE指数基準で週次調整',
+    'schedule.routeMap.title': '路線ネットワーク',
+    'schedule.routeMap.flights': '便/週',
+    'schedule.routeMap.cargo': '貨物',
+    'schedule.routeMap.pax': '旅客',
   },
 };

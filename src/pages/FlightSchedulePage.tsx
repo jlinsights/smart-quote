@@ -17,6 +17,7 @@ import {
   type GssaGroup,
 } from '@/config/flight-schedules';
 import { useFlightSchedules } from '@/features/schedule/useFlightSchedules';
+import RouteMapWidget from '@/features/schedule/RouteMapWidget';
 
 type FlightTypeFilter = 'all' | 'cargo' | 'passenger';
 
@@ -1208,6 +1209,15 @@ const FlightSchedulePage: React.FC = () => {
             </button>
           </div>
         )}
+
+        {/* Route Map Widget */}
+        <RouteMapWidget
+          schedules={filteredSchedules}
+          airlines={filteredAirlines}
+          selectedAirline={selectedAirline}
+          onAirlineSelect={(code) => setSelectedAirline(prev => prev === code ? 'all' : code)}
+          language={language}
+        />
 
         {/* GSSA Group Filter */}
         <div className="flex items-center gap-2 flex-wrap">
