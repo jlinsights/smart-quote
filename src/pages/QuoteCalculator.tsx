@@ -194,7 +194,11 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
     onMarginChange: handleMarginChange,
     onDownloadPdf: handleDownloadPdf,
     onReset: handleReset,
-    scrollToResults
+    scrollToResults,
+    hideMargin,
+    resolvedMargin,
+    isAdmin,
+    isKorean,
   };
 
   const containerClass = "min-h-screen font-sans transition-colors duration-200";
