@@ -1,1 +1,1 @@
-🎨 fix: clipPath로 수평선 아티팩트 제거 + 육지 색상 대폭 밝게
+🌍 feat: Google Maps 3D 노선도 — 사실적 위성지도 + 비행 경로 애니메이션

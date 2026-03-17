@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, Suspense } from 'react';
 import {
   Plane, Clock, MapPin, Calendar, Weight, AlertTriangle,
   Filter, ChevronDown, ChevronUp, Pencil, Trash2, Plus,
@@ -18,6 +18,8 @@ import {
 } from '@/config/flight-schedules';
 import { useFlightSchedules } from '@/features/schedule/useFlightSchedules';
 import RouteMapWidget from '@/features/schedule/RouteMapWidget';
+
+const RouteMap3D = React.lazy(() => import('@/features/schedule/RouteMap3D'));
 
 type FlightTypeFilter = 'all' | 'cargo' | 'passenger';
 
@@ -1210,14 +1212,26 @@ const FlightSchedulePage: React.FC = () => {
           </div>
         )}
 
-        {/* Route Map Widget */}
-        <RouteMapWidget
-          schedules={filteredSchedules}
-          airlines={filteredAirlines}
-          selectedAirline={selectedAirline}
-          onAirlineSelect={(code) => setSelectedAirline(prev => prev === code ? 'all' : code)}
-          language={language}
-        />
+        {/* Route Map Widget — 3D with SVG fallback */}
+        <Suspense
+          fallback={
+            <RouteMapWidget
+              schedules={filteredSchedules}
+              airlines={filteredAirlines}
+              selectedAirline={selectedAirline}
+              onAirlineSelect={(code) => setSelectedAirline(prev => prev === code ? 'all' : code)}
+              language={language}
+            />
+          }
+        >
+          <RouteMap3D
+            schedules={filteredSchedules}
+            airlines={filteredAirlines}
+            selectedAirline={selectedAirline}
+            onAirlineSelect={(code) => setSelectedAirline(prev => prev === code ? 'all' : code)}
+            language={language}
+          />
+        </Suspense>
 
         {/* GSSA Group Filter */}
         <div className="flex items-center gap-2 flex-wrap">
