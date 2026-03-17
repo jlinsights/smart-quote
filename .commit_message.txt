@@ -1,1 +1,1 @@
-📱 fix: 모바일 모드 전면 최적화 — 레이아웃/UX/기능 동기화
+✈️ feat: Admin 전용 Flight Schedule 페이지 — GSSA 항공사 5개 ICN발 스케줄

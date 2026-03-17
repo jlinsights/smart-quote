@@ -1,0 +1,293 @@
+export interface FlightSchedule {
+  airline: string;
+  airlineCode: string;
+  flightNo: string;
+  aircraftType: string;
+  flightType: 'cargo' | 'passenger' | 'combi';
+  origin: string;
+  destination: string;
+  departureDays: number[]; // 0=Sun, 1=Mon, ... 6=Sat
+  departureTime: string;   // HH:MM (KST)
+  arrivalTime: string;     // HH:MM (local)
+  flightDuration: string;
+  maxCargoKg: number;
+  remarks?: string;
+}
+
+export interface AirlineInfo {
+  code: string;
+  name: string;
+  nameKo: string;
+  logo: string;
+  country: string;
+  hubCity: string;
+  contractType: string;
+}
+
+export const AIRLINE_INFO: AirlineInfo[] = [
+  {
+    code: 'WS',
+    name: 'WestJet Cargo',
+    nameKo: '웨스트젯 카고',
+    logo: '🇨🇦',
+    country: 'Canada',
+    hubCity: 'Calgary (YYC)',
+    contractType: 'GSSA — Cargo Sales Agent',
+  },
+  {
+    code: 'O3',
+    name: 'ShunFeng Airlines',
+    nameKo: '순펑항공 (SF Express)',
+    logo: '🇨🇳',
+    country: 'China',
+    hubCity: 'Shenzhen (SZX)',
+    contractType: 'GSSA — Cargo Sales Agent',
+  },
+  {
+    code: 'BX',
+    name: 'Air Busan',
+    nameKo: '에어부산',
+    logo: '🇰🇷',
+    country: 'South Korea',
+    hubCity: 'Busan (PUS)',
+    contractType: 'GSSA — Belly Cargo Sales',
+  },
+  {
+    code: 'M0',
+    name: 'Aero Mongolia',
+    nameKo: '에어로 몽골리아',
+    logo: '🇲🇳',
+    country: 'Mongolia',
+    hubCity: 'Ulaanbaatar (UBN)',
+    contractType: 'GSSA — Passenger & Cargo',
+  },
+  {
+    code: 'SU',
+    name: 'Aeroflot',
+    nameKo: '아에로플로트',
+    logo: '🇷🇺',
+    country: 'Russia',
+    hubCity: 'Moscow (SVO)',
+    contractType: 'GSSA — Currently Suspended',
+  },
+];
+
+export const FLIGHT_SCHEDULES: FlightSchedule[] = [
+  // WestJet Cargo (WS)
+  {
+    airline: 'WestJet Cargo',
+    airlineCode: 'WS',
+    flightNo: 'WS 7701',
+    aircraftType: 'B737-800BCF',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'YYC',
+    departureDays: [2, 4, 6],
+    departureTime: '22:00',
+    arrivalTime: '17:30',
+    flightDuration: '10h 30m',
+    maxCargoKg: 18000,
+  },
+  {
+    airline: 'WestJet Cargo',
+    airlineCode: 'WS',
+    flightNo: 'WS 7703',
+    aircraftType: 'B737-800BCF',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'YVR',
+    departureDays: [1, 3, 5],
+    departureTime: '23:00',
+    arrivalTime: '16:00',
+    flightDuration: '9h',
+    maxCargoKg: 18000,
+  },
+  // ShunFeng Airlines (O3)
+  {
+    airline: 'ShunFeng Airlines',
+    airlineCode: 'O3',
+    flightNo: 'O3 6201',
+    aircraftType: 'B757-200F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'PVG',
+    departureDays: [0, 1, 2, 3, 4, 5, 6],
+    departureTime: '02:00',
+    arrivalTime: '03:30',
+    flightDuration: '2h 30m',
+    maxCargoKg: 25000,
+  },
+  {
+    airline: 'ShunFeng Airlines',
+    airlineCode: 'O3',
+    flightNo: 'O3 6203',
+    aircraftType: 'B767-300F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'SZX',
+    departureDays: [0, 1, 3, 5],
+    departureTime: '01:00',
+    arrivalTime: '04:30',
+    flightDuration: '4h 30m',
+    maxCargoKg: 40000,
+  },
+  // Air Busan (BX)
+  {
+    airline: 'Air Busan',
+    airlineCode: 'BX',
+    flightNo: 'BX 131',
+    aircraftType: 'A321-200',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'FUK',
+    departureDays: [0, 1, 2, 3, 4, 5, 6],
+    departureTime: '09:30',
+    arrivalTime: '11:00',
+    flightDuration: '1h 30m',
+    maxCargoKg: 2000,
+    remarks: 'Belly cargo only',
+  },
+  {
+    airline: 'Air Busan',
+    airlineCode: 'BX',
+    flightNo: 'BX 173',
+    aircraftType: 'A321-200',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'KIX',
+    departureDays: [0, 1, 2, 3, 4, 5, 6],
+    departureTime: '10:15',
+    arrivalTime: '12:00',
+    flightDuration: '2h',
+    maxCargoKg: 2000,
+    remarks: 'Belly cargo only',
+  },
+  {
+    airline: 'Air Busan',
+    airlineCode: 'BX',
+    flightNo: 'BX 741',
+    aircraftType: 'A321-200',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'CEB',
+    departureDays: [2, 4, 6],
+    departureTime: '08:00',
+    arrivalTime: '11:30',
+    flightDuration: '4h 30m',
+    maxCargoKg: 2000,
+    remarks: 'Belly cargo only',
+  },
+  {
+    airline: 'Air Busan',
+    airlineCode: 'BX',
+    flightNo: 'BX 395',
+    aircraftType: 'A321-200',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'NRT',
+    departureDays: [0, 1, 2, 3, 4, 5, 6],
+    departureTime: '14:00',
+    arrivalTime: '16:20',
+    flightDuration: '2h 20m',
+    maxCargoKg: 2000,
+    remarks: 'Belly cargo only',
+  },
+  // Aero Mongolia (M0)
+  {
+    airline: 'Aero Mongolia',
+    airlineCode: 'M0',
+    flightNo: 'M0 562',
+    aircraftType: 'B737-800',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'UBN',
+    departureDays: [0, 1, 3, 5],
+    departureTime: '10:00',
+    arrivalTime: '12:30',
+    flightDuration: '3h 30m',
+    maxCargoKg: 3000,
+  },
+  {
+    airline: 'Aero Mongolia',
+    airlineCode: 'M0',
+    flightNo: 'M0 564',
+    aircraftType: 'B737-800',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'UBN',
+    departureDays: [2, 4, 6],
+    departureTime: '15:00',
+    arrivalTime: '17:30',
+    flightDuration: '3h 30m',
+    maxCargoKg: 3000,
+  },
+  // Aeroflot (SU) — suspended
+  {
+    airline: 'Aeroflot',
+    airlineCode: 'SU',
+    flightNo: 'SU 251',
+    aircraftType: 'A330-300',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'SVO',
+    departureDays: [1, 3, 5],
+    departureTime: '18:30',
+    arrivalTime: '21:00',
+    flightDuration: '9h 30m',
+    maxCargoKg: 15000,
+    remarks: 'Currently SUSPENDED (sanctions)',
+  },
+  {
+    airline: 'Aeroflot',
+    airlineCode: 'SU',
+    flightNo: 'SU 253',
+    aircraftType: 'B777-300ER',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'SVO',
+    departureDays: [0, 2, 4, 6],
+    departureTime: '19:00',
+    arrivalTime: '21:30',
+    flightDuration: '9h 30m',
+    maxCargoKg: 20000,
+    remarks: 'Currently SUSPENDED (sanctions)',
+  },
+];
+
+/** Color classes per airline code */
+export const AIRLINE_COLORS: Record<string, { bg: string; text: string; border: string; badge: string }> = {
+  WS: {
+    bg: 'bg-teal-50 dark:bg-teal-900/20',
+    text: 'text-teal-700 dark:text-teal-300',
+    border: 'border-teal-200 dark:border-teal-800',
+    badge: 'bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300',
+  },
+  O3: {
+    bg: 'bg-orange-50 dark:bg-orange-900/20',
+    text: 'text-orange-700 dark:text-orange-300',
+    border: 'border-orange-200 dark:border-orange-800',
+    badge: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300',
+  },
+  BX: {
+    bg: 'bg-blue-50 dark:bg-blue-900/20',
+    text: 'text-blue-700 dark:text-blue-300',
+    border: 'border-blue-200 dark:border-blue-800',
+    badge: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300',
+  },
+  M0: {
+    bg: 'bg-sky-50 dark:bg-sky-900/20',
+    text: 'text-sky-700 dark:text-sky-300',
+    border: 'border-sky-200 dark:border-sky-800',
+    badge: 'bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300',
+  },
+  SU: {
+    bg: 'bg-red-50 dark:bg-red-900/20',
+    text: 'text-red-700 dark:text-red-300',
+    border: 'border-red-200 dark:border-red-800',
+    badge: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
+  },
+};
+
+/** Day labels for display */
+export const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+export const DAY_LABELS_KO = ['일', '월', '화', '수', '목', '금', '토'] as const;

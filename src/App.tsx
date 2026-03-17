@@ -15,6 +15,7 @@ const CustomerDashboard = React.lazy(() => import('./pages/CustomerDashboard'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const SignUpPage = React.lazy(() => import('./pages/SignUpPage'));
 const UserGuidePage = React.lazy(() => import('./pages/UserGuidePage'));
+const FlightSchedulePage = React.lazy(() => import('./pages/FlightSchedulePage'));
 
 function App() {
   return (
@@ -66,6 +67,18 @@ function App() {
                     <ProtectedRoute requireAdmin={true}>
                       <ErrorBoundary>
                         <QuoteCalculator isPublic={false} />
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Flight Schedule - Admin Only */}
+                <Route
+                  path="/schedule"
+                  element={
+                    <ProtectedRoute requireAdmin={true}>
+                      <ErrorBoundary>
+                        <FlightSchedulePage />
                       </ErrorBoundary>
                     </ProtectedRoute>
                   }

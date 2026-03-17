@@ -215,6 +215,23 @@ export const translations: Record<Language, Record<string, string>> = {
     'settings.password.mismatch': '새 비밀번호가 일치하지 않습니다.',
     'settings.password.tooShort': '비밀번호는 최소 6자 이상이어야 합니다.',
     'settings.password.updateFailed': '비밀번호 변경에 실패했습니다.',
+
+    // Flight Schedule
+    'nav.schedule': '스케줄',
+    'schedule.title': '항공편 스케줄 — GSSA 항공사',
+    'schedule.subtitle': 'ICN (인천국제공항) 출발편',
+    'schedule.filterAll': '전체 항공사',
+    'schedule.cargo': '화물기',
+    'schedule.passenger': '여객기',
+    'schedule.suspended': '운항 중단',
+    'schedule.maxCargo': '최대 화물',
+    'schedule.flightNo': '편명',
+    'schedule.route': '노선',
+    'schedule.aircraft': '기종',
+    'schedule.departure': '출발',
+    'schedule.arrival': '도착',
+    'schedule.duration': '비행시간',
+    'schedule.days': '운항요일',
   },
   en: {
     // Navigation / General
@@ -439,6 +456,23 @@ export const translations: Record<Language, Record<string, string>> = {
     'settings.password.mismatch': 'New passwords do not match.',
     'settings.password.tooShort': 'Password must be at least 6 characters long.',
     'settings.password.updateFailed': 'Failed to update password.',
+
+    // Flight Schedule
+    'nav.schedule': 'Schedule',
+    'schedule.title': 'Flight Schedule — GSSA Airlines',
+    'schedule.subtitle': 'ICN (Incheon International Airport) Departures',
+    'schedule.filterAll': 'All Airlines',
+    'schedule.cargo': 'Cargo',
+    'schedule.passenger': 'Passenger',
+    'schedule.suspended': 'Suspended',
+    'schedule.maxCargo': 'Max Cargo',
+    'schedule.flightNo': 'Flight No.',
+    'schedule.route': 'Route',
+    'schedule.aircraft': 'Aircraft',
+    'schedule.departure': 'Departure',
+    'schedule.arrival': 'Arrival',
+    'schedule.duration': 'Duration',
+    'schedule.days': 'Days',
   },
   cn: {
     // Navigation / General
@@ -640,6 +674,23 @@ export const translations: Record<Language, Record<string, string>> = {
     'admin.edit': '编辑',
     'admin.save': '保存',
     'admin.cancel': '取消',
+
+    // Flight Schedule
+    'nav.schedule': '航班',
+    'schedule.title': '航班时刻表 — GSSA 航空公司',
+    'schedule.subtitle': 'ICN (仁川国际机场) 出发',
+    'schedule.filterAll': '全部航空公司',
+    'schedule.cargo': '货机',
+    'schedule.passenger': '客机',
+    'schedule.suspended': '停航',
+    'schedule.maxCargo': '最大货量',
+    'schedule.flightNo': '航班号',
+    'schedule.route': '航线',
+    'schedule.aircraft': '机型',
+    'schedule.departure': '出发',
+    'schedule.arrival': '到达',
+    'schedule.duration': '飞行时间',
+    'schedule.days': '运航日',
   },
   ja: {
     // Navigation / General
@@ -841,5 +892,22 @@ export const translations: Record<Language, Record<string, string>> = {
     'admin.edit': '編集',
     'admin.save': '保存',
     'admin.cancel': 'キャンセル',
+
+    // Flight Schedule
+    'nav.schedule': 'スケジュール',
+    'schedule.title': 'フライトスケジュール — GSSA航空会社',
+    'schedule.subtitle': 'ICN (仁川国際空港) 出発便',
+    'schedule.filterAll': '全航空会社',
+    'schedule.cargo': '貨物機',
+    'schedule.passenger': '旅客機',
+    'schedule.suspended': '運航停止',
+    'schedule.maxCargo': '最大貨物',
+    'schedule.flightNo': '便名',
+    'schedule.route': '路線',
+    'schedule.aircraft': '機種',
+    'schedule.departure': '出発',
+    'schedule.arrival': '到着',
+    'schedule.duration': '飛行時間',
+    'schedule.days': '運航曜日',
   },
 };
