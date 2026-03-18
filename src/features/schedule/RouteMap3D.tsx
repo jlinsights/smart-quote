@@ -196,12 +196,13 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
     // Clear any previous content
     container.innerHTML = '';
 
-    // Create Map3DElement using the constructor from importLibrary
+    // Create Map3DElement — start camera at EWR (farthest airport)
+    const ewr = AIRPORTS.EWR;
     const map3d = new Map3DElement({
-      center: { lat: AIRPORTS.ICN.lat, lng: AIRPORTS.ICN.lng, altitude: 0 },
-      range: 12000000,
-      tilt: 45,
-      heading: -30,
+      center: { lat: ewr.lat, lng: ewr.lng, altitude: 0 },
+      range: 3000000,
+      tilt: 55,
+      heading: 30,
       mode: 'SATELLITE',
     });
     map3d.style.width = '100%';
@@ -210,11 +211,42 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
     container.appendChild(map3d);
     mapRef.current = map3d;
 
-    // Wait for the custom element to be connected and rendered before adding overlays
+    // Wait for map render, add markers, then fly from EWR → ICN
     let rafId: number;
     const waitForMap = () => {
       if (map3d.isConnected && map3d.offsetHeight > 0) {
         addMarkersAndRoutes(map3d);
+
+        // Phase 1: Pause briefly at EWR to show the network
+        setTimeout(() => {
+          try {
+            // Phase 2: Zoom out to show the full globe while flying
+            map3d.flyCameraTo({
+              endCamera: {
+                center: { lat: 45, lng: -170, altitude: 0 },
+                range: 18000000,
+                tilt: 30,
+                heading: -60,
+              },
+              durationMillis: 3000,
+            });
+
+            // Phase 3: After zooming out, fly to ICN
+            map3d.addEventListener('gmp-animationend', () => {
+              try {
+                map3d.flyCameraTo({
+                  endCamera: {
+                    center: { lat: AIRPORTS.ICN.lat, lng: AIRPORTS.ICN.lng, altitude: 0 },
+                    range: 12000000,
+                    tilt: 45,
+                    heading: -30,
+                  },
+                  durationMillis: 4000,
+                });
+              } catch { /* ignore */ }
+            }, { once: true });
+          } catch { /* flyCameraTo may not be available */ }
+        }, 1500);
       } else {
         rafId = requestAnimationFrame(waitForMap);
       }

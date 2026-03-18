@@ -1,1 +1,1 @@
-✨ fix: Info 3건 해결 — getAirlineColors 공유, Actions i18n, GSSA All t() 키
+🎬 feat: 3D 노선도 오프닝 애니메이션 — EWR→지구 줌아웃→ICN 3단계 fly
