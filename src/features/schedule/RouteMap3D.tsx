@@ -231,17 +231,17 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
               durationMillis: 3000,
             });
 
-            // Phase 3: After zooming out, fly to ICN
+            // Phase 3: Fly to ICN hub with zoom-in effect
             map3d.addEventListener('gmp-animationend', () => {
               try {
                 map3d.flyCameraTo({
                   endCamera: {
                     center: { lat: AIRPORTS.ICN.lat, lng: AIRPORTS.ICN.lng, altitude: 0 },
-                    range: 12000000,
-                    tilt: 45,
-                    heading: -30,
+                    range: 4500000,
+                    tilt: 58,
+                    heading: -20,
                   },
-                  durationMillis: 4000,
+                  durationMillis: 5000,
                 });
               } catch { /* ignore */ }
             }, { once: true });
@@ -294,14 +294,14 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
     prevAirlineRef.current = selectedAirline;
 
     if (selectedAirline === 'all') {
-      // Reset to overview
+      // Reset to ICN hub view (same as opening animation final position)
       try {
         map3d.flyCameraTo({
           endCamera: {
             center: { lat: AIRPORTS.ICN.lat, lng: AIRPORTS.ICN.lng, altitude: 0 },
-            range: 12000000,
-            tilt: 45,
-            heading: -30,
+            range: 4500000,
+            tilt: 58,
+            heading: -20,
           },
           durationMillis: 1500,
         });
