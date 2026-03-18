@@ -1,1 +1,1 @@
-♻️ refactor: Warning 12건 전체 해결 — i18n 완성, 타입 보강, 성능 개선
+✨ fix: Info 3건 해결 — getAirlineColors 공유, Actions i18n, GSSA All t() 키

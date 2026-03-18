@@ -4,8 +4,8 @@ import {
   Pencil, Trash2,
 } from 'lucide-react';
 import {
-  AIRLINE_COLORS,
   DAY_LABELS,
+  getAirlineColors,
   type FlightSchedule,
 } from '@/config/flight-schedules';
 
@@ -26,14 +26,6 @@ const formatCargoWeight = (kg: number) => {
   if (kg >= 1000) return `${(kg / 1000).toFixed(0)}t`;
   return `${kg.toLocaleString()}kg`;
 };
-
-const getAirlineColors = (code: string) =>
-  AIRLINE_COLORS[code] || {
-    bg: 'bg-gray-50 dark:bg-gray-900/20',
-    text: 'text-gray-700 dark:text-gray-300',
-    border: 'border-gray-200 dark:border-gray-800',
-    badge: 'bg-gray-100 dark:bg-gray-900/40 text-gray-700 dark:text-gray-300',
-  };
 
 const RenderDayDots: React.FC<{ departureDays: number[]; dayLabels: readonly string[] }> = ({ departureDays, dayLabels }) => (
   <div className="flex gap-0.5">
@@ -222,7 +214,7 @@ const DesktopTableView: React.FC<FlightTableProps> = ({
             <th className="text-right px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">{t('schedule.maxCargo')}</th>
             <th className="text-center px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">{t('schedule.status')}</th>
             {editMode && (
-              <th className="text-center px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider w-20">Actions</th>
+              <th className="text-center px-4 py-3 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider w-20">{t('admin.actions')}</th>
             )}
           </tr>
         </thead>

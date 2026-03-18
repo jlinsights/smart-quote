@@ -9,10 +9,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Header } from '@/components/layout/Header';
 import { FlightTable } from '@/features/schedule/components/FlightTable';
 import {
-  AIRLINE_COLORS,
   DAY_LABELS,
   DAY_LABELS_KO,
   GSSA_GROUP_LABELS,
+  getAirlineColors,
   type FlightSchedule,
   type AirlineInfo,
   type GssaGroup,
@@ -156,14 +156,6 @@ const FlightSchedulePage: React.FC = () => {
     setShowAirlineModal(false);
   }, [addAirline]);
 
-  const getAirlineColors = (code: string) =>
-    AIRLINE_COLORS[code] || {
-      bg: 'bg-gray-50 dark:bg-gray-900/20',
-      text: 'text-gray-700 dark:text-gray-300',
-      border: 'border-gray-200 dark:border-gray-800',
-      badge: 'bg-gray-100 dark:bg-gray-900/40 text-gray-700 dark:text-gray-300',
-    };
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       <Header />
@@ -262,7 +254,7 @@ const FlightSchedulePage: React.FC = () => {
           {(['all', 'goodman', 'gac'] as const).map((group) => {
             const isActive = gssaFilter === group;
             const label = group === 'all'
-              ? (language === 'ko' ? '전체' : 'All')
+              ? t('schedule.filterAll')
               : GSSA_GROUP_LABELS[group][language === 'ko' ? 'ko' : 'en'];
             const badgeClass = group === 'all'
               ? (isActive ? 'bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-900' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400')

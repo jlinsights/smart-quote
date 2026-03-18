@@ -653,6 +653,15 @@ export const AIRLINE_HEX_COLORS: Record<string, string> = {
 
 export const DEFAULT_HEX_COLOR = '#94a3b8'; // slate-400
 
+/** Get Tailwind color classes for an airline code (with fallback) */
+export const getAirlineColors = (code: string) =>
+  AIRLINE_COLORS[code] || {
+    bg: 'bg-gray-50 dark:bg-gray-900/20',
+    text: 'text-gray-700 dark:text-gray-300',
+    border: 'border-gray-200 dark:border-gray-800',
+    badge: 'bg-gray-100 dark:bg-gray-900/40 text-gray-700 dark:text-gray-300',
+  };
+
 /** Day labels for display */
 export const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 export const DAY_LABELS_KO = ['일', '월', '화', '수', '목', '금', '토'] as const;
