@@ -57,6 +57,7 @@ const FlightSchedulePage: React.FC = () => {
   } = useFlightSchedules();
 
   const [selectedAirline, setSelectedAirline] = useState<string>('all');
+  const [destinationFilter, setDestinationFilter] = useState<string>('all');
   const [gssaFilter, setGssaFilter] = useState<GssaGroup | 'all'>('all');
   const [flightTypeFilter, setFlightTypeFilter] = useState<FlightTypeFilter>('all');
   const [dayFilter, setDayFilter] = useState<number | null>(null);
@@ -86,6 +87,12 @@ const FlightSchedulePage: React.FC = () => {
     return airlines.filter((a) => a.gssaGroup === gssaFilter);
   }, [airlines, gssaFilter]);
 
+  // Unique destinations for filter dropdown
+  const allDestinations = useMemo(() => {
+    const dests = new Set(schedules.map((s) => s.destination));
+    return Array.from(dests).sort();
+  }, [schedules]);
+
   const filteredSchedules = useMemo(() => {
     let filtered = [...schedules];
 
@@ -96,6 +103,9 @@ const FlightSchedulePage: React.FC = () => {
     if (selectedAirline !== 'all') {
       filtered = filtered.filter((s) => s.airlineCode === selectedAirline);
     }
+    if (destinationFilter !== 'all') {
+      filtered = filtered.filter((s) => s.destination === destinationFilter);
+    }
     if (flightTypeFilter !== 'all') {
       filtered = filtered.filter((s) => s.flightType === flightTypeFilter);
     }
@@ -105,7 +115,7 @@ const FlightSchedulePage: React.FC = () => {
 
     filtered.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
     return filtered;
-  }, [schedules, selectedAirline, gssaFilter, filteredAirlines, flightTypeFilter, dayFilter]);
+  }, [schedules, selectedAirline, destinationFilter, gssaFilter, filteredAirlines, flightTypeFilter, dayFilter]);
 
   const toggleAirlineCard = useCallback((code: string) => {
     setExpandedAirlines((prev) => {
@@ -363,6 +373,20 @@ const FlightSchedulePage: React.FC = () => {
                 {airlines.map((a) => (
                   <option key={a.code} value={a.code}>
                     {a.code} — {language === 'ko' ? a.nameKo : a.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <select
+                value={destinationFilter}
+                onChange={(e) => setDestinationFilter(e.target.value)}
+                className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:ring-jways-500 focus:border-jways-500 transition-colors"
+              >
+                <option value="all">{t('schedule.route')} — {t('schedule.filterAll')}</option>
+                {allDestinations.map((dest) => (
+                  <option key={dest} value={dest}>
+                    ICN → {dest}
                   </option>
                 ))}
               </select>
