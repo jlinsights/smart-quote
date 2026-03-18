@@ -14,7 +14,7 @@ interface State {
 /** Resolve the user's language from localStorage (safe for class components). */
 const getErrorBoundaryTranslation = (key: string): string => {
   const lang = (typeof localStorage !== 'undefined'
-    ? (localStorage.getItem('language') as Language)
+    ? (localStorage.getItem('smartQuoteLanguage') as Language)
     : null) ?? 'ko';
   return translations[lang]?.[key] ?? translations.en[key] ?? key;
 };

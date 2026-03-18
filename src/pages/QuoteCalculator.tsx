@@ -271,7 +271,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
         {/* Footer */}
         <footer className="border-t border-gray-100 dark:border-gray-800 mt-0 py-8 bg-white dark:bg-gray-950 text-center transition-colors duration-200 hidden lg:block">
-          <p className="text-sm text-gray-400 dark:text-gray-400">&copy; 2025 Goodman GLS & J-Ways. {isAdmin ? 'Internal Use Only.' : 'Smart Quote System.'}</p>
+          <p className="text-sm text-gray-400 dark:text-gray-400">&copy; 2026 Goodman GLS & J-Ways. {isAdmin ? 'Internal Use Only.' : 'Smart Quote System.'}</p>
           <p className="text-xs text-gray-300 dark:text-gray-600 mt-1">Smart Quote System</p>
         </footer>
       </div>
