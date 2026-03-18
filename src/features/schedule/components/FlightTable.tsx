@@ -1,11 +1,12 @@
 import React from 'react';
 import {
-  Plane, Clock, MapPin, Calendar, Weight, AlertTriangle,
+  Clock, MapPin, Calendar, Weight, AlertTriangle,
   Pencil, Trash2,
 } from 'lucide-react';
 import {
   DAY_LABELS,
   getAirlineColors,
+  formatRoute,
   type FlightSchedule,
 } from '@/config/flight-schedules';
 
@@ -145,11 +146,9 @@ const MobileCardView: React.FC<FlightTableProps> = ({
                 <ActionButtons schedule={schedule} editMode={editMode} t={t} onEdit={onEditFlight} onRequestDelete={onRequestDelete} />
               </div>
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <MapPin className="w-4 h-4 text-gray-400" />
-              <span className="font-semibold text-gray-900 dark:text-white">{schedule.origin}</span>
-              <Plane className="w-4 h-4 text-jways-500 rotate-45" />
-              <span className="font-semibold text-gray-900 dark:text-white">{schedule.destination}</span>
+            <div className="flex items-center gap-1.5 text-sm">
+              <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <span className="font-semibold text-gray-900 dark:text-white">{formatRoute(schedule)}</span>
               <span className="text-gray-400 dark:text-gray-500 text-xs ml-auto">{schedule.aircraftType}</span>
             </div>
             <div className="grid grid-cols-3 gap-2 text-center bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2">
@@ -243,9 +242,7 @@ const DesktopTableView: React.FC<FlightTableProps> = ({
                   {schedule.flightNo}
                 </td>
                 <td className="px-4 py-3">
-                  <span className="font-semibold text-gray-900 dark:text-white">{schedule.origin}</span>
-                  <Plane className="w-3.5 h-3.5 inline mx-1 text-jways-500 -rotate-0" />
-                  <span className="font-semibold text-gray-900 dark:text-white">{schedule.destination}</span>
+                  <span className="font-semibold text-gray-900 dark:text-white text-xs">{formatRoute(schedule)}</span>
                 </td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs">{schedule.aircraftType}</td>
                 <td className="px-4 py-3 text-center"><FlightTypeBadge type={schedule.flightType} t={t} /></td>

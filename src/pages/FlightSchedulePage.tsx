@@ -87,10 +87,19 @@ const FlightSchedulePage: React.FC = () => {
     return airlines.filter((a) => a.gssaGroup === gssaFilter);
   }, [airlines, gssaFilter]);
 
-  // Unique destinations for filter dropdown
-  const allDestinations = useMemo(() => {
-    const dests = new Set(schedules.map((s) => s.destination));
-    return Array.from(dests).sort();
+  // Unique routes for filter dropdown (destination + via info)
+  const allRoutes = useMemo(() => {
+    const routeMap = new Map<string, string>(); // dest → display label
+    schedules.forEach((s) => {
+      if (!routeMap.has(s.destination)) {
+        const label = s.via
+          ? `ICN→${s.via}→${s.destination}`
+          : `ICN→${s.destination}`;
+        routeMap.set(s.destination, label);
+      }
+    });
+    return Array.from(routeMap.entries())
+      .sort((a, b) => a[1].localeCompare(b[1]));
   }, [schedules]);
 
   const filteredSchedules = useMemo(() => {
@@ -384,9 +393,9 @@ const FlightSchedulePage: React.FC = () => {
                 className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:ring-jways-500 focus:border-jways-500 transition-colors"
               >
                 <option value="all">{t('schedule.route')} — {t('schedule.filterAll')}</option>
-                {allDestinations.map((dest) => (
+                {allRoutes.map(([dest, label]) => (
                   <option key={dest} value={dest}>
-                    ICN → {dest}
+                    {label}
                   </option>
                 ))}
               </select>

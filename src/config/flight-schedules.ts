@@ -7,6 +7,7 @@ export interface FlightSchedule {
   flightType: 'cargo' | 'passenger' | 'combi';
   origin: string;
   destination: string;
+  via?: string;            // Stopover airport code (e.g. 'NRT', 'HNL')
   departureDays: number[]; // 0=Sun, 1=Mon, ... 6=Sat
   departureTime: string;   // HH:MM (KST)
   arrivalTime: string;     // HH:MM (local)
@@ -14,6 +15,10 @@ export interface FlightSchedule {
   maxCargoKg: number;
   remarks?: string;
 }
+
+/** Format route display: ICN → NRT → YYC or ICN → YYC */
+export const formatRoute = (s: FlightSchedule): string =>
+  s.via ? `${s.origin}→${s.via}→${s.destination}` : `${s.origin}→${s.destination}`;
 
 export type GssaGroup = 'goodman' | 'gac';
 
@@ -137,12 +142,13 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightType: 'cargo',
     origin: 'ICN',
     destination: 'YYC',
+    via: 'NRT',
     departureDays: [0, 1, 2, 3, 4, 5, 6], // DAILY
     departureTime: '18:35',
     arrivalTime: '12:40',
     flightDuration: '10h 05m',
     maxCargoKg: 20000,
-    remarks: 'Via NRT (ICN→NRT→YYC) · ICN/NRT by WE,LJ,YP(W/B),BX(N/B)',
+    remarks: 'ICN/NRT by WE,LJ,YP(W/B),BX(N/B)',
   },
   {
     id: 'default-ws-1865',
@@ -153,12 +159,13 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightType: 'cargo',
     origin: 'ICN',
     destination: 'YVR',
+    via: 'HNL',
     departureDays: [1, 2, 4, 6], // D1246 = Mon/Tue/Thu/Sat
     departureTime: '23:50',
     arrivalTime: '07:44',
     flightDuration: '9h 54m',
     maxCargoKg: 15000,
-    remarks: 'Via HNL (ICN→HNL→YVR) · N/B 제한: 157×114×81cm, 130kg/pc · 팔레트/대형화물 불가',
+    remarks: 'N/B 제한: 157×114×81cm, 130kg/pc · 팔레트/대형화물 불가 · ICN/HNL by YP(W/B)',
   },
   // ShunFeng Airlines (O3)
   {
