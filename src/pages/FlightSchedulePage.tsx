@@ -395,7 +395,7 @@ const FlightSchedulePage: React.FC = () => {
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
               >
-                All
+                {t('schedule.filterAll')}
               </button>
               {DAY_LABELS.map((label, i) => (
                 <button
