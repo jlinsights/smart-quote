@@ -64,16 +64,14 @@ export const Header: React.FC = () => {
                       </span>
                    </div>
                    {user?.role === 'admin' && (
-                      <>
                         <Link to="/admin" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-white bg-jways-50 dark:bg-gray-900 px-3 py-1.5 rounded-md transition-colors">
                           {t('nav.admin')}
                         </Link>
-                        <Link to="/schedule" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-white transition-colors flex items-center gap-1">
-                          <Plane className="w-4 h-4" />
-                          {t('nav.schedule')}
-                        </Link>
-                      </>
                    )}
+                   <Link to="/schedule" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-white transition-colors flex items-center gap-1">
+                     <Plane className="w-4 h-4" />
+                     {t('nav.schedule')}
+                   </Link>
                    <Link to="/dashboard" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-white transition-colors">
                      {t('nav.dashboard')}
                    </Link>
@@ -184,16 +182,14 @@ export const Header: React.FC = () => {
                   {t('nav.dashboard')}
                 </Link>
                 {user?.role === 'admin' && (
-                  <>
                     <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-jways-600">
                       {t('nav.admin')}
                     </Link>
-                    <Link to="/schedule" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-1.5 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-jways-600">
-                      <Plane className="w-4 h-4" />
-                      {t('nav.schedule')}
-                    </Link>
-                  </>
                 )}
+                <Link to="/schedule" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-1.5 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-jways-600">
+                  <Plane className="w-4 h-4" />
+                  {t('nav.schedule')}
+                </Link>
                 <Link to="/guide" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-1.5 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-jways-600">
                   <BookOpen className="w-4 h-4" />
                   {t('nav.guide')}

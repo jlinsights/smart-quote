@@ -72,11 +72,11 @@ function App() {
                   }
                 />
 
-                {/* Flight Schedule - Admin Only */}
+                {/* Flight Schedule - All Users (Manage is Admin-only) */}
                 <Route
                   path="/schedule"
                   element={
-                    <ProtectedRoute requireAdmin={true}>
+                    <ProtectedRoute>
                       <ErrorBoundary>
                         <FlightSchedulePage />
                       </ErrorBoundary>
