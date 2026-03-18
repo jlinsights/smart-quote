@@ -149,7 +149,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     airline: 'WestJet Cargo',
     airlineCode: 'WS',
     flightNo: 'WS 1865',
-    aircraftType: 'N/B',
+    aircraftType: 'Narrow Body',
     flightType: 'cargo',
     origin: 'ICN',
     destination: 'YVR',
@@ -158,7 +158,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     arrivalTime: '07:44',
     flightDuration: '9h 54m',
     maxCargoKg: 15000,
-    remarks: 'Via HNL (ICN→HNL→YVR) · ICN/HNL by YP(W/B)',
+    remarks: 'Via HNL (ICN→HNL→YVR) · N/B 제한: 157×114×81cm, 130kg/pc · 팔레트/대형화물 불가',
   },
   // ShunFeng Airlines (O3)
   {
