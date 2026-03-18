@@ -127,36 +127,38 @@ export const AIRLINE_INFO: AirlineInfo[] = [
 ];
 
 export const FLIGHT_SCHEDULES: FlightSchedule[] = [
-  // WestJet Cargo (WS)
+  // WestJet Cargo (WS) — Effective 01.MAR.2026~
   {
-    id: 'default-ws-7701',
+    id: 'default-ws-081',
     airline: 'WestJet Cargo',
     airlineCode: 'WS',
-    flightNo: 'WS 7701',
-    aircraftType: 'B737-800BCF',
+    flightNo: 'WS 081',
+    aircraftType: 'B787',
     flightType: 'cargo',
     origin: 'ICN',
     destination: 'YYC',
-    departureDays: [2, 4, 6],
-    departureTime: '22:00',
-    arrivalTime: '17:30',
-    flightDuration: '10h 30m',
-    maxCargoKg: 18000,
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // DAILY
+    departureTime: '18:35',
+    arrivalTime: '12:40',
+    flightDuration: '10h 05m',
+    maxCargoKg: 20000,
+    remarks: 'Via NRT (ICN→NRT→YYC) · ICN/NRT by WE,LJ,YP(W/B),BX(N/B)',
   },
   {
-    id: 'default-ws-7703',
+    id: 'default-ws-1865',
     airline: 'WestJet Cargo',
     airlineCode: 'WS',
-    flightNo: 'WS 7703',
-    aircraftType: 'B737-800BCF',
+    flightNo: 'WS 1865',
+    aircraftType: 'N/B',
     flightType: 'cargo',
     origin: 'ICN',
     destination: 'YVR',
-    departureDays: [1, 3, 5],
-    departureTime: '23:00',
-    arrivalTime: '16:00',
-    flightDuration: '9h',
-    maxCargoKg: 18000,
+    departureDays: [1, 2, 4, 6], // D1246 = Mon/Tue/Thu/Sat
+    departureTime: '23:50',
+    arrivalTime: '07:44',
+    flightDuration: '9h 54m',
+    maxCargoKg: 15000,
+    remarks: 'Via HNL (ICN→HNL→YVR) · ICN/HNL by YP(W/B)',
   },
   // ShunFeng Airlines (O3)
   {
