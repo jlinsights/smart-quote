@@ -27,7 +27,7 @@ export function loadGoogleMaps3D(): Promise<Maps3DLib> {
       }
       return new Promise((res, rej) => {
         const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=alpha&libraries=maps3d,marker`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=beta&libraries=maps3d,marker`;
         script.async = true;
         script.defer = true;
         script.onload = () => res();
