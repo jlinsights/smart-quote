@@ -491,6 +491,22 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     remarks: 'Belly cargo · Narita',
   },
   {
+    id: 'default-yp-733',
+    airline: 'Air Premia',
+    airlineCode: 'YP',
+    flightNo: 'YP 733',
+    aircraftType: 'B787-9',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'NRT',
+    departureDays: [2], // Tue only (from 3/29 시간 변경)
+    departureTime: '09:25',
+    arrivalTime: '11:55',
+    flightDuration: '2h 30m',
+    maxCargoKg: 15000,
+    remarks: 'Belly cargo · Narita · Tue only (YP731 대체)',
+  },
+  {
     id: 'default-yp-735',
     airline: 'Air Premia',
     airlineCode: 'YP',
