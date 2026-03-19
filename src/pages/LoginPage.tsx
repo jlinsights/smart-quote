@@ -37,8 +37,7 @@ export const LoginPage: React.FC = () => {
           // Set language based on nationality (only on first login, when no saved preference)
           const savedLang = localStorage.getItem('smartQuoteLanguage');
           if (!savedLang && result.user?.nationality) {
-            const langMap: Record<string, string> = { KR: 'ko', JP: 'ja', CN: 'cn', TW: 'cn' };
-            const autoLang = langMap[result.user.nationality] || 'en';
+            const autoLang = result.user.nationality === 'KR' ? 'ko' : 'en';
             setLanguage(autoLang as 'ko' | 'en' | 'cn' | 'ja');
           }
 

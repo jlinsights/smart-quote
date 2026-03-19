@@ -1,32 +1,15 @@
 import React, { createContext, useContext, useState } from 'react';
 import { Language, translations } from '../i18n/translations';
 
-const TIMEZONE_LANG_MAP: Record<string, Language> = {
-  'Asia/Seoul': 'ko',
-  'Asia/Tokyo': 'ja',
-  'Asia/Shanghai': 'cn',
-  'Asia/Chongqing': 'cn',
-  'Asia/Harbin': 'cn',
-  'Asia/Urumqi': 'cn',
-  'Asia/Hong_Kong': 'cn',
-  'Asia/Macau': 'cn',
-  'Asia/Taipei': 'cn',
-};
-
-const BROWSER_LANG_MAP: Record<string, Language> = {
-  ko: 'ko',
-  ja: 'ja',
-  zh: 'cn',
-};
-
+// Default language: Korean only for Korea timezone/browser, English for everywhere else
 function detectLanguage(): Language {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (tz && TIMEZONE_LANG_MAP[tz]) return TIMEZONE_LANG_MAP[tz];
+    if (tz === 'Asia/Seoul') return 'ko';
   } catch { /* ignore */ }
 
   const browserLang = navigator.language?.split('-')[0]?.toLowerCase();
-  if (browserLang && BROWSER_LANG_MAP[browserLang]) return BROWSER_LANG_MAP[browserLang];
+  if (browserLang === 'ko') return 'ko';
 
   return 'en';
 }
