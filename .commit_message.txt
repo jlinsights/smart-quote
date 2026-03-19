@@ -1,1 +1,1 @@
-⛽ feat: USGC Jet Fuel 실시간 위젯 — EIA API 연동 + 추이 차트 (대시보드)
+♻️ refactor: Warning 9건 해결 — DEMO_KEY 제거, fetchWithRetry, FscChart 분리, 테스트 추가
