@@ -8,6 +8,7 @@ interface ImportMetaEnv {
   readonly VITE_SENTRY_DSN: string;
   readonly VITE_CHANNEL_TALK_PLUGIN_KEY: string;
   readonly VITE_ENABLE_SENTRY: string;
+  readonly VITE_EIA_API_KEY: string;
 }
 
 interface ImportMeta {

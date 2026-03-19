@@ -6,7 +6,8 @@ export interface JetFuelPrice {
 export async function fetchJetFuelPrices(
   weeks: number = 12,
 ): Promise<JetFuelPrice[]> {
-  const url = `https://api.eia.gov/v2/petroleum/pri/spt/data/?api_key=DEMO_KEY&frequency=weekly&data[0]=value&facets[product][]=EPJK&facets[duoarea][]=RGC&sort[0][column]=period&sort[0][direction]=desc&length=${weeks}`;
+  const apiKey = import.meta.env.VITE_EIA_API_KEY || 'DEMO_KEY';
+  const url = `https://api.eia.gov/v2/petroleum/pri/spt/data/?api_key=${apiKey}&frequency=weekly&data[0]=value&facets[product][]=EPJK&facets[duoarea][]=RGC&sort[0][column]=period&sort[0][direction]=desc&length=${weeks}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(`EIA API error: ${res.status}`);
