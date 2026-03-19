@@ -17,7 +17,7 @@ export const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
 
   const { login } = useAuth();
-  const { t } = useLanguage();
+  const { t, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,6 +34,14 @@ export const LoginPage: React.FC = () => {
       try {
         const result = await login(email.trim(), password.trim());
         if (result.success) {
+          // Set language based on nationality (only on first login, when no saved preference)
+          const savedLang = localStorage.getItem('smartQuoteLanguage');
+          if (!savedLang && result.user?.nationality) {
+            const langMap: Record<string, string> = { KR: 'ko', JP: 'ja', CN: 'cn', TW: 'cn' };
+            const autoLang = langMap[result.user.nationality] || 'en';
+            setLanguage(autoLang as 'ko' | 'en' | 'cn' | 'ja');
+          }
+
           const userRole = result.user?.role || 'user';
           const defaultDest = userRole === 'admin' ? '/admin' : '/dashboard';
 

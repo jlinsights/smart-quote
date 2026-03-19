@@ -48,7 +48,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const isAdmin = user?.role === 'admin';
   const canSaveAndViewHistory = isAuthenticated;
   const hideMargin = isPublic || user?.role === 'member';
-  const isKorean = user?.nationality === 'KR' || !user?.nationality;
+  const isKorean = user?.nationality === 'KR';
 
   const [input, setInput] = useState<QuoteInput>(INITIAL_INPUT);
   const [hasSetInitialRate, setHasSetInitialRate] = useState(false);
