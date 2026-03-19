@@ -9,6 +9,7 @@ import { WeatherWidget } from '@/features/quote/components/widgets/WeatherWidget
 import { NoticeWidget } from '@/features/quote/components/widgets/NoticeWidget';
 import { ExchangeRateWidget } from '@/features/quote/components/widgets/ExchangeRateWidget';
 import { ExchangeRateCalculatorWidget } from '@/features/quote/components/widgets/ExchangeRateCalculatorWidget';
+import { JetFuelWidget } from '@/features/quote/components/widgets/JetFuelWidget';
 
 const CustomerDashboard: React.FC = () => {
   const { t } = useLanguage();
@@ -54,6 +55,10 @@ const CustomerDashboard: React.FC = () => {
               <ExchangeRateWidget />
             </div>
             
+            <div className="flex-shrink-0">
+              <JetFuelWidget />
+            </div>
+
             <div className="flex-shrink-0">
               <ExchangeRateCalculatorWidget />
             </div>

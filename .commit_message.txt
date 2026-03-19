@@ -1,1 +1,1 @@
-📊 feat: FSC 이력 그래프 위젯 — UPS 주간/DHL 월간 추이 차트 + 수동 업데이트
+⛽ feat: USGC Jet Fuel 실시간 위젯 — EIA API 연동 + 추이 차트 (대시보드)

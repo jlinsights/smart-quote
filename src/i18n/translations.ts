@@ -173,6 +173,16 @@ export const translations: Record<Language, Record<string, string>> = {
      'widget.fsc.title': '유류할증료 (FSC)',
      'widget.fsc.intl': '국제',
      'widget.fsc.dom': '국내',
+
+     // Jet Fuel Widget
+     'dashboard.jetFuel.title': 'USGC Jet Fuel',
+     'dashboard.jetFuel.subtitle': '등유형 제트유 현물가 (FOB)',
+     'dashboard.jetFuel.current': '현재가',
+     'dashboard.jetFuel.weekChange': '주간 변동',
+     'dashboard.jetFuel.fscNote': 'UPS FSC는 이 가격 기준 2주 후 적용됩니다 (센트 단위 반올림)',
+     'dashboard.jetFuel.source': '출처: U.S. EIA',
+     'dashboard.jetFuel.perGal': '/gal',
+
      'common.amount': '금액',
      'common.from': '보내는 통화',
      'common.to': '받는 통화',
@@ -474,6 +484,16 @@ export const translations: Record<Language, Record<string, string>> = {
     'widget.fsc.title': 'Fuel Surcharges (FSC)',
     'widget.fsc.intl': 'Intl.',
     'widget.fsc.dom': 'Dom.',
+
+    // Jet Fuel Widget
+    'dashboard.jetFuel.title': 'USGC Jet Fuel',
+    'dashboard.jetFuel.subtitle': 'Kerosene-Type Spot Price FOB',
+    'dashboard.jetFuel.current': 'Current',
+    'dashboard.jetFuel.weekChange': 'Week Change',
+    'dashboard.jetFuel.fscNote': 'UPS FSC is based on this price with a 2-week lag (rounded to nearest cent)',
+    'dashboard.jetFuel.source': 'Source: U.S. EIA',
+    'dashboard.jetFuel.perGal': '/gal',
+
     'common.amount': 'Amount',
     'common.from': 'From',
     'common.to': 'To',
@@ -766,6 +786,16 @@ export const translations: Record<Language, Record<string, string>> = {
     'widget.exchange.change': '变动',
     'widget.exchange.refresh': '刷新汇率',
     'widget.calculator': '汇率计算器',
+
+    // Jet Fuel Widget
+    'dashboard.jetFuel.title': 'USGC Jet Fuel',
+    'dashboard.jetFuel.subtitle': '煤油型喷气燃料现货价 (FOB)',
+    'dashboard.jetFuel.current': '当前价',
+    'dashboard.jetFuel.weekChange': '周变动',
+    'dashboard.jetFuel.fscNote': 'UPS FSC 基于此价格延后 2 周适用（四舍五入至美分）',
+    'dashboard.jetFuel.source': '来源: U.S. EIA',
+    'dashboard.jetFuel.perGal': '/gal',
+
     'common.amount': '金额',
     'common.from': '转换自',
     'common.to': '转换至',
@@ -1046,6 +1076,16 @@ export const translations: Record<Language, Record<string, string>> = {
     'widget.exchange.change': '変動',
     'widget.exchange.refresh': 'レート更新',
     'widget.calculator': '為替計算機',
+
+    // Jet Fuel Widget
+    'dashboard.jetFuel.title': 'USGC Jet Fuel',
+    'dashboard.jetFuel.subtitle': '灯油型ジェット燃料スポット価格 (FOB)',
+    'dashboard.jetFuel.current': '現在価格',
+    'dashboard.jetFuel.weekChange': '週間変動',
+    'dashboard.jetFuel.fscNote': 'UPS FSCはこの価格を基準に2週間後に適用されます（セント単位で四捨五入）',
+    'dashboard.jetFuel.source': '出典: U.S. EIA',
+    'dashboard.jetFuel.perGal': '/gal',
+
     'common.amount': '金額',
     'common.from': '送金元通貨',
     'common.to': '受取通貨',
