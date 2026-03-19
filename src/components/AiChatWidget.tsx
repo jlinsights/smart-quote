@@ -207,11 +207,40 @@ function pickRandom<T>(arr: T[], n: number): T[] {
 /* ------------------------------------------------------------------ */
 /*  Main widget                                                        */
 /* ------------------------------------------------------------------ */
+/** Resolve chat language: nationality → system language → timezone → 'en' */
+const NATIONALITY_LANG: Record<string, SupportedLang> = {
+  KR: 'ko', JP: 'ja', CN: 'cn', TW: 'cn', HK: 'cn', MO: 'cn',
+};
+
+function resolveChatLang(nationality?: string, systemLang?: string): SupportedLang {
+  // 1. User nationality (most reliable)
+  if (nationality && NATIONALITY_LANG[nationality]) return NATIONALITY_LANG[nationality];
+
+  // 2. System language setting (from LanguageContext)
+  if (systemLang && systemLang in labels) return systemLang as SupportedLang;
+
+  // 3. Timezone detection
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (tz === 'Asia/Seoul') return 'ko';
+    if (tz === 'Asia/Tokyo') return 'ja';
+    if (['Asia/Shanghai', 'Asia/Chongqing', 'Asia/Hong_Kong', 'Asia/Taipei'].includes(tz)) return 'cn';
+  } catch { /* ignore */ }
+
+  // 4. Browser language
+  const bl = navigator.language?.split('-')[0]?.toLowerCase();
+  if (bl === 'ko') return 'ko';
+  if (bl === 'ja') return 'ja';
+  if (bl === 'zh') return 'cn';
+
+  return 'en';
+}
+
 export const AiChatWidget: React.FC = () => {
   const { user } = useAuth();
   const { language } = useLanguage();
 
-  const lang: SupportedLang = (language in labels ? language : 'en') as SupportedLang;
+  const lang = resolveChatLang(user?.nationality, language);
   const l = labels[lang];
 
   const [isOpen, setIsOpen] = useState(false);
