@@ -78,6 +78,32 @@ const labels = {
 type SupportedLang = keyof typeof labels;
 
 /* ------------------------------------------------------------------ */
+/*  Suggested questions per language                                    */
+/* ------------------------------------------------------------------ */
+const suggestedQuestions: Record<SupportedLang, string[]> = {
+  ko: [
+    '견적 계산기는 어떻게 사용하나요?',
+    'UPS와 DHL 요금 차이가 궁금합니다',
+    '포장 옵션별 비용 차이를 알려주세요',
+  ],
+  en: [
+    'How do I use the quote calculator?',
+    'What is the difference between UPS and DHL rates?',
+    'Tell me about packing options and costs',
+  ],
+  cn: [
+    '如何使用报价计算器？',
+    'UPS和DHL费率有什么区别？',
+    '请介绍包装选项和费用',
+  ],
+  ja: [
+    '見積計算機の使い方を教えてください',
+    'UPSとDHLの料金の違いは？',
+    '梱包オプションと費用について教えてください',
+  ],
+};
+
+/* ------------------------------------------------------------------ */
 /*  Main widget                                                        */
 /* ------------------------------------------------------------------ */
 export const AiChatWidget: React.FC = () => {
@@ -93,6 +119,7 @@ export const AiChatWidget: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
   const [hasGreeted, setHasGreeted] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -126,15 +153,16 @@ export const AiChatWidget: React.FC = () => {
     }
   }, [hasGreeted, l, user?.name]);
 
-  /* Send message */
-  const handleSend = useCallback(async () => {
-    const text = inputValue.trim();
+  /* Send message (accepts optional text for suggested questions) */
+  const handleSend = useCallback(async (directText?: string) => {
+    const text = (directText || inputValue).trim();
     if (!text || isLoading) return;
 
     const userMsg: ChatMessage = { role: 'user', content: text };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setInputValue('');
+    setShowSuggestions(false);
     setIsLoading(true);
 
     try {
@@ -194,6 +222,22 @@ export const AiChatWidget: React.FC = () => {
           {messages.map((msg, idx) => (
             <MessageBubble key={idx} message={msg} />
           ))}
+
+          {/* Suggested questions — shown after welcome, hidden after first user message */}
+          {showSuggestions && messages.length <= 1 && !isLoading && (
+            <div className="flex flex-col gap-2 mb-3">
+              {suggestedQuestions[lang].map((q) => (
+                <button
+                  key={q}
+                  onClick={() => handleSend(q)}
+                  className="text-left text-xs px-3.5 py-2.5 rounded-xl border border-jways-200 dark:border-jways-700 bg-jways-50 dark:bg-jways-900/20 text-jways-700 dark:text-jways-300 hover:bg-jways-100 dark:hover:bg-jways-900/40 hover:border-jways-300 dark:hover:border-jways-600 transition-all duration-150"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          )}
+
           {isLoading && <TypingIndicator />}
         </div>
 
@@ -213,7 +257,7 @@ export const AiChatWidget: React.FC = () => {
               autoComplete="off"
             />
             <button
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={!inputValue.trim() || isLoading}
               className="p-2.5 rounded-full bg-jways-600 hover:bg-jways-700 active:scale-95 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
               aria-label="Send message"
