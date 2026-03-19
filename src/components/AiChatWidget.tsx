@@ -150,28 +150,59 @@ type SupportedLang = keyof typeof labels;
 /* ------------------------------------------------------------------ */
 /*  Suggested questions per language                                    */
 /* ------------------------------------------------------------------ */
-const suggestedQuestions: Record<SupportedLang, string[]> = {
+/** Question pool — 3 random questions are picked each time the chat opens */
+const questionPool: Record<SupportedLang, string[]> = {
   ko: [
     '견적 계산기는 어떻게 사용하나요?',
     'UPS와 DHL 요금 차이가 궁금합니다',
     '포장 옵션별 비용 차이를 알려주세요',
+    '유류할증료(FSC)란 무엇인가요?',
+    '용적중량은 어떻게 계산되나요?',
+    '견적서 PDF는 어떻게 다운로드하나요?',
+    '인코텀즈 DAP는 무엇인가요?',
+    '외곽 지역 추가 요금은 어떻게 확인하나요?',
+    '견적 이력은 어디서 확인하나요?',
   ],
   en: [
     'How do I use the quote calculator?',
     'What is the difference between UPS and DHL rates?',
     'Tell me about packing options and costs',
+    'What is the Fuel Surcharge (FSC)?',
+    'How is volumetric weight calculated?',
+    'How do I download a quote as PDF?',
+    'What does the incoterm DAP mean?',
+    'How do I check remote area surcharges?',
+    'Where can I view my quote history?',
   ],
   cn: [
     '如何使用报价计算器？',
     'UPS和DHL费率有什么区别？',
     '请介绍包装选项和费用',
+    '什么是燃油附加费（FSC）？',
+    '体积重量怎么计算？',
+    '如何下载报价PDF？',
+    '什么是DAP贸易术语？',
+    '如何查看偏远地区附加费？',
+    '在哪里查看报价历史？',
   ],
   ja: [
     '見積計算機の使い方を教えてください',
     'UPSとDHLの料金の違いは？',
     '梱包オプションと費用について教えてください',
+    '燃料サーチャージ（FSC）とは何ですか？',
+    '容積重量はどのように計算されますか？',
+    '見積書のPDFダウンロード方法は？',
+    'インコタームズDAPとは何ですか？',
+    '遠隔地追加料金の確認方法は？',
+    '見積履歴はどこで確認できますか？',
   ],
 };
+
+/** Pick n random unique items from an array */
+function pickRandom<T>(arr: T[], n: number): T[] {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, n);
+}
 
 /* ------------------------------------------------------------------ */
 /*  Main widget                                                        */
@@ -190,6 +221,7 @@ export const AiChatWidget: React.FC = () => {
   const [hasUnread, setHasUnread] = useState(false);
   const [hasGreeted, setHasGreeted] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [currentSuggestions, setCurrentSuggestions] = useState<string[]>([]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -213,15 +245,17 @@ export const AiChatWidget: React.FC = () => {
     }
   }, [isOpen]);
 
-  /* Welcome message on first open */
+  /* Welcome message on first open + randomize suggestions every open */
   const handleOpen = useCallback(() => {
     setIsOpen(true);
     setHasUnread(false);
+    setCurrentSuggestions(pickRandom(questionPool[lang], 3));
+    setShowSuggestions(true);
     if (!hasGreeted) {
       setMessages([{ role: 'assistant', content: l.welcome(user?.name) }]);
       setHasGreeted(true);
     }
-  }, [hasGreeted, l, user?.name]);
+  }, [hasGreeted, l, user?.name, lang]);
 
   /* Send message (accepts optional text for suggested questions) */
   const handleSend = useCallback(async (directText?: string) => {
@@ -296,7 +330,7 @@ export const AiChatWidget: React.FC = () => {
           {/* Suggested questions — shown after welcome, hidden after first user message */}
           {showSuggestions && messages.length <= 1 && !isLoading && (
             <div className="flex flex-col gap-2 mb-3">
-              {suggestedQuestions[lang].map((q) => (
+              {currentSuggestions.map((q) => (
                 <button
                   key={q}
                   onClick={() => handleSend(q)}
