@@ -24,18 +24,88 @@ const TypingIndicator: React.FC = () => (
 /* ------------------------------------------------------------------ */
 /*  Single message bubble                                              */
 /* ------------------------------------------------------------------ */
+/** Render simple markdown: **bold**, `code`, ## headings, - lists, numbered lists */
+const renderMarkdown = (text: string): React.ReactNode[] => {
+  return text.split('\n').map((line, lineIdx) => {
+    // Headings: ## or ###
+    const headingMatch = line.match(/^(#{1,3})\s+(.+)$/);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      const content = inlineFormat(headingMatch[2]);
+      const cls = level === 1 ? 'text-base font-bold mt-2 mb-1' : level === 2 ? 'text-sm font-bold mt-2 mb-1' : 'text-sm font-semibold mt-1';
+      return <div key={lineIdx} className={cls}>{content}</div>;
+    }
+
+    // Unordered list: - item
+    const ulMatch = line.match(/^[-•]\s+(.+)$/);
+    if (ulMatch) {
+      return <div key={lineIdx} className="flex gap-1.5 ml-1"><span className="shrink-0">•</span><span>{inlineFormat(ulMatch[1])}</span></div>;
+    }
+
+    // Ordered list: 1. item
+    const olMatch = line.match(/^(\d+)[.)]\s+(.+)$/);
+    if (olMatch) {
+      return <div key={lineIdx} className="flex gap-1.5 ml-1"><span className="shrink-0 font-semibold">{olMatch[1]}.</span><span>{inlineFormat(olMatch[2])}</span></div>;
+    }
+
+    // Empty line → spacing
+    if (!line.trim()) return <div key={lineIdx} className="h-2" />;
+
+    // Regular paragraph
+    return <div key={lineIdx}>{inlineFormat(line)}</div>;
+  });
+};
+
+/** Inline formatting: **bold**, `code` */
+const inlineFormat = (text: string): React.ReactNode => {
+  const parts: React.ReactNode[] = [];
+  let remaining = text;
+  let key = 0;
+
+  while (remaining) {
+    // Bold: **text**
+    const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+    // Code: `text`
+    const codeMatch = remaining.match(/`(.+?)`/);
+
+    const firstMatch = [boldMatch, codeMatch]
+      .filter(Boolean)
+      .sort((a, b) => (a!.index ?? Infinity) - (b!.index ?? Infinity))[0];
+
+    if (!firstMatch || firstMatch.index === undefined) {
+      parts.push(remaining);
+      break;
+    }
+
+    // Text before match
+    if (firstMatch.index > 0) {
+      parts.push(remaining.slice(0, firstMatch.index));
+    }
+
+    if (firstMatch === boldMatch) {
+      parts.push(<strong key={key++} className="font-bold">{firstMatch[1]}</strong>);
+    } else {
+      parts.push(<code key={key++} className="px-1 py-0.5 rounded bg-black/10 dark:bg-white/10 text-xs font-mono">{firstMatch[1]}</code>);
+    }
+
+    remaining = remaining.slice(firstMatch.index + firstMatch[0].length);
+  }
+
+  return parts.length === 1 && typeof parts[0] === 'string' ? parts[0] : <>{parts}</>;
+};
+
 const MessageBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
   const isUser = message.role === 'user';
   return (
     <div className={`flex mb-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`max-w-[80%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words ${
+        className={`max-w-[80%] px-4 py-2.5 text-sm leading-relaxed break-words ${
           isUser
             ? 'bg-jways-600 text-white rounded-2xl rounded-tr-sm'
             : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-2xl rounded-tl-sm'
         }`}
       >
-        {message.content}
+        {isUser ? message.content : renderMarkdown(message.content)}
       </div>
     </div>
   );
