@@ -161,7 +161,9 @@ const UserGuidePage: React.FC = () => {
 
           {/* Section Items */}
           <div className="divide-y divide-gray-50 dark:divide-gray-800/50">
-            {section.items.map((item, itemIndex) => (
+            {section.items
+              .filter((item) => !item.adminOnly || isAdmin)
+              .map((item, itemIndex) => (
               <div key={itemIndex} className="px-6 py-5">
                 <div className="flex items-start gap-3">
                   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-bold text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5">

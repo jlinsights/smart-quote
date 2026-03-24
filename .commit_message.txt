@@ -1,1 +1,1 @@
-📝 docs: README.md & CLAUDE.md 업데이트 — 접근제어/도메인/라우트/테스트 수 반영
+📖 feat: User Guide에서 Admin 전용 항목 역할별 필터링 (4개 언어)

@@ -1,6 +1,7 @@
 export interface GuideItem {
   title: string;
   description: string;
+  adminOnly?: boolean;
 }
 
 export interface GuideSection {
@@ -78,18 +79,17 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           {
             title: 'Weather Widget',
             description: 'Real-time weather conditions across 47 global ports and airports. Weather disruptions can affect shipping schedules.',
-          },
-          {
-            title: 'Logistics News',
-            description: 'Latest logistics industry updates, port disruptions, and important carrier announcements.',
+            adminOnly: true,
           },
           {
             title: 'Exchange Rate Widget',
             description: 'Live exchange rates for USD, EUR, JPY, CNY, GBP, and SGD against KRW. Rates auto-refresh every 5 minutes.',
+            adminOnly: true,
           },
           {
             title: 'Currency Calculator',
             description: 'Quick currency conversion tool on the sidebar. Select currencies and enter an amount to convert.',
+            adminOnly: true,
           },
         ],
       },
@@ -111,6 +111,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           {
             title: 'Special Packing Info',
             description: 'Selecting WOODEN_BOX, SKID, or VACUUM packing shows a detailed cost panel: material cost (surface area × ₩15,000/m²), labor (₩50,000/box, ₩75,000 vacuum), fumigation (₩30,000 fixed), and dimension/weight impact. AHS auto-detect warning is also shown.',
+            adminOnly: true,
           },
           {
             title: 'UPS Surge Fee & EAS/RAS',
@@ -119,6 +120,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           {
             title: '④ Financial Settings',
             description: 'Review applied exchange rates and FSC percentages. The system uses live rates but allows admin overrides. Express shipments (UPS/DHL) use DAP incoterm only.',
+            adminOnly: true,
           },
           {
             title: 'Results & Comparison',
@@ -382,18 +384,17 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           {
             title: '날씨 위젯',
             description: '전 세계 47개 주요 항구 및 공항의 실시간 기상 상황을 제공합니다. 기상 이변은 배송 일정에 영향을 줄 수 있습니다.',
-          },
-          {
-            title: '물류 뉴스',
-            description: '최신 물류 업계 동향, 항만 장애, 주요 운송사 공지사항을 제공합니다.',
+            adminOnly: true,
           },
           {
             title: '환율 위젯',
             description: 'USD, EUR, JPY, CNY, GBP, SGD의 KRW 대비 실시간 환율을 표시합니다. 5분마다 자동 갱신됩니다.',
+            adminOnly: true,
           },
           {
             title: '환율 계산기',
             description: '사이드바의 빠른 환율 변환 도구입니다. 통화를 선택하고 금액을 입력하면 바로 변환됩니다.',
+            adminOnly: true,
           },
         ],
       },
@@ -415,6 +416,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           {
             title: '특수 포장 정보',
             description: 'WOODEN_BOX, SKID, VACUUM 포장 선택 시 상세 비용 패널이 표시됩니다: 재료비(표면적 × ₩15,000/m²), 인건비(₩50,000/박스, 진공 ₩75,000), 훈증비(₩30,000 고정), 치수/중량 영향. AHS 자동 감지 경고도 표시됩니다.',
+            adminOnly: true,
           },
           {
             title: 'UPS Surge Fee & EAS/RAS',
@@ -423,6 +425,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           {
             title: '④ 재무 설정',
             description: '적용된 환율과 FSC 비율을 확인합니다. 시스템은 실시간 환율을 사용하지만 관리자 수동 설정도 가능합니다. 특송(UPS/DHL)은 DAP 인코텀만 적용됩니다.',
+            adminOnly: true,
           },
           {
             title: '결과 및 비교',
@@ -686,18 +689,17 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           {
             title: '天气插件',
             description: '提供全球47个主要港口和机场的实时天气状况。天气异常可能影响运输时间表。',
-          },
-          {
-            title: '物流新闻',
-            description: '最新的物流行业动态、港口中断和重要承运商公告。',
+            adminOnly: true,
           },
           {
             title: '汇率插件',
             description: 'USD、EUR、JPY、CNY、GBP、SGD兑KRW的实时汇率。每5分钟自动刷新。',
+            adminOnly: true,
           },
           {
             title: '汇率计算器',
             description: '侧边栏的快速货币转换工具。选择货币并输入金额即可转换。',
+            adminOnly: true,
           },
         ],
       },
@@ -719,6 +721,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           {
             title: '特殊包装信息',
             description: '选择WOODEN_BOX、SKID或VACUUM包装时显示详细费用面板：材料费（表面积 × ₩15,000/m²）、人工费（₩50,000/箱，真空₩75,000）、熏蒸费（₩30,000固定）、尺寸/重量影响。还会显示AHS自动检测警告。',
+            adminOnly: true,
           },
           {
             title: 'UPS Surge Fee & EAS/RAS',
@@ -727,6 +730,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           {
             title: '④ 财务设置',
             description: '查看应用的汇率和FSC百分比。系统使用实时汇率，但允许管理员手动覆盖。快递（UPS/DHL）仅适用DAP贸易术语。',
+            adminOnly: true,
           },
           {
             title: '结果与比较',
@@ -990,18 +994,17 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           {
             title: '天気ウィジェット',
             description: '世界47の主要港湾・空港のリアルタイム気象状況を提供します。気象の混乱は配送スケジュールに影響を与える可能性があります。',
-          },
-          {
-            title: '物流ニュース',
-            description: '最新の物流業界の動向、港湾障害、重要なキャリアのお知らせを提供します。',
+            adminOnly: true,
           },
           {
             title: '為替レートウィジェット',
             description: 'USD、EUR、JPY、CNY、GBP、SGDのKRW対比リアルタイム為替レートを表示します。5分ごとに自動更新されます。',
+            adminOnly: true,
           },
           {
             title: '為替計算機',
             description: 'サイドバーのクイック通貨変換ツールです。通貨を選択して金額を入力すると即座に変換されます。',
+            adminOnly: true,
           },
         ],
       },
@@ -1023,6 +1026,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           {
             title: '特殊梱包情報',
             description: 'WOODEN_BOX、SKID、VACUUM梱包選択時に詳細コストパネルが表示されます：材料費（表面積 × ₩15,000/m²）、人件費（₩50,000/箱、真空₩75,000）、燻蒸費（₩30,000固定）、寸法/重量への影響。AHS自動検出警告も表示されます。',
+            adminOnly: true,
           },
           {
             title: 'UPS Surge Fee & EAS/RAS',
@@ -1031,6 +1035,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           {
             title: '④ 財務設定',
             description: '適用された為替レートとFSC率を確認します。システムはリアルタイムレートを使用しますが、管理者による手動設定も可能です。エクスプレス（UPS/DHL）はDAPインコタームのみ適用されます。',
+            adminOnly: true,
           },
           {
             title: '結果と比較',
