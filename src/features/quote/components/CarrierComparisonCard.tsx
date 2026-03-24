@@ -10,9 +10,10 @@ interface Props {
   currentResult: QuoteResult;
   isKorean?: boolean;
   onSwitchCarrier: (carrier: 'UPS' | 'DHL') => void;
+  hideMargin?: boolean;
 }
 
-export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, isKorean = true, onSwitchCarrier }) => {
+export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, isKorean = true, onSwitchCarrier, hideMargin }) => {
   const [showKRW, setShowKRW] = useState(isKorean);
   const altCarrier = input.overseasCarrier === 'DHL' ? 'UPS' : 'DHL';
 
@@ -47,14 +48,16 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
           </h4>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowKRW(prev => !prev)}
-            className="flex items-center gap-1 text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-300 transition-colors"
-            title="Toggle currency"
-          >
-            <ArrowUpDown className="w-3 h-3" />
-            {showKRW ? 'KRW' : 'USD'}
-          </button>
+          {!hideMargin && (
+            <button
+              onClick={() => setShowKRW(prev => !prev)}
+              className="flex items-center gap-1 text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-300 transition-colors"
+              title="Toggle currency"
+            >
+              <ArrowUpDown className="w-3 h-3" />
+              {showKRW ? 'KRW' : 'USD'}
+            </button>
+          )}
           <button
             onClick={async () => {
               const upsResult = currentCarrier === 'UPS' ? currentResult : altResult;

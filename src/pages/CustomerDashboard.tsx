@@ -46,7 +46,7 @@ const CustomerDashboard: React.FC = () => {
               <QuoteHistoryCompact />
             </div>
 
-            <WeatherWidget />
+            {isAdmin && <WeatherWidget />}
             <NoticeWidget />
           </div>
 

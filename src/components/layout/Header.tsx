@@ -107,40 +107,42 @@ export const Header: React.FC = () => {
                 </div>
               )}
 
-              {/* Language Dropdown — after settings icon */}
-              <div ref={langRef} className="relative">
-                <button
-                  onClick={() => setIsLangOpen(!isLangOpen)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Escape') setIsLangOpen(false);
-                    if (e.key === 'ArrowDown' && !isLangOpen) { e.preventDefault(); setIsLangOpen(true); }
-                  }}
-                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-jways-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg flex items-center space-x-1 transition-all"
-                  aria-label="Select language"
-                  aria-expanded={isLangOpen}
-                  aria-haspopup="listbox"
-                >
-                  <Globe className="w-5 h-5" />
-                  <span className="text-sm font-medium uppercase">{language}</span>
-                </button>
-                {isLangOpen && (
-                  <div className="absolute right-0 mt-1 w-36 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 py-1" role="listbox">
-                    {LANGUAGES.map((lang) => (
-                      <button
-                        key={lang.code}
-                        role="option"
-                        aria-selected={language === lang.code}
-                        onClick={() => { setLanguage(lang.code); setIsLangOpen(false); }}
-                        onKeyDown={(e) => { if (e.key === 'Escape') setIsLangOpen(false); }}
-                        className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${language === lang.code ? 'text-jways-600 dark:text-jways-400 font-semibold' : 'text-gray-700 dark:text-gray-300'}`}
-                      >
-                        <span>{lang.flag}</span>
-                        <span>{lang.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* Language Dropdown — Admin only */}
+              {user?.role === 'admin' && (
+                <div ref={langRef} className="relative">
+                  <button
+                    onClick={() => setIsLangOpen(!isLangOpen)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') setIsLangOpen(false);
+                      if (e.key === 'ArrowDown' && !isLangOpen) { e.preventDefault(); setIsLangOpen(true); }
+                    }}
+                    className="p-2 text-gray-600 dark:text-gray-300 hover:text-jways-600 dark:hover:text-jways-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg flex items-center space-x-1 transition-all"
+                    aria-label="Select language"
+                    aria-expanded={isLangOpen}
+                    aria-haspopup="listbox"
+                  >
+                    <Globe className="w-5 h-5" />
+                    <span className="text-sm font-medium uppercase">{language}</span>
+                  </button>
+                  {isLangOpen && (
+                    <div className="absolute right-0 mt-1 w-36 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 py-1" role="listbox">
+                      {LANGUAGES.map((lang) => (
+                        <button
+                          key={lang.code}
+                          role="option"
+                          aria-selected={language === lang.code}
+                          onClick={() => { setLanguage(lang.code); setIsLangOpen(false); }}
+                          onKeyDown={(e) => { if (e.key === 'Escape') setIsLangOpen(false); }}
+                          className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${language === lang.code ? 'text-jways-600 dark:text-jways-400 font-semibold' : 'text-gray-700 dark:text-gray-300'}`}
+                        >
+                          <span>{lang.flag}</span>
+                          <span>{lang.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Dark Mode Toggle */}
               <button

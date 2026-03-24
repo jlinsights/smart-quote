@@ -32,6 +32,7 @@ export const ResultSection: React.FC<Props> = ({ result, input, onMarginChange, 
           currentResult={result}
           isKorean={isKorean}
           onSwitchCarrier={onSwitchCarrier}
+          hideMargin={hideMargin}
         />
       )}
 
@@ -45,7 +46,6 @@ export const ResultSection: React.FC<Props> = ({ result, input, onMarginChange, 
         />
       ) : (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-6">
-          <WeatherWidget />
           <NoticeWidget />
         </div>
       )}

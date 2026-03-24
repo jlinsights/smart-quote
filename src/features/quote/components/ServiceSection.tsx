@@ -19,9 +19,10 @@ interface Props {
   isMobileView: boolean;
   intlBase?: number; // base carrier rate for rate-based surcharge calculation
   billableWeight?: number; // for DHL add-on fee calculations
+  hideMargin?: boolean;
 }
 
-export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobileView, intlBase = 0, billableWeight = 0 }) => {
+export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobileView, intlBase = 0, billableWeight = 0, hideMargin }) => {
   const { inputClass, labelClass, cardClass, sectionTitleClass, twoColGrid } = inputStyles;
   const ic = inputClass(isMobileView);
   const lc = labelClass(isMobileView);
@@ -88,24 +89,28 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
     <div className={cardClass}>
       <h3 className={sectionTitleClass}>{t('calc.section.service')}</h3>
       <div className={grid}>
-        <div>
-          <label className={lc}>Special Packing</label>
-          <div className="relative">
-              <select
-              value={input.packingType}
-              onChange={(e) => onFieldChange('packingType', e.target.value as PackingType)}
-              className={`${ic} appearance-none`}
-              >
-              {Object.values(PackingType).map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+        {!hideMargin && (
+          <>
+            <div>
+              <label className={lc}>Special Packing</label>
+              <div className="relative">
+                  <select
+                  value={input.packingType}
+                  onChange={(e) => onFieldChange('packingType', e.target.value as PackingType)}
+                  className={`${ic} appearance-none`}
+                  >
+                  {Object.values(PackingType).map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
               </div>
-          </div>
-          <PackingTypeInfo packingType={input.packingType} items={input.items} isMobileView={isMobileView} />
-        </div>
+              <PackingTypeInfo packingType={input.packingType} items={input.items} isMobileView={isMobileView} />
+            </div>
 
-        <PackingCostOverrideField input={input} onFieldChange={onFieldChange} lc={lc} ic={ic} />
+            <PackingCostOverrideField input={input} onFieldChange={onFieldChange} lc={lc} ic={ic} />
+          </>
+        )}
 
         <SurchargePanel
           carrier={carrier}

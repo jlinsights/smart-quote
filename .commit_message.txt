@@ -1,1 +1,1 @@
-📰 fix: 물류 뉴스 제목 키워드 필터링(UPS/DHL/FedEx) + 폐쇄 RSS 피드 제거
+🔒 feat: Packing/기상/다국어/통화토글 Admin 전용으로 변경
