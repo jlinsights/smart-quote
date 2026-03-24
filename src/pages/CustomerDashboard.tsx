@@ -4,10 +4,10 @@ import { FileText } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 import { WelcomeBanner } from '@/features/dashboard/components/WelcomeBanner';
 import { QuoteHistoryCompact } from '@/features/dashboard/components/QuoteHistoryCompact';
 import { WeatherWidget } from '@/features/quote/components/widgets/WeatherWidget';
-import { NoticeWidget } from '@/features/quote/components/widgets/NoticeWidget';
 import { ExchangeRateWidget } from '@/features/quote/components/widgets/ExchangeRateWidget';
 import { ExchangeRateCalculatorWidget } from '@/features/quote/components/widgets/ExchangeRateCalculatorWidget';
 import { JetFuelWidget } from '@/features/quote/components/widgets/JetFuelWidget';
@@ -77,14 +77,7 @@ const CustomerDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-white dark:bg-gray-950 py-10 border-t border-gray-100 dark:border-gray-800 transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-gray-400 dark:text-gray-400 text-sm">
-            &copy; 2026 Goodman GLS & J-Ways. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

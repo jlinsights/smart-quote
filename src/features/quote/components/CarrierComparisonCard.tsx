@@ -89,7 +89,7 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
           colorClass={carrierColors[altCarrier] || ''}
           diff={diff}
           diffPercent={diffPercent}
-          exchangeRate={currentResult.totalQuoteAmount > 0 ? currentResult.totalQuoteAmount / currentResult.totalQuoteAmountUSD : 1400}
+          exchangeRate={input.exchangeRate}
           onSelect={() => onSwitchCarrier(altCarrier as 'UPS' | 'DHL')}
         />
       </div>

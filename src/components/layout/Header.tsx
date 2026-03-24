@@ -13,14 +13,12 @@ const LANGUAGES = [
   { code: 'cn' as const, label: '中文', flag: '🇨🇳' },
 ];
 
-const SCHEDULE_ALLOWED_EMAILS = ['jaehong.lim@goodmangls.com', 'charlie@goodmangls.com'];
-
 export const Header: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
-  const canViewSchedule = user?.email && SCHEDULE_ALLOWED_EMAILS.includes(user.email);
+  const canViewSchedule = user?.role === 'admin';
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

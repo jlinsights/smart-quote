@@ -41,6 +41,16 @@ export const DEFAULT_FSC_HISTORY: FscHistoryData = {
   ],
 };
 
+function isValidEntry(e: unknown): e is FscHistoryEntry {
+  if (typeof e !== 'object' || e === null) return false;
+  const entry = e as Record<string, unknown>;
+  return typeof entry.date === 'string'
+    && entry.date.length > 0
+    && typeof entry.rate === 'number'
+    && isFinite(entry.rate)
+    && entry.rate >= 0;
+}
+
 /** Load FSC history from localStorage, falling back to default seed data. */
 export function loadFscHistory(): FscHistoryData {
   try {
@@ -48,7 +58,10 @@ export function loadFscHistory(): FscHistoryData {
     if (raw) {
       const parsed = JSON.parse(raw) as FscHistoryData;
       if (Array.isArray(parsed.ups) && Array.isArray(parsed.dhl)) {
-        return parsed;
+        return {
+          ups: parsed.ups.filter(isValidEntry),
+          dhl: parsed.dhl.filter(isValidEntry),
+        };
       }
     }
   } catch {

@@ -5,8 +5,6 @@ import { WarningAlerts } from './WarningAlerts';
 import { KeyMetricsGrid } from './KeyMetricsGrid';
 import { CostBreakdownCard } from './CostBreakdownCard';
 import { CarrierComparisonCard } from './CarrierComparisonCard';
-import { WeatherWidget } from './widgets/WeatherWidget';
-import { NoticeWidget } from './widgets/NoticeWidget';
 
 interface Props {
   result: QuoteResult;
@@ -36,7 +34,7 @@ export const ResultSection: React.FC<Props> = ({ result, input, onMarginChange, 
         />
       )}
 
-      {!hideMargin ? (
+      {!hideMargin && (
         <CostBreakdownCard
           result={result}
           onMarginChange={onMarginChange}
@@ -44,7 +42,7 @@ export const ResultSection: React.FC<Props> = ({ result, input, onMarginChange, 
           hideMargin={hideMargin}
           isKorean={isKorean}
         />
-      ) : null}
+      )}
     </div>
   );
 };

@@ -11,12 +11,13 @@ import { Header } from '@/components/layout/Header';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useExchangeRates } from '@/features/dashboard/hooks/useExchangeRates';
 import { useFscRates } from '@/features/dashboard/hooks/useFscRates';
+import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from '@/config/rates';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useResolvedMargin } from '@/features/dashboard/hooks/useResolvedMargin';
 import { CalculatorActionBar } from './components/CalculatorActionBar';
 import { AdminWidgets } from './components/AdminWidgets';
+import { Footer } from '@/components/layout/Footer';
 import { MobileStickyBottomBar } from './components/MobileStickyBottomBar';
 
 const INITIAL_INPUT: QuoteInput = {
@@ -31,8 +32,8 @@ const INITIAL_INPUT: QuoteInput = {
   ],
   marginPercent: 15,
   dutyTaxEstimate: 0,
-  exchangeRate: 1450,
-  fscPercent: 41.75,
+  exchangeRate: DEFAULT_EXCHANGE_RATE,
+  fscPercent: DEFAULT_FSC_PERCENT,
   overseasCarrier: 'UPS',
   manualPackingCost: undefined
 };
@@ -51,19 +52,9 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const isKorean = user?.nationality === 'KR';
 
   const [input, setInput] = useState<QuoteInput>(INITIAL_INPUT);
-  const [hasSetInitialRate, setHasSetInitialRate] = useState(false);
   const [lastAutoFscCarrier, setLastAutoFscCarrier] = useState<string | null>(null);
 
-  const { data: exchangeRates } = useExchangeRates();
   const { data: fscRates } = useFscRates();
-
-  // Exchange rate is now set manually (하나은행 월요일 09시 송금환율)
-  // Live API rates are still fetched for the dashboard widget display only
-  React.useEffect(() => {
-    if (!hasSetInitialRate) {
-      setHasSetInitialRate(true);
-    }
-  }, [hasSetInitialRate]);
 
   React.useEffect(() => {
     if (fscRates && fscRates.rates) {
@@ -267,11 +258,9 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
           <QuoteHistoryPage onDuplicate={handleDuplicate} />
         )}
 
-        {/* Footer */}
-        <footer className="border-t border-gray-100 dark:border-gray-800 mt-0 py-8 bg-white dark:bg-gray-950 text-center transition-colors duration-200 hidden lg:block">
-          <p className="text-sm text-gray-400 dark:text-gray-400">&copy; 2026 Goodman GLS & J-Ways. {isAdmin ? 'Internal Use Only.' : 'Smart Quote System.'}</p>
-          <p className="text-xs text-gray-300 dark:text-gray-600 mt-1">Smart Quote System</p>
-        </footer>
+        <div className="hidden lg:block">
+          <Footer variant={isAdmin ? 'admin' : 'default'} />
+        </div>
       </div>
 
       <ConfirmDialog

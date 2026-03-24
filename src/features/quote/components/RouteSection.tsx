@@ -1,17 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { QuoteInput, Incoterm } from '@/types';
+import React, { useMemo, useState } from 'react';
+import { QuoteInput } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { COUNTRY_OPTIONS, INCOTERM_OPTIONS, UPS_ZONE_COUNTRIES, DHL_ZONE_COUNTRIES } from '@/config/options';
+import { COUNTRY_OPTIONS, UPS_ZONE_COUNTRIES, DHL_ZONE_COUNTRIES } from '@/config/options';
 import { inputStyles } from './input-styles';
-
-const INCOTERM_DESC: Record<string, string> = {
-  [Incoterm.EXW]: 'Buyer arranges all shipping from seller\'s premises.',
-  [Incoterm.FOB]: 'Seller delivers to port. Buyer bears freight & risk after.',
-  [Incoterm.CNF]: 'Seller pays freight to destination port. Buyer bears risk.',
-  [Incoterm.CIF]: 'Seller pays freight + insurance to destination port.',
-  [Incoterm.DAP]: 'Seller delivers to destination. Buyer pays duties & taxes.',
-  [Incoterm.DDP]: 'Seller delivers duty paid. All costs included in price.',
-};
 
 interface Props {
   input: QuoteInput;
@@ -46,6 +37,12 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
   const zoneMap = carrier === 'DHL' ? DHL_ZONE_COUNTRIES : UPS_ZONE_COUNTRIES;
   const zoneKeys = Object.keys(zoneMap);
 
+  // Extract country name without emoji flag for proper alphabetical sorting
+  const getNameWithoutFlag = (name: string): string => name.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}\s]+/u, '');
+
+  // Zone override: null means auto-detect from destination country
+  const [zoneOverride, setZoneOverride] = useState<string | null>(null);
+
   // Find zone for a given country code based on current carrier
   const findZoneForCountry = (countryCode: string): string => {
     for (const [zone, countries] of Object.entries(zoneMap)) {
@@ -54,16 +51,11 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
     return '';
   };
 
-  // Extract country name without emoji flag for proper alphabetical sorting
-  const getNameWithoutFlag = (name: string): string => name.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}\s]+/u, '');
-
-  // Initialize selectedZone from default destination country
-  const [selectedZone, setSelectedZone] = useState<string>(() => findZoneForCountry(input.destinationCountry));
-
-  // Re-map zone when carrier changes
-  useEffect(() => {
-    setSelectedZone(findZoneForCountry(input.destinationCountry));
-  }, [carrier]);
+  // Auto-detect zone from current country + carrier, or use manual override
+  const selectedZone = (() => {
+    if (zoneOverride !== null && zoneMap[zoneOverride]) return zoneOverride;
+    return findZoneForCountry(input.destinationCountry);
+  })();
 
   const filteredCountries = useMemo(() => {
     const base = (!selectedZone || !zoneMap[selectedZone])
@@ -96,7 +88,7 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                 value={selectedZone}
                 onChange={(e) => {
                   const zone = e.target.value;
-                  setSelectedZone(zone);
+                  setZoneOverride(zone || null);
                   // Auto-select first country in the zone
                   if (zone && zoneMap[zone]?.length) {
                     onFieldChange('destinationCountry', zoneMap[zone][0]);
@@ -121,7 +113,7 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                 onChange={(e) => {
                   const country = e.target.value;
                   onFieldChange('destinationCountry', country);
-                  setSelectedZone(findZoneForCountry(country));
+                  setZoneOverride(null);
                 }}
                 className={`${ic} appearance-none`}
                 >
@@ -152,7 +144,7 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                 value={input.overseasCarrier || 'UPS'}
                 onChange={(e) => {
                   onFieldChange('overseasCarrier', e.target.value as QuoteInput['overseasCarrier']);
-                  setSelectedZone('');
+                  setZoneOverride(null);
                 }}
                 className={`${ic} appearance-none`}
                 >
@@ -178,28 +170,6 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
             </div>
           </div>
 
-          <div className="hidden">
-            <label className={lc}>Incoterms</label>
-            <div className="relative">
-                <select
-                value={input.incoterm}
-                onChange={(e) => onFieldChange('incoterm', e.target.value as Incoterm)}
-                className={`${ic} appearance-none`}
-                >
-                {INCOTERM_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-                {selectChevron}
-            </div>
-          </div>
-
-          {/* Incoterm description (hidden) */}
-          <div className="hidden items-center">
-            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-1">
-              <span className="font-semibold text-gray-600 dark:text-gray-300">{input.incoterm}</span>
-              {' — '}
-              {INCOTERM_DESC[input.incoterm] || ''}
-            </p>
-          </div>
 
         </div>
     </div>
