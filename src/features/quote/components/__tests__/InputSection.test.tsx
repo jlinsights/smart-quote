@@ -81,16 +81,28 @@ describe('InputSection', () => {
     const user = userEvent.setup();
     render(<InputSection {...defaultProps} onChange={onChange} />);
 
-    // Find the destination country select (has value 'US')
+    // Reset zone filter to show all countries
     const selects = screen.getAllByRole('combobox');
-    const destSelect = selects.find(
+    const zoneSelect = selects.find(
+      (s) => (s as HTMLSelectElement).value !== '' && (s as HTMLSelectElement).value !== 'US' && (s as HTMLSelectElement).value !== 'UPS' && (s as HTMLSelectElement).value !== 'Door-to-Door' && (s as HTMLSelectElement).value !== 'DAP'
+    ) || selects[0];
+    // Select zone '' (All) to see all countries
+    const zoneSelectEl = selects.find(
+      (s) => Array.from((s as HTMLSelectElement).options).some(o => o.value === '' && o.text.includes('calc.label.zoneAll'))
+    ) as HTMLSelectElement;
+    if (zoneSelectEl) {
+      await user.selectOptions(zoneSelectEl, '');
+    }
+
+    // Find the destination country select (has value 'US')
+    const destSelect = screen.getAllByRole('combobox').find(
       (s) => (s as HTMLSelectElement).value === 'US',
     ) as HTMLSelectElement;
 
-    await user.selectOptions(destSelect, 'JP');
+    await user.selectOptions(destSelect, 'CA');
 
     expect(onChange).toHaveBeenCalledWith(
-      expect.objectContaining({ destinationCountry: 'JP' }),
+      expect.objectContaining({ destinationCountry: 'CA' }),
     );
   });
 

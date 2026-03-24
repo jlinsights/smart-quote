@@ -42,18 +42,9 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
   const grid = twoColGrid(isMobileView);
   const { t } = useLanguage();
 
-  const [selectedZone, setSelectedZone] = useState<string>('');
-
   const carrier = input.overseasCarrier || 'UPS';
   const zoneMap = carrier === 'DHL' ? DHL_ZONE_COUNTRIES : UPS_ZONE_COUNTRIES;
   const zoneKeys = Object.keys(zoneMap);
-
-  const filteredCountries = useMemo(() => {
-    const base = (!selectedZone || !zoneMap[selectedZone])
-      ? COUNTRY_OPTIONS
-      : COUNTRY_OPTIONS.filter(c => new Set(zoneMap[selectedZone]).has(c.code));
-    return [...base].sort((a, b) => a.name.localeCompare(b.name, 'en'));
-  }, [selectedZone, zoneMap]);
 
   // Find zone for a given country code based on current carrier
   const findZoneForCountry = (countryCode: string): string => {
@@ -62,6 +53,19 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
     }
     return '';
   };
+
+  // Extract country name without emoji flag for proper alphabetical sorting
+  const getNameWithoutFlag = (name: string): string => name.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}\s]+/u, '');
+
+  // Initialize selectedZone from default destination country
+  const [selectedZone, setSelectedZone] = useState<string>(() => findZoneForCountry(input.destinationCountry));
+
+  const filteredCountries = useMemo(() => {
+    const base = (!selectedZone || !zoneMap[selectedZone])
+      ? COUNTRY_OPTIONS
+      : COUNTRY_OPTIONS.filter(c => new Set(zoneMap[selectedZone]).has(c.code));
+    return [...base].sort((a, b) => getNameWithoutFlag(a.name).localeCompare(getNameWithoutFlag(b.name), 'en'));
+  }, [selectedZone, zoneMap]);
 
   const zipHint = ZIP_HINTS[input.destinationCountry] || { placeholder: 'Zip / Postal Code' };
 
