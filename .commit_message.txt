@@ -1,1 +1,1 @@
-📖 feat: User Guide에서 Admin 전용 항목 역할별 필터링 (4개 언어)
+🔀 fix: Financial 위젯을 Cargo Details 바로 밑으로 이동

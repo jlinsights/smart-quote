@@ -31,10 +31,10 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
     <div className="space-y-4">
       <RouteSection input={input} onFieldChange={updateField} isMobileView={isMobileView} />
       <CargoSection items={input.items} onChange={handleCargoChange} isMobileView={isMobileView} />
-      <ServiceSection input={input} onFieldChange={updateField} isMobileView={isMobileView} intlBase={intlBase} billableWeight={billableWeight} hideMargin={hideMargin} />
       {!hideMargin && (
         <FinancialSection input={input} onFieldChange={updateField} isMobileView={isMobileView} effectiveMarginPercent={effectiveMarginPercent} hideMargin={hideMargin} resolvedMargin={resolvedMargin} />
       )}
+      <ServiceSection input={input} onFieldChange={updateField} isMobileView={isMobileView} intlBase={intlBase} billableWeight={billableWeight} hideMargin={hideMargin} />
     </div>
   );
 };
