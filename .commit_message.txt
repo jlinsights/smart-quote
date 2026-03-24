@@ -1,1 +1,1 @@
-🎛️ feat: 부가서비스 토글 + FSC 단일소스 + Jet Fuel 위젯 대시보드 최상단 이동
+🏷️ feat: BridgeLogis 브랜드 & SEO 전략 적용 (메타태그, OG/Twitter 카드, 푸터, 번역 업데이트)

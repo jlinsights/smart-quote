@@ -32,8 +32,8 @@ export const translations: Record<Language, Record<string, string>> = {
      'landing.stat.available': '온라인 접속',
      'landing.mock.route': 'ICN(서울) → LAX(로스앤젤레스)',
      'landing.mock.margin': '마진',
-     'landing.footer': '© 2026 Goodman GLS & J-Ways. All rights reserved.',
-     'landing.badge.networks': 'Global Freight Network Partners',
+     'landing.footer': '© 2026 BridgeLogis by Goodman GLS. Bridging Your Cargo to the World. All rights reserved.',
+     'landing.badge.networks': 'by Goodman GLS',
 
      // Auth Pages
      'auth.email': '이메일 주소',
@@ -337,8 +337,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'landing.stat.available': 'Always Online',
     'landing.mock.route': 'ICN (Seoul) → LAX (Los Angeles)',
     'landing.mock.margin': 'Margin',
-    'landing.footer': '© 2026 Goodman GLS & J-Ways. All rights reserved.',
-    'landing.badge.networks': 'Global Freight Network Partners',
+    'landing.footer': '© 2026 BridgeLogis by Goodman GLS. Bridging Your Cargo to the World. All rights reserved.',
+    'landing.badge.networks': 'by Goodman GLS',
 
     // Auth Pages
     'auth.email': 'Email Address',
@@ -649,8 +649,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'landing.stat.available': '在线服务',
     'landing.mock.route': 'ICN(首尔) → LAX(洛杉矶)',
     'landing.mock.margin': '利润率',
-    'landing.footer': '© 2026 Goodman GLS & J-Ways. All rights reserved.',
-    'landing.badge.networks': 'Global Freight Network Partners',
+    'landing.footer': '© 2026 BridgeLogis by Goodman GLS. Bridging Your Cargo to the World. All rights reserved.',
+    'landing.badge.networks': 'by Goodman GLS',
 
     // Auth Pages
     'auth.email': '电子邮件',
@@ -939,8 +939,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'landing.stat.available': 'オンライン対応',
     'landing.mock.route': 'ICN(ソウル) → LAX(ロサンゼルス)',
     'landing.mock.margin': 'マージン',
-    'landing.footer': '© 2026 Goodman GLS & J-Ways. All rights reserved.',
-    'landing.badge.networks': 'Global Freight Network Partners',
+    'landing.footer': '© 2026 BridgeLogis by Goodman GLS. Bridging Your Cargo to the World. All rights reserved.',
+    'landing.badge.networks': 'by Goodman GLS',
 
     // Auth Pages
     'auth.email': 'メールアドレス',

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, TrendingUp, ShieldCheck, ArrowRight, Globe, Package, Truck } from 'lucide-react';
 import { Header } from '../components/layout/Header';
@@ -15,6 +15,10 @@ const dotGridStyle: React.CSSProperties = {
 export const LandingPage: React.FC = () => {
   const { t } = useLanguage();
   const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    document.title = 'BridgeLogis — Global Express Freight Quoting Platform | by Goodman GLS';
+  }, []);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-200">
