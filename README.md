@@ -6,17 +6,17 @@
 
 <br />
 
-The **Smart Quote System** is a full-stack logistics quoting application for **Goodman GLS** and **J-Ways**. It calculates international shipping costs across multiple carriers (UPS, DHL, EMAX), including export packing, surcharges, and margin analysis. React frontend with a Rails API backend and mirrored calculation logic.
+The **Smart Quote System** is a full-stack logistics quoting application for **Goodman GLS** and **J-Ways**. It calculates international shipping costs across multiple carriers (UPS, DHL), including export packing, surcharges, and margin analysis. React frontend with a Rails API backend and mirrored calculation logic.
 
-**Live URL**: [https://smart-quote-main.vercel.app](https://smart-quote-main.vercel.app)
+**Live URL**: [https://bridgelogis.com](https://bridgelogis.com) / [https://smart-quote-main.vercel.app](https://smart-quote-main.vercel.app)
 
 ---
 
 ## Key Features
 
-### Multi-Carrier Quoting (UPS, DHL, EMAX)
+### Multi-Carrier Quoting (UPS, DHL)
 
-- **Zone-based pricing**: Config-driven country-to-zone mapping (Z1-Z10 for UPS, Z1-Z8 for DHL, per-country for EMAX) with exact rate tables (0.5-20kg in 0.5kg steps) and range rates (>20kg per-kg)
+- **Zone-based pricing**: Config-driven country-to-zone mapping (Z1-Z10 for UPS, Z1-Z8 for DHL) with exact rate tables (0.5-20kg in 0.5kg steps) and range rates (>20kg per-kg)
 - **Shared rate lookup**: Common `lookupCarrierRate()` engine for UPS/DHL (exact table -> range table -> fallback)
 - **UPS Surge Fee**: Auto-detected for Middle East (KRW 2,004/kg) and Israel (KRW 4,722/kg) destinations, FSC applicable
 - **EAS/RAS Auto-Detection**: Postal code-based Extended/Remote Area Surcharge lookup (86 countries, 39,876 zip ranges, binary search O(log n), lazy-loaded)
@@ -39,11 +39,19 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 |---------|:-----:|:------:|
 | Customer Dashboard | O | O |
 | Quote Calculator | O | O |
+| Carrier Comparison | O | O |
 | Margin breakdown visible | O | X |
-| Margin slider control | O | X |
+| Financial settings (Exchange Rate, FSC) | O | X |
+| Special Packing options | O | X |
+| Weather Widget | O | X |
+| Exchange Rate / Calculator Widget | O | X |
+| Jet Fuel Widget | O | O |
+| Language toggle (i18n) | O | X |
+| Currency toggle (KRW/USD) | O | X |
+| Flight Schedule | O | X |
 | Quote History | O | O |
 | PDF Export | O | O |
-| Admin Management Panel | O | X |
+| Admin Management Panel (collapsible) | O | X |
 | Slack notification on save | X | O (auto) |
 
 ### Dashboard & Widgets
@@ -53,8 +61,8 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 - **Exchange Rate Widget**: Real-time KRW rates for 6 currencies (USD, EUR, JPY, CNY, GBP, SGD) via open.er-api.com with localStorage caching, stale detection, and live indicator
 - **Currency Calculator Widget**: Quick currency conversion tool
 - **Weather Widget**: 47 global port & airport weather conditions via Open-Meteo API with paginated carousel and delay alerts
-- **Notice Widget**: Real-time logistics news RSS feed with paginated display
-- **Global Header**: Dark mode/i18n toggles, account settings modal
+- **Global Header**: Dark mode toggle, account settings modal (i18n toggle: Admin only)
+- **Collapsible Admin Widgets**: All 7 admin panels default collapsed with toggle
 
 ### Admin Management Panel (Admin only)
 
@@ -112,7 +120,7 @@ When a **Member** saves a quote, a Slack notification is automatically sent to t
 | ------------ | ---------------------------------------------------------------------------- |
 | **Frontend** | React 19, TypeScript 5.8, Vite 6, Tailwind CSS                               |
 | **Backend**  | Rails 8 API-only, Ruby 3.4, PostgreSQL                                       |
-| **Testing**  | Vitest + Testing Library (28 files, 1,166 tests), RSpec + FactoryBot (backend) |
+| **Testing**  | Vitest + Testing Library (32 files, 1,193 tests), RSpec + FactoryBot (backend) |
 | **Deploy**   | Vercel (frontend), Render.com (backend, Docker, Singapore)                   |
 | **APIs**     | open.er-api.com (exchange rates), Open-Meteo (weather), Supabase (auth)      |
 | **Other**    | jsPDF, Sentry, Lucide React, React Router v7, ChannelTalk                    |
@@ -172,7 +180,7 @@ npm install
 npm run dev          # Dev server on http://localhost:5173
 npm run build        # Production build (tsc + vite)
 npm run lint         # ESLint (--max-warnings 0)
-npx vitest run       # Run tests once (28 files, 1,166 tests)
+npx vitest run       # Run tests once (32 files, 1,193 tests)
 ```
 
 ### Backend (from `smart-quote-api/`)
@@ -195,6 +203,8 @@ bin/rubocop          # Ruby linting
 | `/dashboard` | CustomerDashboard                | Protected  |
 | `/quote`     | QuoteCalculator (isPublic=true)  | Protected  |
 | `/admin`     | QuoteCalculator (isPublic=false) | Admin only |
+| `/schedule`  | FlightSchedulePage               | Admin only |
+| `/guide`     | UserGuidePage                    | Public     |
 
 ### API Endpoints
 

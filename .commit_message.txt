@@ -1,1 +1,1 @@
-🔧 refactor: 코드 품질 개선 — 단일소스, 보안, 데드코드, Footer 공통화
+📝 docs: README.md & CLAUDE.md 업데이트 — 접근제어/도메인/라우트/테스트 수 반영

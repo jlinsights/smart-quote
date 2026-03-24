@@ -15,7 +15,7 @@ npm run dev          # Dev server on http://localhost:5173
 npm run build        # tsc + vite build
 npm run lint         # ESLint (--max-warnings 0)
 npm run test         # Vitest in watch mode
-npx vitest run       # Run tests once (28 files, 1166 tests)
+npx vitest run       # Run tests once (32 files, 1193 tests)
 npx tsc --noEmit     # Type check only
 ```
 
@@ -59,7 +59,7 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
       ups_tariff.ts            # UPS Z1-Z10 rate tables (synced with backend)
       dhl_tariff.ts            # DHL Z1-Z8 rate tables (synced with backend)
       emax_tariff.ts           # EMAX per-country rate tables (CN, VN only)
-      rates.ts                 # KRW cost constants, DEFAULT_EXCHANGE_RATE=1400, DEFAULT_FSC_PERCENT=38.5
+      rates.ts                 # KRW cost constants, DEFAULT_EXCHANGE_RATE=1450, DEFAULT_FSC_PERCENT=41.75
       business-rules.ts        # Surge thresholds, packing weight buffer/addition
       options.ts               # Country options, carrier options, incoterm options
       addon-utils.ts           # Shared AddonRateLike/NormalizedRate types, calcAddonFee(), findRate()
@@ -95,8 +95,9 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
       QuoteCalculator.tsx      # Calculator + history (/quote, /admin)
       components/              # CalculatorActionBar, AdminWidgets, MobileStickyBottomBar
     components/
-      layout/                  # Header, MobileLayout, NavigationTabs
-      ProtectedRoute.tsx       # Auth guard (requireAdmin prop for /admin)
+      layout/                  # Header, MobileLayout, NavigationTabs, Footer
+      ui/CollapsibleSection.tsx # Reusable collapsible wrapper for admin widgets
+      ProtectedRoute.tsx       # Auth guard (requireAdmin prop for /admin, /schedule)
       ErrorBoundary.tsx        # React error boundary with Sentry
       ChannelTalk.tsx          # ChannelTalk chat widget
     lib/
@@ -148,6 +149,8 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
 /dashboard     → CustomerDashboard (ProtectedRoute)
 /quote         → QuoteCalculator isPublic=true (ProtectedRoute)
 /admin         → QuoteCalculator isPublic=false (ProtectedRoute requireAdmin)
+/schedule      → FlightSchedulePage (ProtectedRoute requireAdmin)
+/guide         → UserGuidePage (public)
 *              → redirect to /
 ```
 
@@ -157,11 +160,19 @@ Context providers wrap the app: `ThemeProvider > LanguageProvider > BrowserRoute
 
 | Feature | Admin | Member |
 |---------|:-----:|:------:|
-| Dashboard & widgets | O | O |
+| Dashboard & widgets | O | O (limited) |
 | Quote calculator | O | O |
-| Margin breakdown visible | O | X |
+| Carrier Comparison | O | O |
+| Financial settings (Ex.Rate, FSC, Margin) | O | X |
+| Special Packing options | O | X |
+| Weather Widget | O | X |
+| Exchange Rate / Calculator Widget | O | X |
+| Jet Fuel Widget | O | O |
+| Language toggle (i18n) | O | X |
+| Currency toggle (KRW/USD) | O | X |
+| Flight Schedule (/schedule) | O | X |
 | Quote history | O | O |
-| Admin widgets panel | O | X |
+| Admin widgets panel (collapsible) | O | X |
 | Slack notification on save | X | O (auto) |
 
 ### Data Flow
@@ -306,19 +317,20 @@ POST   /api/v1/notifications/slack   # Slack webhook proxy
 - **Tailwind**: Custom `jways-*` color palette (blue theme), class-based dark mode
 - **Environment**: `VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_EIA_API_KEY`
 - **Tariff sync**: Frontend tariff files in `src/config/` must stay in sync with backend `lib/constants/`
-- **Market defaults**: `DEFAULT_EXCHANGE_RATE=1400`, `DEFAULT_FSC_PERCENT=38.5` in `src/config/rates.ts`
+- **Market defaults**: `DEFAULT_EXCHANGE_RATE=1450` (하나은행 월요일 09시 송금환율), `DEFAULT_FSC_PERCENT=41.75` (UPS 2026-03-23) in `src/config/rates.ts`
+- **Exchange rate policy**: Live API 자동세팅 비활성화, 매주 월요일 수동 업데이트 (하나은행 기준)
 - **Error tracking**: Sentry (`@sentry/browser`) integrated across all catch blocks
 
 ## Testing
 
 - **Frontend**: Vitest + @testing-library/react, jsdom environment, setup in `src/test/setup.ts`
   - Tests use `vitest/globals` (no imports needed for `describe`, `it`, `expect`)
-  - 28 test files, 1166 tests
+  - 32 test files, 1193 tests
 - **Backend**: RSpec + FactoryBot + Shoulda Matchers, factories in `spec/factories/`
 
 ## Deployment
 
-- **Frontend**: Vercel (production: `smart-quote-main.vercel.app`) — auto-deploy on push to `origin/main`
+- **Frontend**: Vercel (production: `bridgelogis.com` / `smart-quote-main.vercel.app`) — auto-deploy on push to `origin/main`
 - **Backend**: Render.com (Docker, Singapore region, PostgreSQL) — deploys from separate `smart-quote-api.git` repo
 - **Config**: `render.yaml` for backend infrastructure
 - **Backend push**: `git subtree push --prefix=smart-quote-api api-deploy main` (required for backend changes)
