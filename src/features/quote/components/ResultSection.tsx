@@ -22,7 +22,7 @@ interface Props {
 export const ResultSection: React.FC<Props> = ({ result, input, onMarginChange, onDownloadPdf, onSwitchCarrier, marginPercent, hideMargin, isKorean = true }) => {
   return (
     <div className="space-y-6 sticky top-6">
-      <QuoteSummaryCard result={result} onDownloadPdf={onDownloadPdf} isKorean={isKorean} />
+      <QuoteSummaryCard result={result} onDownloadPdf={onDownloadPdf} isKorean={isKorean} hideMargin={hideMargin} />
       <WarningAlerts warnings={result.warnings} />
       <KeyMetricsGrid result={result} hideMargin={hideMargin} />
 
@@ -44,11 +44,7 @@ export const ResultSection: React.FC<Props> = ({ result, input, onMarginChange, 
           hideMargin={hideMargin}
           isKorean={isKorean}
         />
-      ) : (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-6">
-          <NoticeWidget />
-        </div>
-      )}
+      ) : null}
     </div>
   );
 };

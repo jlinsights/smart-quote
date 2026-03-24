@@ -47,7 +47,6 @@ const CustomerDashboard: React.FC = () => {
             </div>
 
             {isAdmin && <WeatherWidget />}
-            <NoticeWidget />
           </div>
 
           {/* Right Column: New Widgets */}

@@ -9,9 +9,10 @@ interface Props {
   result: QuoteResult;
   onDownloadPdf: () => void;
   isKorean?: boolean;
+  hideMargin?: boolean;
 }
 
-export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf, isKorean = true }) => {
+export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf, isKorean = true, hideMargin }) => {
   const [showKRW, setShowKRW] = useState(isKorean);
   const { t } = useLanguage();
 
@@ -42,20 +43,28 @@ export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf, isKor
                 </button>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setShowKRW(prev => !prev)}
-              className="flex flex-col mb-5 text-left group cursor-pointer w-full"
-              aria-label="Toggle currency display"
-            >
-                <div className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight flex items-center gap-2">
-                    <span>{primaryAmount}</span>
-                    <ArrowUpDown className="w-5 h-5 text-jways-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+            {hideMargin ? (
+              <div className="flex flex-col mb-5 w-full">
+                <div className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+                  <span>{formatKRW(result.totalQuoteAmount)}</span>
                 </div>
-                <div className="text-lg text-jways-300 font-light mt-1 flex items-center">
-                    <span className="opacity-70 mr-2">&asymp;</span> {secondaryAmount} <span className="text-xs ml-1 opacity-50">{secondaryLabel}</span>
-                </div>
-            </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowKRW(prev => !prev)}
+                className="flex flex-col mb-5 text-left group cursor-pointer w-full"
+                aria-label="Toggle currency display"
+              >
+                  <div className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight flex items-center gap-2">
+                      <span>{primaryAmount}</span>
+                      <ArrowUpDown className="w-5 h-5 text-jways-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-lg text-jways-300 font-light mt-1 flex items-center">
+                      <span className="opacity-70 mr-2">&asymp;</span> {secondaryAmount} <span className="text-xs ml-1 opacity-50">{secondaryLabel}</span>
+                  </div>
+              </button>
+            )}
 
             <div className="grid grid-cols-2 gap-3 text-sm bg-white/10 p-4 rounded-xl backdrop-blur-md border border-white/10">
                 <div>

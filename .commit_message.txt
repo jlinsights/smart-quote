@@ -1,1 +1,1 @@
-🔒 feat: Packing/기상/다국어/통화토글 Admin 전용으로 변경
+🙈 feat: 물류 인사이트 및 공지사항(NoticeWidget) 숨김
