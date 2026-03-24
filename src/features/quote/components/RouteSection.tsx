@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { QuoteInput, Incoterm } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { COUNTRY_OPTIONS, INCOTERM_OPTIONS, UPS_ZONE_COUNTRIES, DHL_ZONE_COUNTRIES } from '@/config/options';
@@ -59,6 +59,11 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
 
   // Initialize selectedZone from default destination country
   const [selectedZone, setSelectedZone] = useState<string>(() => findZoneForCountry(input.destinationCountry));
+
+  // Re-map zone when carrier changes
+  useEffect(() => {
+    setSelectedZone(findZoneForCountry(input.destinationCountry));
+  }, [carrier]);
 
   const filteredCountries = useMemo(() => {
     const base = (!selectedZone || !zoneMap[selectedZone])
