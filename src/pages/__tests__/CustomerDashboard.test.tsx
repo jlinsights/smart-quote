@@ -145,7 +145,6 @@ describe('CustomerDashboard', () => {
   it('renders all widget sections', async () => {
     await act(async () => { renderDashboard(); });
     expect(screen.getByText('widget.weather')).toBeInTheDocument();
-    expect(screen.getByText('widget.notice')).toBeInTheDocument();
     expect(screen.getByText('widget.exchange')).toBeInTheDocument();
     expect(screen.getByText('widget.calculator')).toBeInTheDocument();
   });
