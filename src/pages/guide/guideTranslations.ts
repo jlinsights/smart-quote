@@ -118,11 +118,11 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: '④ Financial Settings',
-            description: 'Review applied exchange rates and FSC percentages. The system uses live rates but allows admin overrides. Express shipments (UPS/DHL/EMAX) use DAP incoterm only.',
+            description: 'Review applied exchange rates and FSC percentages. The system uses live rates but allows admin overrides. Express shipments (UPS/DHL) use DAP incoterm only.',
           },
           {
             title: 'Results & Comparison',
-            description: 'View side-by-side carrier comparison cards showing UPS, DHL, and EMAX rates. Each card breaks down origin costs, freight, destination charges, and final price.',
+            description: 'View side-by-side carrier comparison cards showing UPS and DHL rates. Each card breaks down origin costs, freight, destination charges, and final price.',
           },
         ],
       },
@@ -313,7 +313,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
         items: [
           {
             title: 'Viewing Rate Tables',
-            description: 'Browse carrier-specific rate tables (UPS, DHL, EMAX) in a read-only format. Tables show weight-based pricing across all shipping zones.',
+            description: 'Browse carrier-specific rate tables (UPS, DHL) in a read-only format. Tables show weight-based pricing across all shipping zones.',
           },
           {
             title: 'Zone Reference',
@@ -422,11 +422,11 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: '④ 재무 설정',
-            description: '적용된 환율과 FSC 비율을 확인합니다. 시스템은 실시간 환율을 사용하지만 관리자 수동 설정도 가능합니다. 특송(UPS/DHL/EMAX)은 DAP 인코텀만 적용됩니다.',
+            description: '적용된 환율과 FSC 비율을 확인합니다. 시스템은 실시간 환율을 사용하지만 관리자 수동 설정도 가능합니다. 특송(UPS/DHL)은 DAP 인코텀만 적용됩니다.',
           },
           {
             title: '결과 및 비교',
-            description: 'UPS, DHL, EMAX 요율을 나란히 비교하는 카드를 확인하세요. 각 카드에는 출발지 비용, 운임, 도착지 비용, 최종 가격이 표시됩니다.',
+            description: 'UPS, DHL 요율을 나란히 비교하는 카드를 확인하세요. 각 카드에는 출발지 비용, 운임, 도착지 비용, 최종 가격이 표시됩니다.',
           },
         ],
       },
@@ -617,7 +617,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
         items: [
           {
             title: '요율표 보기',
-            description: '운송사별 요율표(UPS, DHL, EMAX)를 읽기 전용으로 탐색합니다. 모든 배송 존에 대한 중량별 가격이 표시됩니다.',
+            description: '운송사별 요율표(UPS, DHL)를 읽기 전용으로 탐색합니다. 모든 배송 존에 대한 중량별 가격이 표시됩니다.',
           },
           {
             title: '존 참조',
@@ -726,11 +726,11 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: '④ 财务设置',
-            description: '查看应用的汇率和FSC百分比。系统使用实时汇率，但允许管理员手动覆盖。快递（UPS/DHL/EMAX）仅适用DAP贸易术语。',
+            description: '查看应用的汇率和FSC百分比。系统使用实时汇率，但允许管理员手动覆盖。快递（UPS/DHL）仅适用DAP贸易术语。',
           },
           {
             title: '结果与比较',
-            description: '查看UPS、DHL、EMAX费率的并排比较卡片。每张卡片显示始发费用、运费、目的地费用和最终价格明细。',
+            description: '查看UPS、DHL费率的并排比较卡片。每张卡片显示始发费用、运费、目的地费用和最终价格明细。',
           },
         ],
       },
@@ -921,7 +921,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
         items: [
           {
             title: '查看费率表',
-            description: '以只读格式浏览承运商特定费率表（UPS、DHL、EMAX）。表格显示所有运输区域的基于重量的定价。',
+            description: '以只读格式浏览承运商特定费率表（UPS、DHL）。表格显示所有运输区域的基于重量的定价。',
           },
           {
             title: '区域参考',
@@ -1030,11 +1030,11 @@ export const guideTranslations: Record<string, GuideTranslation> = {
           },
           {
             title: '④ 財務設定',
-            description: '適用された為替レートとFSC率を確認します。システムはリアルタイムレートを使用しますが、管理者による手動設定も可能です。エクスプレス（UPS/DHL/EMAX）はDAPインコタームのみ適用されます。',
+            description: '適用された為替レートとFSC率を確認します。システムはリアルタイムレートを使用しますが、管理者による手動設定も可能です。エクスプレス（UPS/DHL）はDAPインコタームのみ適用されます。',
           },
           {
             title: '結果と比較',
-            description: 'UPS、DHL、EMAXの料率を横並びで比較するカードを確認します。各カードには発送元費用、運賃、配送先費用、最終価格が表示されます。',
+            description: 'UPS、DHLの料率を横並びで比較するカードを確認します。各カードには発送元費用、運賃、配送先費用、最終価格が表示されます。',
           },
         ],
       },
@@ -1225,7 +1225,7 @@ export const guideTranslations: Record<string, GuideTranslation> = {
         items: [
           {
             title: 'レートテーブル表示',
-            description: 'キャリア別レートテーブル（UPS、DHL、EMAX）を読み取り専用で閲覧します。すべての配送ゾーンの重量別価格が表示されます。',
+            description: 'キャリア別レートテーブル（UPS、DHL）を読み取り専用で閲覧します。すべての配送ゾーンの重量別価格が表示されます。',
           },
           {
             title: 'ゾーン参照',

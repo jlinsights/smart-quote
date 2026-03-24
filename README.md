@@ -49,6 +49,7 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 ### Dashboard & Widgets
 
 - **Customer Dashboard**: Landing page after login with welcome banner, recent quotes, and live widgets
+- **Jet Fuel Price Widget**: Real-time USGC Jet Fuel spot prices and trend chart via US EIA API
 - **Exchange Rate Widget**: Real-time KRW rates for 6 currencies (USD, EUR, JPY, CNY, GBP, SGD) via open.er-api.com with localStorage caching, stale detection, and live indicator
 - **Currency Calculator Widget**: Quick currency conversion tool
 - **Weather Widget**: 47 global port & airport weather conditions via Open-Meteo API with paginated carousel and delay alerts
@@ -92,6 +93,8 @@ When a **Member** saves a quote, a Slack notification is automatically sent to t
 - **Smart Quote Assistant**: In-app chatbot powered by Claude API for system usage help and logistics Q&A
 - **Logistics knowledge**: Incoterms, customs, HS codes, ULD, common industry terms
 - **DAP policy enforcement**: Automatically informs users that UPS/DHL/EMAX shipments require DAP incoterm
+- **Rich Interactions**: Markdown rendering support and randomly suggested quick-questions per session
+- **Smart Localization**: Auto-detects optimal language (Nationality → System → Timezone → Browser)
 - **Role-aware**: Different guides for Admin vs Member users
 
 ### Quote Validity Management
@@ -231,6 +234,7 @@ POST   /api/v1/notifications/slack  # Slack webhook proxy
 | `VITE_API_URL`           | Backend API base URL | `http://localhost:3000` |
 | `VITE_SUPABASE_URL`      | Supabase project URL | -                       |
 | `VITE_SUPABASE_ANON_KEY` | Supabase anon key    | -                       |
+| `VITE_EIA_API_KEY`       | US EIA API key       | -                       |
 
 ## Documentation
 

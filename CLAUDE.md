@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Smart Quote System for **Goodman GLS & J-Ways** - an internal logistics quoting tool that calculates international shipping costs across carriers (UPS, DHL, EMAX). React frontend with a Rails API backend, sharing mirrored calculation logic. Includes customer dashboard with live exchange rates, weather, notices, and account manager widgets. Role-based access (Admin/Member) with Slack notifications and Sentry error tracking.
+Smart Quote System for **Goodman GLS & J-Ways** - an internal logistics quoting tool that calculates international shipping costs across carriers (UPS, DHL, EMAX). React frontend with a Rails API backend, sharing mirrored calculation logic. Includes customer dashboard with live exchange rates, weather, jet fuel prices, notices, and account manager widgets. Role-based access (Admin/Member) with Slack notifications and Sentry error tracking.
 
 ## Development Commands
 
@@ -133,7 +133,7 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
     auth_controller.rb         # JWT login/register/password
     fsc_controller.rb          # FSC rate view/update
     audit_logs_controller.rb   # Audit log viewer
-    chat_controller.rb         # AI chatbot (Claude API, role-aware system prompt)
+    chat_controller.rb         # AI chatbot (Claude API, role-aware, language auto-detect, markdown, preset questions)
     notifications_controller.rb # Slack webhook proxy
   db/seeds/addon_rates.rb      # DHL 19 + UPS 6 add-on rate seed data
   lib/constants/               # Tariff tables (ups_tariff.rb, dhl_tariff.rb, emax_tariff.rb)
@@ -228,6 +228,11 @@ UPS/DHL/EMAX express shipments → **DAP only** (no exceptions). AI chatbot enfo
 - **Coverage**: 47 global ports & airports
 - **Hook**: `usePortWeather` with paginated carousel (8 ports per page)
 
+### JetFuelWidget
+
+- **API**: US Energy Information Administration (EIA) via `VITE_EIA_API_KEY`
+- **Dashboard**: Real-time USGC Jet Fuel spot prices and trend chart
+
 ### NoticeWidget / AccountManagerWidget
 
 - NoticeWidget dynamically fetches real-time logistics news via a Vite proxy / edge function pulling from RSS feeds.
@@ -250,6 +255,7 @@ UPS/DHL/EMAX express shipments → **DAP only** (no exceptions). AI chatbot enfo
 | Rails Backend   | `VITE_API_URL` (default localhost:3000) | Quote CRUD, persistence   |
 | open.er-api.com | `/v6/latest/KRW`                        | Exchange rates (KRW base) |
 | Open-Meteo      | `api.open-meteo.com/v1/forecast`        | Port/airport weather      |
+| US EIA API      | `api.eia.gov/v2/petroleum/pri/spt/data` | USGC Jet Fuel prices      |
 | Supabase        | `VITE_SUPABASE_URL`                     | Authentication            |
 | Slack Webhook   | `/api/v1/notifications/slack`           | Member quote save alerts  |
 
@@ -298,7 +304,7 @@ POST   /api/v1/notifications/slack   # Slack webhook proxy
 
 - **Path alias**: `@/` -> `src/` (both vite.config.ts and tsconfig.json)
 - **Tailwind**: Custom `jways-*` color palette (blue theme), class-based dark mode
-- **Environment**: `VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+- **Environment**: `VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_EIA_API_KEY`
 - **Tariff sync**: Frontend tariff files in `src/config/` must stay in sync with backend `lib/constants/`
 - **Market defaults**: `DEFAULT_EXCHANGE_RATE=1400`, `DEFAULT_FSC_PERCENT=38.5` in `src/config/rates.ts`
 - **Error tracking**: Sentry (`@sentry/browser`) integrated across all catch blocks

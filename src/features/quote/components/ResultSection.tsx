@@ -26,7 +26,7 @@ export const ResultSection: React.FC<Props> = ({ result, input, onMarginChange, 
       <WarningAlerts warnings={result.warnings} />
       <KeyMetricsGrid result={result} hideMargin={hideMargin} />
 
-      {input && onSwitchCarrier && !hideMargin && (
+      {input && onSwitchCarrier && (
         <CarrierComparisonCard
           input={input}
           currentResult={result}

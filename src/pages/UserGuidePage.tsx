@@ -230,12 +230,12 @@ const UserGuidePage: React.FC = () => {
             <div className="px-6 pb-5">
               {renderNoteBox(
                 language === 'ko'
-                  ? '부피중량은 L x W x H / 5000 (UPS, DHL) 또는 / 6000 (EMAX)으로 자동 계산됩니다. 실중량과 부피중량 중 큰 값이 적용됩니다.'
+                  ? '부피중량은 L x W x H / 5000으로 자동 계산됩니다. 실중량과 부피중량 중 큰 값이 적용됩니다.'
                   : language === 'ja'
-                  ? '容積重量はL x W x H / 5000（UPS、DHL）または/ 6000（EMAX）で自動計算されます。実重量と容積重量の大きい方が適用されます。'
+                  ? '容積重量はL x W x H / 5000で自動計算されます。実重量と容積重量の大きい方が適用されます。'
                   : language === 'cn'
-                  ? '体积重量按 L x W x H / 5000（UPS、DHL）或 / 6000（EMAX）自动计算。实际重量和体积重量中较大值将被采用。'
-                  : 'Volumetric weight is auto-calculated as L x W x H / 5000 (UPS, DHL) or / 6000 (EMAX). The greater of actual vs volumetric weight is used.'
+                  ? '体积重量按 L x W x H / 5000自动计算。实际重量和体积重量中较大值将被采用。'
+                  : 'Volumetric weight is auto-calculated as L x W x H / 5000. The greater of actual vs volumetric weight is used.'
               )}
             </div>
           )}

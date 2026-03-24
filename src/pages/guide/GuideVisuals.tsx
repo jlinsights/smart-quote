@@ -189,19 +189,11 @@ export const CarrierComparisonVisual: React.FC<VisualProps> = ({ lang }) => {
       accent: 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700 text-yellow-800 dark:text-yellow-300',
       badge: 'bg-yellow-600 dark:bg-yellow-500',
     },
-    {
-      name: 'EMAX',
-      zones: t(labels.perCountry, lang),
-      type: labels.cnVnOnly,
-      tier: labels.economy,
-      accent: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-300',
-      badge: 'bg-blue-600 dark:bg-blue-500',
-    },
   ];
 
   return (
     <div className="py-2">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {carriers.map((carrier) => (
           <div
             key={carrier.name}
@@ -358,7 +350,7 @@ export const VolWeightFormula: React.FC<VisualProps> = ({ lang }) => {
         </div>
       </div>
       <p className="text-center text-[11px] text-gray-400 dark:text-gray-500 mt-2">
-        UPS & DHL: &divide; 5000 &nbsp;|&nbsp; EMAX: &divide; 6000
+        UPS & DHL: &divide; 5000
       </p>
     </div>
   );

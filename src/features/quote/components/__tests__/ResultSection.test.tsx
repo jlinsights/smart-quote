@@ -148,7 +148,14 @@ describe('ResultSection', () => {
     expect(screen.getByText('Carrier Comparison')).toBeInTheDocument();
   });
 
-  it('does not render carrier comparison when hideMargin is true', () => {
+  it('renders carrier comparison even when hideMargin is true', () => {
+    mockCalculateQuote.mockReturnValue({
+      ...mockResult,
+      carrier: 'DHL',
+      totalQuoteAmount: 1600000,
+      totalQuoteAmountUSD: 1142.86,
+    });
+
     render(
       <ResultSection
         {...defaultProps}
@@ -158,6 +165,6 @@ describe('ResultSection', () => {
       />,
     );
 
-    expect(screen.queryByText('Carrier Comparison')).not.toBeInTheDocument();
+    expect(screen.getByText('Carrier Comparison')).toBeInTheDocument();
   });
 });

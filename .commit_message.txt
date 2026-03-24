@@ -1,1 +1,1 @@
-♻️ refactor: Warning 9건 해결 — DEMO_KEY 제거, fetchWithRetry, FscChart 분리, 테스트 추가
+🔓 feat: Carrier Comparison Member 공개 + User Guide에서 EMAX 참조 제거
