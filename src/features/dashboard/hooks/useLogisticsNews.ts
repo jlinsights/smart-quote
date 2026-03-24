@@ -10,7 +10,7 @@ interface UseLogisticsNewsResult {
   retry: () => void;
 }
 
-const ALLOWED_SOURCES = ['UPS', 'DHL', 'FedEx'];
+const CARRIER_KEYWORDS = /\b(UPS|DHL|FedEx)\b/i;
 
 export function useLogisticsNews(): UseLogisticsNewsResult {
   const [data, setData] = useState<LogisticsNews[]>([]);
@@ -22,7 +22,7 @@ export function useLogisticsNews(): UseLogisticsNewsResult {
     setError(null);
     try {
       const news = await fetchLogisticsNews();
-      setData(news.filter((item) => ALLOWED_SOURCES.includes(item.source)));
+      setData(news.filter((item) => CARRIER_KEYWORDS.test(item.title)));
     } catch (err) {
       Sentry.captureException(err);
       setError(err instanceof Error ? err.message : 'Failed to load news');

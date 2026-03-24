@@ -14,10 +14,8 @@ class LogisticsNewsFetcher
     { url: "https://www.aircargonews.net/feed/", source: "Air Cargo News" },
     { url: "https://www.iata.org/en/pressroom/rss-feed/", source: "IATA" },
 
-    # Express & Parcel Carriers
-    { url: "https://about.ups.com/us/en/rss/news.xml", source: "UPS" },
-    { url: "https://www.dhl.com/global-en/delivered/rss.xml", source: "DHL" },
-    { url: "https://newsroom.fedex.com/newsroom/feeds/", source: "FedEx" },
+    # Express & Parcel Carriers (official RSS feeds discontinued — carrier news
+    # now sourced via industry media title filtering on the frontend)
 
     # Supply Chain & Logistics
     { url: "https://www.supplychaindive.com/feeds/news/", source: "Supply Chain Dive" },

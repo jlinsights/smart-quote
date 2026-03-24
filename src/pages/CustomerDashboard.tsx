@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Header } from '@/components/layout/Header';
 import { WelcomeBanner } from '@/features/dashboard/components/WelcomeBanner';
 import { QuoteHistoryCompact } from '@/features/dashboard/components/QuoteHistoryCompact';
@@ -13,6 +14,8 @@ import { JetFuelWidget } from '@/features/quote/components/widgets/JetFuelWidget
 
 const CustomerDashboard: React.FC = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const navigate = useNavigate();
 
   return (
@@ -50,18 +53,27 @@ const CustomerDashboard: React.FC = () => {
           {/* Right Column: New Widgets */}
           <div className="lg:col-span-1 flex flex-col gap-6">
 
-            {/* Added Widgets to fill vertical space */}
-            <div className="flex-1 min-h-[300px]">
-              <ExchangeRateWidget />
-            </div>
-            
-            <div className="flex-shrink-0">
-              <JetFuelWidget />
-            </div>
+            {/* ExchangeRateWidget: Admin only / JetFuelWidget: visible to all */}
+            {isAdmin ? (
+              <>
+                <div className="flex-1 min-h-[300px]">
+                  <ExchangeRateWidget />
+                </div>
+                <div className="flex-shrink-0">
+                  <JetFuelWidget />
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 min-h-[300px]">
+                <JetFuelWidget />
+              </div>
+            )}
 
-            <div className="flex-shrink-0">
-              <ExchangeRateCalculatorWidget />
-            </div>
+            {isAdmin && (
+              <div className="flex-shrink-0">
+                <ExchangeRateCalculatorWidget />
+              </div>
+            )}
           </div>
         </div>
       </div>
