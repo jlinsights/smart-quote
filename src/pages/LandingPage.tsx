@@ -137,9 +137,9 @@ export const LandingPage: React.FC = () => {
           {/* ── Stats row ── */}
           <div className="mt-20 pt-10 border-t border-white/5 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
             {[
-              { value: '2+', label: t('landing.stat.carriers'), icon: Truck },
+              { value: '2', label: t('landing.stat.carriers'), icon: Truck },
               { value: '190+', label: t('landing.stat.countries'), icon: Globe },
-              { value: '< 1s', label: t('landing.stat.calculation'), icon: Zap },
+              { value: '~3s', label: t('landing.stat.calculation'), icon: Zap },
               { value: '24/7', label: t('landing.stat.available'), icon: ShieldCheck },
             ].map((stat) => (
               <div key={stat.label} className="text-center sm:text-left">
