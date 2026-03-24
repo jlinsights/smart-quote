@@ -1,1 +1,1 @@
-🔀 fix: Financial 위젯을 Cargo Details 바로 밑으로 이동
+🎛️ feat: 부가서비스 토글 + FSC 단일소스 + Jet Fuel 위젯 대시보드 최상단 이동

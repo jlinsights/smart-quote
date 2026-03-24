@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { QuoteInput, PackingType, Incoterm } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SEOUL_PICKUP_ZONES } from '@/config/options';
@@ -85,10 +86,19 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
     skip: dbAddonRates.length === 0,
   });
 
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <div className={cardClass}>
-      <h3 className={sectionTitleClass}>{t('calc.section.service')}</h3>
-      <div className={grid}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(prev => !prev)}
+        className={`${sectionTitleClass} w-full justify-between cursor-pointer hover:text-gray-700 dark:hover:text-gray-200 transition-colors`}
+      >
+        <span>{t('calc.section.service')}</span>
+        {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+      </button>
+      {isOpen && <div className={grid}>
         {!hideMargin && (
           <>
             <div>
@@ -228,7 +238,7 @@ export const ServiceSection: React.FC<Props> = ({ input, onFieldChange, isMobile
              />
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 };

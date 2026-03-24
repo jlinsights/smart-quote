@@ -11,8 +11,7 @@ import { Header } from '@/components/layout/Header';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useFscRates } from '@/features/dashboard/hooks/useFscRates';
-import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT } from '@/config/rates';
+import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT, DEFAULT_FSC_PERCENT_DHL } from '@/config/rates';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useResolvedMargin } from '@/features/dashboard/hooks/useResolvedMargin';
 import { CalculatorActionBar } from './components/CalculatorActionBar';
@@ -52,27 +51,18 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const isKorean = user?.nationality === 'KR';
 
   const [input, setInput] = useState<QuoteInput>(INITIAL_INPUT);
-  const [lastAutoFscCarrier, setLastAutoFscCarrier] = useState<string | null>(null);
+  const [lastFscCarrier, setLastFscCarrier] = useState<string | null>(null);
 
-  const { data: fscRates } = useFscRates();
-
+  // FSC is set from rates.ts defaults only — DB auto-apply disabled
+  // LIVE button in FinancialSection remains for reference only
   React.useEffect(() => {
-    if (fscRates && fscRates.rates) {
-      const carrier = input.overseasCarrier || 'UPS';
-      // Always update FSC when carrier changes, or on initial load
-      if (lastAutoFscCarrier !== carrier) {
-        const rate = fscRates.rates[carrier as 'UPS' | 'DHL']?.international;
-        if (rate !== undefined && rate > 0) {
-          setInput(prev => ({ ...prev, fscPercent: rate }));
-          setLastAutoFscCarrier(carrier);
-        } else if (carrier === 'EMAX') {
-          // EMAX has no FSC
-          setInput(prev => ({ ...prev, fscPercent: 0 }));
-          setLastAutoFscCarrier(carrier);
-        }
-      }
+    const carrier = input.overseasCarrier || 'UPS';
+    if (lastFscCarrier !== carrier) {
+      const carrierDefault = carrier === 'DHL' ? DEFAULT_FSC_PERCENT_DHL : DEFAULT_FSC_PERCENT;
+      setInput(prev => ({ ...prev, fscPercent: carrierDefault }));
+      setLastFscCarrier(carrier);
     }
-  }, [fscRates, input.overseasCarrier, lastAutoFscCarrier]);
+  }, [input.overseasCarrier, lastFscCarrier]);
 
   // Instant frontend calculation — pure function, no API dependency
   const result = useMemo<QuoteResult | null>(() => {
