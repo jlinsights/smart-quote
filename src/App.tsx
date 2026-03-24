@@ -72,11 +72,11 @@ function App() {
                   }
                 />
 
-                {/* Flight Schedule - All Users (Manage is Admin-only) */}
+                {/* Flight Schedule - Restricted to specific users */}
                 <Route
                   path="/schedule"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute allowedEmails={['jaehong.lim@goodmangls.com', 'charlie@goodmangls.com']}>
                       <ErrorBoundary>
                         <FlightSchedulePage />
                       </ErrorBoundary>

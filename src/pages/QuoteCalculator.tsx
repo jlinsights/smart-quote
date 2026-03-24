@@ -31,7 +31,7 @@ const INITIAL_INPUT: QuoteInput = {
   ],
   marginPercent: 15,
   dutyTaxEstimate: 0,
-  exchangeRate: 1400,
+  exchangeRate: 1450,
   fscPercent: 38.5,
   overseasCarrier: 'UPS',
   manualPackingCost: undefined
@@ -57,15 +57,13 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const { data: exchangeRates } = useExchangeRates();
   const { data: fscRates } = useFscRates();
 
+  // Exchange rate is now set manually (하나은행 월요일 09시 송금환율)
+  // Live API rates are still fetched for the dashboard widget display only
   React.useEffect(() => {
-    if (!hasSetInitialRate && exchangeRates.length > 0) {
-      const usdRate = exchangeRates.find((r: { currency: string; rate: number }) => r.currency === 'USD')?.rate;
-      if (usdRate && usdRate > 0) {
-        setInput(prev => ({ ...prev, exchangeRate: usdRate }));
-        setHasSetInitialRate(true);
-      }
+    if (!hasSetInitialRate) {
+      setHasSetInitialRate(true);
     }
-  }, [exchangeRates, hasSetInitialRate]);
+  }, [hasSetInitialRate]);
 
   React.useEffect(() => {
     if (fscRates && fscRates.rates) {

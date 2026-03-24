@@ -14,7 +14,7 @@ export const translations: Record<Language, Record<string, string>> = {
      // Landing Page
      'landing.title.main': '190개국 국제 운임,',
      'landing.title.sub': '1초 만에 견적 완료.',
-     'landing.subtitle': 'WCA · MPL · EAN · JCtrans 네트워크 파트너를 위한 국제 물류 견적 시스템. UPS, DHL 연동으로 Door-to-Door 운임을 즉시 산출하며, 캐리어는 지속 확장 중입니다.',
+     'landing.subtitle': '글로벌 포워딩 네트워크 파트너를 위한 국제 물류 견적 시스템. UPS, DHL 연동으로 Door-to-Door 운임을 즉시 산출하며, 캐리어는 지속 확장 중입니다.',
      'landing.getStarted': '무료로 시작하기',
      'landing.featuresLabel': '포워더를 위한 핵심 기능',
      'landing.featuresTitle': '글로벌 포워더가 신뢰하는 견적 엔진',
@@ -23,7 +23,7 @@ export const translations: Record<Language, Record<string, string>> = {
      'landing.accurateBreakdown': '투명한 비용 구조',
      'landing.accurateBreakdown.desc': '국제 운임, 유류할증료(FSC), 포장비, 부가서비스까지 항목별로 투명하게 세분화하여 정확한 견적을 제공합니다. (관세/통관 비용은 별도)',
      'landing.verifiedCarriers': '네트워크 파트너 전용',
-     'landing.verifiedCarriers.desc': 'WCA, MPL, EAN, JCtrans 회원사를 위한 프리미엄 견적 도구. 실제 운임 구조 기반의 정확한 요금 체계를 제공합니다.',
+     'landing.verifiedCarriers.desc': '글로벌 포워딩 네트워크 회원사를 위한 프리미엄 견적 도구. 실제 운임 구조 기반의 정확한 요금 체계를 제공합니다.',
      'landing.liveRates': '실시간 요율 연동',
      'landing.globalPorts': '190+ 국가 커버리지',
      'landing.stat.carriers': '연동 캐리어',
@@ -33,7 +33,7 @@ export const translations: Record<Language, Record<string, string>> = {
      'landing.mock.route': 'ICN(서울) → LAX(로스앤젤레스)',
      'landing.mock.margin': '마진',
      'landing.footer': '© 2026 Goodman GLS & J-Ways. All rights reserved.',
-     'landing.badge.networks': 'WCA · MPL · EAN · JCtrans 파트너',
+     'landing.badge.networks': 'Global Freight Network Partners',
 
      // Auth Pages
      'auth.email': '이메일 주소',
@@ -72,7 +72,7 @@ export const translations: Record<Language, Record<string, string>> = {
      'calc.section.cargo': '화물 상세설정',
      'calc.section.service': '부가 서비스 옵션',
      'calc.section.financial': '재무 및 환율 적용',
-     'calc.financial.exchangeHint': '실시간 환율 (open.er-api.com) · 5분마다 자동 갱신',
+     'calc.financial.exchangeHint': '하나은행 월요일 09시 송금환율 기준 · 매주 수동 업데이트',
      'calc.financial.fscHint': 'UPS: 매주 변경 · DHL: 매월 변경 · LIVE 버튼으로 최신 적용',
      'calc.service.pickup.label': '서울 픽업 추가 비용 (KRW)',
      'calc.service.pickup.hint': '서울 내 화물 픽업이 필요한 경우 추가 비용을 입력하세요.',
@@ -319,7 +319,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Landing Page
     'landing.title.main': 'Freight Quotes for',
     'landing.title.sub': '190+ Countries, Instantly.',
-    'landing.subtitle': 'The quoting engine built for WCA, MPL, EAN & JCtrans network partners. Compare UPS & DHL rates with real-time FSC, packaging and Door-to-Door costs — more carriers coming soon.',
+    'landing.subtitle': 'The quoting engine built for global freight network partners. Compare UPS & DHL rates with real-time FSC, packaging and Door-to-Door costs — more carriers coming soon.',
     'landing.getStarted': 'Get Started Free',
     'landing.featuresLabel': 'Built for Freight Forwarders',
     'landing.featuresTitle': 'The Quoting Engine Global Forwarders Trust',
@@ -328,7 +328,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'landing.accurateBreakdown': 'Transparent Cost Structure',
     'landing.accurateBreakdown.desc': 'Itemized breakdown of international freight, FSC, packing, and add-on services — fully transparent pricing for accurate quotes. (Customs duties quoted separately)',
     'landing.verifiedCarriers': 'Network Partner Exclusive',
-    'landing.verifiedCarriers.desc': 'Premium quoting tool for WCA, MPL, EAN and JCtrans members. Powered by verified carrier rate structures for accurate pricing.',
+    'landing.verifiedCarriers.desc': 'Premium quoting tool for global freight network members. Powered by verified carrier rate structures for accurate pricing.',
     'landing.liveRates': 'Live Rate Sync',
     'landing.globalPorts': '190+ Countries Covered',
     'landing.stat.carriers': 'Carriers',
@@ -338,7 +338,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'landing.mock.route': 'ICN (Seoul) → LAX (Los Angeles)',
     'landing.mock.margin': 'Margin',
     'landing.footer': '© 2026 Goodman GLS & J-Ways. All rights reserved.',
-    'landing.badge.networks': 'WCA · MPL · EAN · JCtrans Partners',
+    'landing.badge.networks': 'Global Freight Network Partners',
 
     // Auth Pages
     'auth.email': 'Email Address',
@@ -377,7 +377,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'calc.section.cargo': 'Cargo Details',
     'calc.section.service': 'Additional Service Options',
     'calc.section.financial': 'Financial & Exchange Rate Application',
-    'calc.financial.exchangeHint': 'Live rate (open.er-api.com) · Auto-refreshes every 5 min',
+    'calc.financial.exchangeHint': 'Hana Bank Mon 9AM remittance rate · Updated weekly',
     'calc.financial.fscHint': 'UPS: Updated weekly · DHL: Updated monthly · Click LIVE for latest',
     'calc.service.pickup.label': 'Seoul Pickup Additional Cost (KRW)',
     'calc.service.pickup.hint': 'Enter additional costs if cargo pickup is required within Seoul.',
@@ -631,7 +631,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Landing Page
     'landing.title.main': '190+国家国际运费，',
     'landing.title.sub': '1秒即时报价。',
-    'landing.subtitle': '专为WCA、MPL、EAN、JCtrans网络合作伙伴打造的国际物流报价系统。整合UPS、DHL运费，即时生成门到门报价，更多承运商持续接入中。',
+    'landing.subtitle': '专为全球货运网络合作伙伴打造的国际物流报价系统。整合UPS、DHL运费，即时生成门到门报价，更多承运商持续接入中。',
     'landing.getStarted': '免费开始',
     'landing.featuresLabel': '货代专属核心功能',
     'landing.featuresTitle': '全球货代信赖的报价引擎',
@@ -640,7 +640,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'landing.accurateBreakdown': '透明费用结构',
     'landing.accurateBreakdown.desc': '国际运费、FSC、包装费、附加服务逐项透明拆分，提供精确报价。（关税/清关费用另行报价）',
     'landing.verifiedCarriers': '网络合作伙伴专属',
-    'landing.verifiedCarriers.desc': '面向WCA、MPL、EAN、JCtrans会员的高端报价工具。基于真实运费结构，确保报价精准。',
+    'landing.verifiedCarriers.desc': '面向全球货运网络会员的高端报价工具。基于真实运费结构，确保报价精准。',
     'landing.liveRates': '实时费率同步',
     'landing.globalPorts': '190+国家覆盖',
     'landing.stat.carriers': '承运商',
@@ -650,7 +650,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'landing.mock.route': 'ICN(首尔) → LAX(洛杉矶)',
     'landing.mock.margin': '利润率',
     'landing.footer': '© 2026 Goodman GLS & J-Ways. All rights reserved.',
-    'landing.badge.networks': 'WCA · MPL · EAN · JCtrans 合作伙伴',
+    'landing.badge.networks': 'Global Freight Network Partners',
 
     // Auth Pages
     'auth.email': '电子邮件',
@@ -689,7 +689,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'calc.section.cargo': '货物详情',
     'calc.section.service': '增值服务',
     'calc.section.financial': '财务因素',
-    'calc.financial.exchangeHint': '实时汇率 (open.er-api.com) · 每5分钟自动更新',
+    'calc.financial.exchangeHint': '韩亚银行周一09时汇款汇率 · 每周手动更新',
     'calc.financial.fscHint': 'UPS: 每周更新 · DHL: 每月更新 · 点击LIVE获取最新',
     'calc.service.pickup.label': '釜山外首尔提货附加费 (KRW)',
     'calc.service.pickup.hint': '如需在首尔提货，请输入附加费用。',
@@ -921,7 +921,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Landing Page
     'landing.title.main': '190ヶ国の国際運賃を、',
     'landing.title.sub': '1秒で見積完了。',
-    'landing.subtitle': 'WCA・MPL・EAN・JCtransネットワークパートナー向け国際物流見積システム。UPS、DHLを統合し、Door-to-Door運賃を即時算出。キャリアは順次拡大中です。',
+    'landing.subtitle': 'グローバル貨物ネットワークパートナー向け国際物流見積システム。UPS、DHLを統合し、Door-to-Door運賃を即時算出。キャリアは順次拡大中です。',
     'landing.getStarted': '無料で始める',
     'landing.featuresLabel': 'フォワーダー向け機能',
     'landing.featuresTitle': 'グローバルフォワーダーが信頼する見積エンジン',
@@ -930,7 +930,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'landing.accurateBreakdown': '透明な費用構造',
     'landing.accurateBreakdown.desc': '国際運賃、FSC、梱包費、付加サービスを項目別に透明に分解し、正確な見積を提供します。（関税・通関費用は別途）',
     'landing.verifiedCarriers': 'ネットワークパートナー専用',
-    'landing.verifiedCarriers.desc': 'WCA、MPL、EAN、JCtrans会員向けプレミアム見積ツール。実際の運賃構造に基づく正確な料金体系を提供します。',
+    'landing.verifiedCarriers.desc': 'グローバル貨物ネットワーク会員向けプレミアム見積ツール。実際の運賃構造に基づく正確な料金体系を提供します。',
     'landing.liveRates': 'リアルタイム料金連動',
     'landing.globalPorts': '190+ヶ国カバー',
     'landing.stat.carriers': 'キャリア',
@@ -940,7 +940,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'landing.mock.route': 'ICN(ソウル) → LAX(ロサンゼルス)',
     'landing.mock.margin': 'マージン',
     'landing.footer': '© 2026 Goodman GLS & J-Ways. All rights reserved.',
-    'landing.badge.networks': 'WCA · MPL · EAN · JCtrans パートナー',
+    'landing.badge.networks': 'Global Freight Network Partners',
 
     // Auth Pages
     'auth.email': 'メールアドレス',
@@ -979,7 +979,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'calc.section.cargo': '貨物詳細',
     'calc.section.service': '付加サービス',
     'calc.section.financial': '財務要素',
-    'calc.financial.exchangeHint': 'リアルタイムレート (open.er-api.com) · 5分毎に自動更新',
+    'calc.financial.exchangeHint': 'ハナ銀行月曜09時送金レート · 毎週手動更新',
     'calc.financial.fscHint': 'UPS: 毎週更新 · DHL: 毎月更新 · LIVEで最新適用',
     'calc.service.pickup.label': 'ソウル集荷追加費用 (KRW)',
     'calc.service.pickup.hint': 'ソウル内での集荷が必要な場合は追加費用を入力してください。',

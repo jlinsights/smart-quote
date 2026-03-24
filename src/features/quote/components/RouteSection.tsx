@@ -49,10 +49,19 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
   const zoneKeys = Object.keys(zoneMap);
 
   const filteredCountries = useMemo(() => {
-    if (!selectedZone || !zoneMap[selectedZone]) return COUNTRY_OPTIONS;
-    const zoneCodes = new Set(zoneMap[selectedZone]);
-    return COUNTRY_OPTIONS.filter(c => zoneCodes.has(c.code));
+    const base = (!selectedZone || !zoneMap[selectedZone])
+      ? COUNTRY_OPTIONS
+      : COUNTRY_OPTIONS.filter(c => new Set(zoneMap[selectedZone]).has(c.code));
+    return [...base].sort((a, b) => a.name.localeCompare(b.name, 'en'));
   }, [selectedZone, zoneMap]);
+
+  // Find zone for a given country code based on current carrier
+  const findZoneForCountry = (countryCode: string): string => {
+    for (const [zone, countries] of Object.entries(zoneMap)) {
+      if (countries.includes(countryCode)) return zone;
+    }
+    return '';
+  };
 
   const zipHint = ZIP_HINTS[input.destinationCountry] || { placeholder: 'Zip / Postal Code' };
 
@@ -101,7 +110,9 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                 <select
                 value={input.destinationCountry}
                 onChange={(e) => {
-                  onFieldChange('destinationCountry', e.target.value);
+                  const country = e.target.value;
+                  onFieldChange('destinationCountry', country);
+                  setSelectedZone(findZoneForCountry(country));
                 }}
                 className={`${ic} appearance-none`}
                 >

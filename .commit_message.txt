@@ -1,1 +1,1 @@
-🔓 feat: Carrier Comparison Member 공개 + User Guide에서 EMAX 참조 제거
+✨ feat: 도착국가 알파벳순 정렬 + 국가 선택 시 배송 Zone 자동 매핑
