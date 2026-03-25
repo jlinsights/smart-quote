@@ -132,40 +132,70 @@ export const AIRLINE_INFO: AirlineInfo[] = [
 ];
 
 export const FLIGHT_SCHEDULES: FlightSchedule[] = [
-  // WestJet Cargo (WS) — Effective 01.MAR.2026~
+  // WestJet Cargo (WS) — Updated from WS Cargo Sched 2026-02-09.csv (effective 29Mar26~24Oct26)
+  {
+    id: 'default-ws-087',
+    airline: 'WestJet Cargo',
+    airlineCode: 'WS',
+    flightNo: 'WS 087',
+    aircraftType: 'B789',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'YYC',
+    departureDays: [0, 1, 3, 4, 5, 6], // 12.4567 (25May~24Oct26)
+    departureTime: '20:45',
+    arrivalTime: '16:15',
+    flightDuration: '9h 30m',
+    maxCargoKg: 20000,
+    remarks: 'B789 · Effective 25May~24Oct26',
+  },
+  {
+    id: 'default-ws-086',
+    airline: 'WestJet Cargo',
+    airlineCode: 'WS',
+    flightNo: 'WS 086',
+    aircraftType: 'B789',
+    flightType: 'cargo',
+    origin: 'YYC',
+    destination: 'ICN',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // 1.34567 (20May~24Oct26)
+    departureTime: '16:00',
+    arrivalTime: '18:45',
+    flightDuration: '12h 45m',
+    maxCargoKg: 20000,
+    remarks: 'B789 · Effective 20May~24Oct26',
+  },
   {
     id: 'default-ws-081',
     airline: 'WestJet Cargo',
     airlineCode: 'WS',
     flightNo: 'WS 081',
-    aircraftType: 'B787',
+    aircraftType: 'B789',
     flightType: 'cargo',
-    origin: 'ICN',
+    origin: 'NRT',
     destination: 'YYC',
-    via: 'NRT',
-    departureDays: [0, 1, 2, 3, 4, 5, 6], // DAILY
-    departureTime: '18:35',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // Daily (29Mar~24Oct26)
+    departureTime: '18:30',
     arrivalTime: '12:40',
-    flightDuration: '10h 05m',
+    flightDuration: '9h 10m',
     maxCargoKg: 20000,
-    remarks: 'ICN/NRT by WE,LJ,YP(W/B),BX(N/B)',
+    remarks: 'B789 · ICN→NRT by WE/LJ/YP/BX · Effective 29Mar~24Oct26',
   },
   {
-    id: 'default-ws-1865',
+    id: 'default-ws-080',
     airline: 'WestJet Cargo',
     airlineCode: 'WS',
-    flightNo: 'WS 1865',
-    aircraftType: 'Narrow Body',
+    flightNo: 'WS 080',
+    aircraftType: 'B789',
     flightType: 'cargo',
-    origin: 'ICN',
-    destination: 'YVR',
-    via: 'HNL',
-    departureDays: [1, 2, 4, 6], // D1246 = Mon/Tue/Thu/Sat
-    departureTime: '23:50',
-    arrivalTime: '07:44',
-    flightDuration: '9h 54m',
-    maxCargoKg: 15000,
-    remarks: 'N/B 제한: 157×114×81cm, 130kg/pc · 팔레트/대형화물 불가 · ICN/HNL by YP(W/B)',
+    origin: 'YYC',
+    destination: 'NRT',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // Daily (26Apr~24Oct26)
+    departureTime: '14:50',
+    arrivalTime: '16:20',
+    flightDuration: '10h 30m',
+    maxCargoKg: 20000,
+    remarks: 'B789 · Effective 26Apr~24Oct26',
   },
   // ShunFeng Airlines (O3)
   {
@@ -327,7 +357,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     maxCargoKg: 20000,
     remarks: 'Currently SUSPENDED (sanctions)',
   },
-  // CMA CGM Air Cargo (2C) — operated as 5Y, AWB prefix 003
+  // CMA CGM Air Cargo (2C) — operated as 5Y, AWB prefix 003 · Effective 01APR26-UFN
   {
     id: 'default-5y-8527',
     airline: 'CMA CGM Air Cargo',
@@ -342,7 +372,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     arrivalTime: '00:55',
     flightDuration: '4h 10m',
     maxCargoKg: 100000,
-    remarks: 'AACT T1 · Cut-off 4h prior (1445L) · AWB: 003',
+    remarks: 'AACT T1 · Cut-off 4h prior (D3: 1745L) · AWB: 003',
   },
   {
     id: 'default-5y-8529',
@@ -393,7 +423,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     maxCargoKg: 15000,
     remarks: 'Belly cargo · Via MEX → MTY/GDL(MX), GRU/EZE/SCL/LIM/BOG/MDE/GUA/SJO/SDQ(S.Am)',
   },
-  // Air Premia (YP) — Effective 2026.03.29~, B787-9, belly cargo
+  // Air Premia (YP) — APR 2026 Schedule (2026.4.1~4.30), B787-9, belly cargo
   {
     id: 'default-yp-101',
     airline: 'Air Premia',
@@ -404,11 +434,11 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     origin: 'ICN',
     destination: 'LAX',
     departureDays: [0, 1, 2, 3, 4, 5, 6], // Daily
-    departureTime: '13:00',
+    departureTime: '13:20',
     arrivalTime: '08:20',
-    flightDuration: '11h 20m',
+    flightDuration: '11h',
     maxCargoKg: 15000,
-    remarks: 'Belly cargo · Swissport ICN T-B',
+    remarks: 'Belly cargo · CNXL 22APR',
   },
   {
     id: 'default-yp-103',
@@ -420,11 +450,11 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     origin: 'ICN',
     destination: 'LAX',
     departureDays: [0, 1, 3, 5], // Mon/Wed/Fri/Sun
-    departureTime: '22:05',
+    departureTime: '22:20',
     arrivalTime: '17:20',
-    flightDuration: '11h 15m',
+    flightDuration: '11h',
     maxCargoKg: 15000,
-    remarks: 'Belly cargo · 2nd daily LAX',
+    remarks: 'Belly cargo · Night LAX · CNXL 20APR, CNXL 26APR',
   },
   {
     id: 'default-yp-131',
@@ -435,12 +465,28 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightType: 'passenger',
     origin: 'ICN',
     destination: 'EWR',
-    departureDays: [0, 1, 2, 3, 4, 5, 6], // Daily
-    departureTime: '21:25',
+    departureDays: [0, 1, 2, 3, 4, 6], // Daily except Sat
+    departureTime: '21:55',
     arrivalTime: '22:30',
-    flightDuration: '14h 05m',
+    flightDuration: '14h 35m',
     maxCargoKg: 15000,
     remarks: 'Belly cargo · Newark (New York)',
+  },
+  {
+    id: 'default-yp-135',
+    airline: 'Air Premia',
+    airlineCode: 'YP',
+    flightNo: 'YP 135',
+    aircraftType: 'B787-9',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'IAD',
+    departureDays: [0, 1, 3, 5], // Mon/Wed/Fri/Sun
+    departureTime: '10:00',
+    arrivalTime: '10:50',
+    flightDuration: '13h 50m',
+    maxCargoKg: 15000,
+    remarks: 'Belly cargo · Washington Dulles · NEW from 24APR',
   },
   {
     id: 'default-yp-111',
@@ -452,9 +498,9 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     origin: 'ICN',
     destination: 'SFO',
     departureDays: [0, 1, 3, 5], // Mon/Wed/Fri/Sun
-    departureTime: '18:00',
+    departureTime: '18:55',
     arrivalTime: '13:00',
-    flightDuration: '10h',
+    flightDuration: '10h 05m',
     maxCargoKg: 15000,
     remarks: 'Belly cargo',
   },
@@ -467,12 +513,12 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightType: 'passenger',
     origin: 'ICN',
     destination: 'HNL',
-    departureDays: [0, 1, 3, 5], // Mon/Wed/Fri/Sun
-    departureTime: '22:30',
-    arrivalTime: '12:20',
-    flightDuration: '7h 50m',
+    departureDays: [0, 1, 3], // Mon/Wed/Sun (CNXL 12/19APR on Sat)
+    departureTime: '22:50',
+    arrivalTime: '12:10',
+    flightDuration: '7h 20m',
     maxCargoKg: 15000,
-    remarks: 'Belly cargo · Honolulu',
+    remarks: 'Belly cargo · Honolulu · CNXL 12/19APR',
   },
   {
     id: 'default-yp-731',
@@ -483,10 +529,10 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightType: 'passenger',
     origin: 'ICN',
     destination: 'NRT',
-    departureDays: [0, 1, 3, 4, 5, 6], // Daily except Tue (Tue=YP733)
-    departureTime: '08:50',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // Daily
+    departureTime: '08:45',
     arrivalTime: '11:20',
-    flightDuration: '2h 30m',
+    flightDuration: '2h 35m',
     maxCargoKg: 15000,
     remarks: 'Belly cargo · Narita',
   },
@@ -499,12 +545,12 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightType: 'passenger',
     origin: 'ICN',
     destination: 'NRT',
-    departureDays: [2], // Tue only (from 3/29 시간 변경)
+    departureDays: [2], // Tue only
     departureTime: '09:25',
-    arrivalTime: '11:55',
-    flightDuration: '2h 30m',
+    arrivalTime: '12:00',
+    flightDuration: '2h 35m',
     maxCargoKg: 15000,
-    remarks: 'Belly cargo · Narita · Tue only (YP731 대체)',
+    remarks: 'Belly cargo · Narita · Tue only',
   },
   {
     id: 'default-yp-735',
@@ -515,12 +561,12 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightType: 'passenger',
     origin: 'ICN',
     destination: 'NRT',
-    departureDays: [1, 5, 0], // Mon/Fri/Sun (from 3/29)
+    departureDays: [1, 4, 5, 0], // Mon/Thu/Fri/Sun
     departureTime: '13:50',
     arrivalTime: '16:30',
     flightDuration: '2h 40m',
     maxCargoKg: 15000,
-    remarks: 'Belly cargo · 2nd daily NRT (from 3/29)',
+    remarks: 'Belly cargo · 2nd daily NRT · CNXL 26/27APR · 24APR only, 30APR operate',
   },
   {
     id: 'default-yp-601',
@@ -547,10 +593,10 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightType: 'passenger',
     origin: 'ICN',
     destination: 'DAD',
-    departureDays: [0, 3, 4, 6], // Wed/Thu/Sat/Sun
+    departureDays: [0, 2, 3, 6], // Tue/Wed/Sat/Sun
     departureTime: '17:45',
-    arrivalTime: '20:40',
-    flightDuration: '4h 55m',
+    arrivalTime: '20:45',
+    flightDuration: '5h',
     maxCargoKg: 15000,
     remarks: 'Belly cargo · Da Nang',
   },
@@ -564,9 +610,9 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     origin: 'ICN',
     destination: 'HKG',
     departureDays: [0, 1, 3, 5], // Mon/Wed/Fri/Sun
-    departureTime: '09:15',
+    departureTime: '09:05',
     arrivalTime: '12:00',
-    flightDuration: '3h 45m',
+    flightDuration: '3h 55m',
     maxCargoKg: 15000,
     remarks: 'Belly cargo · Hong Kong',
   },
