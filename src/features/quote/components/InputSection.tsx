@@ -4,6 +4,8 @@ import { RouteSection } from './RouteSection';
 import { FinancialSection } from './FinancialSection';
 import { CargoSection } from './CargoSection';
 import { ServiceSection } from './ServiceSection';
+import { SeoulPickupSection } from './SeoulPickupSection';
+import { FscRateWidget } from '@/features/admin/components/FscRateWidget';
 import type { ResolvedMargin } from '@/api/marginRuleApi';
 
 interface Props {
@@ -31,9 +33,11 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
     <div className="space-y-4">
       <RouteSection input={input} onFieldChange={updateField} isMobileView={isMobileView} />
       <CargoSection items={input.items} onChange={handleCargoChange} isMobileView={isMobileView} />
+      <FscRateWidget readOnly={hideMargin} />
       {!hideMargin && (
         <FinancialSection input={input} onFieldChange={updateField} isMobileView={isMobileView} effectiveMarginPercent={effectiveMarginPercent} hideMargin={hideMargin} resolvedMargin={resolvedMargin} />
       )}
+      <SeoulPickupSection input={input} onFieldChange={updateField} isMobileView={isMobileView} />
       <ServiceSection input={input} onFieldChange={updateField} isMobileView={isMobileView} intlBase={intlBase} billableWeight={billableWeight} hideMargin={hideMargin} />
     </div>
   );

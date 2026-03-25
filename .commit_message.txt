@@ -1,1 +1,1 @@
-🏷️ feat: BridgeLogis 브랜드 & SEO 전략 적용 (메타태그, OG/Twitter 카드, 푸터, 번역 업데이트)
+✨ feat: Route 레이아웃 개선 — Origin↔Dest 나란히, Mode 고정, 국가 All 기본

@@ -14,7 +14,7 @@ export const PACKING_LABOR_UNIT_COST = 50000; // per item
 // Transit Time Constants
 export const TRANSIT_TIMES = {
   UPS: '2-4 Business Days',
-  DHL: '3-7 Business Days (DHL)',
+  DHL: '2-4 Business Days',
   EMAX: '5-10 Business Days (E-MAX)',
 } as const;
 

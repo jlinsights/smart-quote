@@ -91,6 +91,7 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
           diffPercent={diffPercent}
           exchangeRate={input.exchangeRate}
           onSelect={() => onSwitchCarrier(altCarrier as 'UPS' | 'DHL')}
+          hideSwitch={hideMargin}
         />
       </div>
     </div>
@@ -107,9 +108,10 @@ interface CarrierColumnProps {
   diffPercent?: number;
   exchangeRate?: number;
   onSelect: () => void;
+  hideSwitch?: boolean;
 }
 
-const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, showKRW, isCurrent, diff, diffPercent, exchangeRate = 1400, onSelect }) => {
+const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, showKRW, isCurrent, diff, diffPercent, exchangeRate = 1400, onSelect, hideSwitch }) => {
   return (
     <div className={`p-4 ${isCurrent ? 'bg-jways-50/50 dark:bg-jways-900/10' : ''}`}>
       <div className="flex items-center justify-between mb-3">
@@ -118,14 +120,14 @@ const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, showKRW,
           <span className="flex items-center gap-1 text-[10px] font-semibold text-jways-600 dark:text-jways-400 bg-jways-100 dark:bg-jways-900/30 px-2 py-0.5 rounded-full">
             <Check className="w-3 h-3" /> Selected
           </span>
-        ) : (
+        ) : !hideSwitch ? (
           <button
             onClick={onSelect}
             className="text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-400 bg-gray-100 hover:bg-jways-50 dark:bg-gray-700 dark:hover:bg-jways-900/30 px-2 py-0.5 rounded-full transition-colors"
           >
             Switch
           </button>
-        )}
+        ) : null}
       </div>
       <div className="space-y-2">
         <div>

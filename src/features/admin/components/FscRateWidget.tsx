@@ -25,7 +25,11 @@ import { FscChart } from './FscChart';
 
 /* ──────────────────────────────── main widget ───────────────────────────── */
 
-export const FscRateWidget: React.FC = () => {
+interface FscRateWidgetProps {
+  readOnly?: boolean;
+}
+
+export const FscRateWidget: React.FC<FscRateWidgetProps> = ({ readOnly }) => {
   const [data, setData] = useState<FscRates | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingCarrier, setEditingCarrier] = useState<'UPS' | 'DHL' | null>(null);
@@ -178,7 +182,7 @@ export const FscRateWidget: React.FC = () => {
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>
-                  {isEditing ? (
+                  {readOnly ? null : isEditing ? (
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setEditingCarrier(null)}

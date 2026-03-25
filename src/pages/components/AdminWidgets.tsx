@@ -1,9 +1,8 @@
 import React from 'react';
 import { CollapsibleSection } from '@/components/ui/CollapsibleSection';
-import { Building2, Percent, Fuel, AlertTriangle, Table2, UserCog, ClipboardList } from 'lucide-react';
+import { Building2, Percent, AlertTriangle, Table2, UserCog, ClipboardList } from 'lucide-react';
 
 const CustomerManagement = React.lazy(() => import('@/features/admin/components/CustomerManagement').then(m => ({ default: m.CustomerManagement })));
-const FscRateWidget = React.lazy(() => import('@/features/admin/components/FscRateWidget').then(m => ({ default: m.FscRateWidget })));
 const RateTableViewer = React.lazy(() => import('@/features/admin/components/RateTableViewer').then(m => ({ default: m.RateTableViewer })));
 const UserManagementWidget = React.lazy(() => import('@/features/admin/components/UserManagementWidget').then(m => ({ default: m.UserManagementWidget })));
 const AuditLogViewer = React.lazy(() => import('@/features/admin/components/AuditLogViewer').then(m => ({ default: m.AuditLogViewer })));
@@ -19,9 +18,6 @@ export const AdminWidgets: React.FC = () => {
         </CollapsibleSection>
         <CollapsibleSection title="Target Margin Rules" icon={<Percent className="w-4 h-4 text-jways-500" />}>
           <TargetMarginRulesWidget />
-        </CollapsibleSection>
-        <CollapsibleSection title="FSC Rates (International)" icon={<Fuel className="w-4 h-4 text-jways-500" />}>
-          <FscRateWidget />
         </CollapsibleSection>
         <CollapsibleSection title="Surcharge Management" icon={<AlertTriangle className="w-4 h-4 text-jways-500" />}>
           <SurchargeManagementWidget />

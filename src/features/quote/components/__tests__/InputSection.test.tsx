@@ -61,11 +61,12 @@ describe('InputSection', () => {
     expect(screen.getByText('Add Box')).toBeInTheDocument();
   });
 
-  it('renders service section', () => {
+  it('renders service section (collapsed by default)', () => {
     render(<InputSection {...defaultProps} />);
 
     expect(screen.getByText('calc.section.service')).toBeInTheDocument();
-    expect(screen.getByText('Special Packing')).toBeInTheDocument();
+    // Service section is collapsed by default — inner content not visible
+    expect(screen.queryByText('Special Packing')).not.toBeInTheDocument();
   });
 
   it('renders financial section', () => {

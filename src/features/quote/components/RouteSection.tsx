@@ -51,10 +51,11 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
     return '';
   };
 
-  // Auto-detect zone from current country + carrier, or use manual override
+  // Zone selection: null = show all countries (no filter), string = specific zone
   const selectedZone = (() => {
     if (zoneOverride !== null && zoneMap[zoneOverride]) return zoneOverride;
-    return findZoneForCountry(input.destinationCountry);
+    if (zoneOverride === '') return ''; // explicitly set to "All"
+    return ''; // default: show all countries
   })();
 
   const filteredCountries = useMemo(() => {
@@ -74,34 +75,11 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
         </h3>
         <div className={grid}>
 
+          {/* Row 1: Origin + Destination */}
           <div>
             <label className={lc}>{t('calc.label.origin')}</label>
             <div className={`${ic} bg-gray-50 dark:bg-gray-600 text-gray-700 dark:text-gray-200 cursor-default flex items-center`}>
                 <span className="mr-1.5">🇰🇷</span> South Korea
-            </div>
-          </div>
-
-          <div>
-            <label className={lc}>{t('calc.label.zone')}</label>
-            <div className="relative">
-                <select
-                value={selectedZone}
-                onChange={(e) => {
-                  const zone = e.target.value;
-                  setZoneOverride(zone || null);
-                  // Auto-select first country in the zone
-                  if (zone && zoneMap[zone]?.length) {
-                    onFieldChange('destinationCountry', zoneMap[zone][0]);
-                  }
-                }}
-                className={`${ic} appearance-none`}
-                >
-                  <option value="">{t('calc.label.zoneAll')}</option>
-                  {zoneKeys.map(z => (
-                    <option key={z} value={z}>{z} ({zoneMap[z].length} {t('calc.label.zoneCountries')})</option>
-                  ))}
-                </select>
-                {selectChevron}
             </div>
           </div>
 
@@ -113,11 +91,35 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
                 onChange={(e) => {
                   const country = e.target.value;
                   onFieldChange('destinationCountry', country);
-                  setZoneOverride(null);
+                  setZoneOverride(findZoneForCountry(country) || null);
                 }}
                 className={`${ic} appearance-none`}
                 >
                 {filteredCountries.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                </select>
+                {selectChevron}
+            </div>
+          </div>
+
+          {/* Row 2: Zone + Zip */}
+          <div>
+            <label className={lc}>{t('calc.label.zone')}</label>
+            <div className="relative">
+                <select
+                value={selectedZone}
+                onChange={(e) => {
+                  const zone = e.target.value;
+                  setZoneOverride(zone || null);
+                  if (zone && zoneMap[zone]?.length) {
+                    onFieldChange('destinationCountry', zoneMap[zone][0]);
+                  }
+                }}
+                className={`${ic} appearance-none`}
+                >
+                  <option value="">{t('calc.label.zoneAll')}</option>
+                  {zoneKeys.map(z => (
+                    <option key={z} value={z}>{z} ({zoneMap[z].length} {t('calc.label.zoneCountries')})</option>
+                  ))}
                 </select>
                 {selectChevron}
             </div>
@@ -137,6 +139,7 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
             />
           </div>
 
+          {/* Row 3: Carrier + Mode (fixed) */}
           <div>
             <label className={lc}>{t('calc.label.carrier')}</label>
             <div className="relative">
@@ -157,16 +160,8 @@ export const RouteSection: React.FC<Props> = ({ input, onFieldChange, isMobileVi
 
           <div>
             <label className={lc}>{t('calc.label.mode')}</label>
-            <div className="relative">
-                <select
-                value={input.shippingMode || 'Door-to-Door'}
-                onChange={(e) => onFieldChange('shippingMode', e.target.value as QuoteInput['shippingMode'])}
-                className={`${ic} appearance-none`}
-                >
-                  <option value="Door-to-Door">Door-to-Door</option>
-                  <option value="Door-to-Airport">Door-to-Airport</option>
-                </select>
-                {selectChevron}
+            <div className={`${ic} bg-gray-50 dark:bg-gray-600 text-gray-700 dark:text-gray-200 cursor-default flex items-center`}>
+                Door-to-Door
             </div>
           </div>
 
