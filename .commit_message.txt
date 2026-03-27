@@ -1,1 +1,1 @@
-📊 fix: Zone Guide 2026 완전 동기화 — ups_zones/dhl_zones 전체 국가 매핑
+🐛 fix: VACUUM 포장 노동비 누적 버그 수정 — 아이템별 1.5x 적용

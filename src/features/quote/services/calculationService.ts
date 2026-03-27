@@ -104,11 +104,10 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
     if (packingType !== PackingType.NONE) {
       const surfaceAreaM2 = (2 * (l*w + l*h + w*h)) / 10000;
       packingMaterialCost += surfaceAreaM2 * PACKING_MATERIAL_BASE_COST * item.quantity;
-      packingLaborCost += PACKING_LABOR_UNIT_COST * item.quantity;
-
-      if (packingType === PackingType.VACUUM) {
-         packingLaborCost *= 1.5;
-      }
+      const laborPerItem = packingType === PackingType.VACUUM
+        ? PACKING_LABOR_UNIT_COST * 1.5
+        : PACKING_LABOR_UNIT_COST;
+      packingLaborCost += laborPerItem * item.quantity;
     }
 
     // Surge/AHS auto-calculation disabled — manual input via QuoteInput.manualSurgeCost.
