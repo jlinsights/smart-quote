@@ -1,1 +1,1 @@
-🐛 fix: VACUUM 포장 노동비 누적 버그 수정 — 아이템별 1.5x 적용
+🔄 sync: Rails 백엔드 계산 구조 동기화 (Base Rate→Margin→FSC) + VACUUM 버그 수정

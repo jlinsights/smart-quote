@@ -41,11 +41,8 @@ module Calculators
 
           surface_area_m2 = (2 * (l*w + l*h + w*h)) / 10000.0
           packing_material_cost += surface_area_m2 * PACKING_MATERIAL_BASE_COST * quantity
-          packing_labor_cost += PACKING_LABOR_UNIT_COST * quantity
-
-          if @packing_type == 'VACUUM'
-            packing_labor_cost *= 1.5
-          end
+          labor_per_item = @packing_type == 'VACUUM' ? PACKING_LABOR_UNIT_COST * 1.5 : PACKING_LABOR_UNIT_COST
+          packing_labor_cost += labor_per_item * quantity
         end
 
         # Surge/AHS auto-calculation disabled — currently suspended by carriers.

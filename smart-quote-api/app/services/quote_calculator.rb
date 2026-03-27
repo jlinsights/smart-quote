@@ -93,7 +93,6 @@ class QuoteCalculator
     manual_surge_cost = @input[:manualSurgeCost] || 0
     ups_surge_total = ups_surge_fee_result ? ups_surge_fee_result[:total] : 0
     surge_cost = system_surcharge_total + manual_surge_cost + ups_surge_total
-    overseas_total = overseas_result[:intl_base] + overseas_result[:intl_fsc] + overseas_result[:intl_war_risk] + surge_cost
 
     # 5. Duty
     dest_duty = 0
@@ -104,36 +103,44 @@ class QuoteCalculator
     # 5a. Extra Pick-up in Seoul cost
     pickup_in_seoul = @input[:pickupInSeoulCost] || 0
 
-    # 6. Totals
-    total_cost_amount = packing_total + 0 + overseas_total + dest_duty + pickup_in_seoul
+    # 6. New Calculation Structure (synced with frontend calculationService.ts):
+    #    Step 1: Base Rate (carrier tariff)
+    #    Step 2: + Margin (on Base Rate only)
+    #    Step 3: + FSC ((Base Rate + Margin) × FSC%)
+    #    Step 4: + Add-ons (Packing, Seoul Pickup, Surcharges, Carrier Add-ons, Duty)
+    #    = Final Quote
 
-    quote_basis_cost = 0
-    if ['EXW', 'FOB'].include?(@input[:incoterm])
-      quote_basis_cost = packing_total + 0
-      user_warnings << "Collect Term: International Freight calculated for reference but may be billed to Consignee/Partner."
-    else
-      quote_basis_cost = total_cost_amount
-    end
-
-    # 7. Margin & Revenue (%-based, aligned with frontend calculationService.ts)
     exchange_rate = @input[:exchangeRate] || DEFAULT_EXCHANGE_RATE
     safe_margin_percent = [(@input[:marginPercent] || 15).to_f, 0].max
+    base_rate = overseas_result[:intl_base]
 
-    # Revenue = Cost / (1 - margin%/100)
-    target_revenue = if safe_margin_percent < 100
-                       quote_basis_cost / (1 - (safe_margin_percent / 100.0))
-                     else
-                       quote_basis_cost
-                     end
+    # Step 2: Margin on Base Rate
+    base_with_margin = if safe_margin_percent < 100
+                         base_rate / (1 - (safe_margin_percent / 100.0))
+                       else
+                         base_rate
+                       end
+    margin_amount = base_with_margin - base_rate
 
-    margin_amount = target_revenue - quote_basis_cost
-    total_quote_amount = (target_revenue / 100.0).ceil * 100
+    # Step 3: FSC on (Base Rate + Margin) — EMAX has no FSC
+    fsc_rate = carrier == 'EMAX' ? 0 : ((@input[:fscPercent] || 0) / 100.0)
+    intl_fsc_new = (base_with_margin * fsc_rate).round
+
+    # Step 4: Add-ons (no margin applied)
+    add_on_total = packing_total + pickup_in_seoul + surge_cost + dest_duty + overseas_result[:intl_war_risk]
+
+    # Collect term handling
+    if ['EXW', 'FOB'].include?(@input[:incoterm])
+      user_warnings << "Collect Term: International Freight calculated for reference but may be billed to Consignee/Partner."
+    end
+
+    # Final totals
+    total_cost_amount = base_rate + overseas_result[:intl_war_risk] + surge_cost + packing_total + dest_duty + pickup_in_seoul
+    raw_quote_amount = base_with_margin + intl_fsc_new + add_on_total
+    total_quote_amount = (raw_quote_amount / 100.0).ceil * 100
     total_quote_amount_usd = total_quote_amount / exchange_rate.to_f
 
-    # Derive effective margin % (recalculated after rounding)
-    effective_margin_percent = total_quote_amount > 0 ? ((total_quote_amount - quote_basis_cost) / total_quote_amount.to_f) * 100 : 0
-
-    if effective_margin_percent < 10
+    if safe_margin_percent < 10
       user_warnings << "Low Margin Alert: Profit margin is below 10%. Approval required."
     end
 
@@ -142,7 +149,7 @@ class QuoteCalculator
       totalQuoteAmountUSD: total_quote_amount_usd,
       totalCostAmount: total_cost_amount,
       profitAmount: margin_amount,
-      profitMargin: effective_margin_percent.round(2),
+      profitMargin: safe_margin_percent.round(2),
       currency: 'KRW',
       totalActualWeight: item_result[:total_actual_weight],
       totalVolumetricWeight: item_result[:total_packed_volumetric_weight],
@@ -157,7 +164,7 @@ class QuoteCalculator
         packingFumigation: packing_fumigation_cost,
         handlingFees: 0,
         intlBase: overseas_result[:intl_base],
-        intlFsc: overseas_result[:intl_fsc],
+        intlFsc: intl_fsc_new,
         intlWarRisk: overseas_result[:intl_war_risk],
         intlSurge: surge_cost,
         intlManualSurge: manual_surge_cost,
