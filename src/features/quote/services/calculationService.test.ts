@@ -100,19 +100,17 @@ describe('calculationService', () => {
     it('uses 21-70 tier range rate for 20.3kg (boundary test)', () => {
       // 20.3kg > 20kg exact table max → should use 21-70 range rate
       // ceil(20.3) = 21, 21 * Z5 per-kg rate (12198) = 256158
-      const result = calculateUpsCosts(20.3, 'US', 0);
+      const result = calculateUpsCosts(20.3, 'US');
       expect(result.intlBase).toBe(21 * 12198);
     });
 
     it('uses 71-299 tier range rate for 80kg', () => {
-      // 80kg → 71-299 tier, ceil(80) * Z5 rate (11590) = 927200
-      const result = calculateUpsCosts(80, 'US', 0);
+      const result = calculateUpsCosts(80, 'US');
       expect(result.intlBase).toBe(80 * 11590);
     });
 
     it('uses 300+ tier range rate for 350kg', () => {
-      // 350kg → 300+ tier, ceil(350) * Z5 rate (11096) = 3883600
-      const result = calculateUpsCosts(350, 'US', 0);
+      const result = calculateUpsCosts(350, 'US');
       expect(result.intlBase).toBe(350 * 11096);
     });
   });
@@ -121,30 +119,29 @@ describe('calculationService', () => {
 
   describe('calculateDhlCosts', () => {
     it('returns correct exact rate for DHL Z1 at 1kg', () => {
-      const result = calculateDhlCosts(1, 'CN', 0);
+      const result = calculateDhlCosts(1, 'CN');
       expect(result.intlBase).toBe(60914);
-      expect(result.intlFsc).toBe(0);
+      expect(result.intlFsc).toBe(0); // FSC now calculated in orchestrator
       expect(result.intlWarRisk).toBe(0);
     });
 
     it('returns correct exact rate for DHL Z5 (US) at 5kg', () => {
-      const result = calculateDhlCosts(5, 'US', 0);
+      const result = calculateDhlCosts(5, 'US');
       expect(result.intlBase).toBe(DHL_EXACT_RATES['Z5'][5]);
     });
 
     it('uses range rate for DHL Z1 at 50kg', () => {
-      const result = calculateDhlCosts(50, 'CN', 0);
-      // ceil(50) * 7752 = 387600
+      const result = calculateDhlCosts(50, 'CN');
       expect(result.intlBase).toBe(50 * 7752);
     });
 
-    it('applies FSC correctly', () => {
-      const result = calculateDhlCosts(1, 'CN', 30);
-      expect(result.intlFsc).toBeCloseTo(60914 * 0.30, 0);
+    it('carrier function returns intlFsc=0 (FSC calculated in orchestrator)', () => {
+      const result = calculateDhlCosts(1, 'CN');
+      expect(result.intlFsc).toBe(0);
     });
 
     it('war risk is disabled (returns 0)', () => {
-      const result = calculateDhlCosts(1, 'CN', 0);
+      const result = calculateDhlCosts(1, 'CN');
       expect(result.intlWarRisk).toBe(0);
     });
   });

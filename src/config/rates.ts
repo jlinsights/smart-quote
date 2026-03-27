@@ -1,11 +1,3 @@
-export const SURGE_RATES = {
-    AHS_WEIGHT: 40000,    // Additional Handling (Weight)
-    AHS_DIMENSION: 35000, // Additional Handling (Dimensions)
-    LARGE_PACKAGE: 110000,// Large Package Surcharge
-    OVER_MAX: 1200000     // Over Maximum Limits (Penalty)
-};
-
-export const HANDLING_FEE = 35000;
 export const FUMIGATION_FEE = 30000;
 export const WAR_RISK_SURCHARGE_RATE = 0; // DEC-006: War risk surcharge removed (synced with backend rates.rb)
 export const PACKING_MATERIAL_BASE_COST = 15000; // per m2

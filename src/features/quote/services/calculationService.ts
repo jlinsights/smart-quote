@@ -26,7 +26,6 @@ interface ItemCalculationResult {
   totalPackedVolumetricWeight: number;
   packingMaterialCost: number;
   packingLaborCost: number;
-  surgeCost: number;
   warnings: string[];
 }
 
@@ -93,7 +92,6 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
   let totalPackedVolumetricWeight = 0;
   let packingMaterialCost = 0;
   let packingLaborCost = 0;
-  const surgeCost = 0;
   const warnings: string[] = [];
 
   items.forEach((item) => {
@@ -128,7 +126,6 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
     totalPackedVolumetricWeight,
     packingMaterialCost,
     packingLaborCost,
-    surgeCost,
     warnings
   };
 };
@@ -136,17 +133,13 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
 export const calculateUpsCosts = (
   billableWeight: number,
   country: string,
-  fscPercent: number
 ): CarrierCostResult => {
     const zoneInfo = determineUpsZone(country);
     const intlBase = lookupCarrierRate(billableWeight, zoneInfo.rateKey, UPS_EXACT_RATES, UPS_RANGE_RATES as RangeRateEntry[]);
-
-    const fscRate = (fscPercent || 0) / 100;
-    const intlFsc = intlBase * fscRate;
     const intlWarRisk = intlBase * (WAR_RISK_SURCHARGE_RATE / 100);
     return {
       intlBase,
-      intlFsc,
+      intlFsc: 0, // FSC calculated in orchestrator
       intlWarRisk,
       appliedZone: zoneInfo.label,
       transitTime: TRANSIT_TIMES.UPS
@@ -159,17 +152,13 @@ export const calculateUpsCosts = (
 export const calculateDhlCosts = (
   billableWeight: number,
   country: string,
-  fscPercent: number
 ): CarrierCostResult => {
   const zoneInfo = determineDhlZone(country);
   const intlBase = lookupCarrierRate(billableWeight, zoneInfo.rateKey, DHL_EXACT_RATES, DHL_RANGE_RATES as RangeRateEntry[]);
-
-  const fscRate = (fscPercent || 0) / 100;
-  const intlFsc = intlBase * fscRate;
   const intlWarRisk = intlBase * (WAR_RISK_SURCHARGE_RATE / 100);
   return {
     intlBase,
-    intlFsc,
+    intlFsc: 0, // FSC calculated in orchestrator
     intlWarRisk,
     appliedZone: zoneInfo.label,
     transitTime: TRANSIT_TIMES.DHL,
@@ -236,13 +225,13 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   let carrierResult: CarrierCostResult;
   switch (carrier) {
     case 'DHL':
-      carrierResult = calculateDhlCosts(billableWeight, input.destinationCountry, input.fscPercent);
+      carrierResult = calculateDhlCosts(billableWeight, input.destinationCountry);
       break;
     case 'EMAX':
       carrierResult = calculateEmaxCosts(billableWeight, input.destinationCountry);
       break;
     default:
-      carrierResult = calculateUpsCosts(billableWeight, input.destinationCountry, input.fscPercent);
+      carrierResult = calculateUpsCosts(billableWeight, input.destinationCountry);
       break;
   }
 

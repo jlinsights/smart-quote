@@ -182,14 +182,12 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
     isKorean,
   };
 
-  const containerClass = "min-h-screen font-sans transition-colors duration-200";
-
   return (
     <div className="bg-gray-50 dark:bg-gray-950 min-h-screen font-sans transition-colors duration-200">
       {/* Unified App Header */}
       <Header />
 
-      <div className={containerClass}>
+      <div>
         {/* Calculator Sub-Header / Action Bar */}
         <CalculatorActionBar
           currentView={currentView}

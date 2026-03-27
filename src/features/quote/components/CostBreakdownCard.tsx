@@ -70,7 +70,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
                     <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
                         <div className="flex items-center">
                             <Plane className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
-                            <span>Base Rate ({result.carrier})</span>
+                            <span>Base Rate{!hideMargin ? ` (${result.carrier})` : ''}</span>
                         </div>
                         <span className="font-medium">{formatCurrency(hideMargin ? baseWithMargin : baseRate)}</span>
                     </div>

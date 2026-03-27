@@ -1,1 +1,1 @@
-🔄 sync: Rails 백엔드 계산 구조 동기화 (Base Rate→Margin→FSC) + VACUUM 버그 수정
+🧹 clean: dead code 4건 제거 + Member Base Rate 캐리어명 숨김
