@@ -331,12 +331,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const totalQuoteAmount = Math.ceil(rawQuoteAmount / 100) * 100; // Round up to nearest 100 KRW
   const totalQuoteAmountUSD = totalQuoteAmount / exchangeRate;
 
-  // Effective margin % for display
-  const effectiveMarginPercent = totalQuoteAmount > 0
-    ? ((totalQuoteAmount - totalCostAmount - (intlFscNew - carrierResult.intlFsc)) / totalQuoteAmount) * 100
-    : 0;
-
-  if (effectiveMarginPercent < 10) {
+  if (safeMarginPercent < 10) {
     userWarnings.push("Low Margin Alert: Profit margin is below 10%. Approval required.");
   }
 
@@ -345,7 +340,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
     totalQuoteAmountUSD,
     totalCostAmount,
     profitAmount: marginAmount,
-    profitMargin: Math.round(effectiveMarginPercent * 100) / 100,
+    profitMargin: Math.round(safeMarginPercent * 100) / 100,
     currency: 'KRW',
     totalActualWeight: itemResult.totalActualWeight,
     totalVolumetricWeight: itemResult.totalPackedVolumetricWeight,

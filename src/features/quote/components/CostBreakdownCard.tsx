@@ -45,15 +45,17 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
                 {t('quote.logisticsCost')}
             </h3>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowKRW(prev => !prev)}
-                className="flex items-center gap-1 text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-300 transition-colors"
-                title="Toggle currency"
-              >
-                <ArrowUpDown className="w-3 h-3" />
-                {showKRW ? 'KRW' : 'USD'}
-              </button>
-              <span className="text-[10px] font-bold px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-gray-600 dark:text-gray-300 uppercase tracking-wide">Internal</span>
+              {!hideMargin && (
+                <button
+                  onClick={() => setShowKRW(prev => !prev)}
+                  className="flex items-center gap-1 text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-300 transition-colors"
+                  title="Toggle currency"
+                >
+                  <ArrowUpDown className="w-3 h-3" />
+                  {showKRW ? 'KRW' : 'USD'}
+                </button>
+              )}
+              {!hideMargin && <span className="text-[10px] font-bold px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-gray-600 dark:text-gray-300 uppercase tracking-wide">Internal</span>}
             </div>
         </div>
 
@@ -64,13 +66,13 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
                 <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Freight Cost</h4>
                 <div className="space-y-3 pl-3 border-l-2 border-dashed border-gray-200 dark:border-gray-700">
 
-                    {/* Base Rate */}
+                    {/* Base Rate — Member sees Base+Margin as "Base Rate" */}
                     <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
                         <div className="flex items-center">
                             <Plane className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
                             <span>Base Rate ({result.carrier})</span>
                         </div>
-                        <span className="font-medium">{formatCurrency(baseRate)}</span>
+                        <span className="font-medium">{formatCurrency(hideMargin ? baseWithMargin : baseRate)}</span>
                     </div>
 
                     {/* Margin (on Base Rate) */}

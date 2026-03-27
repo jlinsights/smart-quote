@@ -34,15 +34,13 @@ export const ResultSection: React.FC<Props> = ({ result, input, onMarginChange, 
         />
       )}
 
-      {!hideMargin && (
-        <CostBreakdownCard
-          result={result}
-          onMarginChange={onMarginChange}
-          marginPercent={marginPercent}
-          hideMargin={hideMargin}
-          isKorean={isKorean}
-        />
-      )}
+      <CostBreakdownCard
+        result={result}
+        onMarginChange={onMarginChange}
+        marginPercent={marginPercent}
+        hideMargin={hideMargin}
+        isKorean={isKorean}
+      />
     </div>
   );
 };
