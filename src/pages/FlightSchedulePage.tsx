@@ -270,7 +270,7 @@ const FlightSchedulePage: React.FC = () => {
         {/* GSSA Group Filter */}
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mr-1">GSSA:</span>
-          {(['all', 'goodman', 'gac'] as const).map((group) => {
+          {(['all', ...(Object.keys(GSSA_GROUP_LABELS) as GssaGroup[])] as (GssaGroup | 'all')[]).map((group) => {
             const isActive = gssaFilter === group;
             const label = group === 'all'
               ? t('schedule.filterAll')
@@ -331,7 +331,7 @@ const FlightSchedulePage: React.FC = () => {
                         {language === 'ko' ? airline.nameKo : airline.name}
                       </p>
                       <span className={`inline-block mt-0.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full border ${GSSA_GROUP_LABELS[airline.gssaGroup].badge}`}>
-                        {airline.gssaGroup === 'goodman' ? 'GLS' : 'GAC'}
+                        {GSSA_GROUP_LABELS[airline.gssaGroup][language === 'ko' ? 'ko' : 'en']}
                       </span>
                     </div>
                   </div>
