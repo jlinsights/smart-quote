@@ -215,7 +215,7 @@ export const UPS_ZONE_COUNTRIES: Record<string, string[]> = {
   Z4: ['AU', 'IN', 'NF', 'NZ'],
   Z5: ['CA', 'MX', 'PR', 'US'],
   Z6: [
-    'AD', 'BE', 'CH', 'CZ', 'DE', 'ES', 'FR', 'GB', 'IT',
+    'AD', 'BE', 'CH', 'CZ', 'DE', 'ES', 'FR', 'GB', 'IC', 'IT',
     'LI', 'LU', 'MC', 'NL', 'PL', 'SE', 'SK', 'SM', 'VA',
   ],
   Z7: ['AT', 'AX', 'DK', 'FI', 'GR', 'IE', 'NO', 'PT'],
@@ -256,7 +256,7 @@ export const DHL_ZONE_COUNTRIES: Record<string, string[]> = {
     'PT', 'RO', 'SE', 'SI', 'SK', 'SM', 'VA',
   ],
   Z7: [
-    'AE', 'AL', 'BA', 'BH', 'GI', 'IL', 'KW', 'ME', 'MK', 'OM',
+    'AE', 'AL', 'BA', 'BH', 'GI', 'IC', 'IL', 'KV', 'KW', 'ME', 'MK', 'OM',
     'QA', 'RS', 'SA', 'TR',
   ],
   Z8: [

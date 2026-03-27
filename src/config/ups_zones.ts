@@ -33,7 +33,7 @@ export const UPS_ZONE_MAP: Record<string, ZoneInfo> = {
   MX: z('Z5', 'Z5/Americas'),
   PR: z('Z5', 'Z5/Americas'),
   US: z('Z5', 'Z5/Americas'),
-  // Z6: AD, BE, CH, CZ, DE, ES, FR, GB, IT, LI, LU, MC, NL, PL, SE, SK, SM, VA
+  // Z6: AD, BE, CH, CZ, DE, ES, FR, GB, IC, IT, LI, LU, MC, NL, PL, SE, SK, SM, VA
   AD: z('Z6', 'Z6/W.Europe'),
   BE: z('Z6', 'Z6/W.Europe'),
   CH: z('Z6', 'Z6/W.Europe'),
@@ -42,6 +42,7 @@ export const UPS_ZONE_MAP: Record<string, ZoneInfo> = {
   ES: z('Z6', 'Z6/W.Europe'),
   FR: z('Z6', 'Z6/W.Europe'),
   GB: z('Z6', 'Z6/W.Europe'),
+  IC: z('Z6', 'Z6/W.Europe'),
   IT: z('Z6', 'Z6/W.Europe'),
   LI: z('Z6', 'Z6/W.Europe'),
   LU: z('Z6', 'Z6/W.Europe'),
@@ -220,7 +221,7 @@ export const UPS_ZONE_MAP: Record<string, ZoneInfo> = {
   ZW: z('Z9', 'Z9/Extended'),
   // Z10: HK, SO
   HK: z('Z10', 'Z10/HK'),
-  SO: z('Z10', 'Z10/HK'),
+  SO: z('Z10', 'Z10/S.China'),
 };
 
 const UPS_DEFAULT_ZONE: ZoneInfo = { rateKey: 'Z10', label: 'Rest of World' };

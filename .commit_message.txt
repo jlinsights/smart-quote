@@ -1,1 +1,1 @@
-✈️ feat: GSSA 3사 추가 (Extrans/Daejoo/Apex) + 항공 스케줄 20편 추가
+🗺️ fix: UPS/DHL 존 매핑 수정 (IC/KV 추가, SO→S.China 라벨 수정)

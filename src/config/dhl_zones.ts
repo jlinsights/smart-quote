@@ -77,13 +77,15 @@ export const DHL_ZONE_MAP: Record<string, ZoneInfo> = {
   SK: z('Z6', 'Z6/Europe'),
   SM: z('Z6', 'Z6/Europe'),
   VA: z('Z6', 'Z6/Europe'),
-  // Z7 (14 countries)
+  // Z7 (16 countries)
   AE: z('Z7', 'Z7/ME-Balkans'),
   AL: z('Z7', 'Z7/ME-Balkans'),
   BA: z('Z7', 'Z7/ME-Balkans'),
   BH: z('Z7', 'Z7/ME-Balkans'),
   GI: z('Z7', 'Z7/ME-Balkans'),
+  IC: z('Z7', 'Z7/ME-Balkans'),
   IL: z('Z7', 'Z7/ME-Balkans'),
+  KV: z('Z7', 'Z7/ME-Balkans'),
   KW: z('Z7', 'Z7/ME-Balkans'),
   ME: z('Z7', 'Z7/ME-Balkans'),
   MK: z('Z7', 'Z7/ME-Balkans'),
