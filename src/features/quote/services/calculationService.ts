@@ -272,7 +272,6 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   }
 
   const surgeCost = systemSurchargeTotal + manualSurgeCost;
-  const intlTotal = carrierResult.intlBase + carrierResult.intlFsc + carrierResult.intlWarRisk + surgeCost;
 
   // 3a. Carrier Add-on Services (DHL or UPS)
   let carrierAddOnTotal = 0;
@@ -296,38 +295,45 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   // 4a. Extra Pick-up in Seoul cost
   const pickupInSeoul = input.pickupInSeoulCost ?? 0;
 
-  // 5. Totals (WARNING 2: finalHandlingFee removed — was always 0)
-  const totalCostAmount = packingTotal + intlTotal + carrierAddOnTotal + destDuty + pickupInSeoul;
+  // 5. New Calculation Structure:
+  //    Step 1: Base Rate (carrier tariff)
+  //    Step 2: + Margin (on Base Rate only)
+  //    Step 3: + FSC ((Base Rate + Margin) × FSC%)
+  //    Step 4: + Add-ons (Packing, Seoul Pickup, Surcharges, Carrier Add-ons, Duty)
+  //    = Final Quote
 
-  let quoteBasisCost = 0;
-  if ([Incoterm.EXW, Incoterm.FOB].includes(input.incoterm)) {
-     quoteBasisCost = packingTotal;
-     userWarnings.push("Collect Term: International Freight calculated for reference but may be billed to Consignee/Partner.");
-  } else {
-     quoteBasisCost = totalCostAmount;
-  }
-
-  // 6. Margin & Revenue (% based)
   const exchangeRate = input.exchangeRate || DEFAULT_EXCHANGE_RATE;
-
-  // Calculate target revenue based on margin percentage
-  // Target Revenue = Cost / (1 - Margin/100)
-  // e.g. 15% margin -> Revenue = Cost / 0.85
   const safeMarginPercent = Math.max(input.marginPercent ?? 15, 0);
+  const baseRate = carrierResult.intlBase;
 
-  let targetRevenue = quoteBasisCost;
-  // Prevent division by zero if margin is set to 100% or higher
+  // Step 2: Margin on Base Rate
+  let baseWithMargin = baseRate;
   if (safeMarginPercent < 100) {
-     targetRevenue = quoteBasisCost / (1 - (safeMarginPercent / 100));
+    baseWithMargin = baseRate / (1 - (safeMarginPercent / 100));
+  }
+  const marginAmount = baseWithMargin - baseRate;
+
+  // Step 3: FSC on (Base Rate + Margin) — EMAX has no FSC
+  const fscRate = carrier === 'EMAX' ? 0 : (input.fscPercent || 0) / 100;
+  const intlFscNew = Math.round(baseWithMargin * fscRate);
+
+  // Step 4: Add-ons (no margin applied)
+  const addOnTotal = packingTotal + pickupInSeoul + surgeCost + carrierAddOnTotal + destDuty + carrierResult.intlWarRisk;
+
+  // Collect term handling
+  if ([Incoterm.EXW, Incoterm.FOB].includes(input.incoterm)) {
+    userWarnings.push("Collect Term: International Freight calculated for reference but may be billed to Consignee/Partner.");
   }
 
-  const marginAmount = targetRevenue - quoteBasisCost;
-  const totalQuoteAmount = Math.ceil(targetRevenue / 100) * 100; // Round up to nearest 100 KRW
+  // Final totals
+  const totalCostAmount = baseRate + carrierResult.intlWarRisk + surgeCost + packingTotal + carrierAddOnTotal + destDuty + pickupInSeoul;
+  const rawQuoteAmount = baseWithMargin + intlFscNew + addOnTotal;
+  const totalQuoteAmount = Math.ceil(rawQuoteAmount / 100) * 100; // Round up to nearest 100 KRW
   const totalQuoteAmountUSD = totalQuoteAmount / exchangeRate;
 
-  // Derive effective margin % for display (recalculated after rounding)
+  // Effective margin % for display
   const effectiveMarginPercent = totalQuoteAmount > 0
-    ? ((totalQuoteAmount - quoteBasisCost) / totalQuoteAmount) * 100
+    ? ((totalQuoteAmount - totalCostAmount - (intlFscNew - carrierResult.intlFsc)) / totalQuoteAmount) * 100
     : 0;
 
   if (effectiveMarginPercent < 10) {
@@ -354,8 +360,8 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
       packingFumigation: packingFumigationCost,
       handlingFees: 0,
       pickupInSeoul,
-      intlBase: carrierResult.intlBase,
-      intlFsc: carrierResult.intlFsc,
+      intlBase: baseRate,
+      intlFsc: intlFscNew,
       intlWarRisk: carrierResult.intlWarRisk,
       intlSurge: surgeCost,
       intlSystemSurcharge: systemSurchargeTotal || undefined,

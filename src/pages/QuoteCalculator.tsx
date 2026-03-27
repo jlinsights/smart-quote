@@ -44,7 +44,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
   const { isDarkMode, toggleDarkMode } = useTheme();
   const { t } = useLanguage();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   const canSaveAndViewHistory = isAdmin;
   const hideMargin = isPublic || user?.role === 'member';
@@ -134,6 +134,8 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
       dutyTaxEstimate: quote.dutyTaxEstimate,
       exchangeRate: quote.exchangeRate,
       fscPercent: quote.fscPercent,
+      overseasCarrier: ((quote as unknown as Record<string, unknown>).overseasCarrier as QuoteInput['overseasCarrier']) || 'UPS',
+      shippingMode: 'Door-to-Door',
       manualPackingCost: quote.manualPackingCost ?? undefined,
     };
     setInput(duplicatedInput);

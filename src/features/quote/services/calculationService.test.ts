@@ -228,14 +228,15 @@ describe('calculationService', () => {
       expect(result.profitMargin).toBeGreaterThan(0);
     });
 
-    it('EXW incoterm: quoteBasisCost excludes international freight', () => {
+    it('EXW incoterm: shows Collect Term warning', () => {
       const result = calculateQuote({ ...baseInput, incoterm: Incoterm.EXW });
       expect(result.warnings).toEqual(
         expect.arrayContaining([expect.stringContaining('Collect Term')])
       );
-      // With EXW, total quote should be lower than DAP for same input
+      // New structure: EXW and DAP produce same quote (margin on base rate, FSC on base+margin)
+      // EXW only adds a warning that freight may be billed to consignee
       const dapResult = calculateQuote({ ...baseInput, incoterm: Incoterm.DAP });
-      expect(result.totalQuoteAmount).toBeLessThan(dapResult.totalQuoteAmount);
+      expect(result.totalQuoteAmount).toBe(dapResult.totalQuoteAmount);
     });
 
     it('defaults to UPS when no carrier specified', () => {
