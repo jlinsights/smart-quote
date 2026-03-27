@@ -15,28 +15,36 @@ describe('calculationService', () => {
   // --- Zone Mapping Tests ---
 
   describe('determineUpsZone', () => {
-    it('maps US to Z5 (CA/US)', () => {
-      expect(determineUpsZone('US')).toEqual({ rateKey: 'Z5', label: 'CA/US' });
+    it('maps US to Z5', () => {
+      expect(determineUpsZone('US')).toEqual({ rateKey: 'Z5', label: 'Z5/Americas' });
     });
 
-    it('maps CN to Z1 (SG/TW/MO/CN)', () => {
-      expect(determineUpsZone('CN')).toEqual({ rateKey: 'Z1', label: 'SG/TW/MO/CN' });
+    it('maps CN to Z1', () => {
+      expect(determineUpsZone('CN')).toEqual({ rateKey: 'Z1', label: 'Z1/Asia' });
     });
 
-    it('maps JP to Z2 (JP/VN)', () => {
-      expect(determineUpsZone('JP')).toEqual({ rateKey: 'Z2', label: 'JP/VN' });
+    it('maps JP to Z2', () => {
+      expect(determineUpsZone('JP')).toEqual({ rateKey: 'Z2', label: 'Z2/JP-VN' });
     });
 
-    it('maps HK to Z10 (HK)', () => {
-      expect(determineUpsZone('HK')).toEqual({ rateKey: 'Z10', label: 'HK' });
+    it('maps HK to Z10', () => {
+      expect(determineUpsZone('HK')).toEqual({ rateKey: 'Z10', label: 'Z10/HK' });
     });
 
-    it('maps TH to Z3 (TH/PH)', () => {
-      expect(determineUpsZone('TH')).toEqual({ rateKey: 'Z3', label: 'TH/PH' });
+    it('maps TH to Z3', () => {
+      expect(determineUpsZone('TH')).toEqual({ rateKey: 'Z3', label: 'Z3/SEA' });
     });
 
     it('maps SG to Z1 (not Z2)', () => {
-      expect(determineUpsZone('SG')).toEqual({ rateKey: 'Z1', label: 'SG/TW/MO/CN' });
+      expect(determineUpsZone('SG')).toEqual({ rateKey: 'Z1', label: 'Z1/Asia' });
+    });
+
+    it('maps DE to Z6 (Zone Guide 2026)', () => {
+      expect(determineUpsZone('DE')).toEqual({ rateKey: 'Z6', label: 'Z6/W.Europe' });
+    });
+
+    it('maps AT to Z7 (Zone Guide 2026)', () => {
+      expect(determineUpsZone('AT')).toEqual({ rateKey: 'Z7', label: 'Z7/N.Europe' });
     });
 
     it('maps unknown country to Rest of World (Z10)', () => {
@@ -46,39 +54,39 @@ describe('calculationService', () => {
 
   describe('determineDhlZone', () => {
     it('maps JP to Z2', () => {
-      expect(determineDhlZone('JP')).toEqual({ rateKey: 'Z2', label: 'Japan' });
+      expect(determineDhlZone('JP')).toEqual({ rateKey: 'Z2', label: 'Z2/Japan' });
     });
 
     it('maps CN to Z1', () => {
-      expect(determineDhlZone('CN')).toEqual({ rateKey: 'Z1', label: 'China/HK/SG' });
+      expect(determineDhlZone('CN')).toEqual({ rateKey: 'Z1', label: 'Z1/Asia' });
     });
 
-    it('maps VN to Z3 (PH/VN/TH)', () => {
-      expect(determineDhlZone('VN')).toEqual({ rateKey: 'Z3', label: 'PH/VN/TH' });
+    it('maps VN to Z3', () => {
+      expect(determineDhlZone('VN')).toEqual({ rateKey: 'Z3', label: 'Z3/SEA' });
     });
 
-    it('maps AU to Z4 (AU/KH/IN)', () => {
-      expect(determineDhlZone('AU')).toEqual({ rateKey: 'Z4', label: 'AU/KH/IN' });
+    it('maps AU to Z4', () => {
+      expect(determineDhlZone('AU')).toEqual({ rateKey: 'Z4', label: 'Z4/Oceania' });
     });
 
     it('maps US to Z5', () => {
-      expect(determineDhlZone('US')).toEqual({ rateKey: 'Z5', label: 'US/CA' });
+      expect(determineDhlZone('US')).toEqual({ rateKey: 'Z5', label: 'Z5/Americas' });
     });
 
     it('maps DE to Z6 (Europe)', () => {
-      expect(determineDhlZone('DE')).toEqual({ rateKey: 'Z6', label: 'Europe' });
+      expect(determineDhlZone('DE')).toEqual({ rateKey: 'Z6', label: 'Z6/Europe' });
     });
 
-    it('maps CZ to Z7 (Eastern Europe)', () => {
-      expect(determineDhlZone('CZ')).toEqual({ rateKey: 'Z7', label: 'Eastern Europe' });
+    it('maps CZ to Z6 (Zone Guide 2026)', () => {
+      expect(determineDhlZone('CZ')).toEqual({ rateKey: 'Z6', label: 'Z6/Europe' });
     });
 
-    it('maps BR to Z8 (S.Am/Africa/ME)', () => {
-      expect(determineDhlZone('BR')).toEqual({ rateKey: 'Z8', label: 'S.Am/Africa/ME' });
+    it('maps BR to Z8', () => {
+      expect(determineDhlZone('BR')).toEqual({ rateKey: 'Z8', label: 'Z8/Global' });
     });
 
-    it('maps AE to Z8 (S.Am/Africa/ME)', () => {
-      expect(determineDhlZone('AE')).toEqual({ rateKey: 'Z8', label: 'S.Am/Africa/ME' });
+    it('maps AE to Z7 (Zone Guide 2026)', () => {
+      expect(determineDhlZone('AE')).toEqual({ rateKey: 'Z7', label: 'Z7/ME-Balkans' });
     });
 
     it('falls back to Z8 for unknown country', () => {
@@ -204,7 +212,7 @@ describe('calculationService', () => {
         destinationCountry: 'JP',
       });
       expect(result.carrier).toBe('DHL');
-      expect(result.appliedZone).toBe('Japan');
+      expect(result.appliedZone).toBe('Z2/Japan');
       expect(result.breakdown.intlBase).toBeGreaterThan(0);
     });
 

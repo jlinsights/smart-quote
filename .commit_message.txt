@@ -1,1 +1,1 @@
-🔧 fix: Margin 표시 수정 + CostBreakdown Member 표시 (마진 숨김)
+📊 fix: Zone Guide 2026 완전 동기화 — ups_zones/dhl_zones 전체 국가 매핑
