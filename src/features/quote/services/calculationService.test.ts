@@ -284,5 +284,20 @@ describe('calculationService', () => {
         calculateQuote({ ...baseInput, overseasCarrier: 'EMAX', destinationCountry: 'CN' }).totalCostAmount
       );
     });
+
+    it('VACUUM packing: labor cost is 1.5x per item, not compounding', () => {
+      const singleItem = calculateQuote({
+        ...baseInput,
+        packingType: PackingType.VACUUM,
+        items: [{ id: '1', width: 30, length: 30, height: 30, weight: 5, quantity: 1 }],
+      });
+      const threeItems = calculateQuote({
+        ...baseInput,
+        packingType: PackingType.VACUUM,
+        items: [{ id: '1', width: 30, length: 30, height: 30, weight: 5, quantity: 3 }],
+      });
+      // Labor should be exactly 3x for 3 items (not 1.5^3 = 3.375x)
+      expect(threeItems.breakdown.packingLabor).toBe(singleItem.breakdown.packingLabor * 3);
+    });
   });
 });

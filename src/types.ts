@@ -177,6 +177,7 @@ export enum Incoterm {
     fscPercent: number;
     manualDomesticCost: number | null;
     manualPackingCost: number | null;
+    overseasCarrier?: string;
     items: CargoItem[];
     // Result
     totalQuoteAmount: number;

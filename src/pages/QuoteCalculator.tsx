@@ -134,7 +134,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
       dutyTaxEstimate: quote.dutyTaxEstimate,
       exchangeRate: quote.exchangeRate,
       fscPercent: quote.fscPercent,
-      overseasCarrier: ((quote as unknown as Record<string, unknown>).overseasCarrier as QuoteInput['overseasCarrier']) || 'UPS',
+      overseasCarrier: (quote.overseasCarrier as QuoteInput['overseasCarrier']) || 'UPS',
       shippingMode: 'Door-to-Door',
       manualPackingCost: quote.manualPackingCost ?? undefined,
     };
