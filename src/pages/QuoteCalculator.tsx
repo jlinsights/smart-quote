@@ -249,7 +249,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
         )}
 
         <div className="hidden lg:block">
-          <Footer variant={isAdmin ? 'admin' : 'default'} />
+          <Footer />
         </div>
       </div>
 
