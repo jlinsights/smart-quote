@@ -106,6 +106,18 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
       routes.forEach((route) => {
         const airport = AIRPORTS[route.destination];
         if (!airport) return;
+        const originAirport = AIRPORTS[route.origin] || icn;
+
+        // Add origin marker if not ICN
+        if (route.origin !== 'ICN' && AIRPORTS[route.origin]) {
+          const originMarker = new Marker3DElement({
+            position: { lat: originAirport.lat, lng: originAirport.lng, altitude: 0 },
+            label: `${route.origin} — ${originAirport.city}`,
+            altitudeMode: 'CLAMP_TO_GROUND',
+            extruded: true,
+          });
+          map3d.append(originMarker);
+        }
 
         const isHighlighted =
           selectedAirline === 'all' ||
@@ -113,9 +125,9 @@ const RouteMap3D: React.FC<RouteMap3DProps> = ({
         const primaryCode = route.airlineCodes[0];
         const color = AIRLINE_HEX_COLORS[primaryCode] ?? DEFAULT_HEX_COLOR;
 
-        // Generate arc points
+        // Generate arc points from origin to destination
         const arcPoints = generateArcPoints(
-          { lat: icn.lat, lng: icn.lng },
+          { lat: originAirport.lat, lng: originAirport.lng },
           { lat: airport.lat, lng: airport.lng },
           50,
           300000,

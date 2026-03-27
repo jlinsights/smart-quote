@@ -3,6 +3,7 @@ import type { FlightSchedule } from '@/config/flight-schedules';
 import { AIRPORTS } from '@/config/airports';
 
 export interface RouteInfo {
+  origin: string;
   destination: string;
   airlineCodes: string[];
   flightCount: number;
@@ -25,10 +26,12 @@ export function useAggregatedRoutes(schedules: FlightSchedule[]): RouteInfo[] {
 
     activeSchedules.forEach((s) => {
       const dest = s.destination;
+      const origin = s.origin || 'ICN';
       if (!AIRPORTS[dest]) return;
 
+      const routeKey = `${origin}-${dest}`;
       const weeklyCount = s.departureDays.length;
-      const existing = map.get(dest);
+      const existing = map.get(routeKey);
 
       if (existing) {
         if (!existing.airlineCodes.includes(s.airlineCode)) {
@@ -39,7 +42,8 @@ export function useAggregatedRoutes(schedules: FlightSchedule[]): RouteInfo[] {
         if (s.flightType === 'cargo') existing.isCargo = true;
         else existing.isPassenger = true;
       } else {
-        map.set(dest, {
+        map.set(routeKey, {
+          origin,
           destination: dest,
           airlineCodes: [s.airlineCode],
           flightCount: 1,
