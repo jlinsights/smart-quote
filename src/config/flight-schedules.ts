@@ -20,7 +20,7 @@ export interface FlightSchedule {
 export const formatRoute = (s: FlightSchedule): string =>
   s.via ? `${s.origin}→${s.via}→${s.destination}` : `${s.origin}→${s.destination}`;
 
-export type GssaGroup = 'goodman' | 'gac';
+export type GssaGroup = 'goodman' | 'gac' | 'extrans' | 'daejoo' | 'apex';
 
 export interface AirlineInfo {
   code: string;
@@ -36,6 +36,9 @@ export interface AirlineInfo {
 export const GSSA_GROUP_LABELS = {
   goodman: { en: 'Goodman GLS', ko: 'Goodman GLS', badge: 'bg-jways-100 dark:bg-jways-900/40 text-jways-700 dark:text-jways-300 border-jways-200 dark:border-jways-700' },
   gac: { en: 'Globe Air Cargo (ECS)', ko: 'Globe Air Cargo (ECS)', badge: 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700' },
+  extrans: { en: 'Extrans Air', ko: 'Extrans Air', badge: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700' },
+  daejoo: { en: 'Daejoo Air Agencies', ko: '대주항공', badge: 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700' },
+  apex: { en: 'Apexlogistics', ko: '에이펙스로지스틱스', badge: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700' },
 } as const;
 
 export const AIRLINE_INFO: AirlineInfo[] = [
@@ -128,6 +131,59 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     hubCity: 'Frankfurt (FRA)',
     contractType: 'GSSA — Cargo Sales Agent (via Globe Air Cargo / ECS Group)',
     gssaGroup: 'gac',
+  },
+  // --- Extrans Air ---
+  {
+    code: 'TW',
+    name: "t'way Air",
+    nameKo: '티웨이항공',
+    logo: '🇰🇷',
+    country: 'South Korea',
+    hubCity: 'Seoul (ICN)',
+    contractType: 'GSSA — Belly Cargo Sales (via Extrans Air)',
+    gssaGroup: 'extrans',
+  },
+  // --- Daejoo Air Agencies ---
+  {
+    code: 'JX',
+    name: 'Starlux Airlines',
+    nameKo: '스타럭스항공',
+    logo: '🇹🇼',
+    country: 'Taiwan',
+    hubCity: 'Taipei (TPE)',
+    contractType: 'GSSA — Cargo Sales Agent (via Daejoo Air Agencies)',
+    gssaGroup: 'daejoo',
+  },
+  // --- Apexlogistics ---
+  {
+    code: 'KE',
+    name: 'Korean Air Cargo',
+    nameKo: '대한항공 카고',
+    logo: '🇰🇷',
+    country: 'South Korea',
+    hubCity: 'Seoul (ICN)',
+    contractType: 'GSSA — Cargo Sales Agent (via Apexlogistics)',
+    gssaGroup: 'apex',
+  },
+  {
+    code: 'UA',
+    name: 'United Cargo',
+    nameKo: '유나이티드 카고',
+    logo: '🇺🇸',
+    country: 'United States',
+    hubCity: 'San Francisco (SFO)',
+    contractType: 'GSSA — Cargo Sales Agent (via Apexlogistics)',
+    gssaGroup: 'apex',
+  },
+  {
+    code: '5Y',
+    name: 'Atlas Air',
+    nameKo: '아틀라스 에어',
+    logo: '🇺🇸',
+    country: 'United States',
+    hubCity: 'Purchase, NY',
+    contractType: 'GSSA — Freighter (via Apexlogistics)',
+    gssaGroup: 'apex',
   },
 ];
 
@@ -648,6 +704,319 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightDuration: '11h 30m',
     maxCargoKg: 10000,
     remarks: 'Seasonal (Summer IATA schedule)',
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // t'way Air (TW) — via Extrans Air
+  // ═══════════════════════════════════════════════════════════════
+
+  // Canada
+  {
+    id: 'default-tw-531',
+    airline: "t'way Air",
+    airlineCode: 'TW',
+    flightNo: 'TW 531',
+    aircraftType: 'A333',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'YVR',
+    departureDays: [1, 3, 5, 6], // D2467
+    departureTime: '21:20',
+    arrivalTime: '15:25',
+    flightDuration: '10h 05m',
+    maxCargoKg: 15000,
+    remarks: 'Belly cargo · W8 interline via YVR→YHM→YYZ · RFS: YVR→YEG, YVR→YYC',
+  },
+  // Asia
+  {
+    id: 'default-tw-243',
+    airline: "t'way Air",
+    airlineCode: 'TW',
+    flightNo: 'TW 243',
+    aircraftType: 'B738',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'NRT',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // Daily
+    departureTime: '10:20',
+    arrivalTime: '12:50',
+    flightDuration: '2h 30m',
+    maxCargoKg: 5000,
+    remarks: 'Belly cargo · From Mar 2026',
+  },
+  {
+    id: 'default-tw-155',
+    airline: "t'way Air",
+    airlineCode: 'TW',
+    flightNo: 'TW 155',
+    aircraftType: 'A333',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'CGK',
+    departureDays: [0, 2, 4, 5, 6], // D13567
+    departureTime: '15:10',
+    arrivalTime: '20:10',
+    flightDuration: '7h',
+    maxCargoKg: 15000,
+    remarks: 'Belly cargo · NEW from Apr 2026',
+  },
+  // Europe
+  {
+    id: 'default-tw-401',
+    airline: "t'way Air",
+    airlineCode: 'TW',
+    flightNo: 'TW 401',
+    aircraftType: 'A332',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'CDG',
+    departureDays: [0, 2, 4, 5, 6], // D13567
+    departureTime: '09:50',
+    arrivalTime: '16:50',
+    flightDuration: '13h',
+    maxCargoKg: 15000,
+    remarks: 'Belly cargo · RFS: CDG→EU',
+  },
+  {
+    id: 'default-tw-403',
+    airline: "t'way Air",
+    airlineCode: 'TW',
+    flightNo: 'TW 403',
+    aircraftType: 'A332',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'FRA',
+    departureDays: [0, 2, 4, 6], // D1357
+    departureTime: '09:35',
+    arrivalTime: '16:00',
+    flightDuration: '12h 25m',
+    maxCargoKg: 15000,
+    remarks: 'Belly cargo · RFS: FRA→EU',
+  },
+  {
+    id: 'default-tw-405',
+    airline: "t'way Air",
+    airlineCode: 'TW',
+    flightNo: 'TW 405',
+    aircraftType: 'A332',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'FCO',
+    departureDays: [1, 2], // D23 (A332)
+    departureTime: '11:00',
+    arrivalTime: '17:00',
+    flightDuration: '12h',
+    maxCargoKg: 15000,
+    remarks: 'Belly cargo · RFS: FCO→MXP (TW CONSOL TRUCK)',
+  },
+  {
+    id: 'default-tw-407',
+    airline: "t'way Air",
+    airlineCode: 'TW',
+    flightNo: 'TW 407',
+    aircraftType: 'A332',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'BCN',
+    departureDays: [0, 1, 2, 4, 5], // D15 (A332) + D36 (B773)
+    departureTime: '11:30',
+    arrivalTime: '18:25',
+    flightDuration: '13h 55m',
+    maxCargoKg: 15000,
+    remarks: 'Belly cargo · A332(D15)/B773(D36) · RFS: BCN→EU',
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // Starlux Airlines (JX) — via Daejoo Air Agencies
+  // From Jun 1, 2026
+  // ═══════════════════════════════════════════════════════════════
+  {
+    id: 'default-jx-901',
+    airline: 'Starlux Airlines',
+    airlineCode: 'JX',
+    flightNo: 'JX 901',
+    aircraftType: 'A350',
+    flightType: 'passenger',
+    origin: 'PUS',
+    destination: 'TPE',
+    departureDays: [1, 3], // Mon/Wed
+    departureTime: '12:30',
+    arrivalTime: '13:45',
+    flightDuration: '2h 15m',
+    maxCargoKg: 15000,
+    remarks: 'Belly cargo · PUS-TPE · From Jun 2026 · Hub: TPE→LAX/ONT/SFO/SEA/PHX',
+  },
+  {
+    id: 'default-jx-903',
+    airline: 'Starlux Airlines',
+    airlineCode: 'JX',
+    flightNo: 'JX 903',
+    aircraftType: 'A350',
+    flightType: 'passenger',
+    origin: 'PUS',
+    destination: 'TPE',
+    departureDays: [0, 2, 4, 5, 6], // Tue/Thu/Fri/Sat/Sun
+    departureTime: '18:55',
+    arrivalTime: '20:15',
+    flightDuration: '2h 20m',
+    maxCargoKg: 15000,
+    remarks: 'Belly cargo · PUS-TPE · From Jun 2026 · Hub: TPE→LAX/ONT/SFO/SEA/PHX',
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // Korean Air Cargo (KE) — via Apexlogistics
+  // ═══════════════════════════════════════════════════════════════
+  {
+    id: 'default-ke-8231',
+    airline: 'Korean Air Cargo',
+    airlineCode: 'KE',
+    flightNo: 'KE 8231',
+    aircraftType: 'B777-200F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'ORD',
+    departureDays: [5], // D6 = Sat (Note: schedule says D6)
+    departureTime: '02:00',
+    arrivalTime: '01:45',
+    flightDuration: '12h 45m',
+    maxCargoKg: 100000,
+    remarks: 'Freighter · Jan~Dec SKD',
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // United Cargo (UA) — via Apexlogistics
+  // ═══════════════════════════════════════════════════════════════
+  {
+    id: 'default-ua-806',
+    airline: 'United Cargo',
+    airlineCode: 'UA',
+    flightNo: 'UA 806',
+    aircraftType: 'B787-200',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'SFO',
+    departureDays: [0, 1, 2], // D1, D2, D3
+    departureTime: '12:45',
+    arrivalTime: '06:20',
+    flightDuration: '10h 35m',
+    maxCargoKg: 15000,
+    remarks: 'Belly cargo · UFN',
+  },
+  {
+    id: 'default-ua-892',
+    airline: 'United Cargo',
+    airlineCode: 'UA',
+    flightNo: 'UA 892',
+    aircraftType: 'B777-200',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'SFO',
+    departureDays: [3, 5], // D4, D6
+    departureTime: '18:00',
+    arrivalTime: '11:40',
+    flightDuration: '10h 40m',
+    maxCargoKg: 15000,
+    remarks: 'Belly cargo · UFN',
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // Atlas Air (5Y) — via Apexlogistics · ICN→HAN / ICN→TPE
+  // ═══════════════════════════════════════════════════════════════
+  {
+    id: 'default-5y-8121',
+    airline: 'Atlas Air',
+    airlineCode: '5Y',
+    flightNo: '5Y 8121',
+    aircraftType: 'B747-8F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'HAN',
+    departureDays: [0], // D1
+    departureTime: '11:40',
+    arrivalTime: '15:00',
+    flightDuration: '4h 20m',
+    maxCargoKg: 130000,
+    remarks: 'Freighter · Jan UFN',
+  },
+  {
+    id: 'default-5y-8123',
+    airline: 'Atlas Air',
+    airlineCode: '5Y',
+    flightNo: '5Y 8123',
+    aircraftType: 'B747-400F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'HAN',
+    departureDays: [3], // D4
+    departureTime: '03:45',
+    arrivalTime: '07:05',
+    flightDuration: '4h 20m',
+    maxCargoKg: 110000,
+    remarks: 'Freighter · Jan UFN',
+  },
+  {
+    id: 'default-5y-8246',
+    airline: 'Atlas Air',
+    airlineCode: '5Y',
+    flightNo: '5Y 8246',
+    aircraftType: 'B747-400F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'HAN',
+    departureDays: [5], // D6
+    departureTime: '06:15',
+    arrivalTime: '09:35',
+    flightDuration: '4h 20m',
+    maxCargoKg: 110000,
+    remarks: 'Freighter · Jan UFN',
+  },
+  {
+    id: 'default-5y-8559',
+    airline: 'Atlas Air',
+    airlineCode: '5Y',
+    flightNo: '5Y 8559',
+    aircraftType: 'B747-400F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'HAN',
+    departureDays: [6], // D7
+    departureTime: '00:55',
+    arrivalTime: '04:15',
+    flightDuration: '4h 20m',
+    maxCargoKg: 110000,
+    remarks: 'Freighter · Jan UFN',
+  },
+  {
+    id: 'default-5y-8993',
+    airline: 'Atlas Air',
+    airlineCode: '5Y',
+    flightNo: '5Y 8993',
+    aircraftType: 'B747-400F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'TPE',
+    departureDays: [3], // D4
+    departureTime: '10:50',
+    arrivalTime: '12:45',
+    flightDuration: '2h 55m',
+    maxCargoKg: 110000,
+    remarks: 'Freighter · Jan UFN',
+  },
+  {
+    id: 'default-5y-8995',
+    airline: 'Atlas Air',
+    airlineCode: '5Y',
+    flightNo: '5Y 8995',
+    aircraftType: 'B747-8F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'TPE',
+    departureDays: [5], // D6 (note: image seems to show different, using D6)
+    departureTime: '15:50',
+    arrivalTime: '17:40',
+    flightDuration: '2h 50m',
+    maxCargoKg: 130000,
+    remarks: 'Freighter · Jan UFN',
   },
 ];
 
