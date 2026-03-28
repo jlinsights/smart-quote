@@ -5,7 +5,14 @@
     "platform": "claude",
     "level": "Dynamic"
   },
-  "activeFeatures": {},
+  "activeFeatures": {
+    "fix-critical-issues": {
+      "phase": "completed",
+      "startedAt": "2026-03-28",
+      "matchRate": 100,
+      "iterations": 0
+    }
+  },
   "archivedFeatures": {
     "code-quality-fixes": {
       "archivedAt": "2026-02-25",
