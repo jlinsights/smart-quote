@@ -105,6 +105,9 @@ export const UPS_EXACT_RATES: Record<string, Record<number, number>> = {
 };
 
 // Aligned with UPS Express Saver 공식 요금표 (2026-02) — 3 tier per-kg multiplier
+// Note: Exact rates cover up to 20.0kg. Weights 20.01~20.49kg round to 20.5 via roundToHalf(),
+// which falls outside exact table. This is handled by lookupCarrierRate() fallback logic (line 75-84)
+// that matches against range rates. This is intentional — UPS charges per-kg for weights over 20kg.
 export const UPS_RANGE_RATES = [
   { min: 20.5, max: 70, rates: { 'Z1': 7068, 'Z2': 7600, 'Z3': 7980, 'Z4': 10564, 'Z5': 12198, 'Z6': 16530, 'Z7': 17062, 'Z8': 24244, 'Z9': 24206, 'Z10': 6840 } },
   { min: 70.1, max: 299, rates: { 'Z1': 6460, 'Z2': 7030, 'Z3': 7714, 'Z4': 10374, 'Z5': 11590, 'Z6': 16074, 'Z7': 16796, 'Z8': 24016, 'Z9': 24016, 'Z10': 6422 } },

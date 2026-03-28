@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect, Suspense } from 'react';
 import {
   Plane, MapPin,
-  Filter, ChevronDown, ChevronUp, Plus,
+  Filter, Plus,
   RotateCcw, Settings,
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -12,7 +12,6 @@ import {
   DAY_LABELS,
   DAY_LABELS_KO,
   GSSA_GROUP_LABELS,
-  getAirlineColors,
   type FlightSchedule,
   type AirlineInfo,
   type GssaGroup,
@@ -21,6 +20,8 @@ import { useFlightSchedules } from '@/features/schedule/useFlightSchedules';
 import { CargoCapacityWidget } from '@/features/schedule/components/CargoCapacityWidget';
 import { FlightFormModal } from '@/features/schedule/components/FlightFormModal';
 import { AirlineFormModal } from '@/features/schedule/components/AirlineFormModal';
+import { AirlineCard } from '@/features/schedule/components/AirlineCard';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 const RouteMap3D = React.lazy(() => import('@/features/schedule/RouteMap3D'));
 
@@ -300,69 +301,18 @@ const FlightSchedulePage: React.FC = () => {
 
         {/* Airline Info Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          {filteredAirlines.map((airline) => {
-            const colors = getAirlineColors(airline.code);
-            const isSelected = selectedAirline === airline.code;
-            const isExpanded = expandedAirlines.has(airline.code);
-            const flightCount = schedules.filter(
-              (s) => s.airlineCode === airline.code
-            ).length;
-
-            return (
-              <div
-                key={airline.code}
-                className={`rounded-xl border transition-all duration-200 cursor-pointer ${
-                  isSelected
-                    ? `${colors.border} ${colors.bg} ring-2 ring-jways-400 dark:ring-jways-600`
-                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:shadow-md'
-                }`}
-              >
-                <div
-                  className="p-3 flex items-center justify-between"
-                  onClick={() => handleAirlineCardClick(airline.code)}
-                >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-lg flex-shrink-0">{airline.logo}</span>
-                    <div className="min-w-0">
-                      <p className={`text-sm font-bold truncate ${isSelected ? colors.text : 'text-gray-900 dark:text-white'}`}>
-                        {airline.code}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {language === 'ko' ? airline.nameKo : airline.name}
-                      </p>
-                      <span className={`inline-block mt-0.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full border ${GSSA_GROUP_LABELS[airline.gssaGroup].badge}`}>
-                        {GSSA_GROUP_LABELS[airline.gssaGroup][language === 'ko' ? 'ko' : 'en']}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${colors.badge}`}>
-                      {flightCount}
-                    </span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleAirlineCard(airline.code);
-                      }}
-                      className="p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                    >
-                      {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                </div>
-                {isExpanded && (
-                  <div className="px-3 pb-3 pt-0 text-xs space-y-1 border-t border-gray-100 dark:border-gray-700/50 mt-0">
-                    <div className="pt-2 space-y-1">
-                      <p className="text-gray-500 dark:text-gray-400">
-                        <span className="font-medium text-gray-700 dark:text-gray-300">{airline.country}</span> &middot; {airline.hubCity}
-                      </p>
-                      <p className="text-gray-500 dark:text-gray-400">{airline.contractType}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {filteredAirlines.map((airline) => (
+            <AirlineCard
+              key={airline.code}
+              airline={airline}
+              schedules={schedules}
+              isSelected={selectedAirline === airline.code}
+              isExpanded={expandedAirlines.has(airline.code)}
+              language={language}
+              onCardClick={handleAirlineCardClick}
+              onToggleExpand={toggleAirlineCard}
+            />
+          ))}
         </div>
 
         {/* Filter Controls */}
@@ -491,29 +441,16 @@ const FlightSchedulePage: React.FC = () => {
       )}
 
       {/* Delete Confirmation Dialog */}
-      {confirmDeleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 max-w-sm w-full">
-            <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
-              {t('schedule.confirmDelete')}
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setConfirmDeleteId(null)}
-                className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              >
-                {t('schedule.cancel')}
-              </button>
-              <button
-                onClick={() => handleDeleteFlight(confirmDeleteId)}
-                className="px-4 py-2 text-sm font-medium rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors shadow-sm"
-              >
-                {t('schedule.deleteFlight')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={!!confirmDeleteId}
+        title={t('schedule.deleteFlight')}
+        message={t('schedule.confirmDelete')}
+        confirmLabel={t('schedule.deleteFlight')}
+        cancelLabel={t('schedule.cancel')}
+        variant="danger"
+        onConfirm={() => confirmDeleteId && handleDeleteFlight(confirmDeleteId)}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </div>
   );
 };

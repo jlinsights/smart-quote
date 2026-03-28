@@ -8,16 +8,16 @@ export function useResolvedMargin(
 ) {
   const [data, setData] = useState<ResolvedMargin | null>(null);
 
+  // Stabilize weight before deps to prevent infinite API calls from floating-point jitter
+  const stableWeight = weight !== undefined ? Math.round(weight * 100) / 100 : undefined;
+
   useEffect(() => {
-    if (!email || weight === undefined) return;
+    if (!email || stableWeight === undefined) return;
 
-    // Use rounded weight to avoid excessive API calls due to floating point precision jitter
-    const roundedWeight = Math.round(weight * 100) / 100;
-
-    resolveMargin(email, nationality || '', roundedWeight)
+    resolveMargin(email, nationality || '', stableWeight)
       .then(setData)
       .catch(() => setData(null));
-  }, [email, nationality, weight]);
+  }, [email, nationality, stableWeight]);
 
   return useMemo(() => ({ data }), [data]);
 }

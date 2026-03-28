@@ -31,6 +31,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error('[ErrorBoundary]', error, info.componentStack);
+    import('@sentry/browser').then(Sentry => {
+      Sentry.captureException(error, {
+        extra: { componentStack: info.componentStack },
+      });
+    }).catch(() => { /* Sentry not available */ });
   }
 
   handleRetry = () => {

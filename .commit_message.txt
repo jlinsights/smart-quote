@@ -1,1 +1,1 @@
-🗺️ fix: UPS/DHL 존 매핑 수정 (IC/KV 추가, SO→S.China 라벨 수정)
+🔧 fix: Critical/High 이슈 7건 수정 — 0원 견적 방지, FSC 비용 보정, 마진 상한, Sentry 연동, 컴포넌트 분리

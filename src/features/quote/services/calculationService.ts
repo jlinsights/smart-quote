@@ -17,6 +17,7 @@ import { UPS_EXACT_RATES, UPS_RANGE_RATES } from "@/config/ups_tariff";
 import { DHL_EXACT_RATES, DHL_RANGE_RATES } from "@/config/dhl_tariff";
 import { EMAX_RATES, EMAX_HANDLING_CHARGE } from "@/config/emax_tariff";
 import { applyPackingDimensions } from "@/lib/packing-utils";
+import { MAX_MARGIN_PERCENT } from "@/config/business-rules";
 import { calculateDhlAddOnCosts } from "./dhlAddonCalculator";
 import { calculateUpsAddOnCosts } from "./upsAddonCalculator";
 
@@ -83,7 +84,7 @@ const lookupCarrierRate = (
     }
   }
 
-  return 0;
+  throw new Error(`Rate not found: zone=${zoneKey}, weight=${billableWeight}kg`);
 };
 
 // Surge auto-calc disabled; manual surge input applies to all carriers via calculateQuote().
@@ -291,14 +292,11 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   //    = Final Quote
 
   const exchangeRate = input.exchangeRate || DEFAULT_EXCHANGE_RATE;
-  const safeMarginPercent = Math.max(input.marginPercent ?? 15, 0);
+  const safeMarginPercent = Math.min(Math.max(input.marginPercent ?? 15, 0), MAX_MARGIN_PERCENT);
   const baseRate = carrierResult.intlBase;
 
-  // Step 2: Margin on Base Rate
-  let baseWithMargin = baseRate;
-  if (safeMarginPercent < 100) {
-    baseWithMargin = baseRate / (1 - (safeMarginPercent / 100));
-  }
+  // Step 2: Margin on Base Rate (capped at MAX_MARGIN_PERCENT)
+  const baseWithMargin = baseRate / (1 - (safeMarginPercent / 100));
   const marginAmount = baseWithMargin - baseRate;
 
   // Step 3: FSC on (Base Rate + Margin) — EMAX has no FSC
@@ -313,8 +311,9 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
     userWarnings.push("Collect Term: International Freight calculated for reference but may be billed to Consignee/Partner.");
   }
 
-  // Final totals
-  const totalCostAmount = baseRate + carrierResult.intlWarRisk + surgeCost + packingTotal + carrierAddOnTotal + destDuty + pickupInSeoul;
+  // Final totals — costFsc is the actual FSC cost (without margin) paid to carrier
+  const costFsc = Math.round(baseRate * fscRate);
+  const totalCostAmount = baseRate + costFsc + carrierResult.intlWarRisk + surgeCost + packingTotal + carrierAddOnTotal + destDuty + pickupInSeoul;
   const rawQuoteAmount = baseWithMargin + intlFscNew + addOnTotal;
   const totalQuoteAmount = Math.ceil(rawQuoteAmount / 100) * 100; // Round up to nearest 100 KRW
   const totalQuoteAmountUSD = totalQuoteAmount / exchangeRate;
