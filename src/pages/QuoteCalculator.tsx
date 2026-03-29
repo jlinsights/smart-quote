@@ -42,7 +42,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
 
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const { t } = useLanguage();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -139,6 +139,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
   const layoutProps = {
     isDarkMode,
+    setIsDarkMode: (v: boolean) => { if (v !== isDarkMode) toggleDarkMode(); },
     isMobileView,
     setIsMobileView,
     input,
