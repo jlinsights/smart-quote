@@ -1,3 +1,7 @@
+@import url('https://assets.vercel.com/raw/upload/v1587415301/fonts/2/Geist-Regular.woff2');
+@import url('https://assets.vercel.com/raw/upload/v1587415301/fonts/2/Geist-Medium.woff2');
+@import url('https://assets.vercel.com/raw/upload/v1587415301/fonts/2/Geist-Bold.woff2');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,7 +9,11 @@
 /* Focus-visible ring for keyboard navigation accessibility */
 @layer base {
   *:focus-visible {
-    @apply outline-none ring-2 ring-jways-500/50 ring-offset-1 ring-offset-white dark:ring-offset-gray-950;
+    @apply outline-none ring-2 ring-accent-500/50 ring-offset-1 ring-offset-white dark:ring-offset-gray-950;
+  }
+
+  body {
+    @apply font-sans bg-gray-50 text-gray-800 dark:bg-gray-950 dark:text-gray-200;
   }
 }
 

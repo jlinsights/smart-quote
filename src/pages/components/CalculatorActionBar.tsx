@@ -31,7 +31,7 @@ export const CalculatorActionBar: React.FC<Props> = ({
   const { t } = useLanguage();
 
   return (
-    <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40 transition-colors duration-200 shadow-sm">
+    <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-16 z-30 transition-colors duration-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="h-14 flex items-center justify-between w-full">
           <div className="flex items-center space-x-2 sm:space-x-4">
@@ -44,9 +44,9 @@ export const CalculatorActionBar: React.FC<Props> = ({
             )}
           </div>
 
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="hidden md:flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
-              <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="hidden md:flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-full">
+              <Zap className="w-4 h-4 text-amber-500" />
               <span>Lightning Quote System</span>
             </div>
 
@@ -68,10 +68,10 @@ export const CalculatorActionBar: React.FC<Props> = ({
               >
                 {isMobileView ? (
                   <div className="relative">
-                    <Smartphone className="w-5 h-5 text-jways-600" />
+                    <Smartphone className="w-5 h-5 text-accent-600" />
                     <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-jways-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-jways-500"></span>
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-accent-500"></span>
                     </span>
                   </div>
                 ) : (
@@ -82,7 +82,6 @@ export const CalculatorActionBar: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Mobile Save Button */}
         {currentView === 'calculator' && result && canSaveAndViewHistory && (
           <div className="sm:hidden pb-3">
             <SaveQuoteButton input={input} result={result} onSaved={onQuoteSaved} />

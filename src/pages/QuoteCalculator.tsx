@@ -42,7 +42,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
 
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { isDarkMode } = useTheme();
   const { t } = useLanguage();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -53,8 +53,6 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const [input, setInput] = useState<QuoteInput>(INITIAL_INPUT);
   const [lastFscCarrier, setLastFscCarrier] = useState<string | null>(null);
 
-  // FSC is set from rates.ts defaults only — DB auto-apply disabled
-  // LIVE button in FinancialSection remains for reference only
   React.useEffect(() => {
     const carrier = input.overseasCarrier || 'UPS';
     if (lastFscCarrier !== carrier) {
@@ -64,7 +62,6 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
     }
   }, [input.overseasCarrier, lastFscCarrier]);
 
-  // Instant frontend calculation — pure function, no API dependency
   const result = useMemo<QuoteResult | null>(() => {
     try {
       return calculateQuote(input);
@@ -76,7 +73,6 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   const hasManuallyChangedMargin = React.useRef(false);
   const marginResolutionTimeout = React.useRef<NodeJS.Timeout | null>(null);
 
-  // ── Resolve margin from API (DB-driven rules) with fallback ──
   const { data: resolvedMargin } = useResolvedMargin(
     user?.email, user?.nationality, result?.billableWeight
   );
@@ -84,19 +80,15 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   React.useEffect(() => {
     if (!result || hasManuallyChangedMargin.current) return;
 
-    // Debounce to prevent rapid setInput calls during typing
     if (marginResolutionTimeout.current) clearTimeout(marginResolutionTimeout.current);
 
     marginResolutionTimeout.current = setTimeout(() => {
       let defaultMargin: number;
 
       if (resolvedMargin) {
-        // API-based margin resolution (DB rules)
         defaultMargin = resolvedMargin.marginPercent;
       } else {
-        // Fallback: nationality-based defaults (API unavailable)
         const weight = result.billableWeight;
-
         if (isKorean) {
           defaultMargin = weight >= 20 ? 19 : 24;
         } else {
@@ -107,15 +99,12 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
       if (input.marginPercent !== defaultMargin) {
         setInput(prev => ({ ...prev, marginPercent: defaultMargin }));
       }
-    }, 300); // 300ms debounce
+    }, 300);
 
     return () => {
       if (marginResolutionTimeout.current) clearTimeout(marginResolutionTimeout.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [result?.billableWeight, resolvedMargin, user?.nationality, user?.email]);
-
-
+  }, [result?.billableWeight, resolvedMargin, user?.nationality, user?.email, isKorean, input.marginPercent]);
 
   const handleMarginChange = (newMargin: number) => {
     hasManuallyChangedMargin.current = true;
@@ -143,30 +132,13 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
     setCurrentView('calculator');
   };
 
-  const handleReset = () => {
-    setShowResetConfirm(true);
-  };
-
-  const handleDownloadPdf = async () => {
-    if (result) {
-      await generatePDF(input, result);
-    }
-  };
-
-  const handleQuoteSaved = () => {
-    setCurrentView('history');
-  };
-
-  const scrollToResults = () => {
-    const element = document.getElementById('result-section');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
+  const handleReset = () => setShowResetConfirm(true);
+  const handleDownloadPdf = async () => result && await generatePDF(input, result);
+  const handleQuoteSaved = () => setCurrentView('history');
+  const scrollToResults = () => document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   const layoutProps = {
     isDarkMode,
-    setIsDarkMode: toggleDarkMode,
     isMobileView,
     setIsMobileView,
     input,
@@ -184,73 +156,74 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950 min-h-screen font-sans transition-colors duration-200">
-      {/* Unified App Header */}
       <Header />
+      <CalculatorActionBar
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        canSaveAndViewHistory={canSaveAndViewHistory}
+        input={input}
+        result={result}
+        onQuoteSaved={handleQuoteSaved}
+        onReset={handleReset}
+        isMobileView={isMobileView}
+        onToggleMobileView={() => setIsMobileView(!isMobileView)}
+      />
 
-      <div>
-        {/* Calculator Sub-Header / Action Bar */}
-        <CalculatorActionBar
-          currentView={currentView}
-          onViewChange={setCurrentView}
-          canSaveAndViewHistory={canSaveAndViewHistory}
-          input={input}
-          result={result}
-          onQuoteSaved={handleQuoteSaved}
-          onReset={handleReset}
-          isMobileView={isMobileView}
-          onToggleMobileView={() => setIsMobileView(!isMobileView)}
-        />
-
-        {/* Main Content */}
-        {currentView === 'calculator' ? (
-          <>
-            {isMobileView ? (
-              <MobileLayout {...layoutProps} />
-            ) : (
-              <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32 lg:pb-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                  <div className="lg:col-span-7">
-                    <div className="mb-6">
-                      <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{t('calc.shipmentConfig')}</h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{t('calc.shipmentConfigDesc')}</p>
-                    </div>
-                    <InputSection input={input} onChange={setInput} isMobileView={false} effectiveMarginPercent={result?.profitMargin} hideMargin={hideMargin} intlBase={result?.breakdown.intlBase} billableWeight={result?.billableWeight} resolvedMargin={resolvedMargin} />
-                    {isAdmin && <AdminWidgets />}
+      {currentView === 'calculator' ? (
+        <>
+          {isMobileView ? (
+            <MobileLayout {...layoutProps} />
+          ) : (
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32 lg:pb-8">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="lg:col-span-7 space-y-8">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('calc.shipmentConfig')}</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('calc.shipmentConfigDesc')}</p>
                   </div>
-                    <div className="lg:col-span-5" id="result-section">
-                    {result && (
-                      <ResultSection
-                        result={result}
-                        input={input}
-                        hideMargin={hideMargin}
-                        onMarginChange={handleMarginChange}
-                        onDownloadPdf={handleDownloadPdf}
-                        onSwitchCarrier={(carrier) => setInput(prev => ({ ...prev, overseasCarrier: carrier }))}
-                        marginPercent={input.marginPercent}
-                        isKorean={isKorean}
-                      />
-                    )}
-                  </div>
+                  <InputSection 
+                    input={input} 
+                    onChange={setInput} 
+                    isMobileView={false} 
+                    effectiveMarginPercent={result?.profitMargin} 
+                    hideMargin={hideMargin} 
+                    intlBase={result?.breakdown.intlBase} 
+                    billableWeight={result?.billableWeight} 
+                    resolvedMargin={resolvedMargin} 
+                  />
+                  {isAdmin && <AdminWidgets />}
                 </div>
-              </main>
-            )}
+                <div className="lg:col-span-5 lg:sticky top-24" id="result-section">
+                  {result && (
+                    <ResultSection
+                      result={result}
+                      input={input}
+                      hideMargin={hideMargin}
+                      onMarginChange={handleMarginChange}
+                      onDownloadPdf={handleDownloadPdf}
+                      onSwitchCarrier={(carrier) => setInput(prev => ({ ...prev, overseasCarrier: carrier }))}
+                      marginPercent={input.marginPercent}
+                      isKorean={isKorean}
+                    />
+                  )}
+                </div>
+              </div>
+            </main>
+          )}
+          {result && !isMobileView && (
+            <MobileStickyBottomBar
+              result={result}
+              isKorean={isKorean}
+              onViewDetails={scrollToResults}
+            />
+          )}
+        </>
+      ) : (
+        <QuoteHistoryPage onDuplicate={handleDuplicate} />
+      )}
 
-            {/* Sticky Bottom Bar (Mobile / Responsive) */}
-            {result && !isMobileView && (
-              <MobileStickyBottomBar
-                result={result}
-                isKorean={isKorean}
-                onViewDetails={scrollToResults}
-              />
-            )}
-          </>
-        ) : (
-          <QuoteHistoryPage onDuplicate={handleDuplicate} />
-        )}
-
-        <div className="hidden lg:block">
-          <Footer />
-        </div>
+      <div className="hidden lg:block">
+        <Footer />
       </div>
 
       <ConfirmDialog

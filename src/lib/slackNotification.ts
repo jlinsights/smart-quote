@@ -10,6 +10,12 @@ interface SlackMemberInfo {
   company?: string;
 }
 
+function maskEmail(email: string): string {
+  const [localPart, domain] = email.split('@');
+  if (!localPart || !domain) return email;
+  return `${localPart.slice(0, 1)}***@${domain}`;
+}
+
 export const sendQuoteSlackNotification = async (
   input: QuoteInput,
   result: QuoteResult,
@@ -19,8 +25,8 @@ export const sendQuoteSlackNotification = async (
   const country = COUNTRY_OPTIONS.find(c => c.code === input.destinationCountry)?.name || input.destinationCountry;
   const carrier = input.overseasCarrier || 'UPS';
   const memberLine = member.company
-    ? `${member.company} / ${member.name} / ${member.email}`
-    : `${member.name} / ${member.email}`;
+    ? `${member.company} / ${member.name} / ${maskEmail(member.email)}`
+    : `${member.name} / ${maskEmail(member.email)}`;
 
   try {
     await request('/api/v1/notifications/slack', {
