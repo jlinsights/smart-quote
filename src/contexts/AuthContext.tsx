@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import * as Sentry from '@sentry/browser';
-import { API_URL, TOKEN_KEY, AUTH_EXPIRED_EVENT } from '@/api/apiClient';
+import { API_URL, AUTH_EXPIRED_EVENT } from '@/api/apiClient';
+import {
+  clearAllTokens,
+  getRefreshToken,
+  setAccessToken,
+  setRefreshToken,
+} from '@/lib/authStorage';
 
 export type UserRole = 'admin' | 'user' | 'member';
 
@@ -34,26 +40,80 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+async function getAuthErrorMessage(response: Response, fallback: string): Promise<string> {
+  const status = response.status;
+  if (status === 401) return 'Invalid credentials';
+  if (status === 403) return 'Access denied';
+  if (status >= 500) return 'Server error';
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) return fallback;
+
+  const body = await response.json().catch(() => ({}));
+  const message =
+    body?.error?.message ||
+    body?.error ||
+    body?.errors?.[0];
+
+  if (typeof message === 'string' && message.trim()) {
+    return message;
+  }
+
+  return fallback;
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem(TOKEN_KEY));
+  const [isLoading, setIsLoading] = useState(() => !!getRefreshToken());
 
-  // Validate existing token on mount
+  // Restore session on mount using refresh token
   useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) return;
+    const refreshToken = getRefreshToken();
 
-    fetch(`${API_URL}/api/v1/auth/me`, {
-      headers: { 'Authorization': `Bearer ${token}` },
+    // Migration: remove legacy localStorage token
+    localStorage.removeItem('smartQuoteToken');
+
+    if (!refreshToken) {
+      setIsLoading(false);
+      return;
+    }
+
+    fetch(`${API_URL}/api/v1/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
     })
       .then(res => {
         if (res.ok) return res.json();
-        throw new Error('Invalid token');
+        throw new Error('Refresh failed');
       })
-      .then((userData: User) => setUser(userData))
-      .catch(() => localStorage.removeItem(TOKEN_KEY))
+      .then((data: { token: string; user: User }) => {
+        setAccessToken(data.token);
+        setUser(data.user);
+      })
+      .catch(() => {
+        clearAllTokens();
+        setUser(null);
+      })
       .finally(() => setIsLoading(false));
   }, []);
+
+  // Auto-refresh access token every 14 minutes (token expires in 15)
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(() => {
+      const refreshToken = getRefreshToken();
+      if (!refreshToken) return;
+      fetch(`${API_URL}/api/v1/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      })
+        .then(res => { if (res.ok) return res.json(); throw new Error(); })
+        .then((data: { token: string }) => setAccessToken(data.token))
+        .catch(() => { /* next API call will trigger 401 → retry logic */ });
+    }, 14 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     try {
@@ -65,13 +125,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem(TOKEN_KEY, data.token);
+        setAccessToken(data.token);
+        setRefreshToken(data.refresh_token);
         setUser(data.user);
         return { success: true, user: data.user };
       }
 
-      const body = await res.json().catch(() => ({}));
-      return { success: false, error: body?.error?.message || 'Login failed' };
+      return { success: false, error: await getAuthErrorMessage(res, 'Login failed') };
     } catch (e) {
       Sentry.captureException(e);
       return { success: false, error: 'Network error' };
@@ -99,13 +159,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem(TOKEN_KEY, data.token);
+        setAccessToken(data.token);
+        setRefreshToken(data.refresh_token);
         setUser(data.user);
         return { success: true, user: data.user };
       }
 
-      const body = await res.json().catch(() => ({}));
-      return { success: false, error: body?.error?.message || 'Registration failed' };
+      return { success: false, error: await getAuthErrorMessage(res, 'Registration failed') };
     } catch (e) {
       Sentry.captureException(e);
       return { success: false, error: 'Network error' };
@@ -113,13 +173,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
+    clearAllTokens();
     setUser(null);
   }, []);
 
   // Listen for 401 auth expiry events from apiClient
   useEffect(() => {
     const handleAuthExpired = () => {
+      clearAllTokens();
       setUser(null);
     };
     window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
@@ -128,17 +189,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updatePassword = useCallback(async (currentPassword: string, newPassword: string): Promise<AuthResult> => {
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
+      const { getAccessToken } = await import('@/lib/authStorage');
+      const token = getAccessToken();
       if (!token) throw new Error('No token found');
 
       const res = await fetch(`${API_URL}/api/v1/auth/password`, {
         method: 'PUT',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ 
-          current_password: currentPassword, 
+        body: JSON.stringify({
+          current_password: currentPassword,
           password: newPassword,
           password_confirmation: newPassword
         }),
@@ -148,8 +210,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: true };
       }
 
-      const body = await res.json().catch(() => ({}));
-      return { success: false, error: body?.error || body?.errors?.[0] || 'Password update failed' };
+      return { success: false, error: await getAuthErrorMessage(res, 'Password update failed') };
     } catch (e) {
       Sentry.captureException(e);
       return { success: false, error: 'Network error' };

@@ -1,1 +1,1 @@
-🔓 fix: 견적 저장/히스토리 접근 권한 변경 — Admin 전용 → 로그인 사용자 전체
+🔒 feat: JWT 보안 강화 — 메모리 저장 + Refresh Token 패턴 (Access 15분, Refresh 7일)

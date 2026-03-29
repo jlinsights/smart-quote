@@ -33,9 +33,28 @@ module JwtAuthenticatable
     payload = {
       user_id: user.id,
       role: user.role,
-      exp: 24.hours.from_now.to_i
+      exp: 15.minutes.from_now.to_i
     }
     JWT.encode(payload, jwt_secret, "HS256")
+  end
+
+  def encode_refresh_token(user)
+    payload = {
+      user_id: user.id,
+      type: "refresh",
+      exp: 7.days.from_now.to_i
+    }
+    JWT.encode(payload, jwt_secret, "HS256")
+  end
+
+  def decode_refresh_token(token)
+    decoded = JWT.decode(token, jwt_secret, true, algorithm: "HS256")
+    payload = decoded[0]
+    return nil unless payload["type"] == "refresh"
+    return nil if payload["exp"] < Time.current.to_i
+    User.find_by(id: payload["user_id"])
+  rescue JWT::DecodeError, JWT::ExpiredSignature
+    nil
   end
 
   def extract_token

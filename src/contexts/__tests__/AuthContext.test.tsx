@@ -1,6 +1,8 @@
 import { render, screen, act, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../AuthContext';
-import { API_URL, TOKEN_KEY } from '@/api/apiClient';
+import { API_URL } from '@/api/apiClient';
+
+const REFRESH_KEY = 'smartQuoteRefresh';
 
 // ── Test helpers ──
 
@@ -44,7 +46,7 @@ beforeEach(() => {
 
 describe('AuthContext', () => {
   describe('initial unauthenticated state', () => {
-    it('provides null user, isAuthenticated=false, isLoading=false when no token exists', () => {
+    it('provides null user, isAuthenticated=false, isLoading=false when no refresh token exists', () => {
       let captured: ReturnType<typeof useAuth> | null = null;
 
       renderWithAuth((ctx) => { captured = ctx; });
@@ -56,9 +58,9 @@ describe('AuthContext', () => {
   });
 
   describe('login()', () => {
-    it('stores token, sets user, and returns success on valid credentials', async () => {
+    it('stores refresh token in localStorage, sets user, and returns success', async () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ token: 'jwt-abc', user: mockUser }), {
+        new Response(JSON.stringify({ token: 'jwt-abc', refresh_token: 'refresh-abc', user: mockUser }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         }),
@@ -74,11 +76,10 @@ describe('AuthContext', () => {
 
       expect(result!.success).toBe(true);
       expect(result!.user).toEqual(mockUser);
-      expect(localStorage.getItem(TOKEN_KEY)).toBe('jwt-abc');
+      expect(localStorage.getItem(REFRESH_KEY)).toBe('refresh-abc');
       expect(captured!.user).toEqual(mockUser);
       expect(captured!.isAuthenticated).toBe(true);
 
-      // Verify fetch was called with correct endpoint and body
       expect(fetch).toHaveBeenCalledWith(
         `${API_URL}/api/v1/auth/login`,
         expect.objectContaining({
@@ -108,7 +109,7 @@ describe('AuthContext', () => {
       expect(result!.error).toBe('Invalid credentials');
       expect(captured!.user).toBeNull();
       expect(captured!.isAuthenticated).toBe(false);
-      expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
+      expect(localStorage.getItem(REFRESH_KEY)).toBeNull();
     });
 
     it('returns network error when fetch throws', async () => {
@@ -128,10 +129,9 @@ describe('AuthContext', () => {
   });
 
   describe('logout()', () => {
-    it('clears token from localStorage and resets user to null', async () => {
-      // First login to establish authenticated state
+    it('clears all tokens and resets user to null', async () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ token: 'jwt-abc', user: mockUser }), {
+        new Response(JSON.stringify({ token: 'jwt-abc', refresh_token: 'refresh-abc', user: mockUser }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         }),
@@ -151,16 +151,16 @@ describe('AuthContext', () => {
 
       expect(captured!.user).toBeNull();
       expect(captured!.isAuthenticated).toBe(false);
-      expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
+      expect(localStorage.getItem(REFRESH_KEY)).toBeNull();
     });
   });
 
-  describe('token validation on mount (auto-login)', () => {
-    it('validates stored token and restores user session', async () => {
-      localStorage.setItem(TOKEN_KEY, 'existing-token');
+  describe('session restore on mount (refresh token)', () => {
+    it('restores session using refresh token on mount', async () => {
+      localStorage.setItem(REFRESH_KEY, 'existing-refresh');
 
       vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify(mockUser), {
+        new Response(JSON.stringify({ token: 'new-access', user: mockUser }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         }),
@@ -175,22 +175,22 @@ describe('AuthContext', () => {
         expect(screen.getByTestId('authenticated')).toHaveTextContent('true');
       });
 
-      // Verify /auth/me was called with the stored token
       expect(fetch).toHaveBeenCalledWith(
-        `${API_URL}/api/v1/auth/me`,
+        `${API_URL}/api/v1/auth/refresh`,
         expect.objectContaining({
-          headers: { Authorization: 'Bearer existing-token' },
+          method: 'POST',
+          body: JSON.stringify({ refresh_token: 'existing-refresh' }),
         }),
       );
     });
   });
 
-  describe('expired/invalid token handling', () => {
-    it('clears token and sets unauthenticated state when stored token is invalid', async () => {
-      localStorage.setItem(TOKEN_KEY, 'expired-token');
+  describe('expired/invalid refresh token handling', () => {
+    it('clears tokens when refresh token is invalid', async () => {
+      localStorage.setItem(REFRESH_KEY, 'expired-refresh');
 
       vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        new Response(JSON.stringify({ error: 'Invalid refresh token' }), {
           status: 401,
           headers: { 'Content-Type': 'application/json' },
         }),
@@ -205,11 +205,11 @@ describe('AuthContext', () => {
         expect(screen.getByTestId('email')).toHaveTextContent('none');
       });
 
-      expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
+      expect(localStorage.getItem(REFRESH_KEY)).toBeNull();
     });
 
-    it('clears token when /auth/me fetch throws a network error', async () => {
-      localStorage.setItem(TOKEN_KEY, 'some-token');
+    it('clears tokens when refresh fetch throws a network error', async () => {
+      localStorage.setItem(REFRESH_KEY, 'some-refresh');
 
       vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new Error('Network failure'));
 
@@ -221,14 +221,14 @@ describe('AuthContext', () => {
         expect(screen.getByTestId('authenticated')).toHaveTextContent('false');
       });
 
-      expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
+      expect(localStorage.getItem(REFRESH_KEY)).toBeNull();
     });
   });
 
   describe('signup() (register)', () => {
-    it('creates account, stores token, and auto-logs in', async () => {
+    it('creates account, stores refresh token, and auto-logs in', async () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ token: 'jwt-new', user: mockUser }), {
+        new Response(JSON.stringify({ token: 'jwt-new', refresh_token: 'refresh-new', user: mockUser }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         }),
@@ -244,11 +244,10 @@ describe('AuthContext', () => {
 
       expect(result!.success).toBe(true);
       expect(result!.user).toEqual(mockUser);
-      expect(localStorage.getItem(TOKEN_KEY)).toBe('jwt-new');
+      expect(localStorage.getItem(REFRESH_KEY)).toBe('refresh-new');
       expect(captured!.user).toEqual(mockUser);
       expect(captured!.isAuthenticated).toBe(true);
 
-      // Verify the register endpoint was called with correct payload
       expect(fetch).toHaveBeenCalledWith(
         `${API_URL}/api/v1/auth/register`,
         expect.objectContaining({
@@ -290,7 +289,7 @@ describe('AuthContext', () => {
   describe('isAuthenticated reflects login state', () => {
     it('transitions from false -> true on login, then true -> false on logout', async () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ token: 'jwt-abc', user: mockUser }), {
+        new Response(JSON.stringify({ token: 'jwt-abc', refresh_token: 'refresh-abc', user: mockUser }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         }),
@@ -299,16 +298,13 @@ describe('AuthContext', () => {
       let captured: ReturnType<typeof useAuth> | null = null;
       renderWithAuth((ctx) => { captured = ctx; });
 
-      // Initially unauthenticated
       expect(captured!.isAuthenticated).toBe(false);
 
-      // After login
       await act(async () => {
         await captured!.login('test@example.com', 'password123');
       });
       expect(captured!.isAuthenticated).toBe(true);
 
-      // After logout
       act(() => {
         captured!.logout();
       });
@@ -318,7 +314,6 @@ describe('AuthContext', () => {
 
   describe('useAuth() outside provider', () => {
     it('throws an error when used outside AuthProvider', () => {
-      // Suppress React error boundary console output
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       function Orphan() {

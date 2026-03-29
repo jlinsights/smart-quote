@@ -1,5 +1,6 @@
 import { QuoteInput, QuoteResult, QuoteDetail, QuoteListResponse, QuoteListParams, CostBreakdown, QuoteStatus } from "@/types";
-import { request, ApiError, API_URL, TOKEN_KEY } from "./apiClient";
+import { request, ApiError, API_URL, AUTH_EXPIRED_EVENT } from "./apiClient";
+import { clearAllTokens, getAccessToken } from "@/lib/authStorage";
 
 export { ApiError as QuoteApiError };
 
@@ -122,7 +123,7 @@ export const exportQuotesCsv = async (
   if (params.status) searchParams.set('status', params.status);
 
   const qs = searchParams.toString();
-  const token = localStorage.getItem(TOKEN_KEY);
+  const token = getAccessToken();
   const headers: HeadersInit = { Accept: 'text/csv' };
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -133,6 +134,17 @@ export const exportQuotesCsv = async (
   );
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearAllTokens();
+      window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT));
+      throw new ApiError(response.status, 'Session expired');
+    }
+    if (response.status === 403) {
+      throw new ApiError(response.status, 'Access denied');
+    }
+    if (response.status >= 500) {
+      throw new ApiError(response.status, 'Server error');
+    }
     throw new ApiError(response.status, 'Failed to export CSV');
   }
 

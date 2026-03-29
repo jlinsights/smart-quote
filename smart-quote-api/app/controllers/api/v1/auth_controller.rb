@@ -9,7 +9,7 @@ module Api
 
         if user.save
           token = encode_token(user)
-          render json: { token: token, user: user_json(user) }, status: :created
+          render json: { token: token, refresh_token: encode_refresh_token(user), user: user_json(user) }, status: :created
         else
           render json: {
             error: { code: "VALIDATION_ERROR", message: user.errors.full_messages.join(", ") }
@@ -23,7 +23,7 @@ module Api
 
         if user&.authenticate(params[:password])
           token = encode_token(user)
-          render json: { token: token, user: user_json(user) }
+          render json: { token: token, refresh_token: encode_refresh_token(user), user: user_json(user) }
         else
           render json: {
             error: { code: "UNAUTHORIZED", message: "Invalid email or password" }
@@ -36,6 +36,17 @@ module Api
         authenticate_user!
         return if performed?
         render json: user_json(current_user)
+      end
+
+      # POST /api/v1/auth/refresh — issue new access token using refresh token
+      def refresh
+        user = decode_refresh_token(params[:refresh_token])
+
+        if user
+          render json: { token: encode_token(user), user: user_json(user) }
+        else
+          render json: { error: "Invalid or expired refresh token" }, status: :unauthorized
+        end
       end
 
       # POST /api/v1/auth/promote — one-time admin promotion (secret-protected)
