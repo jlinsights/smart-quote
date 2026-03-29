@@ -5,18 +5,17 @@
     "platform": "claude",
     "level": "Dynamic"
   },
-  "activeFeatures": {
-    "jwt-security-improvement": {
-      "phase": "completed",
-      "startedAt": "2026-03-29",
-      "matchRate": 100,
-      "iterations": 0
-    }
-  },
+  "activeFeatures": {},
   "archivedFeatures": {
     "fix-critical-issues": {
       "archivedAt": "2026-03-28",
       "archivedTo": "docs/archive/2026-03/fix-critical-issues/",
+      "matchRate": 100,
+      "iterations": 0
+    },
+    "jwt-security-improvement": {
+      "archivedAt": "2026-03-29",
+      "archivedTo": "docs/archive/2026-03/jwt-security-improvement/",
       "matchRate": 100,
       "iterations": 0
     },
