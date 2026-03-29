@@ -33,10 +33,10 @@ module Api
         render json: { reply: reply }
       rescue Anthropic::Errors::Error => e
         Rails.logger.error "[CHAT] Anthropic error (#{e.class}): #{e.message}"
-        render json: { error: { message: "AI service error: #{e.message.truncate(200)}" } }, status: :service_unavailable
+        render json: { error: { message: "AI service is temporarily unavailable" } }, status: :service_unavailable
       rescue StandardError => e
         Rails.logger.error "[CHAT] #{e.class}: #{e.message}\n#{e.backtrace&.first(5)&.join("\n")}"
-        render json: { error: { message: "Chat service error: #{e.message.truncate(200)}" } }, status: :internal_server_error
+        render json: { error: { message: "Chat service error" } }, status: :internal_server_error
       end
 
       private

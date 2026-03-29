@@ -7,6 +7,6 @@ class Customer < ApplicationRecord
 
   scope :recent, -> { order(updated_at: :desc) }
   scope :search_text, ->(q) {
-    where("company_name ILIKE :q OR contact_name ILIKE :q OR email ILIKE :q", q: "%#{q}%") if q.present?
+    where("company_name ILIKE :q OR contact_name ILIKE :q OR email ILIKE :q", q: "%#{sanitize_sql_like(q)}%") if q.present?
   }
 end

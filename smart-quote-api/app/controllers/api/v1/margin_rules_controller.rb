@@ -89,12 +89,6 @@ module Api
         end
       end
 
-      def require_admin!
-        return if current_user.role == "admin"
-
-        render json: { error: { code: "FORBIDDEN", message: "Admin only" } }, status: :forbidden
-      end
-
       def invalidate_cache!
         Rails.cache.delete(MarginRuleResolver::CACHE_KEY)
       end

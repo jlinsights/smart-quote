@@ -5,6 +5,9 @@ class AuditLog < ApplicationRecord
     quote.created quote.updated quote.deleted
     quote.status_changed quote.email_sent quote.exported
     margin_rule.created margin_rule.updated margin_rule.deleted
+    surcharge.created surcharge.updated surcharge.deleted
+    addon_rate.created addon_rate.updated addon_rate.deleted
+    fsc.updated
   ].freeze
 
   validates :action, presence: true, inclusion: { in: ACTIONS }

@@ -68,7 +68,7 @@ class QuoteSerializer
     country = quote.destination_country
     zone = quote.applied_zone
 
-    current = SurchargeResolver.resolve(carrier: carrier, country_code: country, zone: zone)
+    current = SurchargeResolver.resolve(carrier: carrier, country: country, zone: zone)
 
     stored_codes = stored.map { |s| s["code"] }.sort
     current_codes = current.map { |s| s[:code] }.sort

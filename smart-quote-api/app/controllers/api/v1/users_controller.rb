@@ -8,7 +8,10 @@ module Api
 
       # GET /api/v1/users
       def index
-        users = User.order(created_at: :desc)
+        users = User.left_joins(:quotes)
+                    .select("users.*, COUNT(quotes.id) AS quotes_count")
+                    .group("users.id")
+                    .order(created_at: :desc)
         render json: users.map { |u| user_detail(u) }
       end
 
@@ -42,12 +45,6 @@ module Api
 
       private
 
-      def require_admin!
-        unless current_user.role == "admin"
-          render json: { error: { code: "FORBIDDEN", message: "Admin only" } }, status: :forbidden
-        end
-      end
-
       def user_detail(user)
         {
           id: user.id,
@@ -57,7 +54,7 @@ module Api
           nationality: user.nationality,
           networks: user.networks,
           role: user.role,
-          quoteCount: user.quotes.count,
+          quoteCount: user.try(:quotes_count) || user.quotes.count,
           createdAt: user.created_at.iso8601
         }
       end

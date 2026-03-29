@@ -46,12 +46,6 @@ module Api
 
       private
 
-      def require_admin!
-        unless current_user.role == "admin"
-          render json: { error: { code: "FORBIDDEN", message: "Admin access required" } }, status: :forbidden
-        end
-      end
-
       def serialize(log)
         {
           id: log.id,

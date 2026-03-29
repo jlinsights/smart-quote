@@ -66,6 +66,14 @@ module JwtAuthenticatable
     Rails.application.credentials.secret_key_base || Rails.application.secret_key_base
   end
 
+  def require_admin!
+    authenticate_user!
+    return if performed?
+    unless current_user&.role == "admin"
+      render json: { error: { code: "FORBIDDEN", message: "Admin only" } }, status: :forbidden
+    end
+  end
+
   def render_unauthorized
     render json: {
       error: { code: "UNAUTHORIZED", message: "Unauthorized" }

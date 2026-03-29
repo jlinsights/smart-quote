@@ -78,11 +78,6 @@ module Api
         )
       end
 
-      def require_admin!
-        return if current_user.role == "admin"
-        render json: { error: { code: "FORBIDDEN", message: "Admin only" } }, status: :forbidden
-      end
-
       def audit_log!(action, rate)
         AuditLog.create(
           user: current_user,

@@ -45,7 +45,7 @@ module Api
         if user
           render json: { token: encode_token(user), user: user_json(user) }
         else
-          render json: { error: "Invalid or expired refresh token" }, status: :unauthorized
+          render json: { error: { code: "INVALID_TOKEN", message: "Invalid or expired refresh token" } }, status: :unauthorized
         end
       end
 

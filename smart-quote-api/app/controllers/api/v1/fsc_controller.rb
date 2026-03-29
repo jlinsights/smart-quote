@@ -47,7 +47,7 @@ module Api
         render json: { success: true, rates: FscFetcher.current_rates }
       rescue StandardError => e
         Rails.logger.error "[FSC] #{e.class}: #{e.message}"
-        render json: { error: { code: "UPDATE_FAILED", message: e.message } }, status: :unprocessable_entity
+        render json: { error: { code: "UPDATE_FAILED", message: "FSC rate update failed" } }, status: :unprocessable_entity
       end
     end
   end

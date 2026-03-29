@@ -1,1 +1,1 @@
-🎨 style: InputSection 섹션 간격 확대 (space-y-4 → space-y-8)
+🔒 fix: Backend Critical/High 7건 수정 — SQL Injection, Audit 화이트리스트, require_admin 통합, N+1 해결
