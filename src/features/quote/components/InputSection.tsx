@@ -30,7 +30,7 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-8">
       <RouteSection input={input} onFieldChange={updateField} isMobileView={isMobileView} />
       <CargoSection items={input.items} onChange={handleCargoChange} isMobileView={isMobileView} />
       <FscRateWidget readOnly={hideMargin} />

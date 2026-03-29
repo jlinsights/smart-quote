@@ -1,1 +1,1 @@
-🔒 feat: JWT 보안 강화 — 메모리 저장 + Refresh Token 패턴 (Access 15분, Refresh 7일)
+🎨 style: InputSection 섹션 간격 확대 (space-y-4 → space-y-8)
