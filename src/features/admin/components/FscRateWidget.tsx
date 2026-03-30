@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import * as Sentry from '@sentry/browser';
-import { getFscRates, updateFscRate, FscRates } from '@/api/fscApi';
+import { updateFscRate, FscRates } from '@/api/fscApi';
 import { DEFAULT_FSC_PERCENT, DEFAULT_FSC_PERCENT_DHL } from '@/config/rates';
 import {
   Fuel,
@@ -36,7 +36,7 @@ export const FscRateWidget: React.FC<FscRateWidgetProps> = ({ readOnly }) => {
   const [editingCarrier, setEditingCarrier] = useState<'UPS' | 'DHL' | null>(null);
   const [intlRate, setIntlRate] = useState(0);
   const [saving, setSaving] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
 
   // History state
@@ -48,26 +48,16 @@ export const FscRateWidget: React.FC<FscRateWidgetProps> = ({ readOnly }) => {
   const [addDate, setAddDate] = useState('');
   const [addRate, setAddRate] = useState('');
 
-  const fetchRates = useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
-    try {
-      const result = await getFscRates();
-      setData(result);
-    } catch (err) {
-      Sentry.captureException(err);
-      // Fallback to rates.ts defaults when DB is unavailable
-      setData({
-        rates: {
-          UPS: { international: DEFAULT_FSC_PERCENT, domestic: DEFAULT_FSC_PERCENT },
-          DHL: { international: DEFAULT_FSC_PERCENT_DHL, domestic: DEFAULT_FSC_PERCENT_DHL },
-        },
-        updatedAt: new Date().toISOString(),
-      });
-      setLoadError('Using local defaults (DB unavailable)');
-    } finally {
-      setLoading(false);
-    }
+  // rates.ts is the single source of truth for FSC (DB auto-apply disabled)
+  const fetchRates = useCallback(() => {
+    setData({
+      rates: {
+        UPS: { international: DEFAULT_FSC_PERCENT, domestic: DEFAULT_FSC_PERCENT },
+        DHL: { international: DEFAULT_FSC_PERCENT_DHL, domestic: DEFAULT_FSC_PERCENT_DHL },
+      },
+      updatedAt: new Date().toISOString(),
+    });
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -379,7 +369,7 @@ export const FscRateWidget: React.FC<FscRateWidgetProps> = ({ readOnly }) => {
       {data && (
         <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700">
           <span className="text-[10px] text-gray-400 dark:text-gray-400">
-            Last updated: {new Date(data.updatedAt).toLocaleString('ko-KR')}
+            Source: rates.ts (single source of truth)
           </span>
         </div>
       )}
