@@ -28,7 +28,7 @@ describe('calculationService', () => {
     });
 
     it('maps HK to Z10', () => {
-      expect(determineUpsZone('HK')).toEqual({ rateKey: 'Z10', label: 'Z10/HK' });
+      expect(determineUpsZone('HK')).toEqual({ rateKey: 'Z10', label: 'Z10/HK+S.China' });
     });
 
     it('maps TH to Z3', () => {

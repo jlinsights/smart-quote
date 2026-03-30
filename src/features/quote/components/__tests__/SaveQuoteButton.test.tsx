@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SaveQuoteButton } from '../SaveQuoteButton';
 import { QuoteInput, QuoteResult, Incoterm, PackingType } from '@/types';
@@ -210,7 +210,7 @@ describe('SaveQuoteButton', () => {
   });
 
   it('shows duplicate confirm dialog when saving same input twice', async () => {
-    vi.useRealTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.mocked(saveQuote).mockResolvedValue({ referenceNo: 'SQ-2026-0050' } as ReturnType<typeof saveQuote> extends Promise<infer T> ? T : never);
 
     render(<SaveQuoteButton input={mockInput} result={mockResult} />);
@@ -223,10 +223,12 @@ describe('SaveQuoteButton', () => {
       expect(screen.getByText(/Saved!/)).toBeInTheDocument();
     });
 
-    // Wait for state to reset to idle
+    // Advance past the 4s idle reset timer
+    await act(async () => { vi.advanceTimersByTime(5000); });
+
     await waitFor(() => {
       expect(screen.getByText('Save Quote')).toBeInTheDocument();
-    }, { timeout: 5000 });
+    });
 
     // Second save with same input -> should show duplicate dialog
     await userEvent.click(screen.getByText('Save Quote'));
@@ -237,5 +239,7 @@ describe('SaveQuoteButton', () => {
       expect(screen.getByText('This quote was already saved. Save again?')).toBeInTheDocument();
       expect(screen.getByText('Save Again')).toBeInTheDocument();
     });
+
+    vi.useRealTimers();
   });
 });
