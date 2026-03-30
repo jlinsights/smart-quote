@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import * as Sentry from '@sentry/browser';
-import { updateFscRate, FscRates } from '@/api/fscApi';
+import React, { useState, useCallback, useMemo } from 'react';
+import { FscRates } from '@/api/fscApi';
 import { DEFAULT_FSC_PERCENT, DEFAULT_FSC_PERCENT_DHL } from '@/config/rates';
 import {
   Fuel,
   RefreshCw,
-  Save,
   Loader2,
   ExternalLink,
-  AlertCircle,
   ChevronDown,
   ChevronUp,
   Plus,
@@ -30,14 +27,16 @@ interface FscRateWidgetProps {
   readOnly?: boolean;
 }
 
-export const FscRateWidget: React.FC<FscRateWidgetProps> = ({ readOnly }) => {
-  const [data, setData] = useState<FscRates | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [editingCarrier, setEditingCarrier] = useState<'UPS' | 'DHL' | null>(null);
-  const [intlRate, setIntlRate] = useState(0);
-  const [saving, setSaving] = useState(false);
-  const [loadError] = useState<string | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
+export const FscRateWidget: React.FC<FscRateWidgetProps> = () => {
+  // rates.ts is the single source of truth for FSC (DB auto-apply disabled)
+  const data: FscRates = useMemo(() => ({
+    rates: {
+      UPS: { international: DEFAULT_FSC_PERCENT, domestic: DEFAULT_FSC_PERCENT },
+      DHL: { international: DEFAULT_FSC_PERCENT_DHL, domestic: DEFAULT_FSC_PERCENT_DHL },
+    },
+    updatedAt: new Date().toISOString(),
+  }), []);
+  const loading = false;
 
   // History state
   const [history, setHistory] = useState<FscHistoryData>(() => loadFscHistory());
@@ -48,43 +47,7 @@ export const FscRateWidget: React.FC<FscRateWidgetProps> = ({ readOnly }) => {
   const [addDate, setAddDate] = useState('');
   const [addRate, setAddRate] = useState('');
 
-  // rates.ts is the single source of truth for FSC (DB auto-apply disabled)
-  const fetchRates = useCallback(() => {
-    setData({
-      rates: {
-        UPS: { international: DEFAULT_FSC_PERCENT, domestic: DEFAULT_FSC_PERCENT },
-        DHL: { international: DEFAULT_FSC_PERCENT_DHL, domestic: DEFAULT_FSC_PERCENT_DHL },
-      },
-      updatedAt: new Date().toISOString(),
-    });
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchRates();
-  }, [fetchRates]);
-
-  const startEdit = (carrier: 'UPS' | 'DHL') => {
-    if (!data) return;
-    setEditingCarrier(carrier);
-    setIntlRate(data.rates[carrier].international);
-  };
-
-  const handleSave = async () => {
-    if (!editingCarrier) return;
-    setSaving(true);
-    setSaveError(null);
-    try {
-      await updateFscRate(editingCarrier, intlRate, intlRate);
-      await fetchRates();
-      setEditingCarrier(null);
-    } catch (err) {
-      Sentry.captureException(err);
-      setSaveError(err instanceof Error ? err.message : 'Failed to save FSC rate');
-    } finally {
-      setSaving(false);
-    }
-  };
+  const fetchRates = useCallback(() => {}, []);
 
   const carrierLinks = {
     UPS: 'https://www.ups.com/kr/ko/support/shipping-support/shipping-costs-rates/fuel-surcharges.page',
@@ -144,15 +107,6 @@ export const FscRateWidget: React.FC<FscRateWidgetProps> = ({ readOnly }) => {
         </button>
       </div>
 
-      {loadError && (
-        <div className="px-4 py-2 flex items-center gap-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs">
-          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-          <span className="flex-1">{loadError}</span>
-          <button onClick={fetchRates} className="font-semibold hover:underline">
-            Retry
-          </button>
-        </div>
-      )}
       {loading && !data ? (
         <div className="p-6 text-center text-xs text-gray-400">
           <Loader2 className="w-4 h-4 animate-spin mx-auto" />
@@ -161,7 +115,6 @@ export const FscRateWidget: React.FC<FscRateWidgetProps> = ({ readOnly }) => {
         <div className="divide-y divide-gray-100 dark:divide-gray-700">
           {(['UPS', 'DHL'] as const).map((carrier) => {
             const rates = data.rates[carrier];
-            const isEditing = editingCarrier === carrier;
             const link = carrierLinks[carrier];
 
             return (
@@ -181,61 +134,10 @@ export const FscRateWidget: React.FC<FscRateWidgetProps> = ({ readOnly }) => {
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>
-                  {readOnly ? null : isEditing ? (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setEditingCarrier(null)}
-                        className="text-[10px] font-semibold text-gray-400 hover:text-gray-600"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="flex items-center gap-1 text-[10px] font-semibold text-jways-600 hover:text-jways-700"
-                      >
-                        {saving ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <Save className="w-3 h-3" />
-                        )}
-                        Save
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => startEdit(carrier)}
-                      className="text-[10px] font-semibold text-gray-400 hover:text-jways-600 transition-colors"
-                    >
-                      Edit
-                    </button>
-                  )}
                 </div>
-                {isEditing && saveError && (
-                  <div className="mb-2 flex items-center gap-1.5 text-[10px] text-red-500">
-                    <AlertCircle className="w-3 h-3 shrink-0" />
-                    {saveError}
-                  </div>
-                )}
-                {isEditing ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      step="0.5"
-                      min={0}
-                      max={100}
-                      value={intlRate}
-                      onChange={(e) => setIntlRate(Number(e.target.value))}
-                      className="w-24 px-2 py-1 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                      autoFocus
-                    />
-                    <span className="text-sm text-gray-500">%</span>
-                  </div>
-                ) : (
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">
-                    {rates.international}%
-                  </p>
-                )}
+                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                  {rates.international}%
+                </p>
               </div>
             );
           })}
