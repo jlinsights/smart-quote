@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import * as Sentry from '@sentry/browser';
 import { getFscRates, updateFscRate, FscRates } from '@/api/fscApi';
+import { DEFAULT_FSC_PERCENT, DEFAULT_FSC_PERCENT_DHL } from '@/config/rates';
 import {
   Fuel,
   RefreshCw,
@@ -55,7 +56,15 @@ export const FscRateWidget: React.FC<FscRateWidgetProps> = ({ readOnly }) => {
       setData(result);
     } catch (err) {
       Sentry.captureException(err);
-      setLoadError(err instanceof Error ? err.message : 'Failed to load FSC rates');
+      // Fallback to rates.ts defaults when DB is unavailable
+      setData({
+        rates: {
+          UPS: { international: DEFAULT_FSC_PERCENT, domestic: DEFAULT_FSC_PERCENT },
+          DHL: { international: DEFAULT_FSC_PERCENT_DHL, domestic: DEFAULT_FSC_PERCENT_DHL },
+        },
+        updatedAt: new Date().toISOString(),
+      });
+      setLoadError('Using local defaults (DB unavailable)');
     } finally {
       setLoading(false);
     }
