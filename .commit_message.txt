@@ -1,1 +1,1 @@
-🌐 refactor: text.ts 완전 번역화 — cost breakdown/disclaimer를 translations.ts로 이전 + text.ts 삭제
+🐛 fix: 라이트모드 Total Estimated Quote 글자 안보임 — jways 색상 팔레트 누락 복원
