@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QuoteSearchBar } from '../QuoteSearchBar';
 
@@ -23,7 +23,7 @@ describe('QuoteSearchBar', () => {
     ).toBeInTheDocument();
   });
 
-  it('calls onSearchInputChange when typing', async () => {
+  it('calls onSearchInputChange when typing', () => {
     const onSearchInputChange = vi.fn();
     render(
       <QuoteSearchBar
@@ -35,7 +35,7 @@ describe('QuoteSearchBar', () => {
     const input = screen.getByPlaceholderText(
       'Search by reference no or destination...',
     );
-    await userEvent.type(input, 'a');
+    fireEvent.change(input, { target: { value: 'a' } });
 
     expect(onSearchInputChange).toHaveBeenCalledWith('a');
   });

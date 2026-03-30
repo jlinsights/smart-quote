@@ -1,1 +1,1 @@
-🔒 fix: Backend Critical/High 7건 수정 — SQL Injection, Audit 화이트리스트, require_admin 통합, N+1 해결
+🔧 fix: Backend Critical 2건 — 비밀번호 변경 API 추가 + totalCostAmount FSC 동기화

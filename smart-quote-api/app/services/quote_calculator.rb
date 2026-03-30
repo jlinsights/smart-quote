@@ -134,8 +134,9 @@ class QuoteCalculator
       user_warnings << "Collect Term: International Freight calculated for reference but may be billed to Consignee/Partner."
     end
 
-    # Final totals
-    total_cost_amount = base_rate + overseas_result[:intl_war_risk] + surge_cost + packing_total + dest_duty + pickup_in_seoul
+    # Final totals — costFsc is the actual FSC cost (without margin) paid to carrier
+    cost_fsc = (base_rate * fsc_rate).round
+    total_cost_amount = base_rate + cost_fsc + overseas_result[:intl_war_risk] + surge_cost + packing_total + dest_duty + pickup_in_seoul
     raw_quote_amount = base_with_margin + intl_fsc_new + add_on_total
     total_quote_amount = (raw_quote_amount / 100.0).ceil * 100
     total_quote_amount_usd = total_quote_amount / exchange_rate.to_f

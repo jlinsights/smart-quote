@@ -49,6 +49,26 @@ module Api
         end
       end
 
+      # PUT /api/v1/auth/password — change password (authenticated)
+      def update_password
+        authenticate_user!
+        return if performed?
+
+        unless current_user.authenticate(params[:current_password])
+          return render json: { error: { code: "INVALID_PASSWORD", message: "Current password is incorrect" } }, status: :unprocessable_entity
+        end
+
+        if params[:password].blank? || params[:password] != params[:password_confirmation]
+          return render json: { error: { code: "VALIDATION_ERROR", message: "Password confirmation does not match" } }, status: :unprocessable_entity
+        end
+
+        if current_user.update(password: params[:password])
+          render json: { message: "Password updated successfully" }
+        else
+          render json: { error: { code: "VALIDATION_ERROR", message: current_user.errors.full_messages.join(", ") } }, status: :unprocessable_entity
+        end
+      end
+
       # POST /api/v1/auth/promote — one-time admin promotion (secret-protected)
       def promote
         secret = ENV["ADMIN_PROMOTE_SECRET"]

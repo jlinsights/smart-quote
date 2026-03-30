@@ -104,6 +104,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
     return () => {
       if (marginResolutionTimeout.current) clearTimeout(marginResolutionTimeout.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally track only billableWeight, not entire result
   }, [result?.billableWeight, resolvedMargin, user?.nationality, user?.email, isKorean, input.marginPercent]);
 
   const handleMarginChange = (newMargin: number) => {
