@@ -111,7 +111,7 @@ class QuoteCalculator
     #    = Final Quote
 
     exchange_rate = @input[:exchangeRate] || DEFAULT_EXCHANGE_RATE
-    safe_margin_percent = [(@input[:marginPercent] || 15).to_f, 0].max
+    safe_margin_percent = [(@input[:marginPercent] || 15).to_f, 0].max.clamp(0, MAX_MARGIN_PERCENT)
     base_rate = overseas_result[:intl_base]
 
     # Step 2: Markup on Base Rate (cost × (1 + margin%))
@@ -123,6 +123,8 @@ class QuoteCalculator
     intl_fsc_new = (base_with_margin * fsc_rate).round
 
     # Step 4: Add-ons (no margin applied)
+    # Note: carrierAddOnTotal (DHL 19 + UPS 6 add-ons) is frontend-only calculation
+    # and not included here. Backend total may differ from frontend display by this amount.
     add_on_total = packing_total + pickup_in_seoul + surge_cost + dest_duty + overseas_result[:intl_war_risk]
 
     # Collect term handling
