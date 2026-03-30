@@ -119,8 +119,8 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     logo: '🇰🇷',
     country: 'South Korea',
     hubCity: 'Seoul (ICN)',
-    contractType: 'GSSA — Cargo Sales Agent',
-    gssaGroup: 'goodman',
+    contractType: 'GSSA — Cargo Sales Agent (via Extrans Air)',
+    gssaGroup: 'extrans',
   },
   {
     code: 'YP',
