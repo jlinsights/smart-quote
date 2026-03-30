@@ -295,8 +295,8 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const safeMarginPercent = Math.min(Math.max(input.marginPercent ?? 15, 0), MAX_MARGIN_PERCENT);
   const baseRate = carrierResult.intlBase;
 
-  // Step 2: Margin on Base Rate (capped at MAX_MARGIN_PERCENT)
-  const baseWithMargin = baseRate / (1 - (safeMarginPercent / 100));
+  // Step 2: Markup on Base Rate (cost × (1 + margin%))
+  const baseWithMargin = baseRate * (1 + safeMarginPercent / 100);
   const marginAmount = baseWithMargin - baseRate;
 
   // Step 3: FSC on (Base Rate + Margin) — EMAX has no FSC

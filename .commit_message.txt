@@ -1,1 +1,1 @@
-🐛 fix: 라이트모드 Total Estimated Quote 글자 안보임 — jways 색상 팔레트 누락 복원
+🔧 fix: 마진 계산식 수정 — margin on selling price → markup on cost (baseRate × (1+margin%))

@@ -114,12 +114,8 @@ class QuoteCalculator
     safe_margin_percent = [(@input[:marginPercent] || 15).to_f, 0].max
     base_rate = overseas_result[:intl_base]
 
-    # Step 2: Margin on Base Rate
-    base_with_margin = if safe_margin_percent < 100
-                         base_rate / (1 - (safe_margin_percent / 100.0))
-                       else
-                         base_rate
-                       end
+    # Step 2: Markup on Base Rate (cost × (1 + margin%))
+    base_with_margin = base_rate * (1 + safe_margin_percent / 100.0)
     margin_amount = base_with_margin - base_rate
 
     # Step 3: FSC on (Base Rate + Margin) — EMAX has no FSC
