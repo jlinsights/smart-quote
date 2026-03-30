@@ -4,6 +4,7 @@ module Api
       include JwtAuthenticatable
 
       before_action :authenticate_user!
+      before_action :require_admin!, only: [:update_rates]
 
       # GET /api/v1/fsc/rates
       def rates
@@ -15,12 +16,8 @@ module Api
         }
       end
 
-      # POST /api/v1/fsc/update (admin only)
+      # POST /api/v1/fsc/update (admin only — guarded by before_action)
       def update_rates
-        unless current_user.role == "admin"
-          return render json: { error: { code: "FORBIDDEN", message: "Admin only" } }, status: :forbidden
-        end
-
         carrier = params[:carrier]&.upcase
         international = params[:international]&.to_f
         domestic = params[:domestic]&.to_f

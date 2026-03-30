@@ -9,6 +9,16 @@ class Rack::Attack
     req.ip if req.path == "/api/v1/auth/register" && req.post?
   end
 
+  # Throttle password change: 5 per minute per IP (brute-force protection)
+  throttle("auth/password", limit: 5, period: 60) do |req|
+    req.ip if req.path == "/api/v1/auth/password" && req.put?
+  end
+
+  # Throttle token refresh: 30 per minute per IP
+  throttle("auth/refresh", limit: 30, period: 60) do |req|
+    req.ip if req.path == "/api/v1/auth/refresh" && req.post?
+  end
+
   # Throttle public calculate endpoint: 60 per minute per IP
   throttle("quotes/calculate", limit: 60, period: 60) do |req|
     req.ip if req.path == "/api/v1/quotes/calculate" && req.post?

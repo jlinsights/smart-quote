@@ -83,16 +83,13 @@ module Api
       end
 
       def audit_log!(action, surcharge)
-        AuditLog.create(
+        AuditLog.track!(
           user: current_user,
           action: action,
-          resource_type: "Surcharge",
-          resource_id: surcharge.id,
+          resource: surcharge,
           metadata: { code: surcharge.code, name: surcharge.name, amount: surcharge.amount.to_f },
           ip_address: request.remote_ip
         )
-      rescue => e
-        Rails.logger.error "[AUDIT] Failed: #{e.message}"
       end
 
       def serialize(s)

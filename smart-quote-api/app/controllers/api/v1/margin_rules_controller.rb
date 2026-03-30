@@ -94,16 +94,13 @@ module Api
       end
 
       def audit_log!(action, rule)
-        AuditLog.create(
+        AuditLog.track!(
           user: current_user,
           action: action,
-          resource_type: "MarginRule",
-          resource_id: rule.id,
+          resource: rule,
           metadata: { name: rule.name, margin_percent: rule.margin_percent.to_f },
           ip_address: request.remote_ip
         )
-      rescue => e
-        Rails.logger.error "[AUDIT] Failed: #{e.message}"
       end
 
       def serialize_rule(rule)

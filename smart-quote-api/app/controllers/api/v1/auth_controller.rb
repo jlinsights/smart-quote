@@ -73,12 +73,12 @@ module Api
       def promote
         secret = ENV["ADMIN_PROMOTE_SECRET"]
         if secret.blank? || params[:secret] != secret
-          return render json: { error: "Forbidden" }, status: :forbidden
+          return render json: { error: { code: "FORBIDDEN", message: "Forbidden" } }, status: :forbidden
         end
 
         user = User.find_by(email: params[:email]&.downcase&.strip)
         if user.nil?
-          return render json: { error: "User not found" }, status: :not_found
+          return render json: { error: { code: "NOT_FOUND", message: "User not found" } }, status: :not_found
         end
 
         user.update!(role: "admin")

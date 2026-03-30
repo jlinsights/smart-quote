@@ -79,16 +79,13 @@ module Api
       end
 
       def audit_log!(action, rate)
-        AuditLog.create(
+        AuditLog.track!(
           user: current_user,
           action: action,
-          resource_type: "AddonRate",
-          resource_id: rate.id,
+          resource: rate,
           metadata: { code: rate.code, carrier: rate.carrier, amount: rate.amount.to_f },
           ip_address: request.remote_ip
         )
-      rescue => e
-        Rails.logger.error "[AUDIT] Failed: #{e.message}"
       end
 
       def serialize(r)
