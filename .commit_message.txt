@@ -1,1 +1,1 @@
-📝 docs: copy.md 카피라이팅 가이드 작성 — 브랜드/번역/톤앤매너/일관성 이슈 정리
+🌐 fix: 하드코딩 카피 i18n 전환 — Smart Quote System, Footer, Optional 번역 키 적용

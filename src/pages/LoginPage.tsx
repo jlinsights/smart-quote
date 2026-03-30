@@ -85,7 +85,7 @@ export const LoginPage: React.FC = () => {
             {t('auth.signinTitle')}
           </h2>
           <p className="text-sm text-gray-400 text-center">
-            Smart Quote System
+            {t('auth.systemName')}
           </p>
 
           <div className="w-full max-w-md mt-10 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl">

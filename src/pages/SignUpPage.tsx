@@ -90,7 +90,7 @@ export const SignUpPage: React.FC = () => {
             {t('auth.signupTitle')}
           </h2>
           <p className="text-sm text-gray-400 text-center">
-            Smart Quote System
+            {t('auth.systemName')}
           </p>
 
           <div className="w-full max-w-md mt-10 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl">
@@ -112,7 +112,7 @@ export const SignUpPage: React.FC = () => {
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500/50 text-sm transition-colors"
-                  placeholder="Optional"
+                  placeholder={t('auth.optional')}
                 />
               </div>
 
@@ -143,7 +143,7 @@ export const SignUpPage: React.FC = () => {
                     className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500/50 text-sm transition-colors appearance-none"
                     style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.75rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem' }}
                   >
-                    <option value="" className="bg-gray-800 text-white">🌍 Select (Optional)</option>
+                    <option value="" className="bg-gray-800 text-white">{`🌍 ${t('auth.optional')}`}</option>
                     {NATIONALITY_OPTIONS.map((country, idx) => (
                       <React.Fragment key={country.code}>
                         {idx === 7 && <option disabled className="bg-gray-800 text-gray-500">{'─'.repeat(20)}</option>}
