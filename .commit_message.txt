@@ -1,1 +1,1 @@
-🔧 fix: 마진 계산식 수정 — margin on selling price → markup on cost (baseRate × (1+margin%))
+✈️ update: AM091 하계 스케줄 — Daily 운항, STD 11:40, B788/9 (31MAR26~)

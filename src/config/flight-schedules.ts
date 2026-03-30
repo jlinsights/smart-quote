@@ -482,12 +482,12 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightType: 'passenger',
     origin: 'ICN',
     destination: 'MEX',
-    departureDays: [0, 1, 3, 5, 6], // D13567
-    departureTime: '13:30',
-    arrivalTime: '12:20',
-    flightDuration: '13h 50m',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // DAILY (effective 31MAR26, summer schedule)
+    departureTime: '11:40',
+    arrivalTime: '10:35',
+    flightDuration: '13h 55m',
     maxCargoKg: 15000,
-    remarks: 'Belly cargo · Via MEX → MTY/GDL(MX), GRU/EZE/SCL/LIM/BOG/MDE/GUA/SJO/SDQ(S.Am)',
+    remarks: 'Belly cargo · B788/9 · Via MEX: MTY/GDL(W/B&N/B&RFS), CUN(N/B) · GRU/EZE(W/B), LIM/BOG/MDE/GUA/SJO/SDQ(N/B)',
   },
   // Air Premia (YP) — APR 2026 Schedule (2026.4.1~4.30), B787-9, belly cargo
   {
