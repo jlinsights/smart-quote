@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { QuoteResult } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Calculator, Plane, TrendingUp, Info, Shield, Package, BoxSelect, PackageCheck, ArrowUpDown } from 'lucide-react';
-import { UI_TEXT } from '@/config/text';
 import { formatKRW, formatUSD } from '@/lib/format';
 import { resultStyles } from './result-styles';
 
@@ -228,7 +227,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
         <div className="bg-gray-50 dark:bg-gray-700/50 px-5 py-3 text-xs text-gray-500 dark:text-gray-400 flex items-start transition-colors">
              <Info className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5 text-gray-400" />
              <p className="leading-relaxed">
-                 {UI_TEXT.COST_BREAKDOWN.DISCLAIMER}
+                 {t('calc.costBasis.disclaimer')}
              </p>
         </div>
       </div>

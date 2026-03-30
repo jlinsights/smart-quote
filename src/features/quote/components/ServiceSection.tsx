@@ -10,7 +10,6 @@ import { PackingTypeInfo } from './PackingTypeInfo';
 import { useSurcharges } from '@/features/dashboard/hooks/useSurcharges';
 import { useAddonRates } from '@/features/dashboard/hooks/useAddonRates';
 import { useSyncToInput } from '@/features/quote/hooks/useSyncToInput';
-import { UI_TEXT } from '@/config/text';
 import { HelpCircle, X } from 'lucide-react';
 
 interface Props {
@@ -191,6 +190,7 @@ const PackingCostOverrideField: React.FC<{
   lc: string;
   ic: string;
 }> = ({ input, onFieldChange, lc, ic }) => {
+  const { t } = useLanguage();
   const [showInfo, setShowInfo] = useState(false);
 
   return (
@@ -227,12 +227,12 @@ const PackingCostOverrideField: React.FC<{
           >
             <X className="w-3 h-3" />
           </button>
-          <p className="font-bold mb-2 text-jways-700 dark:text-jways-300">{UI_TEXT.COST_BREAKDOWN.TITLE}</p>
+          <p className="font-bold mb-2 text-jways-700 dark:text-jways-300">{t('calc.costBasis.title')}</p>
           <ul className="space-y-1 list-disc pl-4 marker:text-gray-300">
-            <li>{UI_TEXT.COST_BREAKDOWN.MATERIAL}</li>
-            <li>{UI_TEXT.COST_BREAKDOWN.LABOR}</li>
-            <li>{UI_TEXT.COST_BREAKDOWN.FUMIGATION}</li>
-            <li>{UI_TEXT.COST_BREAKDOWN.HANDLING}</li>
+            <li>{t('calc.costBasis.material')}</li>
+            <li>{t('calc.costBasis.labor')}</li>
+            <li>{t('calc.costBasis.fumigation')}</li>
+            <li>{t('calc.costBasis.handling')}</li>
           </ul>
         </div>
       )}

@@ -1,1 +1,1 @@
-🌐 fix: 하드코딩 카피 i18n 전환 — Smart Quote System, Footer, Optional 번역 키 적용
+🌐 refactor: text.ts 완전 번역화 — cost breakdown/disclaimer를 translations.ts로 이전 + text.ts 삭제

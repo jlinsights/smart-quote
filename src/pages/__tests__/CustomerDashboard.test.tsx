@@ -83,7 +83,7 @@ describe('CustomerDashboard', () => {
 
   it('renders the page structure with header and footer', async () => {
     await act(async () => { renderDashboard(); });
-    expect(screen.getByText(/Goodman GLS/)).toBeInTheDocument();
+    expect(screen.getByText('landing.footer')).toBeInTheDocument();
   });
 
   it('renders welcome banner with username derived from email', async () => {

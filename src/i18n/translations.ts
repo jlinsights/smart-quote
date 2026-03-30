@@ -68,6 +68,12 @@ export const translations: Record<Language, Record<string, string>> = {
      'calc.totalEstimate': '총 예상 견적',
      'calc.viewDetails': '상세 정보 보기',
      'calc.resetQuote': '견적 초기화',
+     'calc.costBasis.title': '비용 산출 기준',
+     'calc.costBasis.material': '자재비: 화물 표면적(m²) x 15,000원',
+     'calc.costBasis.labor': '인건비: 박스당 50,000원 (진공포장 시 1.5배)',
+     'calc.costBasis.fumigation': '훈증비: 30,000원 (Packing 시 고정)',
+     'calc.costBasis.handling': '핸들링: 35,000원 (수출통관/서류)',
+     'calc.costBasis.disclaimer': '상기 금액은 예상 부가비를 포함합니다. 실제 청구 금액은 실측 기준으로 달라질 수 있습니다.',
 
      // Calculator - Sections
      'calc.section.route': '경로 및 배송조건',
@@ -375,6 +381,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'calc.totalEstimate': 'Total Estimated Quote',
     'calc.viewDetails': 'View Details',
     'calc.resetQuote': 'Reset Quote',
+    'calc.costBasis.title': 'Calculation Basis',
+    'calc.costBasis.material': 'Material: Cargo surface area (m²) x KRW 15,000',
+    'calc.costBasis.labor': 'Labor: KRW 50,000 per box (1.5x for vacuum packing)',
+    'calc.costBasis.fumigation': 'Fumigation: KRW 30,000 (fixed when packing)',
+    'calc.costBasis.handling': 'Handling: KRW 35,000 (export customs/documents)',
+    'calc.costBasis.disclaimer': 'Prices include all estimated surcharges. Final invoice may vary based on actual measurements.',
 
     // Calculator - Sections
     'calc.section.route': 'Route & Delivery Terms',
@@ -689,6 +701,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'calc.totalEstimate': '总估算',
     'calc.viewDetails': '查看详情',
     'calc.resetQuote': '重置报价',
+    'calc.costBasis.title': '费用计算依据',
+    'calc.costBasis.material': '材料费：货物表面积(m²) x 15,000韩元',
+    'calc.costBasis.labor': '人工费：每箱50,000韩元（真空包装1.5倍）',
+    'calc.costBasis.fumigation': '熏蒸费：30,000韩元（包装时固定）',
+    'calc.costBasis.handling': '处理费：35,000韩元（出口报关/文件）',
+    'calc.costBasis.disclaimer': '以上价格包含所有预估附加费。实际发票金额可能因实际测量而异。',
 
     // Calculator - Sections
     'calc.section.route': '路线和条款',
@@ -981,6 +999,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'calc.totalEstimate': '合計見積',
     'calc.viewDetails': '詳細を表示',
     'calc.resetQuote': '見積リセット',
+    'calc.costBasis.title': '費用算出基準',
+    'calc.costBasis.material': '資材費：貨物表面積(m²) x 15,000ウォン',
+    'calc.costBasis.labor': '人件費：箱あたり50,000ウォン（真空包装時1.5倍）',
+    'calc.costBasis.fumigation': '燻蒸費：30,000ウォン（梱包時固定）',
+    'calc.costBasis.handling': 'ハンドリング：35,000ウォン（輸出通関/書類）',
+    'calc.costBasis.disclaimer': '上記金額にはすべての推定追加料金が含まれています。実際の請求額は実測に基づいて変動する場合があります。',
 
     // Calculator - Sections
     'calc.section.route': 'ルートと条件',
