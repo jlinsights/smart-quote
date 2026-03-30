@@ -1,1 +1,1 @@
-✈️ feat: 파라타항공(WE) 4편 추가 — ICN→NRT(2편)/KIX/DAD, Effective 01~15APR2026
+📝 docs: copy.md 카피라이팅 가이드 작성 — 브랜드/번역/톤앤매너/일관성 이슈 정리
