@@ -180,7 +180,7 @@ export const COUNTRY_OPTIONS = [
   { code: 'KM', name: '🇰🇲 Comoros' },
   { code: 'GW', name: '🇬🇼 Guinea-Bissau' },
   { code: 'MR', name: '🇲🇷 Mauritania' },
-  { code: 'SO', name: '🇸🇴 Somalia' },
+  // SO (Somalia) removed — UPS/DHL unshippable
   { code: 'SD', name: '🇸🇩 Sudan' },
   { code: 'SS', name: '🇸🇸 South Sudan' },
   { code: 'LY', name: '🇱🇾 Libya' },
@@ -221,13 +221,13 @@ export const UPS_ZONE_COUNTRIES: Record<string, string[]> = {
   Z7: ['AT', 'AX', 'DK', 'FI', 'GR', 'IE', 'NO', 'PT'],
   Z8: [
     'AE', 'AG', 'AI', 'AR', 'AW', 'AZ', 'BB', 'BD', 'BG', 'BH',
-    'BL', 'BO', 'BQ', 'BR', 'BS', 'BZ', 'CL', 'CO', 'CR', 'CW',
-    'CY', 'DM', 'DO', 'EC', 'EG', 'ER', 'GD', 'GF', 'GG', 'GI',
-    'GP', 'GT', 'GU', 'HN', 'HR', 'HT', 'HU', 'IS', 'JE', 'JM',
-    'KH', 'KN', 'KW', 'KY', 'LA', 'LC', 'LK', 'LT', 'LV', 'MM',
+    'BL', 'BO', 'BR', 'BS', 'BZ', 'CL', 'CO', 'CR', 'CW',
+    'CY', 'DM', 'DO', 'EC', 'EG', 'ER', 'GD', 'GI',
+    'GP', 'GT', 'HN', 'HR', 'HT', 'HU', 'IS', 'JM',
+    'KH', 'KN', 'KW', 'LA', 'LC', 'LK', 'LT', 'LV', 'MM',
     'MQ', 'MS', 'MT', 'MV', 'NI', 'OM', 'PA', 'PE', 'PK', 'PY',
     'QA', 'RO', 'RU', 'SA', 'SI', 'SR', 'SV', 'SX', 'TC', 'TR',
-    'TT', 'UA', 'UY', 'VC', 'VE', 'VG', 'VI', 'ZA',
+    'TT', 'UA', 'UY', 'VC', 'VE', 'VI', 'ZA',
   ],
   Z9: [
     'AF', 'AL', 'AM', 'AO', 'AS', 'BA', 'BF', 'BI', 'BJ', 'BM',
@@ -238,8 +238,9 @@ export const UPS_ZONE_COUNTRIES: Record<string, string[]> = {
     'MR', 'MU', 'MW', 'MZ', 'NA', 'NC', 'NE', 'NG', 'NP', 'RE',
     'RS', 'RW', 'SC', 'SL', 'SN', 'SZ', 'TD', 'TG', 'TM', 'TN',
     'TZ', 'UG', 'UZ', 'WS', 'YT', 'ZM', 'ZW',
+    'BQ', 'VG', 'KY', 'GF', 'GU', 'GG', 'JE',
   ],
-  Z10: ['HK', 'SO'],
+  Z10: ['HK'],
 };
 
 // Source: Zone Guide 2026.xlsx (DHL sheet)

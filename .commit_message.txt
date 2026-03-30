@@ -1,1 +1,1 @@
-🔧 fix: Backend Critical 2건 — 비밀번호 변경 API 추가 + totalCostAmount FSC 동기화
+🗺️ fix: UPS Zone 수정 — SO(Somalia) 제거 + Z9 속령 7개 추가 (BQ/VG/KY/GF/GU/GG/JE)

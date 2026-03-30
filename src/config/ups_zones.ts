@@ -75,7 +75,6 @@ export const UPS_ZONE_MAP: Record<string, ZoneInfo> = {
   BH: z('Z8', 'Z8/Global'),
   BL: z('Z8', 'Z8/Global'),
   BO: z('Z8', 'Z8/Global'),
-  BQ: z('Z8', 'Z8/Global'),
   BR: z('Z8', 'Z8/Global'),
   BS: z('Z8', 'Z8/Global'),
   BZ: z('Z8', 'Z8/Global'),
@@ -90,23 +89,18 @@ export const UPS_ZONE_MAP: Record<string, ZoneInfo> = {
   EG: z('Z8', 'Z8/Global'),
   ER: z('Z8', 'Z8/Global'),
   GD: z('Z8', 'Z8/Global'),
-  GF: z('Z8', 'Z8/Global'),
-  GG: z('Z8', 'Z8/Global'),
   GI: z('Z8', 'Z8/Global'),
   GP: z('Z8', 'Z8/Global'),
   GT: z('Z8', 'Z8/Global'),
-  GU: z('Z8', 'Z8/Global'),
   HN: z('Z8', 'Z8/Global'),
   HR: z('Z8', 'Z8/Global'),
   HT: z('Z8', 'Z8/Global'),
   HU: z('Z8', 'Z8/Global'),
   IS: z('Z8', 'Z8/Global'),
-  JE: z('Z8', 'Z8/Global'),
   JM: z('Z8', 'Z8/Global'),
   KH: z('Z8', 'Z8/Global'),
   KN: z('Z8', 'Z8/Global'),
   KW: z('Z8', 'Z8/Global'),
-  KY: z('Z8', 'Z8/Global'),
   LA: z('Z8', 'Z8/Global'),
   LC: z('Z8', 'Z8/Global'),
   LK: z('Z8', 'Z8/Global'),
@@ -138,7 +132,6 @@ export const UPS_ZONE_MAP: Record<string, ZoneInfo> = {
   UY: z('Z8', 'Z8/Global'),
   VC: z('Z8', 'Z8/Global'),
   VE: z('Z8', 'Z8/Global'),
-  VG: z('Z8', 'Z8/Global'),
   VI: z('Z8', 'Z8/Global'),
   ZA: z('Z8', 'Z8/Global'),
   // Z9 (77 countries)
@@ -219,9 +212,16 @@ export const UPS_ZONE_MAP: Record<string, ZoneInfo> = {
   YT: z('Z9', 'Z9/Extended'),
   ZM: z('Z9', 'Z9/Extended'),
   ZW: z('Z9', 'Z9/Extended'),
-  // Z10: HK, SO
+  // Z9 territories (2026 update)
+  BQ: z('Z9', 'Z9/Extended'),  // Bonaire, St. Eustatius, Saba
+  VG: z('Z9', 'Z9/Extended'),  // British Virgin Islands
+  KY: z('Z9', 'Z9/Extended'),  // Cayman Islands
+  GF: z('Z9', 'Z9/Extended'),  // French Guiana
+  GU: z('Z9', 'Z9/Extended'),  // Guam
+  GG: z('Z9', 'Z9/Extended'),  // Guernsey (Channel Islands)
+  JE: z('Z9', 'Z9/Extended'),  // Jersey (Channel Islands)
+  // Z10: HK only (SO/Somalia removed — unshippable)
   HK: z('Z10', 'Z10/HK'),
-  SO: z('Z10', 'Z10/S.China'),
 };
 
 const UPS_DEFAULT_ZONE: ZoneInfo = { rateKey: 'Z10', label: 'Rest of World' };
