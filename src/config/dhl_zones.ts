@@ -113,6 +113,8 @@ export const DHL_ZONE_MAP: Record<string, ZoneInfo> = {
   BR: z('Z8', 'Z8/Global'),
   BS: z('Z8', 'Z8/Global'),
   BT: z('Z8', 'Z8/Global'),
+  XB: z('Z8', 'Z8/Global'),  // Bonaire (DHL code)
+  BQ: z('Z8', 'Z8/Global'),  // Bonaire, St. Eustatius, Saba (ISO code)
   BW: z('Z8', 'Z8/Global'),
   BY: z('Z8', 'Z8/Global'),
   BZ: z('Z8', 'Z8/Global'),
@@ -210,7 +212,7 @@ export const DHL_ZONE_MAP: Record<string, ZoneInfo> = {
   SH: z('Z8', 'Z8/Global'),
   SL: z('Z8', 'Z8/Global'),
   SN: z('Z8', 'Z8/Global'),
-  SO: z('Z8', 'Z8/Global'),
+  // SO (Somalia) removed — unshippable
   SR: z('Z8', 'Z8/Global'),
   SS: z('Z8', 'Z8/Global'),
   ST: z('Z8', 'Z8/Global'),

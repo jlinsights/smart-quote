@@ -262,7 +262,7 @@ export const DHL_ZONE_COUNTRIES: Record<string, string[]> = {
   ],
   Z8: [
     'AF', 'AG', 'AI', 'AM', 'AO', 'AR', 'AS', 'AW', 'AZ', 'BB',
-    'BF', 'BI', 'BJ', 'BM', 'BO', 'BR', 'BS', 'BT', 'BW', 'BY',
+    'BF', 'BI', 'BJ', 'BM', 'BO', 'BR', 'BS', 'BT', 'BW', 'BY', 'XB',
     'BZ', 'CD', 'CF', 'CG', 'CI', 'CK', 'CL', 'CM', 'CO', 'CR',
     'CU', 'CV', 'DJ', 'DM', 'DO', 'DZ', 'EC', 'EG', 'ER', 'ET',
     'FJ', 'FK', 'FM', 'FO', 'GA', 'GD', 'GE', 'GF', 'GH', 'GL',
@@ -272,7 +272,7 @@ export const DHL_ZONE_COUNTRIES: Record<string, string[]> = {
     'MG', 'MH', 'ML', 'MN', 'MP', 'MQ', 'MR', 'MS', 'MU', 'MV',
     'MW', 'MZ', 'NA', 'NC', 'NE', 'NG', 'NI', 'NP', 'NR', 'NU',
     'PA', 'PE', 'PF', 'PR', 'PW', 'PY', 'RE', 'RU', 'RW', 'SB',
-    'SC', 'SD', 'SH', 'SL', 'SN', 'SO', 'SR', 'SS', 'ST', 'SV',
+    'SC', 'SD', 'SH', 'SL', 'SN', 'SR', 'SS', 'ST', 'SV',
     'SY', 'SZ', 'TC', 'TD', 'TG', 'TJ', 'TL', 'TM', 'TN', 'TO',
     'TT', 'TV', 'TZ', 'UA', 'UG', 'UY', 'UZ', 'VC', 'VE', 'VG',
     'VI', 'VU', 'WS', 'YE', 'YT', 'ZA', 'ZM', 'ZW',
