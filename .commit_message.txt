@@ -1,1 +1,1 @@
-🗺️ fix: UPS Zone 수정 — SO(Somalia) 제거 + Z9 속령 7개 추가 (BQ/VG/KY/GF/GU/GG/JE)
+✈️ feat: 파라타항공(WE) 4편 추가 — ICN→NRT(2편)/KIX/DAD, Effective 01~15APR2026

@@ -113,6 +113,16 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     gssaGroup: 'gac',
   },
   {
+    code: 'WE',
+    name: 'Parata Air',
+    nameKo: '파라타항공',
+    logo: '🇰🇷',
+    country: 'South Korea',
+    hubCity: 'Seoul (ICN)',
+    contractType: 'GSSA — Cargo Sales Agent',
+    gssaGroup: 'goodman',
+  },
+  {
     code: 'YP',
     name: 'Air Premia',
     nameKo: '에어프레미아',
@@ -1018,6 +1028,76 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     maxCargoKg: 130000,
     remarks: 'Freighter · Jan UFN',
   },
+  // Parata Air (WE / 884-) — Effective 01~15APR2026
+  // Cut-off: WE501/503/511 전날 18:00 (협의 가능), WE201 당일 14:30
+  // Prefix 884, 반입 AACT 1 터미널, CSD 서류 필수
+  // CGC 3,000원/MAWB, CCA 70,000원/MAWB
+  // A320 운항: PC 당 최대 60KG, 100x70x70cm 이하
+  // ELI/ELM 충전율 30% 이하만 진행 가능 (KIX 노선은 ELI/ELM 불가)
+  {
+    id: 'default-we-501',
+    airline: 'Parata Air',
+    airlineCode: 'WE',
+    flightNo: 'WE 501',
+    aircraftType: 'A332',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'NRT',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // DAILY
+    departureTime: '09:50',
+    arrivalTime: '12:00',
+    flightDuration: '2h 10m',
+    maxCargoKg: 25000,
+    remarks: 'A332 (W/B) · Cut-off 전날 18:00 · NRT (IACT)',
+  },
+  {
+    id: 'default-we-503',
+    airline: 'Parata Air',
+    airlineCode: 'WE',
+    flightNo: 'WE 503',
+    aircraftType: 'A332',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'NRT',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // DAILY
+    departureTime: '11:20',
+    arrivalTime: '13:50',
+    flightDuration: '2h 30m',
+    maxCargoKg: 25000,
+    remarks: 'A332 (W/B) · 4월 8일부 운항 · Cut-off 전날 18:00 · NRT (IACT)',
+  },
+  {
+    id: 'default-we-511',
+    airline: 'Parata Air',
+    airlineCode: 'WE',
+    flightNo: 'WE 511',
+    aircraftType: 'A320',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'KIX',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // DAILY
+    departureTime: '11:10',
+    arrivalTime: '12:55',
+    flightDuration: '1h 45m',
+    maxCargoKg: 8000,
+    remarks: 'A320 (N/B) · PC당 60KG/100x70x70cm 제한 · ELI/ELM 불가 · KIX (CKTS)',
+  },
+  {
+    id: 'default-we-201',
+    airline: 'Parata Air',
+    airlineCode: 'WE',
+    flightNo: 'WE 201',
+    aircraftType: 'A332',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'DAD',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // DAILY
+    departureTime: '18:30',
+    arrivalTime: '21:10',
+    flightDuration: '4h 40m',
+    maxCargoKg: 25000,
+    remarks: 'A332 (W/B) · Cut-off 당일 14:30 · DAD (SAGS)',
+  },
 ];
 
 /** Color classes per airline code */
@@ -1076,6 +1156,12 @@ export const AIRLINE_COLORS: Record<string, { bg: string; text: string; border: 
     border: 'border-yellow-200 dark:border-yellow-800',
     badge: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300',
   },
+  WE: {
+    bg: 'bg-pink-50 dark:bg-pink-900/20',
+    text: 'text-pink-700 dark:text-pink-300',
+    border: 'border-pink-200 dark:border-pink-800',
+    badge: 'bg-pink-100 dark:bg-pink-900/40 text-pink-700 dark:text-pink-300',
+  },
 };
 
 /** Hex colors per airline code — used by route map components (SVG & 3D) */
@@ -1089,6 +1175,7 @@ export const AIRLINE_HEX_COLORS: Record<string, string> = {
   AM: '#34d399', // emerald-400
   YP: '#a78bfa', // violet-400
   DE: '#facc15', // yellow-400
+  WE: '#f472b6', // pink-400
 };
 
 export const DEFAULT_HEX_COLOR = '#94a3b8'; // slate-400
