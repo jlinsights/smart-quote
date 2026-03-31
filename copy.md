@@ -1,6 +1,6 @@
 # Smart Quote System — Copywriting Guide
 
-> BridgeLogis by Goodman GLS 카피라이팅 가이드 및 텍스트 인벤토리
+> BridgeLogis 카피라이팅 가이드 및 텍스트 인벤토리
 
 **Last Updated**: 2026-03-30
 
@@ -13,17 +13,15 @@
 | Context | Text | Usage |
 |---------|------|-------|
 | **Primary Brand** | BridgeLogis | 외부 노출, SEO, 도메인 (bridgelogis.com) |
-| **Full Brand** | BridgeLogis by Goodman GLS | Footer, About, 공식 문서 |
 | **Product Name** | Smart Quote | 시스템/앱 이름, 로그인 화면 |
 | **Tagline** | Bridging Your Cargo to the World. | Footer, 마케팅 |
-| **Parent Company** | Goodman GLS / J-Ways | 내부 문서, 계약서 |
 
 ### Brand Name Usage Rules
 
 - Landing Page: "BridgeLogis" (primary brand)
 - Login/Signup: "Smart Quote System" (product name)
-- Footer: "BridgeLogis by Goodman GLS" (full brand)
-- Document Title: "BridgeLogis — Global Express Freight Quoting Platform | by Goodman GLS"
+- Footer: "BridgeLogis. Bridging Your Cargo to the World."
+- Document Title: "BridgeLogis — Global Express Freight Quoting Platform"
 - AI Chatbot: "Smart Quote Assistant" / "Smart Quote 어시스턴트"
 
 ---
@@ -193,9 +191,9 @@
 
 | Context | Text |
 |---------|------|
-| Copyright | (c) {year} BridgeLogis by Goodman GLS. Bridging Your Cargo to the World. All rights reserved. |
+| Copyright | (c) {year} BridgeLogis. Bridging Your Cargo to the World. All rights reserved. |
 
-**Note**: 현재 Footer.tsx에 하드코딩됨. `translations.ts`의 `landing.footer` 키와 중복.
+**Note**: Footer.tsx → `t('landing.footer')` 사용 (translations.ts 참조).
 
 ---
 

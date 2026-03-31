@@ -16,7 +16,7 @@ export const LandingPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    document.title = 'BridgeLogis — Global Express Freight Quoting Platform | by Goodman GLS';
+    document.title = 'BridgeLogis — Global Express Freight Quoting Platform';
   }, []);
 
   return (
