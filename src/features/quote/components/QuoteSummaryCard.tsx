@@ -12,7 +12,7 @@ interface Props {
   hideMargin?: boolean;
 }
 
-export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf, isKorean = true, hideMargin }) => {
+export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf, isKorean = false, hideMargin }) => {
   const [showKRW, setShowKRW] = useState(isKorean);
   const { t } = useLanguage();
 
@@ -48,7 +48,7 @@ export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf, isKor
             {hideMargin ? (
               <div className="flex flex-col mb-5 w-full">
                 <div className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">
-                  <span>{formatKRW(result.totalQuoteAmount)}</span>
+                  <span>{isKorean ? formatKRW(result.totalQuoteAmount) : formatUSD(result.totalQuoteAmountUSD)}</span>
                 </div>
               </div>
             ) : (
