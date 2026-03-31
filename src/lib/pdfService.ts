@@ -3,9 +3,14 @@ import { QuoteInput, QuoteResult } from '@/types';
 import { COUNTRY_OPTIONS } from '@/config/options';
 import { PackingType } from '@/types';
 import { PDF_LAYOUT } from '@/config/ui-constants';
-import { formatKRW, formatUSD, formatNum, formatNumDec } from './format';
+import { formatNum, formatNumDec } from './format';
 import { loadKoreanFont } from './pdfFontLoader';
 // Logo import removed — brand neutral PDF for partner sharing
+
+// PDF-safe formatters (avoid ₩ and emoji that break in jsPDF)
+const pdfFormatKRW = (val: number): string => `KRW ${Math.round(val).toLocaleString('en-US')}`;
+const pdfFormatUSD = (val: number): string => `$${val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const stripEmoji = (str: string): string => str.replace(/[^\x20-\x7E]/g, '').trim();
 
 /** Helper to access jspdf-autotable's lastAutoTable property (untyped) */
 const getLastAutoTableY = (doc: jsPDF): number =>
@@ -75,7 +80,8 @@ const drawShipmentDetails = (doc: jsPDF, input: QuoteInput, yPos: number): numbe
   doc.setFontSize(FONTS.SIZE_NORMAL);
   doc.setTextColor(...COLORS.TEXT);
 
-  const countryLabel = COUNTRY_OPTIONS.find(c => c.code === input.destinationCountry)?.name || input.destinationCountry;
+  const rawCountryLabel = COUNTRY_OPTIONS.find(c => c.code === input.destinationCountry)?.name || input.destinationCountry;
+  const countryLabel = stripEmoji(rawCountryLabel);
 
   doc.text(`Origin: ${input.originCountry}`, MARGIN_X + 5, yPos);
   doc.text(`Destination: ${countryLabel} (${input.destinationZip || '-'})`, 110, yPos);
@@ -143,8 +149,8 @@ const drawCargoTable = async (doc: jsPDF, items: QuoteInput['items'], result: Qu
 const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number, currency: CurrencyMode = 'both'): Promise<number> => {
   const exchangeRate = result.totalQuoteAmount / result.totalQuoteAmountUSD;
   const fmtAmt = (krw: number) => {
-    if (currency === 'usd') return formatUSD(krw / exchangeRate);
-    return formatKRW(krw);
+    if (currency === 'usd') return pdfFormatUSD(krw / exchangeRate);
+    return pdfFormatKRW(krw);
   };
   const amountHeader = currency === 'usd' ? 'Amount (USD)' : 'Amount (KRW)';
   const autoTable = (await import('jspdf-autotable')).default;
@@ -233,16 +239,16 @@ const drawQuoteSummary = (doc: jsPDF, input: QuoteInput, result: QuoteResult, yP
 
   doc.setFontSize(20);
   if (currency === 'usd') {
-    doc.text(formatUSD(result.totalQuoteAmountUSD), MARGIN_X + 8, yPos + 23);
+    doc.text(pdfFormatUSD(result.totalQuoteAmountUSD), MARGIN_X + 8, yPos + 23);
   } else {
-    doc.text(formatKRW(result.totalQuoteAmount), MARGIN_X + 8, yPos + 23);
+    doc.text(pdfFormatKRW(result.totalQuoteAmount), MARGIN_X + 8, yPos + 23);
   }
 
   doc.setFontSize(FONTS.SIZE_NORMAL);
   if (currency === 'both') {
-    doc.text(`(≈ ${formatUSD(result.totalQuoteAmountUSD)})`, MARGIN_X + 8, yPos + 30);
+    doc.text(`(Approx.${pdfFormatUSD(result.totalQuoteAmountUSD)})`, MARGIN_X + 8, yPos + 30);
   } else if (currency === 'usd') {
-    doc.text(`(≈ ${formatKRW(result.totalQuoteAmount)})`, MARGIN_X + 8, yPos + 30);
+    doc.text(`(Approx.${pdfFormatKRW(result.totalQuoteAmount)})`, MARGIN_X + 8, yPos + 30);
   }
 
   // Right side info
@@ -401,15 +407,15 @@ export const generateComparisonPDF = async (
     ['Zone', ...results.map(r => r.appliedZone)],
     ['Transit Time', ...results.map(r => r.transitTime)],
     ['청구중량 (kg)', ...results.map(r => formatNum(r.billableWeight))],
-    ['포장/핸들링', ...results.map(r => formatKRW(
+    ['포장/핸들링', ...results.map(r => pdfFormatKRW(
       r.breakdown.packingMaterial + r.breakdown.packingLabor + r.breakdown.packingFumigation + r.breakdown.handlingFees
     ))],
-    ['국제운송', ...results.map(r => formatKRW(
+    ['국제운송', ...results.map(r => pdfFormatKRW(
       r.breakdown.intlBase + r.breakdown.intlFsc + r.breakdown.intlWarRisk + r.breakdown.intlSurge
     ))],
-    ['총 비용', ...results.map(r => formatKRW(r.breakdown.totalCost))],
-    ['견적가 (KRW)', ...results.map(r => formatKRW(r.totalQuoteAmount))],
-    ['견적가 (USD)', ...results.map(r => formatUSD(r.totalQuoteAmountUSD))],
+    ['총 비용', ...results.map(r => pdfFormatKRW(r.breakdown.totalCost))],
+    ['견적가 (KRW)', ...results.map(r => pdfFormatKRW(r.totalQuoteAmount))],
+    ['견적가 (USD)', ...results.map(r => pdfFormatUSD(r.totalQuoteAmountUSD))],
   ];
 
   autoTable(doc, {
@@ -455,7 +461,7 @@ export const generateComparisonPDF = async (
     doc.setFontSize(FONTS.SIZE_NORMAL);
     doc.setTextColor(...COLORS.PRIMARY);
     doc.text(
-      `→ ${carriers[cheapestIdx]}가 최저가: ${formatKRW(savings)} 절감 (≈ ${formatUSD(savings / input.exchangeRate)})`,
+      `→ ${carriers[cheapestIdx]}가 최저가: ${pdfFormatKRW(savings)} 절감 (Approx.${pdfFormatUSD(savings / input.exchangeRate)})`,
       MARGIN_X,
       yPos
     );
