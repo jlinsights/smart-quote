@@ -16,6 +16,7 @@ const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const SignUpPage = React.lazy(() => import('./pages/SignUpPage'));
 const UserGuidePage = React.lazy(() => import('./pages/UserGuidePage'));
 const FlightSchedulePage = React.lazy(() => import('./pages/FlightSchedulePage'));
+const SharedQuotePage = React.lazy(() => import('./pages/SharedQuotePage'));
 
 function App() {
   return (
@@ -83,6 +84,9 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+
+                {/* Shared Quote - Public (no auth required) */}
+                <Route path="/q/:token" element={<SharedQuotePage />} />
 
                 {/* User Guide - Public */}
                 <Route

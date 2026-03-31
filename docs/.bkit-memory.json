@@ -6,6 +6,12 @@
     "level": "Dynamic"
   },
   "activeFeatures": {
+    "quote-share-link": {
+      "phase": "plan",
+      "startedAt": "2026-03-31",
+      "matchRate": null,
+      "iterations": 0
+    },
     "backend-critical-fixes": {
       "phase": "do-complete",
       "startedAt": "2026-03-29",
