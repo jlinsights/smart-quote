@@ -1,8 +1,8 @@
 import type { jsPDF } from 'jspdf';
-import { QuoteInput, QuoteResult } from '@/types';
+import { QuoteInput, QuoteResult, PackingType } from '@/types';
 import { COUNTRY_OPTIONS } from '@/config/options';
-import { PackingType } from '@/types';
 import { PDF_LAYOUT } from '@/config/ui-constants';
+import { applyPackingDimensions } from './packing-utils';
 import { formatNum, formatNumDec } from './format';
 import { loadKoreanFont } from './pdfFontLoader';
 // Logo import removed — brand neutral PDF for partner sharing
@@ -95,7 +95,7 @@ const drawShipmentDetails = (doc: jsPDF, input: QuoteInput, yPos: number): numbe
 
 // ─── Cargo Manifest Table ────────────────────────────────
 
-const drawCargoTable = async (doc: jsPDF, items: QuoteInput['items'], result: QuoteResult, yPos: number): Promise<number> => {
+const drawCargoTable = async (doc: jsPDF, items: QuoteInput['items'], result: QuoteResult, yPos: number, packingType: PackingType = PackingType.NONE, volumetricDivisor: number = 5000): Promise<number> => {
   const autoTable = (await import('jspdf-autotable')).default;
 
   doc.setFont(FONTS.FAMILY, 'normal');
@@ -107,13 +107,17 @@ const drawCargoTable = async (doc: jsPDF, items: QuoteInput['items'], result: Qu
   autoTable(doc, {
     startY: yPos,
     head: [['#', 'Dimensions L×W×H (cm)', 'Weight (kg)', 'Qty', 'Vol. Weight (kg)']],
-    body: items.map((item, i) => [
-      i + 1,
-      `${item.length} × ${item.width} × ${item.height}`,
-      formatNum(item.weight),
-      item.quantity,
-      formatNumDec((item.length + 10) * (item.width + 10) * (item.height + 15) / 5000 * item.quantity),
-    ]),
+    body: items.map((item, i) => {
+      const packed = applyPackingDimensions(item.length, item.width, item.height, item.weight, packingType);
+      const volWeight = (packed.l * packed.w * packed.h) / volumetricDivisor * item.quantity;
+      return [
+        i + 1,
+        `${item.length} × ${item.width} × ${item.height}`,
+        formatNum(item.weight),
+        item.quantity,
+        formatNumDec(volWeight),
+      ];
+    }),
     foot: [[
       { content: '', colSpan: 2 },
       `Actual: ${formatNum(result.totalActualWeight)} kg`,
@@ -354,7 +358,9 @@ export const generatePDF = async (
   let yPos = 20;
   yPos = drawHeader(doc, yPos, referenceNo, validityDate);
   yPos = drawShipmentDetails(doc, input, yPos);
-  yPos = await drawCargoTable(doc, input.items, result, yPos);
+  const carrier = input.overseasCarrier || 'UPS';
+  const volDivisor = carrier === 'EMAX' ? 6000 : 5000;
+  yPos = await drawCargoTable(doc, input.items, result, yPos, input.packingType, volDivisor);
   doc.setFont(FONTS.FAMILY, 'normal');
   yPos = await drawCostTable(doc, result, yPos, currency);
   doc.setFont(FONTS.FAMILY, 'normal');
@@ -393,7 +399,7 @@ export const generateComparisonPDF = async (
 
   // Shipment info
   yPos = drawShipmentDetails(doc, input, yPos);
-  yPos = await drawCargoTable(doc, input.items, upsResult, yPos);
+  yPos = await drawCargoTable(doc, input.items, upsResult, yPos, input.packingType);
   doc.setFont(FONTS.FAMILY, 'normal');
 
   // Comparison table
