@@ -16,6 +16,8 @@ const CONTENT_WIDTH = PAGE_WIDTH - MARGIN_X * 2;
 
 const nextLine = (y: number, h = PDF_LAYOUT.LINE_HEIGHT): number => y + h;
 
+type CurrencyMode = 'krw' | 'usd' | 'both';
+
 const PACKING_TYPE_LABELS: Record<string, { ko: string; en: string }> = {
   [PackingType.NONE]: { ko: '포장 없음', en: 'No Packing' },
   [PackingType.WOODEN_BOX]: { ko: '목재 박스', en: 'Wooden Box' },
@@ -138,7 +140,13 @@ const drawCargoTable = async (doc: jsPDF, items: QuoteInput['items'], result: Qu
 
 // ─── Cost Breakdown Table ────────────────────────────────
 
-const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number): Promise<number> => {
+const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number, currency: CurrencyMode = 'both'): Promise<number> => {
+  const exchangeRate = result.totalQuoteAmount / result.totalQuoteAmountUSD;
+  const fmtAmt = (krw: number) => {
+    if (currency === 'usd') return formatUSD(krw / exchangeRate);
+    return formatKRW(krw);
+  };
+  const amountHeader = currency === 'usd' ? 'Amount (USD)' : 'Amount (KRW)';
   const autoTable = (await import('jspdf-autotable')).default;
 
   doc.setFont(FONTS.FAMILY, 'normal');
@@ -152,43 +160,43 @@ const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number): Pro
 
   const packingTotal = bd.packingMaterial + bd.packingLabor + bd.packingFumigation + bd.handlingFees;
   if (packingTotal > 0) {
-    rows.push(['Packing & Handling', formatKRW(packingTotal)]);
-    if (bd.packingMaterial > 0) rows.push(['  Material', formatKRW(bd.packingMaterial)]);
-    if (bd.packingLabor > 0) rows.push(['  Labor', formatKRW(bd.packingLabor)]);
-    if (bd.packingFumigation > 0) rows.push(['  Fumigation', formatKRW(bd.packingFumigation)]);
-    if (bd.handlingFees > 0) rows.push(['  Handling', formatKRW(bd.handlingFees)]);
+    rows.push(['Packing & Handling', fmtAmt(packingTotal)]);
+    if (bd.packingMaterial > 0) rows.push(['  Material', fmtAmt(bd.packingMaterial)]);
+    if (bd.packingLabor > 0) rows.push(['  Labor', fmtAmt(bd.packingLabor)]);
+    if (bd.packingFumigation > 0) rows.push(['  Fumigation', fmtAmt(bd.packingFumigation)]);
+    if (bd.handlingFees > 0) rows.push(['  Handling', fmtAmt(bd.handlingFees)]);
   }
-  if (bd.pickupInSeoul > 0) rows.push(['Seoul Pickup', formatKRW(bd.pickupInSeoul)]);
-  rows.push([`International Freight (${result.carrier})`, formatKRW(bd.intlBase)]);
-  if (bd.intlFsc > 0) rows.push(['Fuel Surcharge (FSC)', formatKRW(bd.intlFsc)]);
+  if (bd.pickupInSeoul > 0) rows.push(['Seoul Pickup', fmtAmt(bd.pickupInSeoul)]);
+  rows.push([`International Freight (${result.carrier})`, fmtAmt(bd.intlBase)]);
+  if (bd.intlFsc > 0) rows.push(['Fuel Surcharge (FSC)', fmtAmt(bd.intlFsc)]);
   // Individual surcharge rows from appliedSurcharges (V2)
   if (bd.appliedSurcharges && bd.appliedSurcharges.length > 0) {
     bd.appliedSurcharges.forEach((s) => {
       const label = s.name;
       const suffix = s.chargeType === 'rate' ? ` (${s.amount}%)` : '';
-      rows.push([`  ${label}${suffix}`, formatKRW(s.appliedAmount)]);
+      rows.push([`  ${label}${suffix}`, fmtAmt(s.appliedAmount)]);
     });
     if ((bd.intlManualSurge ?? 0) > 0) {
-      rows.push(['  Manual Surge', formatKRW(bd.intlManualSurge!)]);
+      rows.push(['  Manual Surge', fmtAmt(bd.intlManualSurge!)]);
     }
   } else {
     // Backward compat: single row for legacy quotes without appliedSurcharges
-    if (bd.intlWarRisk > 0) rows.push(['War Risk Surcharge', formatKRW(bd.intlWarRisk)]);
-    if (bd.intlSurge > 0) rows.push(['Surcharge', formatKRW(bd.intlSurge)]);
+    if (bd.intlWarRisk > 0) rows.push(['War Risk Surcharge', fmtAmt(bd.intlWarRisk)]);
+    if (bd.intlSurge > 0) rows.push(['Surcharge', fmtAmt(bd.intlSurge)]);
   }
   // Carrier add-on services (DHL/UPS): SGF, EXT, RMT, etc.
   if (bd.carrierAddOnDetails && bd.carrierAddOnDetails.length > 0) {
-    rows.push([`${result.carrier} Add-on Services`, formatKRW(bd.carrierAddOnTotal || 0)]);
+    rows.push([`${result.carrier} Add-on Services`, fmtAmt(bd.carrierAddOnTotal || 0)]);
     bd.carrierAddOnDetails.forEach((d) => {
       const fscNote = d.fscAmount > 0 ? ' +FSC' : '';
-      rows.push([`  ${d.nameEn} (${d.code})${fscNote}`, formatKRW(d.amount + d.fscAmount)]);
+      rows.push([`  ${d.nameEn} (${d.code})${fscNote}`, fmtAmt(d.amount + d.fscAmount)]);
     });
   }
-  if (bd.destDuty > 0) rows.push(['Duty & Tax (Est.)', formatKRW(bd.destDuty)]);
+  if (bd.destDuty > 0) rows.push(['Duty & Tax (Est.)', fmtAmt(bd.destDuty)]);
 
   autoTable(doc, {
     startY: yPos,
-    head: [['Item', 'Amount (KRW)']],
+    head: [['Item', amountHeader]],
     body: rows,
     theme: 'striped',
     headStyles: {
@@ -212,7 +220,7 @@ const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number): Pro
 
 // ─── Quote Summary Box ───────────────────────────────────
 
-const drawQuoteSummary = (doc: jsPDF, input: QuoteInput, result: QuoteResult, yPos: number): number => {
+const drawQuoteSummary = (doc: jsPDF, input: QuoteInput, result: QuoteResult, yPos: number, currency: CurrencyMode = 'both'): number => {
   doc.setFont(FONTS.FAMILY, 'normal');
 
   // Blue summary box
@@ -224,10 +232,18 @@ const drawQuoteSummary = (doc: jsPDF, input: QuoteInput, result: QuoteResult, yP
   doc.text('Total Quote', MARGIN_X + 8, yPos + 10);
 
   doc.setFontSize(20);
-  doc.text(formatKRW(result.totalQuoteAmount), MARGIN_X + 8, yPos + 23);
+  if (currency === 'usd') {
+    doc.text(formatUSD(result.totalQuoteAmountUSD), MARGIN_X + 8, yPos + 23);
+  } else {
+    doc.text(formatKRW(result.totalQuoteAmount), MARGIN_X + 8, yPos + 23);
+  }
 
   doc.setFontSize(FONTS.SIZE_NORMAL);
-  doc.text(`(≈ ${formatUSD(result.totalQuoteAmountUSD)})`, MARGIN_X + 8, yPos + 30);
+  if (currency === 'both') {
+    doc.text(`(≈ ${formatUSD(result.totalQuoteAmountUSD)})`, MARGIN_X + 8, yPos + 30);
+  } else if (currency === 'usd') {
+    doc.text(`(≈ ${formatKRW(result.totalQuoteAmount)})`, MARGIN_X + 8, yPos + 30);
+  }
 
   // Right side info
   const rightX = PAGE_WIDTH - MARGIN_X - 8;
@@ -313,7 +329,13 @@ const buildFilename = (prefix: string, referenceNo?: string): string => {
 
 // ─── Public: Generate Single Quote PDF ───────────────────
 
-export const generatePDF = async (input: QuoteInput, result: QuoteResult, referenceNo?: string) => {
+export const generatePDF = async (
+  input: QuoteInput,
+  result: QuoteResult,
+  referenceNo?: string,
+  options?: { isAdmin?: boolean; isKorean?: boolean }
+) => {
+  const currency: CurrencyMode = options?.isAdmin ? 'both' : (options?.isKorean ? 'krw' : 'usd');
   const { jsPDF: JsPDF } = await import('jspdf');
   const doc = new JsPDF();
 
@@ -328,9 +350,9 @@ export const generatePDF = async (input: QuoteInput, result: QuoteResult, refere
   yPos = drawShipmentDetails(doc, input, yPos);
   yPos = await drawCargoTable(doc, input.items, result, yPos);
   doc.setFont(FONTS.FAMILY, 'normal');
-  yPos = await drawCostTable(doc, result, yPos);
+  yPos = await drawCostTable(doc, result, yPos, currency);
   doc.setFont(FONTS.FAMILY, 'normal');
-  yPos = drawQuoteSummary(doc, input, result, yPos);
+  yPos = drawQuoteSummary(doc, input, result, yPos, currency);
   yPos = drawWarnings(doc, result.warnings, yPos);
   drawDisclaimer(doc, yPos);
   drawFooter(doc);
