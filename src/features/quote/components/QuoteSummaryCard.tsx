@@ -33,14 +33,16 @@ export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf, isKor
         <div className="relative z-10">
             <div className="flex justify-between items-start mb-2">
                 <h2 className="text-jways-200 text-xs font-bold tracking-widest uppercase mt-1">{t('calc.totalEstimate')}</h2>
-                <button
-                    onClick={onDownloadPdf}
-                    className="flex items-center space-x-1 bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1.5 rounded-lg backdrop-blur-sm transition-colors border border-white/10"
-                    title={t('quote.downloadPdf')}
-                >
-                    <FileDown className="w-3.5 h-3.5" />
-                    <span>PDF</span>
-                </button>
+                <div className="flex items-center gap-1.5">
+                    <button
+                        onClick={onDownloadPdf}
+                        className="flex items-center space-x-1 bg-white/90 hover:bg-white text-jways-800 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-sm"
+                        title={t('quote.downloadPdf')}
+                    >
+                        <FileDown className="w-3.5 h-3.5" />
+                        <span>PDF</span>
+                    </button>
+                </div>
             </div>
 
             {hideMargin ? (
