@@ -5,7 +5,7 @@ import { PackingType } from '@/types';
 import { PDF_LAYOUT } from '@/config/ui-constants';
 import { formatKRW, formatUSD, formatNum, formatNumDec } from './format';
 import { loadKoreanFont } from './pdfFontLoader';
-import logoBase64 from '@/assets/logo-base64';
+// Logo import removed — brand neutral PDF for partner sharing
 
 /** Helper to access jspdf-autotable's lastAutoTable property (untyped) */
 const getLastAutoTableY = (doc: jsPDF): number =>
@@ -28,13 +28,12 @@ const PACKING_TYPE_LABELS: Record<string, { ko: string; en: string }> = {
 const drawHeader = (doc: jsPDF, yPos: number, referenceNo?: string, validityDate?: string): number => {
   doc.setFont(FONTS.FAMILY, 'normal');
 
-  // Logo (left)
-  doc.addImage(logoBase64, 'PNG', MARGIN_X, yPos - 8, PDF_LAYOUT.LOGO.WIDTH, PDF_LAYOUT.LOGO.HEIGHT);
+  // Logo hidden — brand neutral PDF for partner sharing
 
   // Title (right)
   doc.setFontSize(FONTS.SIZE_TITLE);
   doc.setTextColor(...COLORS.PRIMARY);
-  doc.text('견적서 / Quotation', PAGE_WIDTH - MARGIN_X, yPos, { align: 'right' });
+  doc.text('Quotation', PAGE_WIDTH - MARGIN_X, yPos, { align: 'right' });
 
   yPos = nextLine(yPos, 16);
 
@@ -68,7 +67,7 @@ const drawShipmentDetails = (doc: jsPDF, input: QuoteInput, yPos: number): numbe
   doc.setFontSize(FONTS.SIZE_SUBHEADER);
   doc.setFont(FONTS.FAMILY, 'normal');
   doc.setTextColor(...COLORS.PRIMARY);
-  doc.text('배송 정보 / Shipment Details', MARGIN_X + 5, yPos);
+  doc.text('Shipment Details', MARGIN_X + 5, yPos);
   yPos = nextLine(yPos, 9);
 
   doc.setFontSize(FONTS.SIZE_NORMAL);
@@ -76,12 +75,12 @@ const drawShipmentDetails = (doc: jsPDF, input: QuoteInput, yPos: number): numbe
 
   const countryLabel = COUNTRY_OPTIONS.find(c => c.code === input.destinationCountry)?.name || input.destinationCountry;
 
-  doc.text(`출발지: ${input.originCountry}`, MARGIN_X + 5, yPos);
-  doc.text(`도착지: ${countryLabel} (${input.destinationZip || '-'})`, 110, yPos);
+  doc.text(`Origin: ${input.originCountry}`, MARGIN_X + 5, yPos);
+  doc.text(`Destination: ${countryLabel} (${input.destinationZip || '-'})`, 110, yPos);
   yPos = nextLine(yPos);
   const packingLabel = PACKING_TYPE_LABELS[input.packingType] ?? { ko: input.packingType, en: input.packingType };
-  doc.text(`배송 방식: ${input.shippingMode || 'Door-to-Door'}`, MARGIN_X + 5, yPos);
-  doc.text(`포장: ${packingLabel.ko} (${packingLabel.en})`, 110, yPos);
+  doc.text(`Shipping: ${input.shippingMode || 'Door-to-Door'}`, MARGIN_X + 5, yPos);
+  doc.text(`Packing: ${packingLabel.en}`, 110, yPos);
 
   return nextLine(yPos, 15);
 };
@@ -94,12 +93,12 @@ const drawCargoTable = async (doc: jsPDF, items: QuoteInput['items'], result: Qu
   doc.setFont(FONTS.FAMILY, 'normal');
   doc.setFontSize(FONTS.SIZE_SUBHEADER);
   doc.setTextColor(...COLORS.PRIMARY);
-  doc.text('화물 명세 / Cargo Manifest', MARGIN_X, yPos);
+  doc.text('Cargo Manifest', MARGIN_X, yPos);
   yPos = nextLine(yPos, 4);
 
   autoTable(doc, {
     startY: yPos,
-    head: [['#', '규격 L×W×H (cm)', '중량 (kg)', '수량', '용적중량 (kg)']],
+    head: [['#', 'Dimensions L×W×H (cm)', 'Weight (kg)', 'Qty', 'Vol. Weight (kg)']],
     body: items.map((item, i) => [
       i + 1,
       `${item.length} × ${item.width} × ${item.height}`,
@@ -109,9 +108,9 @@ const drawCargoTable = async (doc: jsPDF, items: QuoteInput['items'], result: Qu
     ]),
     foot: [[
       { content: '', colSpan: 2 },
-      `실중량: ${formatNum(result.totalActualWeight)} kg`,
+      `Actual: ${formatNum(result.totalActualWeight)} kg`,
       '',
-      `청구중량: ${formatNum(result.billableWeight)} kg`,
+      `Billable: ${formatNum(result.billableWeight)} kg`,
     ]],
     theme: 'grid',
     headStyles: {
@@ -145,7 +144,7 @@ const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number): Pro
   doc.setFont(FONTS.FAMILY, 'normal');
   doc.setFontSize(FONTS.SIZE_SUBHEADER);
   doc.setTextColor(...COLORS.PRIMARY);
-  doc.text('비용 내역 / Cost Breakdown', MARGIN_X, yPos);
+  doc.text('Cost Breakdown', MARGIN_X, yPos);
   yPos = nextLine(yPos, 4);
 
   const bd = result.breakdown;
@@ -153,43 +152,43 @@ const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number): Pro
 
   const packingTotal = bd.packingMaterial + bd.packingLabor + bd.packingFumigation + bd.handlingFees;
   if (packingTotal > 0) {
-    rows.push(['포장 / 핸들링', formatKRW(packingTotal)]);
-    if (bd.packingMaterial > 0) rows.push(['  자재비 (Material)', formatKRW(bd.packingMaterial)]);
-    if (bd.packingLabor > 0) rows.push(['  인건비 (Labor)', formatKRW(bd.packingLabor)]);
-    if (bd.packingFumigation > 0) rows.push(['  훈증비 (Fumigation)', formatKRW(bd.packingFumigation)]);
-    if (bd.handlingFees > 0) rows.push(['  통관/서류 (Handling)', formatKRW(bd.handlingFees)]);
+    rows.push(['Packing & Handling', formatKRW(packingTotal)]);
+    if (bd.packingMaterial > 0) rows.push(['  Material', formatKRW(bd.packingMaterial)]);
+    if (bd.packingLabor > 0) rows.push(['  Labor', formatKRW(bd.packingLabor)]);
+    if (bd.packingFumigation > 0) rows.push(['  Fumigation', formatKRW(bd.packingFumigation)]);
+    if (bd.handlingFees > 0) rows.push(['  Handling', formatKRW(bd.handlingFees)]);
   }
-  if (bd.pickupInSeoul > 0) rows.push(['서울 픽업비', formatKRW(bd.pickupInSeoul)]);
-  rows.push([`국제운송 (${result.carrier})`, formatKRW(bd.intlBase)]);
-  if (bd.intlFsc > 0) rows.push(['유류할증료 (FSC)', formatKRW(bd.intlFsc)]);
+  if (bd.pickupInSeoul > 0) rows.push(['Seoul Pickup', formatKRW(bd.pickupInSeoul)]);
+  rows.push([`International Freight (${result.carrier})`, formatKRW(bd.intlBase)]);
+  if (bd.intlFsc > 0) rows.push(['Fuel Surcharge (FSC)', formatKRW(bd.intlFsc)]);
   // Individual surcharge rows from appliedSurcharges (V2)
   if (bd.appliedSurcharges && bd.appliedSurcharges.length > 0) {
     bd.appliedSurcharges.forEach((s) => {
-      const label = s.nameKo || s.name;
+      const label = s.name;
       const suffix = s.chargeType === 'rate' ? ` (${s.amount}%)` : '';
       rows.push([`  ${label}${suffix}`, formatKRW(s.appliedAmount)]);
     });
     if ((bd.intlManualSurge ?? 0) > 0) {
-      rows.push(['  수동 할증 (Manual Surge)', formatKRW(bd.intlManualSurge!)]);
+      rows.push(['  Manual Surge', formatKRW(bd.intlManualSurge!)]);
     }
   } else {
     // Backward compat: single row for legacy quotes without appliedSurcharges
-    if (bd.intlWarRisk > 0) rows.push(['전쟁위험할증', formatKRW(bd.intlWarRisk)]);
-    if (bd.intlSurge > 0) rows.push(['할증료 (Surge)', formatKRW(bd.intlSurge)]);
+    if (bd.intlWarRisk > 0) rows.push(['War Risk Surcharge', formatKRW(bd.intlWarRisk)]);
+    if (bd.intlSurge > 0) rows.push(['Surcharge', formatKRW(bd.intlSurge)]);
   }
   // Carrier add-on services (DHL/UPS): SGF, EXT, RMT, etc.
   if (bd.carrierAddOnDetails && bd.carrierAddOnDetails.length > 0) {
-    rows.push([`${result.carrier} 부가서비스`, formatKRW(bd.carrierAddOnTotal || 0)]);
+    rows.push([`${result.carrier} Add-on Services`, formatKRW(bd.carrierAddOnTotal || 0)]);
     bd.carrierAddOnDetails.forEach((d) => {
       const fscNote = d.fscAmount > 0 ? ' +FSC' : '';
-      rows.push([`  ${d.nameKo} (${d.code})${fscNote}`, formatKRW(d.amount + d.fscAmount)]);
+      rows.push([`  ${d.nameEn} (${d.code})${fscNote}`, formatKRW(d.amount + d.fscAmount)]);
     });
   }
-  if (bd.destDuty > 0) rows.push(['관세/세금 (예상)', formatKRW(bd.destDuty)]);
+  if (bd.destDuty > 0) rows.push(['Duty & Tax (Est.)', formatKRW(bd.destDuty)]);
 
   autoTable(doc, {
     startY: yPos,
-    head: [['항목', '금액 (KRW)']],
+    head: [['Item', 'Amount (KRW)']],
     body: rows,
     theme: 'striped',
     headStyles: {
@@ -222,7 +221,7 @@ const drawQuoteSummary = (doc: jsPDF, input: QuoteInput, result: QuoteResult, yP
 
   doc.setTextColor(...COLORS.WHITE);
   doc.setFontSize(FONTS.SIZE_SUBHEADER);
-  doc.text('총 견적가 / Total Quote', MARGIN_X + 8, yPos + 10);
+  doc.text('Total Quote', MARGIN_X + 8, yPos + 10);
 
   doc.setFontSize(20);
   doc.text(formatKRW(result.totalQuoteAmount), MARGIN_X + 8, yPos + 23);
@@ -249,7 +248,7 @@ const drawWarnings = (doc: jsPDF, warnings: string[], yPos: number): number => {
   doc.setFont(FONTS.FAMILY, 'normal');
   doc.setTextColor(...COLORS.WARNING);
   doc.setFontSize(FONTS.SIZE_SMALL);
-  doc.text('⚠ 주의사항 / Warnings:', MARGIN_X, yPos);
+  doc.text('Warnings:', MARGIN_X, yPos);
   yPos = nextLine(yPos, 5);
 
   warnings.forEach(w => {
@@ -267,12 +266,9 @@ const drawDisclaimer = (doc: jsPDF, yPos: number): number => {
   doc.setFontSize(FONTS.SIZE_SMALL);
   doc.setTextColor(...COLORS.TEXT_LIGHT);
 
-  const disclaimerKo = '본 견적서는 유효기간 내 확인 기준이며, 할증료 변동 시 재산정될 수 있습니다.';
   const disclaimerEn = 'This quotation is valid within the stated period. Surcharges are subject to change at time of booking.';
-  const rateDate = `Rates as of: ${new Date().toLocaleDateString('ko-KR')}`;
+  const rateDate = `Rates as of: ${new Date().toLocaleDateString('en-US')}`;
 
-  doc.text(disclaimerKo, MARGIN_X, yPos);
-  yPos = nextLine(yPos, 4);
   doc.text(disclaimerEn, MARGIN_X, yPos);
   yPos = nextLine(yPos, 4);
   doc.text(rateDate, MARGIN_X, yPos);
@@ -293,16 +289,10 @@ const drawFooter = (doc: jsPDF) => {
   doc.setFontSize(FONTS.SIZE_SMALL);
   doc.setTextColor(...COLORS.TEXT_LIGHT);
   doc.text(
-    '본 견적서는 제공된 규격 기준 추정치이며, 최종 실측 시 변경될 수 있습니다.',
-    MARGIN_X,
-    pageHeight - 22
-  );
-  doc.text(
     'This quote is an estimate based on provided dimensions and is subject to change upon final measurement.',
     MARGIN_X,
-    pageHeight - 17
+    pageHeight - 20
   );
-  doc.text(`© ${new Date().getFullYear()} Goodman GLS / J-Ways Co., Ltd.`, MARGIN_X, pageHeight - 12);
 
   // Page number
   doc.text(
