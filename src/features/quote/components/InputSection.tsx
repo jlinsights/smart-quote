@@ -37,7 +37,7 @@ export const InputSection: React.FC<Props> = ({ input, onChange, isMobileView = 
       {!hideMargin && (
         <FinancialSection input={input} onFieldChange={updateField} isMobileView={isMobileView} effectiveMarginPercent={effectiveMarginPercent} hideMargin={hideMargin} resolvedMargin={resolvedMargin} />
       )}
-      <SeoulPickupSection input={input} onFieldChange={updateField} isMobileView={isMobileView} />
+      <SeoulPickupSection input={input} onFieldChange={updateField} isMobileView={isMobileView} hideMargin={hideMargin} />
       <ServiceSection input={input} onFieldChange={updateField} isMobileView={isMobileView} intlBase={intlBase} billableWeight={billableWeight} hideMargin={hideMargin} />
     </div>
   );

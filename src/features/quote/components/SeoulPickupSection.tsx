@@ -8,9 +8,10 @@ interface Props {
   input: QuoteInput;
   onFieldChange: <K extends keyof QuoteInput>(key: K, value: QuoteInput[K]) => void;
   isMobileView: boolean;
+  hideMargin?: boolean;
 }
 
-export const SeoulPickupSection: React.FC<Props> = ({ input, onFieldChange, isMobileView }) => {
+export const SeoulPickupSection: React.FC<Props> = ({ input, onFieldChange, isMobileView, hideMargin }) => {
   const { inputClass, cardClass, sectionTitleClass } = inputStyles;
   const ic = inputClass(isMobileView);
   const { t, language } = useLanguage();
@@ -20,7 +21,7 @@ export const SeoulPickupSection: React.FC<Props> = ({ input, onFieldChange, isMo
     <div className={cardClass}>
       <h3 className={sectionTitleClass}>
         <span className="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
-        {t('calc.service.pickup.label')}
+        {hideMargin ? t('calc.service.pickup.label').replace('(KRW)', '(USD)') : t('calc.service.pickup.label')}
       </h3>
       <div>
         <div className="relative">
@@ -33,7 +34,7 @@ export const SeoulPickupSection: React.FC<Props> = ({ input, onFieldChange, isMo
             {SEOUL_PICKUP_ZONES.map((zone, i) => (
               <option key={i} value={zone.cost}>
                 {isEn
-                  ? `${zone.districtsEn.join(', ')} — ${zone.cost.toLocaleString()} KRW`
+                  ? `${zone.districtsEn.join(', ')} — ${hideMargin ? `USD ${zone.costUsd}` : `${zone.cost.toLocaleString()} KRW`}`
                   : `${zone.districts.join(', ')} — ${zone.cost.toLocaleString()}원`
                 }
               </option>

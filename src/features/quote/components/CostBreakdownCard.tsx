@@ -215,9 +215,11 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
                         <span className="text-jways-900 dark:text-jways-100 font-extrabold text-lg">
                           {showKRW ? formatKRW(result.totalQuoteAmount) : formatUSD(result.totalQuoteAmountUSD)}
                         </span>
+                        {!hideMargin && (
                         <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-0.5">
                             ({t('quote.approx')} {showKRW ? formatUSD(result.totalQuoteAmountUSD) : formatKRW(result.totalQuoteAmount)})
                         </span>
+                        )}
                     </div>
                 </div>
             </div>
