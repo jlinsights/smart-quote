@@ -1,1 +1,1 @@
-🌐 refactor: AI 챗봇 영어 전용 — 다국어 labels/suggestions/language detection 제거
+🔄 refactor: ChannelTalk → Intercom 교체 — 유저 프로필/역할 연동, SDK 통합

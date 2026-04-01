@@ -12,6 +12,7 @@
     "test:e2e": "npx playwright test"
   },
   "dependencies": {
+    "@intercom/messenger-js-sdk": "^0.0.18",
     "@sentry/browser": "^10.43.0",
     "@sentry/react": "^10.43.0",
     "jspdf": "2.5.1",
