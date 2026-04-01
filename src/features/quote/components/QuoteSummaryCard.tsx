@@ -13,7 +13,9 @@ interface Props {
 }
 
 export const QuoteSummaryCard: React.FC<Props> = ({ result, onDownloadPdf, isKorean = false, hideMargin }) => {
-  const [showKRW, setShowKRW] = useState(isKorean);
+  // Admin (!hideMargin): always start with KRW + toggle available
+  // Member (hideMargin): fixed based on nationality (KR→KRW, else→USD)
+  const [showKRW, setShowKRW] = useState(!hideMargin ? true : isKorean);
   const { t } = useLanguage();
 
   const primaryAmount = showKRW

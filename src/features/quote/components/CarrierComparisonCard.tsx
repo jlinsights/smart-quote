@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, isKorean = false, onSwitchCarrier, hideMargin }) => {
-  const [showKRW, setShowKRW] = useState(isKorean);
+  const [showKRW, setShowKRW] = useState(!hideMargin ? true : isKorean);
   const altCarrier = input.overseasCarrier === 'DHL' ? 'UPS' : 'DHL';
 
   const altResult = useMemo<QuoteResult | null>(() => {

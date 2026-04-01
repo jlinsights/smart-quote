@@ -16,7 +16,8 @@ interface Props {
 export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, marginPercent, hideMargin, isKorean = false }) => {
   const { cardClass } = resultStyles;
   const { t } = useLanguage();
-  const [showKRW, setShowKRW] = useState(isKorean);
+  // Admin (!hideMargin): KRW default + toggle; Member: nationality-based fixed
+  const [showKRW, setShowKRW] = useState(!hideMargin ? true : isKorean);
 
   const exchangeRate = result.totalQuoteAmountUSD > 0
     ? result.totalQuoteAmount / result.totalQuoteAmountUSD
