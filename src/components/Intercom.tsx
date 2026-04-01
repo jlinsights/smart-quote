@@ -1,31 +1,34 @@
 import { useEffect, useRef } from 'react';
-import IntercomSDK, { shutdown, update } from '@intercom/messenger-js-sdk';
+import IntercomSDK, { boot, shutdown, update } from '@intercom/messenger-js-sdk';
 import { useAuth } from '@/contexts/AuthContext';
 
 const INTERCOM_APP_ID = import.meta.env.VITE_INTERCOM_APP_ID || 'k5z51xs2';
 
 export function Intercom() {
   const { user } = useAuth();
-  const bootedRef = useRef(false);
+  const initializedRef = useRef(false);
   const prevUserIdRef = useRef<number | null>(null);
 
+  // Initialize SDK once (injects script tag)
   useEffect(() => {
-    if (!INTERCOM_APP_ID) return;
+    if (!INTERCOM_APP_ID || initializedRef.current) return;
+    IntercomSDK({ app_id: INTERCOM_APP_ID });
+    initializedRef.current = true;
+  }, []);
 
-    // User logged out → shutdown to clear session
+  // Handle user changes via boot/shutdown/update
+  useEffect(() => {
+    if (!initializedRef.current) return;
+
     if (!user) {
-      if (bootedRef.current) {
-        shutdown();
-        bootedRef.current = false;
-        prevUserIdRef.current = null;
-      }
-      // Boot anonymous visitor
-      IntercomSDK({ app_id: INTERCOM_APP_ID });
-      bootedRef.current = true;
+      // Logged out → restart as anonymous visitor
+      shutdown();
+      boot({ app_id: INTERCOM_APP_ID });
+      prevUserIdRef.current = null;
       return;
     }
 
-    const userData = {
+    const bootData = {
       app_id: INTERCOM_APP_ID,
       user_id: String(user.id),
       name: user.name || user.email?.split('@')[0] || '',
@@ -35,22 +38,20 @@ export function Intercom() {
       nationality: user.nationality || '',
     };
 
-    // Different user logged in → shutdown old session first
-    if (bootedRef.current && prevUserIdRef.current !== null && prevUserIdRef.current !== user.id) {
+    if (prevUserIdRef.current !== null && prevUserIdRef.current !== user.id) {
+      // Different user → shutdown old session, boot new
       shutdown();
-      bootedRef.current = false;
-    }
-
-    if (!bootedRef.current) {
-      // Fresh boot with user data
-      IntercomSDK(userData as Parameters<typeof IntercomSDK>[0]);
-      bootedRef.current = true;
+      boot(bootData);
+    } else if (prevUserIdRef.current === null) {
+      // First login → shutdown anonymous, boot with user
+      shutdown();
+      boot(bootData);
     } else {
-      // Same user, profile may have changed → update
+      // Same user, profile may have changed
       update({
-        name: userData.name,
-        email: userData.email,
-        company: userData.company,
+        name: bootData.name,
+        email: bootData.email,
+        company: bootData.company,
         role: user.role,
         nationality: user.nationality || '',
       });
@@ -58,16 +59,6 @@ export function Intercom() {
 
     prevUserIdRef.current = user.id;
   }, [user]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (bootedRef.current) {
-        shutdown();
-        bootedRef.current = false;
-      }
-    };
-  }, []);
 
   return null;
 }
