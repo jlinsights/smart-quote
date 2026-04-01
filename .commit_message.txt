@@ -1,1 +1,1 @@
-🔄 refactor: ChannelTalk → Intercom 교체 — 유저 프로필/역할 연동, SDK 통합
+🙈 chore: AiChatWidget 숨김 — Intercom 전환으로 기존 AI 챗봇 비활성화
