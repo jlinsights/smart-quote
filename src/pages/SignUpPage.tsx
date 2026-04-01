@@ -159,7 +159,7 @@ export const SignUpPage: React.FC = () => {
                   {t('auth.networks')}
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  {(['WCA', 'MPL', 'EAN', 'JCtrans'] as FreightNetwork[]).map((net) => (
+                  {(['WCA', 'MPL', 'EAN'] as FreightNetwork[]).map((net) => (
                     <label
                       key={net}
                       className={`group relative flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-all duration-200 text-sm font-medium ${
