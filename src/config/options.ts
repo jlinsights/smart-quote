@@ -5,6 +5,7 @@ import { Incoterm } from "@/types";
 export const COUNTRY_OPTIONS = [
   // Asia-Pacific
   { code: 'CN', name: '🇨🇳 China' },
+  { code: 'CN-S', name: '🇨🇳 China (Southern)' },
   { code: 'JP', name: '🇯🇵 Japan' },
   { code: 'VN', name: '🇻🇳 Vietnam' },
   { code: 'SG', name: '🇸🇬 Singapore' },
@@ -240,7 +241,7 @@ export const UPS_ZONE_COUNTRIES: Record<string, string[]> = {
     'TZ', 'UG', 'UZ', 'WS', 'YT', 'ZM', 'ZW',
     'BQ', 'VG', 'KY', 'GF', 'GU', 'GG', 'JE',
   ],
-  Z10: ['HK'],
+  Z10: ['HK', 'CN-S'],
 };
 
 // Source: Zone Guide 2026.xlsx (DHL sheet)

@@ -38,8 +38,8 @@ module Calculators
       # Zone 9: 이스라엘, 요르단, 레바논
       return result('Z9', 'IL/JO/LB') if %w[IL JO LB].include?(@country)
 
-      # Zone 10: 홍콩
-      return result('Z10', 'HK') if %w[HK].include?(@country)
+      # Zone 10: 홍콩, 화남(China Southern)
+      return result('Z10', 'HK/S.China') if %w[HK CN-S].include?(@country)
 
       # Default catch-all
       result('Z10', 'Rest of World')

@@ -220,9 +220,9 @@ export const UPS_ZONE_MAP: Record<string, ZoneInfo> = {
   GU: z('Z9', 'Z9/Extended'),  // Guam
   GG: z('Z9', 'Z9/Extended'),  // Guernsey (Channel Islands)
   JE: z('Z9', 'Z9/Extended'),  // Jersey (Channel Islands)
-  // Z10: HK + China Mainland (Southern) — CN defaults to Z1; Southern China destinations
-  // are Z10 per UPS Zone Guide but require postal code level distinction (not supported yet)
+  // Z10: HK + China Southern
   HK: z('Z10', 'Z10/HK+S.China'),
+  'CN-S': z('Z10', 'Z10/HK+S.China'),
 };
 
 const UPS_DEFAULT_ZONE: ZoneInfo = { rateKey: 'Z10', label: 'Rest of World' };
