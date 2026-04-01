@@ -1,29 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
 import { Language, translations } from '../i18n/translations';
 
-// Default language by timezone: KR→ko, JP→ja, CN→cn, else→en
-const TZ_LANG: Record<string, Language> = {
-  'Asia/Seoul': 'ko',
-  'Asia/Tokyo': 'ja',
-  'Asia/Shanghai': 'cn',
-  'Asia/Chongqing': 'cn',
-  'Asia/Hong_Kong': 'cn',
-  'Asia/Taipei': 'cn',
-};
-
-function detectLanguage(): Language {
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (tz && TZ_LANG[tz]) return TZ_LANG[tz];
-  } catch { /* ignore */ }
-
-  const lang = navigator.language?.split('-')[0]?.toLowerCase();
-  if (lang === 'ko') return 'ko';
-  if (lang === 'ja') return 'ja';
-  if (lang === 'zh') return 'cn';
-
-  return 'en';
-}
+// Language auto-detection removed — English default for global partners
+// Admin can switch via language selector in header
 
 interface LanguageContextType {
   language: Language;
@@ -36,9 +15,10 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
+    // Default to English for all users; Admin can switch via language selector
     const saved = localStorage.getItem('smartQuoteLanguage') as Language | null;
     if (saved) return saved;
-    return detectLanguage();
+    return 'en';
   });
 
   const setLanguage = (lang: Language) => {

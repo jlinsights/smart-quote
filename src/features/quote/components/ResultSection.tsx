@@ -17,7 +17,7 @@ interface Props {
   isKorean?: boolean;
 }
 
-export const ResultSection: React.FC<Props> = ({ result, input, onMarginChange, onDownloadPdf, onSwitchCarrier, marginPercent, hideMargin, isKorean = true }) => {
+export const ResultSection: React.FC<Props> = ({ result, input, onMarginChange, onDownloadPdf, onSwitchCarrier, marginPercent, hideMargin, isKorean = false }) => {
   return (
     <div className="space-y-6 sticky top-6">
       <QuoteSummaryCard result={result} onDownloadPdf={onDownloadPdf} isKorean={isKorean} hideMargin={hideMargin} />

@@ -13,7 +13,7 @@ interface Props {
   isKorean?: boolean;
 }
 
-export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, marginPercent, hideMargin, isKorean = true }) => {
+export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, marginPercent, hideMargin, isKorean = false }) => {
   const { cardClass } = resultStyles;
   const { t } = useLanguage();
   const [showKRW, setShowKRW] = useState(isKorean);
