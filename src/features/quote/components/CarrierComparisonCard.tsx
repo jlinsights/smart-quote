@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { QuoteInput, QuoteResult } from '@/types';
 import { calculateQuote } from '@/features/quote/services/calculationService';
-import { generateComparisonPDF } from '@/lib/pdfService';
 import { formatKRW, formatUSDInt } from '@/lib/format';
-import { ArrowRightLeft, Check, FileDown, ArrowUpDown } from 'lucide-react';
+import { ArrowRightLeft, Check, ArrowUpDown } from 'lucide-react';
 
 interface Props {
   input: QuoteInput;
@@ -58,18 +57,7 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
               {showKRW ? 'KRW' : 'USD'}
             </button>
           )}
-          <button
-            onClick={async () => {
-              const upsResult = currentCarrier === 'UPS' ? currentResult : altResult;
-              const dhlResult = currentCarrier === 'DHL' ? currentResult : altResult;
-              await generateComparisonPDF(input, upsResult, dhlResult);
-            }}
-            className="flex items-center gap-1 text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-300 transition-colors"
-            title="Download comparison PDF"
-          >
-            <FileDown className="w-3.5 h-3.5" />
-            PDF
-          </button>
+          {/* Comparison PDF hidden — use main PDF button instead */}
         </div>
       </div>
       <div className="grid grid-cols-2 divide-x divide-gray-100 dark:divide-gray-700">
