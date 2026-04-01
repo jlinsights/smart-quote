@@ -1,1 +1,1 @@
-🔧 fix: DHL FSC% 30.5→39% 업데이트 (2026-04-01 시행) — 프론트엔드/백엔드 동기화
+🌐 refactor: AI 챗봇 영어 전용 — 다국어 labels/suggestions/language detection 제거

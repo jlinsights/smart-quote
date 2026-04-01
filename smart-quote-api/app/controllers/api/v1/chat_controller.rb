@@ -42,7 +42,6 @@ module Api
       private
 
       def build_system_prompt
-        user_lang = current_user.nationality == "KR" ? "Korean" : "the user's language"
         is_admin = current_user.role == "admin"
         <<~PROMPT
           You are Smart Quote Assistant, the official help bot for the Smart Quote System by Goodman GLS & J-Ways.
@@ -114,12 +113,12 @@ module Api
           === END LOGISTICS KNOWLEDGE ===
 
           Contact (provide when user needs human help, booking, pickup, or shipment):
-          - Account Manager: Charlie Lee (이창희 대리) — charlie@goodmangls.com
-          - Office: 서울 강서구 화곡로68길 82(등촌동, 강서아이티밸리) 309호
+          - Account Manager: Charlie Lee — charlie@goodmangls.com
+          - Office: #309, Gangseo IT Valley, 82 Hwagok-ro 68-gil, Gangseo-gu, Seoul, Korea
           - Office Hours: Mon-Fri 09:00-18:00 KST
 
           Rules:
-          - Respond in #{user_lang} by default, but match the language the user writes in
+          - Always respond in English
           - Keep responses concise (under 200 words unless detailed explanation requested)
           - FOCUS on system usage guide and logistics knowledge — these are your primary job
           - DO NOT answer about company introduction, airline portfolio, or GSSA service details

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { sendChatMessage, type ChatMessage } from '@/api/chatApi';
 
 /* ------------------------------------------------------------------ */
@@ -122,27 +121,6 @@ const labels = {
       name ? `Hi ${name}! How can I help you with your shipping quote today?` : 'Hi there! How can I help you with your shipping quote today?',
     error: 'Sorry, something went wrong. Please try again.',
   },
-  ko: {
-    title: 'Smart Quote 어시스턴트',
-    placeholder: '메시지를 입력하세요...',
-    welcome: (name?: string) =>
-      name ? `안녕하세요 ${name}님! 배송 견적에 대해 도움이 필요하신가요?` : '안녕하세요! 배송 견적에 대해 도움이 필요하신가요?',
-    error: '죄송합니다. 오류가 발생했습니다. 다시 시도해주세요.',
-  },
-  cn: {
-    title: 'Smart Quote 助手',
-    placeholder: '输入消息...',
-    welcome: (name?: string) =>
-      name ? `你好 ${name}！需要关于运费报价的帮助吗？` : '你好！需要关于运费报价的帮助吗？',
-    error: '抱歉，出现了问题。请重试。',
-  },
-  ja: {
-    title: 'Smart Quote アシスタント',
-    placeholder: 'メッセージを入力...',
-    welcome: (name?: string) =>
-      name ? `こんにちは ${name}さん！配送見積もりについてお手伝いしますか？` : 'こんにちは！配送見積もりについてお手伝いしますか？',
-    error: '申し訳ありません。エラーが発生しました。再度お試しください。',
-  },
 } as const;
 
 type SupportedLang = keyof typeof labels;
@@ -152,17 +130,6 @@ type SupportedLang = keyof typeof labels;
 /* ------------------------------------------------------------------ */
 /** Question pool — 3 random questions are picked each time the chat opens */
 const questionPool: Record<SupportedLang, string[]> = {
-  ko: [
-    '견적 계산기는 어떻게 사용하나요?',
-    'UPS와 DHL 요금 차이가 궁금합니다',
-    '포장 옵션별 비용 차이를 알려주세요',
-    '유류할증료(FSC)란 무엇인가요?',
-    '용적중량은 어떻게 계산되나요?',
-    '견적서 PDF는 어떻게 다운로드하나요?',
-    '인코텀즈 DAP는 무엇인가요?',
-    '외곽 지역 추가 요금은 어떻게 확인하나요?',
-    '견적 이력은 어디서 확인하나요?',
-  ],
   en: [
     'How do I use the quote calculator?',
     'What is the difference between UPS and DHL rates?',
@@ -173,28 +140,6 @@ const questionPool: Record<SupportedLang, string[]> = {
     'What does the incoterm DAP mean?',
     'How do I check remote area surcharges?',
     'Where can I view my quote history?',
-  ],
-  cn: [
-    '如何使用报价计算器？',
-    'UPS和DHL费率有什么区别？',
-    '请介绍包装选项和费用',
-    '什么是燃油附加费（FSC）？',
-    '体积重量怎么计算？',
-    '如何下载报价PDF？',
-    '什么是DAP贸易术语？',
-    '如何查看偏远地区附加费？',
-    '在哪里查看报价历史？',
-  ],
-  ja: [
-    '見積計算機の使い方を教えてください',
-    'UPSとDHLの料金の違いは？',
-    '梱包オプションと費用について教えてください',
-    '燃料サーチャージ（FSC）とは何ですか？',
-    '容積重量はどのように計算されますか？',
-    '見積書のPDFダウンロード方法は？',
-    'インコタームズDAPとは何ですか？',
-    '遠隔地追加料金の確認方法は？',
-    '見積履歴はどこで確認できますか？',
   ],
 };
 
@@ -207,40 +152,15 @@ function pickRandom<T>(arr: T[], n: number): T[] {
 /* ------------------------------------------------------------------ */
 /*  Main widget                                                        */
 /* ------------------------------------------------------------------ */
-/** Resolve chat language: nationality → system language → timezone → 'en' */
-const NATIONALITY_LANG: Record<string, SupportedLang> = {
-  KR: 'ko', JP: 'ja', CN: 'cn', TW: 'cn', HK: 'cn', MO: 'cn',
-};
-
-function resolveChatLang(nationality?: string, systemLang?: string): SupportedLang {
-  // 1. User nationality (most reliable)
-  if (nationality && NATIONALITY_LANG[nationality]) return NATIONALITY_LANG[nationality];
-
-  // 2. System language setting (from LanguageContext)
-  if (systemLang && systemLang in labels) return systemLang as SupportedLang;
-
-  // 3. Timezone detection
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (tz === 'Asia/Seoul') return 'ko';
-    if (tz === 'Asia/Tokyo') return 'ja';
-    if (['Asia/Shanghai', 'Asia/Chongqing', 'Asia/Hong_Kong', 'Asia/Taipei'].includes(tz)) return 'cn';
-  } catch { /* ignore */ }
-
-  // 4. Browser language
-  const bl = navigator.language?.split('-')[0]?.toLowerCase();
-  if (bl === 'ko') return 'ko';
-  if (bl === 'ja') return 'ja';
-  if (bl === 'zh') return 'cn';
-
+/** Chat language — English only */
+function resolveChatLang(): SupportedLang {
   return 'en';
 }
 
 export const AiChatWidget: React.FC = () => {
   const { user } = useAuth();
-  const { language } = useLanguage();
 
-  const lang = resolveChatLang(user?.nationality, language);
+  const lang = resolveChatLang();
   const l = labels[lang];
 
   const [isOpen, setIsOpen] = useState(false);
