@@ -358,8 +358,7 @@ export const generatePDF = async (
   let yPos = 20;
   yPos = drawHeader(doc, yPos, referenceNo, validityDate);
   yPos = drawShipmentDetails(doc, input, yPos);
-  const carrier = input.overseasCarrier || 'UPS';
-  const volDivisor = carrier === 'EMAX' ? 6000 : 5000;
+  const volDivisor = 5000;
   yPos = await drawCargoTable(doc, input.items, result, yPos, input.packingType, volDivisor);
   doc.setFont(FONTS.FAMILY, 'normal');
   yPos = await drawCostTable(doc, result, yPos, currency);
@@ -378,7 +377,6 @@ export const generateComparisonPDF = async (
   input: QuoteInput,
   upsResult: QuoteResult,
   dhlResult: QuoteResult,
-  emaxResult?: QuoteResult,
 ) => {
   const { jsPDF: JsPDF } = await import('jspdf');
   const autoTable = (await import('jspdf-autotable')).default;
@@ -403,8 +401,8 @@ export const generateComparisonPDF = async (
   doc.setFont(FONTS.FAMILY, 'normal');
 
   // Comparison table
-  const carriers = emaxResult ? ['UPS', 'DHL', 'EMAX'] : ['UPS', 'DHL'];
-  const results = emaxResult ? [upsResult, dhlResult, emaxResult] : [upsResult, dhlResult];
+  const carriers = ['UPS', 'DHL'];
+  const results = [upsResult, dhlResult];
   const amounts = results.map(r => r.totalQuoteAmount);
   const minAmount = Math.min(...amounts);
 

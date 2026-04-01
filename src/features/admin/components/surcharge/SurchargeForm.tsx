@@ -42,7 +42,6 @@ export const SurchargeForm: React.FC<SurchargeFormProps> = ({
             <option value="">All Carriers</option>
             <option value="UPS">UPS</option>
             <option value="DHL">DHL</option>
-            <option value="EMAX">EMAX</option>
           </select>
         </div>
       </div>

@@ -3,7 +3,6 @@ import {
   determineUpsZone,
   determineDhlZone,
   calculateDhlCosts,
-  calculateEmaxCosts,
   calculateUpsCosts,
   calculateQuote,
 } from './calculationService';
@@ -49,6 +48,10 @@ describe('calculationService', () => {
 
     it('maps unknown country to Rest of World (Z10)', () => {
       expect(determineUpsZone('XX')).toEqual({ rateKey: 'Z10', label: 'Rest of World' });
+    });
+
+    it('maps CN-S (China Southern) to Z10', () => {
+      expect(determineUpsZone('CN-S')).toEqual({ rateKey: 'Z10', label: 'Z10/HK+S.China' });
     });
   });
 
@@ -146,36 +149,6 @@ describe('calculationService', () => {
     });
   });
 
-  // --- EMAX Cost Tests ---
-
-  describe('calculateEmaxCosts', () => {
-    it('calculates EMAX CN at 10kg', () => {
-      const result = calculateEmaxCosts(10, 'CN');
-      // ceil(10) * 13500 + 15000 = 150000
-      expect(result.intlBase).toBe(150000);
-      expect(result.intlFsc).toBe(0);
-      expect(result.intlWarRisk).toBe(0);
-    });
-
-    it('calculates EMAX VN at 5.3kg', () => {
-      const result = calculateEmaxCosts(5.3, 'VN');
-      // ceil(5.3) * 10000 + 15000 = 75000
-      expect(result.intlBase).toBe(75000);
-    });
-
-    it('defaults unknown country to VN rate', () => {
-      const result = calculateEmaxCosts(1, 'TH');
-      // ceil(1) * 10000 + 15000 = 25000
-      expect(result.intlBase).toBe(25000);
-    });
-
-    it('returns zero FSC and war risk', () => {
-      const result = calculateEmaxCosts(10, 'CN');
-      expect(result.intlFsc).toBe(0);
-      expect(result.intlWarRisk).toBe(0);
-    });
-  });
-
   // --- calculateQuote() Integration Tests ---
 
   describe('calculateQuote', () => {
@@ -211,18 +184,6 @@ describe('calculationService', () => {
       expect(result.carrier).toBe('DHL');
       expect(result.appliedZone).toBe('Z2/Japan');
       expect(result.breakdown.intlBase).toBeGreaterThan(0);
-    });
-
-    it('EMAX quote: uses 6000 volumetric divisor and EMAX rates', () => {
-      const result = calculateQuote({
-        ...baseInput,
-        overseasCarrier: 'EMAX',
-        destinationCountry: 'CN',
-      });
-      expect(result.carrier).toBe('EMAX');
-      expect(result.appliedZone).toContain('E-MAX');
-      expect(result.breakdown.intlFsc).toBe(0);
-      expect(result.breakdown.intlWarRisk).toBe(0);
     });
 
     it('margin calculation: USD 50 margin added to cost', () => {
@@ -270,19 +231,6 @@ describe('calculationService', () => {
         manualSurgeCost: 30000,
       });
       expect(result.breakdown.intlSurge).toBe(30000);
-    });
-
-    it('manual surge cost works for EMAX too', () => {
-      const result = calculateQuote({
-        ...baseInput,
-        overseasCarrier: 'EMAX',
-        destinationCountry: 'CN',
-        manualSurgeCost: 20000,
-      });
-      expect(result.breakdown.intlSurge).toBe(20000);
-      expect(result.totalCostAmount).toBeGreaterThan(
-        calculateQuote({ ...baseInput, overseasCarrier: 'EMAX', destinationCountry: 'CN' }).totalCostAmount
-      );
     });
 
     it('VACUUM packing: labor cost is 1.5x per item, not compounding', () => {

@@ -42,10 +42,10 @@ RSpec.describe QuoteCalculator, "Calculation Parity" do
     end
 
     it "includes manualSurgeCost in breakdown.intlSurge" do
-      fixture = fixtures_data["fixtures"].find { |f| f["name"] == "emax_cn_ddp_with_surge" }
+      fixture = fixtures_data["fixtures"].find { |f| f["name"] == "ups_us_ddp_full_options" }
       result = QuoteCalculator.call(fixture["input"])
 
-      expect(result[:breakdown][:intlSurge]).to eq(40_000)
+      expect(result[:breakdown][:intlSurge]).to eq(35_000)
     end
 
     it "handling fee is always 0 (no auto handling fee)" do

@@ -25,7 +25,7 @@ class QuoteCalculator
   private
 
   def calculate_items
-    volumetric_divisor = @carrier == 'EMAX' ? 6000 : 5000
+    volumetric_divisor = 5000
     @item_result = Calculators::ItemCost.call(
       items: @input[:items],
       packing_type: @input[:packingType] || 'NONE',
@@ -50,9 +50,6 @@ class QuoteCalculator
       @user_warnings << "High Volumetric Weight Detected (>20% over actual). Consider Repacking."
     end
 
-    if @carrier == 'EMAX' && !['CN', 'VN'].include?(@input[:destinationCountry])
-      @user_warnings << "EMAX only services China (CN) and Vietnam (VN). Using VN fallback rate — verify with carrier."
-    end
   end
 
   def calculate_overseas
@@ -62,11 +59,6 @@ class QuoteCalculator
                            billable_weight: @billable_weight,
                            country: @input[:destinationCountry],
                            fsc_percent: @input[:fscPercent] || DEFAULT_FSC_PERCENT
-                         )
-                       when 'EMAX'
-                         Calculators::EmaxCost.call(
-                           billable_weight: @billable_weight,
-                           country: @input[:destinationCountry]
                          )
                        else
                          Calculators::UpsCost.call(
@@ -114,8 +106,8 @@ class QuoteCalculator
     @base_with_margin = base_rate * (1 + @safe_margin_percent / 100.0)
     @margin_amount = @base_with_margin - base_rate
 
-    # FSC on (Base Rate + Margin) — EMAX has no FSC
-    fsc_rate = @carrier == 'EMAX' ? 0 : ((@input[:fscPercent] || 0) / 100.0)
+    # FSC on (Base Rate + Margin)
+    fsc_rate = ((@input[:fscPercent] || 0) / 100.0)
     @intl_fsc_new = (@base_with_margin * fsc_rate).round
 
     # Add-ons (no margin applied)

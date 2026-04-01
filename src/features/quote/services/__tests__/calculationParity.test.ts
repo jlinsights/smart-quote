@@ -43,10 +43,10 @@ describe('Calculation Parity Tests (Frontend)', () => {
   });
 
   it('includes manualSurgeCost in breakdown.intlSurge', () => {
-    const fixture = fixtures.fixtures.find(f => f.name === 'emax_cn_ddp_with_surge')!;
+    const fixture = fixtures.fixtures.find(f => f.name === 'ups_us_ddp_full_options')!;
     const result = calculateQuote(fixture.input as unknown as QuoteInput);
 
-    expect(result.breakdown.intlSurge).toBe(40000);
+    expect(result.breakdown.intlSurge).toBe(35000);
   });
 
   it('handling fee is always 0 (no auto handling fee)', () => {

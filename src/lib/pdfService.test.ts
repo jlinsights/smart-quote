@@ -155,16 +155,5 @@ describe('pdfService', () => {
       expect(filename).toMatch(/^JWays_Comparison_DRAFT_\d{4}-\d{2}-\d{2}\.pdf$/);
     });
 
-    it('supports optional 3rd carrier (EMAX)', async () => {
-      const emaxResult: QuoteResult = {
-        ...mockResult,
-        carrier: 'EMAX',
-        totalQuoteAmount: 90000,
-        totalQuoteAmountUSD: 64,
-      };
-
-      await generateComparisonPDF(mockInput, mockResult, dhlResult, emaxResult);
-      expect(mockSave).toHaveBeenCalledTimes(1);
-    });
   });
 });

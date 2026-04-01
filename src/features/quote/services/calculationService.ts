@@ -15,7 +15,6 @@ import {
 } from "@/config/rates";
 import { UPS_EXACT_RATES, UPS_RANGE_RATES } from "@/config/ups_tariff";
 import { DHL_EXACT_RATES, DHL_RANGE_RATES } from "@/config/dhl_tariff";
-import { EMAX_RATES, EMAX_HANDLING_CHARGE } from "@/config/emax_tariff";
 import { applyPackingDimensions } from "@/lib/packing-utils";
 import { MAX_MARGIN_PERCENT } from "@/config/business-rules";
 import { calculateDhlAddOnCosts } from "./dhlAddonCalculator";
@@ -110,7 +109,7 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
     }
 
     // Surge/AHS auto-calculation disabled — manual input via QuoteInput.manualSurgeCost.
-    // Applies to all carriers (UPS, DHL, EMAX). See calculateQuote() for integration.
+    // Applies to all carriers (UPS, DHL). See calculateQuote() for integration.
 
     totalActualWeight += weight * item.quantity;
     totalPackedVolumetricWeight += calculateVolumetricWeight(l, w, h, volumetricDivisor) * item.quantity;
@@ -166,31 +165,11 @@ export const calculateDhlCosts = (
   };
 };
 
-// --- EMAX Calculator ---
-
-export const calculateEmaxCosts = (
-  billableWeight: number,
-  country: string
-): CarrierCostResult => {
-  const countryKey = country === 'CN' ? 'CN' : 'VN';
-  const perKgRate = EMAX_RATES[countryKey] ?? EMAX_RATES['VN'];
-  const intlBase = Math.ceil(billableWeight) * perKgRate + EMAX_HANDLING_CHARGE;
-
-  return {
-    intlBase,
-    intlFsc: 0,
-    intlWarRisk: 0,
-    appliedZone: `E-MAX ${countryKey}`,
-    transitTime: TRANSIT_TIMES.EMAX,
-  };
-};
-
 // --- Main Orchestrator ---
 
 export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const carrier = input.overseasCarrier || 'UPS';
-  const isEmax = carrier === 'EMAX';
-  const volumetricDivisor = isEmax ? 6000 : 5000;
+  const volumetricDivisor = 5000;
 
   // 1. Calculate Item Costs (Packing, Surge, Weights)
   const itemResult = calculateItemCosts(input.items, input.packingType, input.manualPackingCost, volumetricDivisor);
@@ -217,19 +196,11 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
     userWarnings.push("High Volumetric Weight Detected (>20% over actual). Consider Repacking.");
   }
 
-  // EMAX only services CN/VN routes from Korea
-  if (carrier === 'EMAX' && !['CN', 'VN'].includes(input.destinationCountry)) {
-    userWarnings.push("EMAX only services China (CN) and Vietnam (VN). Using VN fallback rate — verify with carrier.");
-  }
-
   // 3. Carrier Costs (routing by carrier)
   let carrierResult: CarrierCostResult;
   switch (carrier) {
     case 'DHL':
       carrierResult = calculateDhlCosts(billableWeight, input.destinationCountry);
-      break;
-    case 'EMAX':
-      carrierResult = calculateEmaxCosts(billableWeight, input.destinationCountry);
       break;
     default:
       carrierResult = calculateUpsCosts(billableWeight, input.destinationCountry);
@@ -299,8 +270,8 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const baseWithMargin = baseRate * (1 + safeMarginPercent / 100);
   const marginAmount = baseWithMargin - baseRate;
 
-  // Step 3: FSC on (Base Rate + Margin) — EMAX has no FSC
-  const fscRate = carrier === 'EMAX' ? 0 : (input.fscPercent || 0) / 100;
+  // Step 3: FSC on (Base Rate + Margin)
+  const fscRate = (input.fscPercent || 0) / 100;
   const intlFscNew = Math.round(baseWithMargin * fscRate);
 
   // Step 4: Add-ons (no margin applied)

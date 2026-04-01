@@ -37,7 +37,7 @@ export enum Incoterm {
     // Market Variables
     exchangeRate: number; // KRW per USD
     fscPercent: number; // Fuel Surcharge %
-    overseasCarrier?: 'UPS' | 'DHL' | 'EMAX';
+    overseasCarrier?: 'UPS' | 'DHL';
 
     // Manual Overrides
     manualPackingCost?: number; // Optional manual override for packing & docs
@@ -90,9 +90,9 @@ export enum Incoterm {
     packingFumigation: number;
     handlingFees: number; // Customs, Docs
     pickupInSeoul: number; // Extra cost for pick-up in Seoul (KRW)
-    intlBase: number; // Carrier base rate (UPS/DHL/EMAX)
-    intlFsc: number; // Fuel Surcharge (0 for EMAX)
-    intlWarRisk: number; // War risk surcharge (0 for EMAX)
+    intlBase: number; // Carrier base rate (UPS/DHL)
+    intlFsc: number; // Fuel Surcharge
+    intlWarRisk: number; // War risk surcharge
     intlSurge: number; // Combined surge total (system + manual)
     intlSystemSurcharge?: number; // DB-driven surcharges (auto-calculated)
     intlManualSurge?: number; // User-entered manual surge override
@@ -131,7 +131,7 @@ export enum Incoterm {
     billableWeight: number;
     appliedZone: string;
     transitTime: string;
-    carrier: string; // 'UPS' | 'DHL' | 'EMAX'
+    carrier: string; // 'UPS' | 'DHL'
     warnings: string[];
 
     breakdown: CostBreakdown;

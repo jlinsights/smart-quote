@@ -30,7 +30,6 @@ export function carrierBadge(carrier: string | null) {
   const colors: Record<string, string> = {
     UPS: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
     DHL: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
-    EMAX: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
   };
   return colors[carrier] || 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300';
 }

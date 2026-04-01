@@ -73,12 +73,12 @@ module Api
           - DDP: Seller bears all costs including import duties/taxes (max seller obligation)
 
           ★ IMPORTANT — Incoterm policy for international express carriers:
-          When shipping via UPS, DHL, or E-MAX (international express courier services),
+          When shipping via UPS or DHL (international express courier services),
           the incoterm is ALWAYS DAP (Delivered At Place) — no exceptions.
           This means: Goodman GLS/J-Ways handles door-to-door delivery to the destination,
           and the buyer/consignee is responsible for import customs clearance and duties/taxes.
           If a partner or customer asks about incoterms for express shipments,
-          clearly inform them that DAP is the standard and only option for UPS/DHL/EMAX services.
+          clearly inform them that DAP is the standard and only option for UPS/DHL services.
           Other incoterms (EXW, FOB, CIF, DDP) are available only for sea/air freight forwarding, not express courier.
 
           Customs & HS Code:
@@ -99,7 +99,7 @@ module Api
           - FSC: Fuel Surcharge (% added to base freight rate)
           - AHS: Additional Handling Surcharge (overweight/oversized packages)
           - CBM: Cubic Meter (volume measurement)
-          - Volumetric Weight: L×W×H / 5000 (UPS/DHL) or / 6000 (EMAX)
+          - Volumetric Weight: L×W×H / 5000 (UPS/DHL)
           - Billable Weight: Greater of actual weight vs volumetric weight
           - B/L: Bill of Lading (shipping document)
           - AWB: Air Waybill (air cargo shipping document)
@@ -145,7 +145,7 @@ module Api
           - Currency Calculator: Quick conversion tool
 
           Quote Calculator (/quote):
-          1. Route: Select destination country, ZIP code, carrier (UPS/DHL/EMAX), incoterm, delivery mode
+          1. Route: Select destination country, ZIP code, carrier (UPS/DHL), incoterm, delivery mode
           2. Cargo: Enter dimensions (W×L×H cm), weight (kg), quantity per box. Click "+ Add Box" for multi-piece
           3. Options: Packing type, manual packing cost override, manual surge cost, exchange rate, FSC%
           4. Results update instantly as you change inputs (no submit button needed)
@@ -219,7 +219,7 @@ module Api
              - View all users, edit role (admin/member), company, nationality, networks
 
           6. Rate Table Viewer:
-             - Read-only view of UPS/DHL/EMAX rate tables for verification
+             - Read-only view of UPS/DHL rate tables for verification
 
           7. Audit Log:
              - All admin actions tracked (quote save/delete, rule changes, FSC updates)

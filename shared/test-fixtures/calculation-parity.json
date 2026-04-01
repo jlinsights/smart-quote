@@ -36,23 +36,6 @@
       }
     },
     {
-      "name": "emax_cn_ddp_with_surge",
-      "input": {
-        "originCountry": "KR",
-        "destinationCountry": "CN",
-        "destinationZip": "100000",
-        "incoterm": "DDP",
-        "packingType": "SKID",
-        "items": [{"id":"1","length":100,"width":80,"height":60,"weight":50,"quantity":1}],
-        "marginPercent": 12,
-        "dutyTaxEstimate": 150000,
-        "exchangeRate": 1400,
-        "fscPercent": 30,
-        "overseasCarrier": "EMAX",
-        "manualSurgeCost": 40000
-      }
-    },
-    {
       "name": "ups_jp_manual_packing",
       "input": {
         "originCountry": "KR",
@@ -131,24 +114,6 @@
         "exchangeRate": 1400,
         "fscPercent": 30,
         "overseasCarrier": "DHL"
-      }
-    },
-    {
-      "name": "emax_vn_pickup_and_surge",
-      "input": {
-        "originCountry": "KR",
-        "destinationCountry": "VN",
-        "destinationZip": "100000",
-        "incoterm": "DAP",
-        "packingType": "WOODEN_BOX",
-        "items": [{"id":"1","length":80,"width":60,"height":50,"weight":30,"quantity":1}],
-        "marginPercent": 15,
-        "dutyTaxEstimate": 0,
-        "exchangeRate": 1400,
-        "fscPercent": 30,
-        "overseasCarrier": "EMAX",
-        "pickupInSeoulCost": 80000,
-        "manualSurgeCost": 25000
       }
     },
     {
