@@ -7,7 +7,7 @@ module Constants
     PACKING_LABOR_UNIT_COST = 50000
     DEFAULT_EXCHANGE_RATE = 1450 # 하나은행 월요일 09시 송금환율 (2026-03-24)
     DEFAULT_FSC_PERCENT = 46.25 # UPS default, effective 2026-03-30
-    DEFAULT_FSC_PERCENT_DHL = 30.5 # DHL default, verified 2026-03
+    DEFAULT_FSC_PERCENT_DHL = 39 # DHL default, effective 2026-04-01
     MAX_MARGIN_PERCENT = 80 # Maximum margin rate (%)
     UPS_FSC_URL = "https://www.ups.com/kr/ko/support/shipping-support/shipping-costs-rates/fuel-surcharges.page"
     UPS_RATES_HUB_URL = "https://www.ups.com/kr/ko/support/shipping-support/shipping-costs-rates"

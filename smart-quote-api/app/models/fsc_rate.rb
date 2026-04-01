@@ -7,7 +7,7 @@ class FscRate < ApplicationRecord
     return if exists?
 
     create!(carrier: "UPS", international: 38.5, domestic: 36.5, source: "seed")
-    create!(carrier: "DHL", international: 30.5, domestic: 28.5, source: "seed")
+    create!(carrier: "DHL", international: 39, domestic: 37, source: "seed")
   end
 
   def self.rates_hash

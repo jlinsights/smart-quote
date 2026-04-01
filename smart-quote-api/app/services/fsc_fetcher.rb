@@ -2,7 +2,7 @@ class FscFetcher
   # Fallback rates if DB is unavailable (verified 2026-03-15)
   DEFAULT_RATES = {
     "UPS" => { "international" => 38.5, "domestic" => 36.5 },
-    "DHL" => { "international" => 30.5, "domestic" => 28.5 }
+    "DHL" => { "international" => 39, "domestic" => 37 }
   }.freeze
 
   class << self
