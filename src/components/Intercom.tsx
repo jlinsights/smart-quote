@@ -1,64 +1,97 @@
 import { useEffect, useRef } from 'react';
-import IntercomSDK, { boot, shutdown, update } from '@intercom/messenger-js-sdk';
 import { useAuth } from '@/contexts/AuthContext';
 
-const INTERCOM_APP_ID = import.meta.env.VITE_INTERCOM_APP_ID || 'k5z51xs2';
+const APP_ID = import.meta.env.VITE_INTERCOM_APP_ID || 'k5z51xs2';
+const WIDGET_URL = `https://widget.intercom.io/widget/${APP_ID}`;
+
+/** Inject Intercom script once */
+function loadScript() {
+  if (document.getElementById('intercom-script')) return;
+  const s = document.createElement('script');
+  s.id = 'intercom-script';
+  s.src = WIDGET_URL;
+  s.async = true;
+  document.head.appendChild(s);
+}
+
+/** Safe wrapper around window.Intercom */
+function ic(method: string, arg?: Record<string, unknown>) {
+  if (typeof window !== 'undefined' && typeof window.Intercom === 'function') {
+    arg ? window.Intercom(method, arg) : window.Intercom(method);
+  }
+}
+
+declare global {
+  interface Window {
+    Intercom?: (...args: unknown[]) => void;
+    intercomSettings?: Record<string, unknown>;
+  }
+}
 
 export function Intercom() {
   const { user } = useAuth();
-  const initializedRef = useRef(false);
-  const prevUserIdRef = useRef<number | null>(null);
+  const prevUserIdRef = useRef<string | null>(null);
 
-  // Initialize SDK once (injects script tag)
+  // Load script on mount
   useEffect(() => {
-    if (!INTERCOM_APP_ID || initializedRef.current) return;
-    IntercomSDK({ app_id: INTERCOM_APP_ID });
-    initializedRef.current = true;
+    if (!APP_ID) return;
+    loadScript();
   }, []);
 
-  // Handle user changes via boot/shutdown/update
+  // Boot/reboot when user changes
   useEffect(() => {
-    if (!initializedRef.current) return;
+    if (!APP_ID) return;
 
-    if (!user) {
-      // Logged out → restart as anonymous visitor
-      shutdown();
-      boot({ app_id: INTERCOM_APP_ID });
-      prevUserIdRef.current = null;
-      return;
-    }
-
-    const bootData = {
-      app_id: INTERCOM_APP_ID,
-      user_id: String(user.id),
-      name: user.name || user.email?.split('@')[0] || '',
-      email: user.email || '',
-      company: user.company ? { name: user.company } : undefined,
-      role: user.role,
-      nationality: user.nationality || '',
+    const boot = () => {
+      if (user) {
+        ic('boot', {
+          app_id: APP_ID,
+          user_id: String(user.id),
+          name: user.name || user.email?.split('@')[0] || '',
+          email: user.email || '',
+          company: user.company ? { name: user.company } : undefined,
+          role: user.role,
+          nationality: user.nationality || '',
+        });
+      } else {
+        ic('boot', { app_id: APP_ID });
+      }
     };
 
-    if (prevUserIdRef.current !== null && prevUserIdRef.current !== user.id) {
-      // Different user → shutdown old session, boot new
-      shutdown();
-      boot(bootData);
-    } else if (prevUserIdRef.current === null) {
-      // First login → shutdown anonymous, boot with user
-      shutdown();
-      boot(bootData);
-    } else {
-      // Same user, profile may have changed
-      update({
-        name: bootData.name,
-        email: bootData.email,
-        company: bootData.company,
+    const currentUserId = user ? String(user.id) : null;
+
+    // User changed (login/logout/switch) → shutdown then reboot
+    if (prevUserIdRef.current !== currentUserId) {
+      if (prevUserIdRef.current !== null) {
+        ic('shutdown');
+      }
+      // Wait for script to load if first boot
+      if (typeof window.Intercom === 'function') {
+        boot();
+      } else {
+        // Script still loading — wait for it
+        const script = document.getElementById('intercom-script');
+        if (script) {
+          script.addEventListener('load', boot, { once: true });
+        }
+      }
+      prevUserIdRef.current = currentUserId;
+    } else if (user) {
+      // Same user, profile may have updated
+      ic('update', {
+        name: user.name || '',
+        email: user.email || '',
         role: user.role,
-        nationality: user.nationality || '',
       });
     }
 
-    prevUserIdRef.current = user.id;
+    return () => {};
   }, [user]);
+
+  // Shutdown on unmount
+  useEffect(() => {
+    return () => { ic('shutdown'); };
+  }, []);
 
   return null;
 }
