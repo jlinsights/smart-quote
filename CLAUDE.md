@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Smart Quote System for **Goodman GLS & J-Ways** - an internal logistics quoting tool that calculates international shipping costs across carriers (UPS, DHL, EMAX). React frontend with a Rails API backend, sharing mirrored calculation logic. Includes customer dashboard with live exchange rates, weather, jet fuel prices, notices, and account manager widgets. Role-based access (Admin/Member) with Slack notifications and Sentry error tracking.
+Smart Quote System for **Goodman GLS & J-Ways** - an internal logistics quoting tool that calculates international shipping costs across carriers (UPS, DHL). React frontend with a Rails API backend, sharing mirrored calculation logic. Includes customer dashboard with live exchange rates, weather, jet fuel prices, notices, and account manager widgets. Role-based access (Admin/Member) with Slack notifications and Sentry error tracking.
 
 ## Development Commands
 
@@ -15,7 +15,7 @@ npm run dev          # Dev server on http://localhost:5173
 npm run build        # tsc + vite build
 npm run lint         # ESLint (--max-warnings 0)
 npm run test         # Vitest in watch mode
-npx vitest run       # Run tests once (32 files, 1193 tests)
+npx vitest run       # Run tests once (32 files, 1188 tests)
 npx tsc --noEmit     # Type check only
 ```
 
@@ -58,7 +58,6 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
     config/                    # Rate tables, business rules, UI constants
       ups_tariff.ts            # UPS Z1-Z10 rate tables (synced with backend)
       dhl_tariff.ts            # DHL Z1-Z8 rate tables (synced with backend)
-      emax_tariff.ts           # EMAX per-country rate tables (CN, VN only)
       rates.ts                 # KRW cost constants, DEFAULT_EXCHANGE_RATE=1450, DEFAULT_FSC_PERCENT=41.75
       business-rules.ts        # Surge thresholds, packing weight buffer/addition
       options.ts               # Country options, carrier options, incoterm options
@@ -122,7 +121,6 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
       ups_cost.rb / ups_zone.rb
       ups_surge_fee.rb         # UPS Surge Fee auto-calc (Israel/Middle East)
       dhl_cost.rb / dhl_zone.rb
-      emax_cost.rb
       domestic_cost.rb         # Domestic pickup cost
   app/controllers/api/v1/
     quotes_controller.rb       # Quote CRUD (uses QuoteSearcher, QuoteExporter, QuoteSerializer)
@@ -137,7 +135,7 @@ smart-quote-api/               # Backend (Rails 8 API-only, Ruby 3.4, PostgreSQL
     chat_controller.rb         # AI chatbot (Claude API, role-aware, language auto-detect, markdown, preset questions)
     notifications_controller.rb # Slack webhook proxy
   db/seeds/addon_rates.rb      # DHL 19 + UPS 6 add-on rate seed data
-  lib/constants/               # Tariff tables (ups_tariff.rb, dhl_tariff.rb, emax_tariff.rb)
+  lib/constants/               # Tariff tables (ups_tariff.rb, dhl_tariff.rb)
 ```
 
 ### Routing (src/App.tsx)
@@ -188,14 +186,14 @@ Frontend (`src/features/quote/services/calculationService.ts`) and backend (`sma
 
 ### Calculation Pipeline
 
-1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L*W*H / 5000 for UPS & DHL, /6000 for EMAX), packing material/labor, manual surge charges (all carriers)
+1. **Item Costs** - Packing dimensions (+10/+10/+15cm), volumetric weight (L*W*H / 5000), packing material/labor, manual surge charges (all carriers)
 2. **Carrier Costs** - Zone lookup (country -> zone code), shared `lookupCarrierRate()` engine (exact table 0.5-20kg -> range table >20kg -> fallback), FSC% surcharge
 3. **Margin** - Dynamic margin via `MarginRuleResolver` (priority-based: P100 per-user flat > P90 per-user weight > P50 nationality > P0 default), `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100. Admin can manually override at any time.
-4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
+4. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB)
 
 ### UPS Zone Mapping (Z1-Z10) — per UPS 2026 Service Guide
 
-Z1: SG/TW/MO/CN, Z2: JP/VN, Z3: TH/PH, Z4: AU/IN, Z5: CA/US, Z6: ES/IT/GB/FR, Z7: DK/NO/SE/FI/DE/NL/BE/IE/CH/AT/PT/CZ/PL/HU/RO/BG, Z8: AR/BR/CL/CO/AE/TR/ZA/EG/BH/SA/PK/KW/QA, Z9: IL/JO/LB, Z10: HK+default
+Z1: SG/TW/MO/CN, Z2: JP/VN, Z3: TH/PH, Z4: AU/IN, Z5: CA/US, Z6: ES/IT/GB/FR, Z7: DK/NO/SE/FI/DE/NL/BE/IE/CH/AT/PT/CZ/PL/HU/RO/BG, Z8: AR/BR/CL/CO/AE/TR/ZA/EG/BH/SA/PK/KW/QA, Z9: IL/JO/LB, Z10: HK/CN-S+default
 
 Zone mappings are config-driven (`src/config/ups_zones.ts`, `src/config/dhl_zones.ts`).
 
@@ -215,7 +213,7 @@ Zone mappings are config-driven (`src/config/ups_zones.ts`, `src/config/dhl_zone
 
 ### Incoterm Policy
 
-UPS/DHL/EMAX express shipments → **DAP only** (no exceptions). AI chatbot enforces this in responses.
+UPS/DHL express shipments → **DAP only** (no exceptions). AI chatbot enforces this in responses.
 
 ## Dashboard Widgets
 
@@ -325,7 +323,7 @@ POST   /api/v1/notifications/slack   # Slack webhook proxy
 
 - **Frontend**: Vitest + @testing-library/react, jsdom environment, setup in `src/test/setup.ts`
   - Tests use `vitest/globals` (no imports needed for `describe`, `it`, `expect`)
-  - 32 test files, 1193 tests
+  - 32 test files, 1188 tests
 - **Backend**: RSpec + FactoryBot + Shoulda Matchers, factories in `spec/factories/`
 
 ## Deployment

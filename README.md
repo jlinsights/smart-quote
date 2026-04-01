@@ -22,15 +22,15 @@ The **Smart Quote System** is a full-stack logistics quoting application for **G
 - **EAS/RAS Auto-Detection**: Postal code-based Extended/Remote Area Surcharge lookup (86 countries, 39,876 zip ranges, binary search O(log n), lazy-loaded)
 - **Surcharges**: FSC% fuel surcharge, DB-driven surcharges, manual surge fees, carrier-specific add-ons (UPS: 6 types, DHL: 19 types)
 - **Carrier comparison**: Side-by-side cost comparison across all carriers
-- **Incoterm Policy**: UPS/DHL/EMAX express shipments use DAP exclusively
+- **Incoterm Policy**: UPS/DHL express shipments use DAP exclusively
 
 ### Calculation Pipeline
 
-1. **Item Costs** - Packing dimensions via `applyPackingDimensions()` utility (+10/+10/+15cm), volumetric weight (L x W x H / 5000 for UPS & DHL, /6000 for EMAX), packing material/labor, Special Packing info panel (WOODEN_BOX/SKID/VACUUM with live cost preview)
+1. **Item Costs** - Packing dimensions via `applyPackingDimensions()` utility (+10/+10/+15cm), volumetric weight (L x W x H / 5000), packing material/labor, Special Packing info panel (WOODEN_BOX/SKID/VACUUM with live cost preview)
 2. **Carrier Costs** - Config-driven zone lookup -> `lookupCarrierRate()` -> FSC -> UPS Surge Fee (auto) -> EAS/RAS (auto)
 3. **Add-on Services** - Auto-detected (AHS, OSP, OWT, DDP, Surge Fee, EAS/RAS) + user-selectable (19 DHL / 6 UPS add-ons)
 4. **Margin** - Dynamic margin resolution via `MarginRuleResolver` (priority-based first-match-wins algorithm with 5min cache), admin CRUD management, hardcoded fallback if API unavailable. Revenue = cost / (1 - margin%), rounded up to nearest KRW 100
-5. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB), EMAX country support
+5. **Warnings** - Low margin (<10%), high volumetric weight, surge charges, collect terms (EXW/FOB)
 6. **PDF Output** - Branded PDF with packing type/cost breakdown, carrier add-on details, surcharge info
 
 ### Role-Based Access
@@ -100,7 +100,7 @@ When a **Member** saves a quote, a Slack notification is automatically sent to t
 
 - **Smart Quote Assistant**: In-app chatbot powered by Claude API for system usage help and logistics Q&A
 - **Logistics knowledge**: Incoterms, customs, HS codes, ULD, common industry terms
-- **DAP policy enforcement**: Automatically informs users that UPS/DHL/EMAX shipments require DAP incoterm
+- **DAP policy enforcement**: Automatically informs users that UPS/DHL shipments require DAP incoterm
 - **Rich Interactions**: Markdown rendering support and randomly suggested quick-questions per session
 - **Smart Localization**: Auto-detects optimal language (Nationality → System → Timezone → Browser)
 - **Role-aware**: Different guides for Admin vs Member users
@@ -120,7 +120,7 @@ When a **Member** saves a quote, a Slack notification is automatically sent to t
 | ------------ | ---------------------------------------------------------------------------- |
 | **Frontend** | React 19, TypeScript 5.8, Vite 6, Tailwind CSS                               |
 | **Backend**  | Rails 8 API-only, Ruby 3.4, PostgreSQL                                       |
-| **Testing**  | Vitest + Testing Library (32 files, 1,193 tests), RSpec + FactoryBot (backend) |
+| **Testing**  | Vitest + Testing Library (32 files, 1,188 tests), RSpec + FactoryBot (backend) |
 | **Deploy**   | Vercel (frontend), Render.com (backend, Docker, Singapore)                   |
 | **APIs**     | open.er-api.com (exchange rates), Open-Meteo (weather), Supabase (auth)      |
 | **Other**    | jsPDF, Sentry, Lucide React, React Router v7, ChannelTalk                    |
@@ -161,7 +161,7 @@ When a **Member** saves a quote, a Slack notification is automatically sent to t
 smart-quote-api/               # Backend (Rails 8 API)
   app/models/                  # MarginRule, AuditLog, Quote, User, Customer, Surcharge, AddonRate
   app/services/                # QuoteCalculator, QuoteSearcher, QuoteExporter, QuoteSerializer, MarginRuleResolver
-    calculators/               # ItemCost, SurgeCost, UpsCost, DhlCost, EmaxCost, DomesticCost, UpsSurgeFee
+    calculators/               # ItemCost, SurgeCost, UpsCost, DhlCost, DomesticCost, UpsSurgeFee
   app/controllers/api/v1/      # Quotes, MarginRules, Surcharges, AddonRates, Customers, Users, Auth, Fsc, AuditLogs, Notifications, Chat
   lib/constants/               # Tariff tables (synced with frontend)
 ```
@@ -180,7 +180,7 @@ npm install
 npm run dev          # Dev server on http://localhost:5173
 npm run build        # Production build (tsc + vite)
 npm run lint         # ESLint (--max-warnings 0)
-npx vitest run       # Run tests once (32 files, 1,193 tests)
+npx vitest run       # Run tests once (32 files, 1,188 tests)
 ```
 
 ### Backend (from `smart-quote-api/`)

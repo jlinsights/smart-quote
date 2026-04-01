@@ -2,7 +2,7 @@
 
 > **Goodman GLS & J-Ways** International Logistics Quoting System
 >
-> Version 3.1 | Last Updated: 2026-03-17
+> Version 3.2 | Last Updated: 2026-04-01
 
 ---
 
@@ -71,11 +71,11 @@ Access via `/quote` from the dashboard or header navigation.
 | Field | Description |
 |-------|-------------|
 | Origin Country | Fixed to South Korea (KR) |
-| Destination Country | Select from supported countries |
+| Destination Country | Select from supported countries (includes China Southern as separate option for UPS Z10 routing) |
 | Destination ZIP | Optional ZIP/postal code |
 | Shipping Mode | Door-to-Door |
 | Incoterm | EXW, FOB, CNF, CIF, DAP, DDP |
-| Carrier | UPS, DHL, or EMAX |
+| Carrier | UPS or DHL |
 
 ### Step 2: Cargo Details
 
@@ -86,7 +86,7 @@ For each item, enter:
 
 Click **+ Add Item** for multi-piece shipments. The system automatically:
 - Adds packing dimensions (+10/+10/+15 cm)
-- Calculates volumetric weight (L x W x H / 5000 for UPS & DHL, /6000 for EMAX)
+- Calculates volumetric weight (L x W x H / 5000)
 - Applies the greater of actual vs volumetric weight
 
 ### Step 3: Packing & Options
@@ -125,11 +125,11 @@ When entering a destination ZIP code, the system automatically checks against 86
 
 ### Incoterm Policy
 
-> **Note**: UPS/DHL/EMAX express shipments use **DAP only** — no exceptions.
+> **Note**: UPS/DHL express shipments use **DAP only** — no exceptions.
 
 ### Carrier Comparison
 
-A comparison card shows estimated costs across all carriers side-by-side for quick decision-making.
+A comparison card shows estimated costs for UPS and DHL side-by-side. Each carrier uses its own FSC% for accurate comparison. Click **Switch** to change the active carrier.
 
 > **Note**: As a Member, the margin breakdown is hidden. You see the final quoted price only.
 
@@ -157,7 +157,6 @@ Visual breakdown showing international shipping, packing, surcharges, and domest
 The system alerts you to:
 - Surcharge triggers (AHS, large package, over max)
 - Collect terms notice (EXW/FOB)
-- EMAX country support limitations
 - Stale surcharge rates requiring re-quote
 
 ---
@@ -240,4 +239,4 @@ A: Click the language selector (globe icon) in the header.
 
 ---
 
-*Goodman GLS & J-Ways - Smart Quote System v3.1*
+*Goodman GLS & J-Ways - Smart Quote System v3.2*

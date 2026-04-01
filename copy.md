@@ -35,7 +35,7 @@
 | `landing.badge.networks` | Global Freight Networks | Global Freight Networks |
 | `landing.title.main` | 190개국 국제 운임, | International freight to 190 countries, |
 | `landing.title.sub` | 1초 만에 견적 완료. | quoted in 1 second. |
-| `landing.subtitle` | UPS, DHL, EMAX 3사 캐리어 실시간 비교... | Compare UPS, DHL, EMAX carriers in real-time... |
+| `landing.subtitle` | UPS, DHL 2사 캐리어 실시간 비교... | Compare UPS, DHL carriers in real-time... |
 
 ### Stats
 
@@ -295,4 +295,3 @@
 |------|---------|--------|-------|
 | UPS | UPS Express Saver | UPS 익스프레스 세이버 | Calculator, Rate Tables |
 | DHL | DHL Express Worldwide | DHL 익스프레스 월드와이드 | Calculator, Rate Tables |
-| EMAX | EMAX (E-MAX) | EMAX (이맥스) | Calculator, Rate Tables |

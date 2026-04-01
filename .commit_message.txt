@@ -1,1 +1,1 @@
-🐛 fix: Carrier Comparison Switch 시 대안 캐리어 FSC% 기본값 적용 — 비교 금액과 Switch 후 실제 금액 일치
+📝 docs: EMAX 삭제/CN-S 추가/FSC 비교 수정 반영 — 전체 문서 v3.2 업데이트

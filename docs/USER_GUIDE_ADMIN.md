@@ -2,7 +2,7 @@
 
 > **Goodman GLS & J-Ways** Internal Logistics Quoting System
 >
-> Version 3.1 | Last Updated: 2026-03-17
+> Version 3.2 | Last Updated: 2026-04-01
 
 ---
 
@@ -81,7 +81,7 @@ Item Costs → Carrier Costs → FSC → Margin → Final Quote
 | Stage | Details |
 |-------|---------|
 | Item Costs | Packing dimensions, volumetric weight, material/labor |
-| Carrier Costs | Zone lookup → rate table → billable weight pricing |
+| Carrier Costs | Zone lookup → rate table → billable weight pricing. China Southern (CN-S) uses UPS Z10 |
 | FSC | Fuel surcharge % applied to carrier cost |
 | Carrier Add-Ons | Auto-detected surcharges (Surge Fee, EAS/RAS, AHS) + manual add-ons |
 | Margin | `revenue = cost / (1 - margin%)`, rounded up to nearest KRW 100 |
@@ -136,7 +136,7 @@ Six new selectable DHL add-ons are available:
 
 ### Incoterm Policy
 
-> **Note**: UPS/DHL/EMAX express shipments use **DAP only** — no exceptions.
+> **Note**: UPS/DHL express shipments use **DAP only** — no exceptions.
 
 ---
 
@@ -263,7 +263,6 @@ Read-only viewer for carrier rate tables.
 |-------|-------------|
 | UPS Tariff | Z1-Z10 zone rates, weight tiers 0.5-70kg |
 | DHL Tariff | Z1-Z8 zone rates, weight tiers 0.5-70kg |
-| EMAX Tariff | Per-country rates (CN, VN) |
 
 Use this to verify rate accuracy and compare carrier pricing.
 
@@ -344,7 +343,7 @@ When a **Member** saves a quote, a Slack notification is automatically sent to t
 |-------|---------|
 | Reference No | SQ-YYYY-NNNN |
 | Member | Company / Name / Email |
-| Carrier | UPS, DHL, or EMAX |
+| Carrier | UPS or DHL |
 | Destination | Country name |
 | Billable Weight | Applied weight |
 | Total Quote | KRW and USD amounts |
@@ -392,4 +391,4 @@ A: Surcharge rates have changed since the quote was saved. The customer should r
 
 ---
 
-*Goodman GLS & J-Ways - Smart Quote System v3.1 (Admin)*
+*Goodman GLS & J-Ways - Smart Quote System v3.2 (Admin)*
