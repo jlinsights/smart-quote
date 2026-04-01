@@ -1,1 +1,1 @@
-🙈 chore: AiChatWidget 숨김 — Intercom 전환으로 기존 AI 챗봇 비활성화
+🔧 fix: Intercom shutdown/update 로직 보강 — 로그아웃·유저 전환·프로필 업데이트 처리
