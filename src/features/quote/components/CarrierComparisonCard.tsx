@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { QuoteInput, QuoteResult } from '@/types';
 import { calculateQuote } from '@/features/quote/services/calculationService';
+import { DEFAULT_FSC_PERCENT, DEFAULT_FSC_PERCENT_DHL } from '@/config/rates';
 import { formatKRW, formatUSDInt } from '@/lib/format';
 import { ArrowRightLeft, Check, ArrowUpDown } from 'lucide-react';
 
@@ -18,7 +19,8 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
 
   const altResult = useMemo<QuoteResult | null>(() => {
     try {
-      return calculateQuote({ ...input, overseasCarrier: altCarrier });
+      const altFsc = altCarrier === 'DHL' ? DEFAULT_FSC_PERCENT_DHL : DEFAULT_FSC_PERCENT;
+      return calculateQuote({ ...input, overseasCarrier: altCarrier, fscPercent: altFsc });
     } catch {
       return null;
     }
