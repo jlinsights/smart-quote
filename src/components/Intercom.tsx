@@ -49,9 +49,11 @@ export function Intercom() {
           user_id: String(user.id),
           name: user.name || user.email?.split('@')[0] || '',
           email: user.email || '',
-          company: user.company ? { name: user.company } : undefined,
-          role: user.role,
-          nationality: user.nationality || '',
+          ...(user.company ? { company: { company_id: user.company, name: user.company } } : {}),
+          custom_attributes: {
+            role: user.role,
+            nationality: user.nationality || '',
+          },
         });
       } else {
         ic('boot', { app_id: APP_ID });
@@ -81,7 +83,6 @@ export function Intercom() {
       ic('update', {
         name: user.name || '',
         email: user.email || '',
-        role: user.role,
       });
     }
 
