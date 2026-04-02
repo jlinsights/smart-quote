@@ -1,8 +1,25 @@
-@import url('https://assets.vercel.com/raw/upload/v1587415301/fonts/2/Geist-Regular.woff2');
-@import url('https://assets.vercel.com/raw/upload/v1587415301/fonts/2/Geist-Medium.woff2');
-@import url('https://assets.vercel.com/raw/upload/v1587415301/fonts/2/Geist-Bold.woff2');
-
 @tailwind base;
+
+@layer base {
+  @font-face {
+    font-family: 'Geist';
+    font-weight: 400;
+    font-display: swap;
+    src: url('https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Regular.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Geist';
+    font-weight: 500;
+    font-display: swap;
+    src: url('https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Medium.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Geist';
+    font-weight: 700;
+    font-display: swap;
+    src: url('https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-SemiBold.woff2') format('woff2');
+  }
+}
 @tailwind components;
 @tailwind utilities;
 
