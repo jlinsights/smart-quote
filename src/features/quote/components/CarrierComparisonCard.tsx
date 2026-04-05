@@ -3,6 +3,7 @@ import { QuoteInput, QuoteResult, CarrierComparisonItem, CarrierBadge } from '@/
 import { calculateQuote } from '@/features/quote/services/calculationService';
 import { assignBadges } from '@/features/quote/services/carrierRanker';
 import { CARRIER_METADATA } from '@/config/carrier_metadata';
+import { calculateCo2Kg } from '@/lib/co2';
 import { DEFAULT_FSC_PERCENT, DEFAULT_FSC_PERCENT_DHL } from '@/config/rates';
 import { formatKRW, formatUSDInt } from '@/lib/format';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -47,7 +48,7 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
         marginPct: result.profitMargin,
         transitDaysMin: meta.transitDaysMin,
         transitDaysMax: meta.transitDaysMax,
-        co2Kg: null, // populated in Phase 3.5
+        co2Kg: calculateCo2Kg(carrier, result.billableWeight, input.destinationCountry),
         qualityScore: meta.qualityScore,
         badges: [],
       };
@@ -60,7 +61,7 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
       [items[0].carrier]: items[0],
       [items[1].carrier]: items[1],
     };
-  }, [altResult, currentResult, currentCarrier, altCarrier]);
+  }, [altResult, currentResult, currentCarrier, altCarrier, input.destinationCountry]);
 
   if (!altResult || !badgedItems) return null;
 
@@ -107,6 +108,7 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
           badges={badgedItems[currentCarrier]?.badges ?? []}
           transitDaysMin={CARRIER_METADATA[currentCarrier].transitDaysMin}
           transitDaysMax={CARRIER_METADATA[currentCarrier].transitDaysMax}
+          co2Kg={badgedItems[currentCarrier]?.co2Kg ?? null}
           onSelect={() => {}}
         />
         <CarrierColumn
@@ -121,6 +123,7 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
           badges={badgedItems[altCarrier]?.badges ?? []}
           transitDaysMin={CARRIER_METADATA[altCarrier as 'UPS' | 'DHL'].transitDaysMin}
           transitDaysMax={CARRIER_METADATA[altCarrier as 'UPS' | 'DHL'].transitDaysMax}
+          co2Kg={badgedItems[altCarrier]?.co2Kg ?? null}
           onSelect={() => onSwitchCarrier(altCarrier as 'UPS' | 'DHL')}
           hideSwitch={hideMargin}
         />
@@ -141,6 +144,7 @@ interface CarrierColumnProps {
   badges?: CarrierBadge[];
   transitDaysMin?: number;
   transitDaysMax?: number;
+  co2Kg?: number | null;
   onSelect: () => void;
   hideSwitch?: boolean;
 }
@@ -163,7 +167,7 @@ const BADGE_STYLE: Record<CarrierBadge, { icon: string; className: string; i18nK
   },
 };
 
-const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, showKRW, isCurrent, diff, diffPercent, exchangeRate = 1400, badges = [], transitDaysMin, transitDaysMax, onSelect, hideSwitch }) => {
+const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, showKRW, isCurrent, diff, diffPercent, exchangeRate = 1400, badges = [], transitDaysMin, transitDaysMax, co2Kg, onSelect, hideSwitch }) => {
   const { t } = useLanguage();
   const transitLabel =
     transitDaysMin !== undefined && transitDaysMax !== undefined
@@ -225,6 +229,14 @@ const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, showKRW,
             </p>
           </div>
         </div>
+        {co2Kg !== null && co2Kg !== undefined && (
+          <div className="text-xs">
+            <span className="text-gray-500 dark:text-gray-400">{t('co2.label')}</span>
+            <p className="font-semibold text-gray-800 dark:text-gray-200">
+              {co2Kg.toFixed(1)} kg CO₂
+            </p>
+          </div>
+        )}
         {!isCurrent && diff !== undefined && diffPercent !== undefined && (
           <div className={`text-xs font-semibold px-2 py-1 rounded-md text-center ${
             diff < 0

@@ -319,6 +319,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'badge.fastest': '최단',
     'badge.greenest': '친환경',
     'transit.days': '{min}~{max}일',
+    'co2.label': 'CO₂ 배출량',
+    'co2.disclaimer': 'IATA RP1678 기준 추정치',
   },
   en: {
     // Navigation / General
@@ -647,6 +649,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'badge.fastest': 'Fastest',
     'badge.greenest': 'Eco',
     'transit.days': '{min}-{max} days',
+    'co2.label': 'CO₂ Emissions',
+    'co2.disclaimer': 'Estimate per IATA RP1678',
   },
   cn: {
     // Navigation / General
@@ -952,6 +956,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'badge.fastest': '最快',
     'badge.greenest': '环保',
     'transit.days': '{min}-{max}天',
+    'co2.label': 'CO₂排放',
+    'co2.disclaimer': '基于IATA RP1678的估算',
   },
   ja: {
     // Navigation / General
@@ -1257,5 +1263,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'badge.fastest': '最速',
     'badge.greenest': 'エコ',
     'transit.days': '{min}〜{max}日',
+    'co2.label': 'CO₂排出量',
+    'co2.disclaimer': 'IATA RP1678準拠の推定値',
   },
 };

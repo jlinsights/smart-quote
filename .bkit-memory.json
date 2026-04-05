@@ -1,9 +1,29 @@
 {
   "activeFeature": "cargoai-roadmap",
-  "phase": "do",
-  "matchRate": null,
+  "phase": "completed",
+  "matchRate": 98,
   "iteration": 0,
   "history": [
+    {
+      "feature": "cargoai-roadmap",
+      "phase": "completed",
+      "timestamp": "2026-04-05",
+      "action": "M2a 완료 보고서 생성 — Phase 3.5 CO2 frontend slice (62국 거리 + IATA RP1678), 🌱 greenest 배지 활성화. Match 98%. M2b/M2c 후순위.",
+      "matchRate": 98
+    },
+    {
+      "feature": "cargoai-roadmap",
+      "phase": "check",
+      "timestamp": "2026-04-05",
+      "action": "M2a Gap Analysis — Match Rate 98%, 0 hard gaps, formula 정확도 100% 검증. 62국 거리(design 50국 초과). Greenest 배지 자동 활성화 확인.",
+      "matchRate": 98
+    },
+    {
+      "feature": "cargoai-roadmap",
+      "phase": "do",
+      "timestamp": "2026-04-05",
+      "action": "M2a 구현 완료 — route_distances(62국) + co2.ts(IATA RP1678) + CarrierComparisonCard 통합 + Co2 UI row + 4언어 i18n. 1224 tests pass (+16). 🌱 greenest 배지 활성화."
+    },
     {
       "feature": "cargoai-roadmap",
       "phase": "do",
