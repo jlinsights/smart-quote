@@ -98,9 +98,9 @@ const PriceChart: React.FC<{ prices: { date: string; price: number }[] }> = ({
       </text>
 
       {/* X-axis date labels */}
-      {labelIndices.map((idx) => (
+      {labelIndices.map((idx, i) => (
         <text
-          key={idx}
+          key={`tick-${i}-${idx}`}
           x={toX(idx)}
           y={H - 2}
           textAnchor="middle"

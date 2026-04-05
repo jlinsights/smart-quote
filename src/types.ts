@@ -137,6 +137,28 @@ export enum Incoterm {
     breakdown: CostBreakdown;
   }
 
+  // ── Carrier Comparison Types (Phase 1.5 — CargoAI-inspired) ──
+
+  export type CarrierBadge = 'cheapest' | 'fastest' | 'greenest';
+
+  export type CarrierSortKey = 'price' | 'transit' | 'co2' | 'quality';
+
+  /**
+   * Normalized carrier comparison result — used by CarrierComparisonCard
+   * to rank/badge carriers by price/transit/CO2/quality.
+   */
+  export interface CarrierComparisonItem {
+    carrier: 'UPS' | 'DHL' | 'FEDEX';
+    revenueKrw: number;         // totalQuoteAmount
+    costKrw: number;            // totalCostAmount
+    marginPct: number;          // profitMargin
+    transitDaysMin: number;     // minimum transit days
+    transitDaysMax: number;     // maximum transit days
+    co2Kg: number | null;       // CO2 emissions in kg (null until Phase 3.5)
+    qualityScore: number;       // 1-5 (static until Phase 2 booking data)
+    badges: CarrierBadge[];     // awarded badges
+  }
+
   // ── Quote History Types ──
 
   export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'confirmed' | 'expired';

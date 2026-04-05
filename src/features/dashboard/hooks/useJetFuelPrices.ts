@@ -14,26 +14,36 @@ export function useJetFuelPrices(weeks: number = 12): UseJetFuelPricesResult {
   const [data, setData] = useState<JetFuelPrice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const prices = await fetchJetFuelPrices(weeks);
-      setData(prices);
-    } catch (err) {
-      Sentry.captureException(err);
-      setError(
-        err instanceof Error ? err.message : 'Failed to load jet fuel prices',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [weeks]);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    let cancelled = false;
+    // Intentional: reset fetch state when deps change (data-fetching pattern)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
+    setError(null);
 
-  return { data, loading, error, retry: load };
+    fetchJetFuelPrices(weeks)
+      .then((prices) => {
+        if (!cancelled) setData(prices);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        Sentry.captureException(err);
+        setError(
+          err instanceof Error ? err.message : 'Failed to load jet fuel prices',
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [weeks, reloadToken]);
+
+  const retry = useCallback(() => setReloadToken((n) => n + 1), []);
+
+  return { data, loading, error, retry };
 }

@@ -4,6 +4,7 @@ import { Bell, ExternalLink, Newspaper, ChevronLeft, ChevronRight } from 'lucide
 import { useLogisticsNews } from '@/features/dashboard/hooks/useLogisticsNews';
 import { WidgetSkeleton } from '@/features/dashboard/components/WidgetSkeleton';
 import { WidgetError } from '@/features/dashboard/components/WidgetError';
+import { safeExternalHref } from '@/lib/urlSafety';
 
 const ITEMS_PER_PAGE = 5;
 const AUTO_ROTATE_MS = 6000;
@@ -66,7 +67,7 @@ export const NoticeWidget: React.FC = () => {
                       pageData.map((item, idx) => (
                         <li key={`${safePage}-${idx}`}>
                           <a
-                            href={item.link}
+                            href={safeExternalHref(item.link)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-start px-5 py-4 hover:bg-gray-50 dark:hover:bg-jways-700/50 transition-colors group"

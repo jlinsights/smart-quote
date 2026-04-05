@@ -1,9 +1,93 @@
 {
-  "activeFeature": null,
-  "phase": "idle",
+  "activeFeature": "cargoai-roadmap",
+  "phase": "do",
   "matchRate": null,
   "iteration": 0,
   "history": [
+    {
+      "feature": "cargoai-roadmap",
+      "phase": "do",
+      "timestamp": "2026-04-05",
+      "action": "M2 Do guide 생성 — Phase 3.5 CO2 frontend-first slice (M2a). 6-step: route_distances, co2 util, card 통합, UI, i18n, 검증. M2b(PDF)/M2c(backend) 후순위."
+    },
+    {
+      "feature": "cargoai-roadmap-m1",
+      "phase": "archived",
+      "timestamp": "2026-04-05",
+      "action": "M1 partial archive — do/analysis/report moved to docs/archive/2026-04/cargoai-roadmap-m1/. Plan+Design kept active for M2-M6.",
+      "matchRate": 97
+    },
+    {
+      "feature": "cargoai-roadmap",
+      "phase": "completed",
+      "timestamp": "2026-04-05",
+      "action": "M1 완료 보고서 생성 — Phase 1.5 Multi-Carrier UX (배지+transit+4언어 i18n), Match Rate 97%. M2(CO2)는 별도 사이클.",
+      "matchRate": 97
+    },
+    {
+      "feature": "cargoai-roadmap",
+      "phase": "check",
+      "timestamp": "2026-04-05",
+      "action": "M1 Gap Analysis 완료 — Match Rate 97%, hard gaps 0건, deviations 3건(L1-L3 모두 개선). sortBy/Matrix는 FEDEX 추가 시 재도입 명시.",
+      "matchRate": 97
+    },
+    {
+      "feature": "cargoai-roadmap",
+      "phase": "do",
+      "timestamp": "2026-04-05",
+      "action": "M1 Do 재개 완료 — Step 6(i18n) 완료. comparison.title/badge.*/transit.days 4개 언어 추가, CarrierComparisonCard i18n 적용. sortBy 드롭다운은 2-column UI 부적합으로 FEDEX 추가 시 재검토 결정. 1208 tests pass."
+    },
+    {
+      "feature": "code-quality-fixes",
+      "phase": "archived",
+      "timestamp": "2026-04-05",
+      "action": "Archived to docs/archive/2026-04/code-quality-fixes/ (96%)",
+      "matchRate": 96
+    },
+    {
+      "feature": "code-quality-fixes",
+      "phase": "completed",
+      "timestamp": "2026-04-05",
+      "action": "Completion report 생성 — Phase A+B H1-H4 완료, Match Rate 96%, Health 82→87 추정. Phase C-E는 별도 사이클 예정.",
+      "matchRate": 96
+    },
+    {
+      "feature": "code-quality-fixes",
+      "phase": "check",
+      "timestamp": "2026-04-05",
+      "action": "Gap analysis 완료 — Match Rate 96% (25/26), hard gaps 0건, 개선 deviations 3건(D2-4) + 컨벤션 1건(D1). Report 진행 권장.",
+      "matchRate": 96
+    },
+    {
+      "feature": "code-quality-fixes",
+      "phase": "do",
+      "timestamp": "2026-04-05",
+      "action": "Phase A+B 구현 완료 — H1(urlSafety+NoticeWidget) H2(alert→toast) H3(JetFuelWidget key) H4(useJetFuelPrices refactor + test act wrap). 1208 tests pass, 0 act warnings, 0 dup-key warnings"
+    },
+    {
+      "feature": "code-quality-fixes",
+      "phase": "design",
+      "timestamp": "2026-04-05",
+      "action": "Design document created — Phase A+B 상세 설계 (urlSafety util 신규, H1-4 파일별 diff 명세, 6-step 구현 순서)"
+    },
+    {
+      "feature": "code-quality-fixes",
+      "phase": "plan",
+      "timestamp": "2026-04-05",
+      "action": "Plan document created — Health 82→95 목표, 4 phases (A: H1-3, B: H4, C: M1, D: M2, E: backlog)"
+    },
+    {
+      "feature": "cargoai-roadmap",
+      "phase": "do",
+      "timestamp": "2026-04-05",
+      "action": "Do guide created — M1 (Phase 1.5 Multi-Carrier UX) 구현 6단계 체크리스트"
+    },
+    {
+      "feature": "cargoai-roadmap",
+      "phase": "design",
+      "timestamp": "2026-04-05",
+      "action": "Design document created at docs/02-design/features/cargoai-roadmap.design.md"
+    },
     {
       "feature": "Save-Quote",
       "phase": "archived",

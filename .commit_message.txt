@@ -1,1 +1,1 @@
-🔧 fix: Intercom shutdown/update 로직 보강 — 로그아웃·유저 전환·프로필 업데이트 처리
+🌱 cargoai-roadmap M2 Do guide — Phase 3.5 CO2 frontend-first slice (M2a) 6단계

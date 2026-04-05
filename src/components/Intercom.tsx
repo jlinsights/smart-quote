@@ -17,7 +17,11 @@ function loadScript() {
 /** Safe wrapper around window.Intercom */
 function ic(method: string, arg?: Record<string, unknown>) {
   if (typeof window !== 'undefined' && typeof window.Intercom === 'function') {
-    arg ? window.Intercom(method, arg) : window.Intercom(method);
+    if (arg) {
+      window.Intercom(method, arg);
+    } else {
+      window.Intercom(method);
+    }
   }
 }
 

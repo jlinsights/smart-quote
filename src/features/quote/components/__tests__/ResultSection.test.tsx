@@ -145,7 +145,7 @@ describe('ResultSection', () => {
       />,
     );
 
-    expect(screen.getByText('Carrier Comparison')).toBeInTheDocument();
+    expect(screen.getByText('comparison.title')).toBeInTheDocument();
   });
 
   it('renders carrier comparison even when hideMargin is true', () => {
@@ -165,6 +165,6 @@ describe('ResultSection', () => {
       />,
     );
 
-    expect(screen.getByText('Carrier Comparison')).toBeInTheDocument();
+    expect(screen.getByText('comparison.title')).toBeInTheDocument();
   });
 });

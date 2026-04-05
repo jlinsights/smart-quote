@@ -1,8 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { QuoteInput, QuoteResult } from '@/types';
+import { QuoteInput, QuoteResult, CarrierComparisonItem, CarrierBadge } from '@/types';
 import { calculateQuote } from '@/features/quote/services/calculationService';
+import { assignBadges } from '@/features/quote/services/carrierRanker';
+import { CARRIER_METADATA } from '@/config/carrier_metadata';
 import { DEFAULT_FSC_PERCENT, DEFAULT_FSC_PERCENT_DHL } from '@/config/rates';
 import { formatKRW, formatUSDInt } from '@/lib/format';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { ArrowRightLeft, Check, ArrowUpDown } from 'lucide-react';
 
 interface Props {
@@ -14,6 +17,7 @@ interface Props {
 }
 
 export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, isKorean = false, onSwitchCarrier, hideMargin }) => {
+  const { t } = useLanguage();
   const [showKRW, setShowKRW] = useState(!hideMargin ? true : isKorean);
   const altCarrier = input.overseasCarrier === 'DHL' ? 'UPS' : 'DHL';
 
@@ -26,13 +30,44 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
     }
   }, [input, altCarrier]);
 
-  if (!altResult) return null;
+  const currentCarrier = (input.overseasCarrier || 'UPS') as 'UPS' | 'DHL';
+
+  // Build CarrierComparisonItem[] with badges (Phase 1.5)
+  const badgedItems = useMemo<Record<string, CarrierComparisonItem> | null>(() => {
+    if (!altResult) return null;
+    const buildItem = (
+      carrier: 'UPS' | 'DHL',
+      result: QuoteResult
+    ): CarrierComparisonItem => {
+      const meta = CARRIER_METADATA[carrier];
+      return {
+        carrier,
+        revenueKrw: result.totalQuoteAmount,
+        costKrw: result.totalCostAmount,
+        marginPct: result.profitMargin,
+        transitDaysMin: meta.transitDaysMin,
+        transitDaysMax: meta.transitDaysMax,
+        co2Kg: null, // populated in Phase 3.5
+        qualityScore: meta.qualityScore,
+        badges: [],
+      };
+    };
+    const items = assignBadges([
+      buildItem(currentCarrier, currentResult),
+      buildItem(altCarrier as 'UPS' | 'DHL', altResult),
+    ]);
+    return {
+      [items[0].carrier]: items[0],
+      [items[1].carrier]: items[1],
+    };
+  }, [altResult, currentResult, currentCarrier, altCarrier]);
+
+  if (!altResult || !badgedItems) return null;
 
   const currentAmount = currentResult.totalQuoteAmount;
   const altAmount = altResult.totalQuoteAmount;
   const diff = altAmount - currentAmount;
   const diffPercent = currentAmount > 0 ? (diff / currentAmount) * 100 : 0;
-  const currentCarrier = input.overseasCarrier || 'UPS';
 
   const carrierColors: Record<string, string> = {
     UPS: 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800',
@@ -45,7 +80,7 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
         <div className="flex items-center gap-2">
           <ArrowRightLeft className="w-4 h-4 text-jways-500" />
           <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
-            Carrier Comparison
+            {t('comparison.title')}
           </h4>
         </div>
         <div className="flex items-center gap-2">
@@ -69,6 +104,9 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
           showKRW={showKRW}
           isCurrent={true}
           colorClass={carrierColors[currentCarrier] || ''}
+          badges={badgedItems[currentCarrier]?.badges ?? []}
+          transitDaysMin={CARRIER_METADATA[currentCarrier].transitDaysMin}
+          transitDaysMax={CARRIER_METADATA[currentCarrier].transitDaysMax}
           onSelect={() => {}}
         />
         <CarrierColumn
@@ -80,6 +118,9 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
           diff={diff}
           diffPercent={diffPercent}
           exchangeRate={input.exchangeRate}
+          badges={badgedItems[altCarrier]?.badges ?? []}
+          transitDaysMin={CARRIER_METADATA[altCarrier as 'UPS' | 'DHL'].transitDaysMin}
+          transitDaysMax={CARRIER_METADATA[altCarrier as 'UPS' | 'DHL'].transitDaysMax}
           onSelect={() => onSwitchCarrier(altCarrier as 'UPS' | 'DHL')}
           hideSwitch={hideMargin}
         />
@@ -97,13 +138,59 @@ interface CarrierColumnProps {
   diff?: number;
   diffPercent?: number;
   exchangeRate?: number;
+  badges?: CarrierBadge[];
+  transitDaysMin?: number;
+  transitDaysMax?: number;
   onSelect: () => void;
   hideSwitch?: boolean;
 }
 
-const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, showKRW, isCurrent, diff, diffPercent, exchangeRate = 1400, onSelect, hideSwitch }) => {
+const BADGE_STYLE: Record<CarrierBadge, { icon: string; className: string; i18nKey: 'badge.cheapest' | 'badge.fastest' | 'badge.greenest' }> = {
+  cheapest: {
+    icon: '💰',
+    i18nKey: 'badge.cheapest',
+    className: 'text-green-700 bg-green-50 dark:text-green-300 dark:bg-green-900/30',
+  },
+  fastest: {
+    icon: '⚡',
+    i18nKey: 'badge.fastest',
+    className: 'text-blue-700 bg-blue-50 dark:text-blue-300 dark:bg-blue-900/30',
+  },
+  greenest: {
+    icon: '🌱',
+    i18nKey: 'badge.greenest',
+    className: 'text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-900/30',
+  },
+};
+
+const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, showKRW, isCurrent, diff, diffPercent, exchangeRate = 1400, badges = [], transitDaysMin, transitDaysMax, onSelect, hideSwitch }) => {
+  const { t } = useLanguage();
+  const transitLabel =
+    transitDaysMin !== undefined && transitDaysMax !== undefined
+      ? t('transit.days')
+          .replace('{min}', String(transitDaysMin))
+          .replace('{max}', String(transitDaysMax))
+      : result.transitTime;
   return (
     <div className={`p-4 ${isCurrent ? 'bg-jways-50/50 dark:bg-jways-900/10' : ''}`}>
+      {badges.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2">
+          {badges.map(b => {
+            const cfg = BADGE_STYLE[b];
+            const label = t(cfg.i18nKey);
+            return (
+              <span
+                key={b}
+                className={`inline-flex items-center gap-0.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${cfg.className}`}
+                title={label}
+              >
+                <span>{cfg.icon}</span>
+                <span>{label}</span>
+              </span>
+            );
+          })}
+        </div>
+      )}
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-bold text-gray-900 dark:text-white">{carrier}</span>
         {isCurrent ? (
@@ -133,7 +220,9 @@ const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, showKRW,
           </div>
           <div>
             <span className="text-gray-500 dark:text-gray-400">Transit</span>
-            <p className="font-semibold text-gray-800 dark:text-gray-200">{result.transitTime}</p>
+            <p className="font-semibold text-gray-800 dark:text-gray-200">
+              {transitLabel}
+            </p>
           </div>
         </div>
         {!isCurrent && diff !== undefined && diffPercent !== undefined && (

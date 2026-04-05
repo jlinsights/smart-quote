@@ -6,6 +6,7 @@ import type { FreightNetwork } from '@/contexts/AuthContext';
 import { Users, Building2, UserCircle, Globe2, Mail, Shield, Edit2, Check, X, Trash2, Loader2, AlertCircle, Hash } from 'lucide-react';
 import { listUsers, updateUser, deleteUser, AdminUser, UpdateUserParams } from '@/api/userApi';
 import { NATIONALITY_OPTIONS, getCountryDisplayName } from '@/config/options';
+import { useToast } from '@/components/ui/Toast';
 
 const NETWORK_OPTIONS: FreightNetwork[] = ['WCA', 'MPL', 'EAN', 'JCtrans'];
 
@@ -19,6 +20,7 @@ const NETWORK_STYLES: Record<string, { bg: string; text: string; border: string 
 export const UserManagementWidget: React.FC = () => {
   const { t } = useLanguage();
   const { user: currentUser } = useAuth();
+  const { toast } = useToast();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +73,7 @@ export const UserManagementWidget: React.FC = () => {
       setEditForm({});
     } catch (e) {
       Sentry.captureException(e);
-      alert(e instanceof Error ? e.message : 'Failed to update user');
+      toast('error', e instanceof Error ? e.message : 'Failed to update user');
     } finally {
       setSaving(false);
     }
@@ -88,7 +90,7 @@ export const UserManagementWidget: React.FC = () => {
       setDeleteConfirmId(null);
     } catch (e) {
       Sentry.captureException(e);
-      alert(e instanceof Error ? e.message : 'Failed to delete user');
+      toast('error', e instanceof Error ? e.message : 'Failed to delete user');
     }
   };
 

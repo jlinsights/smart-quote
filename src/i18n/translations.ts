@@ -312,6 +312,13 @@ export const translations: Record<Language, Record<string, string>> = {
     // Reset Quote
     'calc.resetTitle': '견적 초기화',
     'calc.resetMessage': '모든 입력값을 기본값으로 초기화하시겠습니까?',
+
+    // Carrier Comparison (Phase 1.5)
+    'comparison.title': '캐리어 비교',
+    'badge.cheapest': '최저가',
+    'badge.fastest': '최단',
+    'badge.greenest': '친환경',
+    'transit.days': '{min}~{max}일',
   },
   en: {
     // Navigation / General
@@ -633,6 +640,13 @@ export const translations: Record<Language, Record<string, string>> = {
     // Reset Quote
     'calc.resetTitle': 'Reset Quote',
     'calc.resetMessage': 'Are you sure you want to reset all inputs to defaults?',
+
+    // Carrier Comparison (Phase 1.5)
+    'comparison.title': 'Carrier Comparison',
+    'badge.cheapest': 'Cheapest',
+    'badge.fastest': 'Fastest',
+    'badge.greenest': 'Eco',
+    'transit.days': '{min}-{max} days',
   },
   cn: {
     // Navigation / General
@@ -931,6 +945,13 @@ export const translations: Record<Language, Record<string, string>> = {
     // Reset Quote
     'calc.resetTitle': '重置报价',
     'calc.resetMessage': '确定要将所有输入重置为默认值吗？',
+
+    // Carrier Comparison (Phase 1.5)
+    'comparison.title': '承运商对比',
+    'badge.cheapest': '最低价',
+    'badge.fastest': '最快',
+    'badge.greenest': '环保',
+    'transit.days': '{min}-{max}天',
   },
   ja: {
     // Navigation / General
@@ -1229,5 +1250,12 @@ export const translations: Record<Language, Record<string, string>> = {
     // Reset Quote
     'calc.resetTitle': '見積リセット',
     'calc.resetMessage': 'すべての入力をデフォルトにリセットしますか？',
+
+    // Carrier Comparison (Phase 1.5)
+    'comparison.title': 'キャリア比較',
+    'badge.cheapest': '最安',
+    'badge.fastest': '最速',
+    'badge.greenest': 'エコ',
+    'transit.days': '{min}〜{max}日',
   },
 };
