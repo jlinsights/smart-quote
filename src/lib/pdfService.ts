@@ -5,6 +5,7 @@ import { PDF_LAYOUT } from '@/config/ui-constants';
 import { applyPackingDimensions } from './packing-utils';
 import { formatNum, formatNumDec } from './format';
 import { loadKoreanFont } from './pdfFontLoader';
+import { calculateCo2Kg } from './co2';
 // Logo import removed — brand neutral PDF for partner sharing
 
 // PDF-safe formatters (avoid ₩ and emoji that break in jsPDF)
@@ -262,6 +263,17 @@ const drawQuoteSummary = (doc: jsPDF, input: QuoteInput, result: QuoteResult, yP
   doc.text(`Zone: ${result.appliedZone}`, rightX, yPos + 17, { align: 'right' });
   doc.text(`Transit: ${result.transitTime}`, rightX, yPos + 24, { align: 'right' });
   doc.text(`Incoterm: ${input.incoterm}`, rightX, yPos + 31, { align: 'right' });
+
+  // CO2 emissions estimate (IATA RP1678)
+  const co2Kg = calculateCo2Kg(
+    result.carrier as 'UPS' | 'DHL' | 'FEDEX',
+    result.billableWeight,
+    input.destinationCountry,
+  );
+  if (co2Kg !== null) {
+    doc.text(`CO2: ${co2Kg.toFixed(1)} kg (IATA RP1678)`, rightX, yPos + 38, { align: 'right' });
+    return yPos + 52;
+  }
 
   return yPos + 45;
 };
