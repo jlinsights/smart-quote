@@ -23,11 +23,9 @@ MarginRule.create!([
   { name: "용성종합물류 고정", rule_type: "flat", priority: 100,
     match_email: "admin@yslogic.co.kr", margin_percent: 19, created_by: "system" },
 
-  # Priority 2 (code P90): 인터블루에어엔씨
-  { name: "인터블루 ≥20kg", rule_type: "weight_based", priority: 90,
-    match_email: "ibas@inter-airsea.co.kr", weight_min: 20, margin_percent: 19, created_by: "system" },
-  { name: "인터블루 <20kg", rule_type: "weight_based", priority: 90,
-    match_email: "ibas@inter-airsea.co.kr", weight_min: 0, weight_max: 19.99, margin_percent: 24, created_by: "system" },
+  # Priority 2 (code P100): 인터블루에어엔씨 — 원가 공개 (margin 0%)
+  { name: "인터블루 고정", rule_type: "flat", priority: 100,
+    match_email: "ibas@inter-airsea.co.kr", margin_percent: 0, created_by: "system" },
 
   # Priority 3 (code P50): 한국 국적 일반
   { name: "한국 국적 ≥20kg", rule_type: "weight_based", priority: 50,

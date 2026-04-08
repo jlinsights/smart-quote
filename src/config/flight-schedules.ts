@@ -20,7 +20,7 @@ export interface FlightSchedule {
 export const formatRoute = (s: FlightSchedule): string =>
   s.via ? `${s.origin}→${s.via}→${s.destination}` : `${s.origin}→${s.destination}`;
 
-export type GssaGroup = 'goodman' | 'gac' | 'extrans' | 'daejoo' | 'apex';
+export type GssaGroup = 'goodman' | 'gac' | 'extrans' | 'daejoo' | 'apex' | 'paa';
 
 export interface AirlineInfo {
   code: string;
@@ -39,6 +39,7 @@ export const GSSA_GROUP_LABELS = {
   extrans: { en: 'Extrans Air', ko: 'Extrans Air', badge: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700' },
   daejoo: { en: 'Daejoo Air Agencies', ko: '대주항공', badge: 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700' },
   apex: { en: 'Apexlogistics', ko: '에이펙스로지스틱스', badge: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700' },
+  paa: { en: 'Pacific Air Agency (PAA)', ko: 'Pacific Air Agency (PAA)', badge: 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-700' },
 } as const;
 
 export const AIRLINE_INFO: AirlineInfo[] = [
@@ -194,6 +195,17 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     hubCity: 'Purchase, NY',
     contractType: 'GSSA — Freighter (via Apexlogistics)',
     gssaGroup: 'apex',
+  },
+  // --- Pacific Air Agency (PAA) ---
+  {
+    code: 'M7',
+    name: 'MASair',
+    nameKo: 'MAS 항공',
+    logo: '🇲🇽',
+    country: 'Mexico',
+    hubCity: 'Mexico City (NLU)',
+    contractType: 'GSSA — Cargo Sales Agent (via Pacific Air Agency)',
+    gssaGroup: 'paa',
   },
 ];
 
@@ -1098,6 +1110,39 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     maxCargoKg: 25000,
     remarks: 'A332 (W/B) · Cut-off 당일 14:30 · DAD (SAGS)',
   },
+  // MASair (M7) — ICN-NLU, effective 17Apr26, 2x/week (via PAA)
+  {
+    id: 'default-m7-3629',
+    airline: 'MASair',
+    airlineCode: 'M7',
+    flightNo: 'M7 3629',
+    aircraftType: 'A332F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'NLU',
+    departureDays: [1], // Monday
+    departureTime: '14:50',
+    arrivalTime: '23:55(-1)',
+    flightDuration: '15h 05m',
+    maxCargoKg: 45000,
+    remarks: 'A332F · Effective 17Apr26 · UIO/BOG/VCP 연결서비스',
+  },
+  {
+    id: 'default-m7-3228',
+    airline: 'MASair',
+    airlineCode: 'M7',
+    flightNo: 'M7 3228',
+    aircraftType: 'A332F',
+    flightType: 'cargo',
+    origin: 'ICN',
+    destination: 'NLU',
+    departureDays: [5], // Friday
+    departureTime: '08:25',
+    arrivalTime: '17:30',
+    flightDuration: '15h 05m',
+    maxCargoKg: 45000,
+    remarks: 'A332F · Effective 17Apr26 · UIO/BOG/VCP 연결서비스',
+  },
 ];
 
 /** Color classes per airline code */
@@ -1162,6 +1207,12 @@ export const AIRLINE_COLORS: Record<string, { bg: string; text: string; border: 
     border: 'border-pink-200 dark:border-pink-800',
     badge: 'bg-pink-100 dark:bg-pink-900/40 text-pink-700 dark:text-pink-300',
   },
+  M7: {
+    bg: 'bg-lime-50 dark:bg-lime-900/20',
+    text: 'text-lime-700 dark:text-lime-300',
+    border: 'border-lime-200 dark:border-lime-800',
+    badge: 'bg-lime-100 dark:bg-lime-900/40 text-lime-700 dark:text-lime-300',
+  },
 };
 
 /** Hex colors per airline code — used by route map components (SVG & 3D) */
@@ -1176,6 +1227,7 @@ export const AIRLINE_HEX_COLORS: Record<string, string> = {
   YP: '#a78bfa', // violet-400
   DE: '#facc15', // yellow-400
   WE: '#f472b6', // pink-400
+  M7: '#a3e635', // lime-400
 };
 
 export const DEFAULT_HEX_COLOR = '#94a3b8'; // slate-400

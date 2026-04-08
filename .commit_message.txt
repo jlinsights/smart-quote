@@ -1,1 +1,1 @@
-⚠️ FSC 위젯에 유류할증료 급등 주의 안내 배너 추가
+✈️ feat: MASair ICN-NLU 스케줄 추가 (PAA GSSA) + 인터블루 마진 0%

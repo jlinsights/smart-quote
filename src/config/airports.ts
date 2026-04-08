@@ -17,6 +17,7 @@ export const AIRPORTS: Record<string, AirportData> = {
   SFO: { lat: 37.62, lng: -122.38, city: 'San Francisco', cityKo: '샌프란시스코' },
   HNL: { lat: 21.32, lng: -157.92, city: 'Honolulu', cityKo: '호놀룰루' },
   MEX: { lat: 19.44, lng: -99.07, city: 'Mexico City', cityKo: '멕시코시티' },
+  NLU: { lat: 19.75, lng: -99.01, city: 'Mexico City (NLU)', cityKo: '멕시코시티 (NLU)' },
   ORD: { lat: 41.98, lng: -87.90, city: 'Chicago', cityKo: '시카고' },
   IAD: { lat: 38.95, lng: -77.46, city: 'Washington Dulles', cityKo: '워싱턴 덜레스' },
   // Asia
