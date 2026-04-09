@@ -15,7 +15,7 @@ export default function MagicLinkVerifyPage() {
 
     const token = searchParams.get('token');
     if (!token) {
-      setError('유효하지 않은 링크입니다.');
+      queueMicrotask(() => setError('유효하지 않은 링크입니다.'));
       return;
     }
 

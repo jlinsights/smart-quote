@@ -1,1 +1,1 @@
-✈️ feat: MASair ICN-NLU 스케줄 추가 (PAA GSSA) + 인터블루 마진 0%
+🐛 MagicLinkVerifyPage useEffect 내 동기 setState lint 오류 수정
