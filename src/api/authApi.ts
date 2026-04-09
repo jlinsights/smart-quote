@@ -1,0 +1,50 @@
+import { API_URL } from './apiClient';
+import { ApiError } from './apiClient';
+
+export interface MagicLinkResponse {
+  message: string;
+}
+
+export interface VerifyMagicLinkResponse {
+  token: string;
+  refresh_token: string;
+  user: {
+    id: number;
+    email: string;
+    name: string | null;
+    role: 'admin' | 'user' | 'member';
+    company: string | null;
+  };
+}
+
+export async function requestMagicLink(email: string): Promise<MagicLinkResponse> {
+  const response = await fetch(`${API_URL}/api/v1/auth/magic_link`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    const message = body?.error?.message || body?.error || body?.message || 'Request failed';
+    throw new ApiError(response.status, message);
+  }
+
+  return response.json();
+}
+
+export async function verifyMagicLink(token: string): Promise<VerifyMagicLinkResponse> {
+  const response = await fetch(
+    `${API_URL}/api/v1/auth/magic_link/verify?token=${encodeURIComponent(token)}`,
+    { method: 'GET', headers: { 'Content-Type': 'application/json' } },
+  );
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    const message =
+      body?.error?.message || body?.error || body?.message || 'Invalid or expired magic link';
+    throw new ApiError(response.status, message);
+  }
+
+  return response.json();
+}

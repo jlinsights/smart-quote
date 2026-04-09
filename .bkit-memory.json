@@ -1,9 +1,48 @@
 {
-  "activeFeature": "cargoai-roadmap",
-  "phase": "completed",
-  "matchRate": 98,
+  "activeFeature": null,
+  "phase": "archived",
+  "matchRate": 95,
   "iteration": 0,
   "history": [
+    {
+      "feature": "auth-passwordless",
+      "phase": "archived",
+      "timestamp": "2026-04-09",
+      "action": "Archived to docs/archive/2026-04/auth-passwordless/ (95%)",
+      "matchRate": 95
+    },
+    {
+      "feature": "auth-passwordless",
+      "phase": "completed",
+      "timestamp": "2026-04-09",
+      "action": "완료 보고서 생성 — Match Rate 95%, 보안 전항목 충족, Hard Gaps 0건. Plan→Design→Do→Check→Report 전 사이클 완료.",
+      "matchRate": 95
+    },
+    {
+      "feature": "auth-passwordless",
+      "phase": "check",
+      "timestamp": "2026-04-09",
+      "action": "Gap Analysis 완료 — Match Rate 95%, MagicLinkVerifyPage 성공 UI 미구현(UX 단순화), AuthContext 시그니처 개선(설계 대비). 보안 요구사항 전항목 충족.",
+      "matchRate": 95
+    },
+    {
+      "feature": "auth-passwordless",
+      "phase": "do",
+      "timestamp": "2026-04-09",
+      "action": "Do phase 시작 — DB 마이그레이션, User 모델 3메서드, AuthMailer, 라우트, AuthController 2액션, 프론트엔드 API/AuthContext/MagicLinkVerifyPage/LoginPage/App.tsx 전체 구현"
+    },
+    {
+      "feature": "auth-passwordless",
+      "phase": "design",
+      "timestamp": "2026-04-09",
+      "action": "Design document created — DB 마이그레이션(magic_link_token 컬럼 2개 + 인덱스), User 모델 3메서드, AuthMailer, 라우트 2개, AuthController 2액션, 프론트엔드 API 함수/AuthContext/MagicLinkVerifyPage/LoginPage 섹션 상세 명세"
+    },
+    {
+      "feature": "auth-passwordless",
+      "phase": "plan",
+      "timestamp": "2026-04-09",
+      "action": "Plan document created — Magic Link 인증 추가 (기존 password 로그인 유지, magic_link_token DB 컬럼, ActionMailer, 2개 신규 라우트, React verify 페이지)"
+    },
     {
       "feature": "cargoai-roadmap",
       "phase": "completed",

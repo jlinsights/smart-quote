@@ -3,11 +3,11 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Header } from '../components/layout/Header';
-import { LogIn, ArrowLeft } from 'lucide-react';
+import { LogIn, ArrowLeft, Mail } from 'lucide-react';
+import { requestMagicLink } from '../api/authApi';
 
 const dotGridStyle: React.CSSProperties = {
-  backgroundImage:
-    'radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)',
+  backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)',
   backgroundSize: '24px 24px',
 };
 
@@ -15,6 +15,11 @@ export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  const [magicEmail, setMagicEmail] = useState('');
+  const [magicSent, setMagicSent] = useState(false);
+  const [magicError, setMagicError] = useState('');
+  const [magicLoading, setMagicLoading] = useState(false);
 
   const { login } = useAuth();
   const { t, setLanguage } = useLanguage();
@@ -36,7 +41,12 @@ export const LoginPage: React.FC = () => {
         if (result.success) {
           const savedLang = localStorage.getItem('smartQuoteLanguage');
           if (!savedLang && result.user?.nationality) {
-            const natLangMap: Record<string, 'ko' | 'en' | 'cn' | 'ja'> = { KR: 'ko', JP: 'ja', CN: 'cn', TW: 'cn' };
+            const natLangMap: Record<string, 'ko' | 'en' | 'cn' | 'ja'> = {
+              KR: 'ko',
+              JP: 'ja',
+              CN: 'cn',
+              TW: 'cn',
+            };
             setLanguage(natLangMap[result.user.nationality] || 'en');
           }
 
@@ -59,93 +69,165 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  const handleMagicLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMagicError('');
+    if (!magicEmail.trim()) {
+      setMagicError('이메일을 입력해주세요.');
+      return;
+    }
+    setMagicLoading(true);
+    try {
+      await requestMagicLink(magicEmail.trim());
+      setMagicSent(true);
+    } catch {
+      setMagicError('요청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setMagicLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className='min-h-screen bg-gray-50 dark:bg-gray-950'>
       <Header />
 
-      <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-950 to-black">
-        <div className="absolute inset-0 pointer-events-none" style={dotGridStyle} />
-        <div className="absolute -top-40 -right-40 w-[400px] h-[400px] rounded-full bg-accent-600/20 blur-[120px] pointer-events-none" />
-        <div className="absolute -bottom-40 -left-40 w-[300px] h-[300px] rounded-full bg-accent-500/15 blur-[100px] pointer-events-none" />
+      <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-950 to-black'>
+        <div className='absolute inset-0 pointer-events-none' style={dotGridStyle} />
+        <div className='absolute -top-40 -right-40 w-[400px] h-[400px] rounded-full bg-accent-600/20 blur-[120px] pointer-events-none' />
+        <div className='absolute -bottom-40 -left-40 w-[300px] h-[300px] rounded-full bg-accent-500/15 blur-[100px] pointer-events-none' />
 
-        <div className="relative flex flex-col items-center justify-center py-16 sm:py-24 px-4">
+        <div className='relative flex flex-col items-center justify-center py-16 sm:py-24 px-4'>
           <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white mb-8 transition-colors"
+            to='/'
+            className='inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white mb-8 transition-colors'
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className='w-4 h-4' />
             {t('auth.backHome')}
           </Link>
 
-          <div className="w-14 h-14 rounded-2xl bg-accent-500/20 border border-accent-500/30 flex items-center justify-center mb-6">
-            <LogIn className="w-7 h-7 text-accent-400" />
+          <div className='w-14 h-14 rounded-2xl bg-accent-500/20 border border-accent-500/30 flex items-center justify-center mb-6'>
+            <LogIn className='w-7 h-7 text-accent-400' />
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white text-center mb-2">
+          <h2 className='text-2xl sm:text-3xl font-extrabold text-white text-center mb-2'>
             {t('auth.signinTitle')}
           </h2>
-          <p className="text-sm text-gray-400 text-center">
-            {t('auth.systemName')}
-          </p>
+          <p className='text-sm text-gray-400 text-center'>{t('auth.systemName')}</p>
 
-          <div className="w-full max-w-md mt-10 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl">
-            <form className="space-y-5" onSubmit={handleSubmit}>
+          <div className='w-full max-w-md mt-10 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl'>
+            <form className='space-y-5' onSubmit={handleSubmit}>
               {error && (
-                <div className="p-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <div className='p-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl'>
                   {error}
                 </div>
               )}
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1.5">
+                <label htmlFor='email' className='block text-sm font-medium text-gray-300 mb-1.5'>
                   {t('auth.email')}
                 </label>
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
+                  id='email'
+                  name='email'
+                  type='email'
+                  autoComplete='email'
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500/50 text-sm transition-colors"
-                  placeholder="name@company.com"
+                  className='w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500/50 text-sm transition-colors'
+                  placeholder='name@company.com'
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1.5">
+                <label
+                  htmlFor='password'
+                  className='block text-sm font-medium text-gray-300 mb-1.5'
+                >
                   {t('auth.password')}
                 </label>
                 <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
+                  id='password'
+                  name='password'
+                  type='password'
+                  autoComplete='current-password'
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500/50 text-sm transition-colors"
+                  className='w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500/50 text-sm transition-colors'
                 />
               </div>
 
               <button
-                type="submit"
+                type='submit'
                 disabled={isLoading}
-                className="w-full py-3 px-4 bg-accent-600 hover:bg-accent-500 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-lg shadow-accent-600/25 hover:shadow-accent-500/30 transition-all duration-200"
+                className='w-full py-3 px-4 bg-accent-600 hover:bg-accent-500 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-lg shadow-accent-600/25 hover:shadow-accent-500/30 transition-all duration-200'
               >
                 {t('auth.signin')}
               </button>
             </form>
 
-            <div className="mt-6 pt-5 border-t border-white/10 text-center">
-              <p className="text-sm text-gray-400">
+            <div className='mt-6 pt-5 border-t border-white/10 text-center'>
+              <p className='text-sm text-gray-400'>
                 {t('auth.noAccount')}{' '}
-                <Link to="/signup" className="font-semibold text-accent-400 hover:text-accent-300 transition-colors">
+                <Link
+                  to='/signup'
+                  className='font-semibold text-accent-400 hover:text-accent-300 transition-colors'
+                >
                   {t('auth.signup')}
                 </Link>
               </p>
             </div>
+          </div>
+
+          {/* Magic Link Section */}
+          <div className='w-full max-w-md mt-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl'>
+            <div className='flex items-center gap-2 mb-4'>
+              <Mail className='w-4 h-4 text-accent-400' />
+              <h3 className='text-sm font-semibold text-gray-300'>비밀번호 없이 로그인</h3>
+            </div>
+
+            {magicSent ? (
+              <div className='p-4 text-sm text-green-400 bg-green-500/10 border border-green-500/20 rounded-xl'>
+                <p className='font-medium mb-1'>링크가 이메일로 전송되었습니다.</p>
+                <p className='text-green-400/70'>
+                  이메일을 확인하고 링크를 클릭해 로그인하세요. (15분 유효)
+                </p>
+              </div>
+            ) : (
+              <form className='space-y-3' onSubmit={handleMagicLink}>
+                {magicError && (
+                  <div className='p-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl'>
+                    {magicError}
+                  </div>
+                )}
+                <div>
+                  <label
+                    htmlFor='magic-email'
+                    className='block text-sm font-medium text-gray-300 mb-1.5'
+                  >
+                    이메일 주소
+                  </label>
+                  <input
+                    id='magic-email'
+                    name='magic-email'
+                    type='email'
+                    autoComplete='email'
+                    value={magicEmail}
+                    onChange={(e) => setMagicEmail(e.target.value)}
+                    className='w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500/50 text-sm transition-colors'
+                    placeholder='name@company.com'
+                  />
+                </div>
+                <button
+                  type='submit'
+                  disabled={magicLoading}
+                  className='w-full py-3 px-4 bg-white/10 hover:bg-white/15 disabled:opacity-50 text-white text-sm font-semibold rounded-xl border border-white/20 hover:border-white/30 transition-all duration-200'
+                >
+                  {magicLoading ? '전송 중...' : '로그인 링크 이메일로 받기'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>

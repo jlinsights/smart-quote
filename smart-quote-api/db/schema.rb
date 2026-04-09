@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_13_200001) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_09_073241) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -76,7 +76,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_13_200001) do
     t.index ["user_id"], name: "index_customers_on_user_id"
   end
 
-  create_table "margin_rules", force: :cascade do |t|
+  create_table "discount_rules", force: :cascade do |t|
     t.string "name", null: false
     t.string "rule_type", default: "weight_based", null: false
     t.integer "priority", default: 50, null: false
@@ -84,28 +84,38 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_13_200001) do
     t.string "match_nationality"
     t.decimal "weight_min", precision: 10, scale: 2
     t.decimal "weight_max", precision: 10, scale: 2
-    t.decimal "margin_percent", precision: 5, scale: 2, default: "15.0", null: false
+    t.decimal "discount_percent", precision: 5, scale: 2, default: "15.0", null: false
     t.boolean "is_active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["match_email"], name: "index_margin_rules_on_match_email"
-    t.index ["match_nationality"], name: "idx_margin_rules_nationality", where: "(match_nationality IS NOT NULL)"
-    t.index ["match_nationality"], name: "index_margin_rules_on_match_nationality"
-    t.index ["priority"], name: "index_margin_rules_on_priority"
+    t.index ["match_email"], name: "index_discount_rules_on_match_email"
+    t.index ["match_nationality"], name: "index_discount_rules_on_match_nationality"
+    t.index ["priority"], name: "index_discount_rules_on_priority"
+  end
+
+  create_table "fsc_rates", force: :cascade do |t|
+    t.string "carrier", null: false
+    t.decimal "international", precision: 5, scale: 2, default: "0.0", null: false
+    t.decimal "domestic", precision: 5, scale: 2, default: "0.0", null: false
+    t.string "source", default: "manual"
+    t.string "updated_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["carrier"], name: "index_fsc_rates_on_carrier", unique: true
   end
 
   create_table "quotes", force: :cascade do |t|
     t.string "reference_no"
-    t.string "status", default: "draft"
+    t.string "status"
     t.text "notes"
-    t.string "origin_country", default: "KR"
+    t.string "origin_country"
     t.string "destination_country"
     t.string "destination_zip"
     t.string "domestic_region_code"
     t.boolean "is_jeju_pickup"
     t.string "incoterm"
     t.string "packing_type"
-    t.decimal "margin_percent"
+    t.decimal "discount_percent"
     t.decimal "duty_tax_estimate"
     t.decimal "exchange_rate"
     t.decimal "fsc_percent"
@@ -115,26 +125,25 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_13_200001) do
     t.decimal "total_quote_amount"
     t.decimal "total_quote_amount_usd"
     t.decimal "total_cost_amount"
-    t.decimal "profit_amount"
-    t.decimal "profit_margin"
+    t.decimal "discount_amount"
+    t.decimal "applied_discount_percent"
     t.decimal "billable_weight"
     t.string "applied_zone"
     t.string "domestic_truck_type"
     t.jsonb "warnings"
     t.jsonb "breakdown"
-    t.bigint "user_id"
+    t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "customer_id"
+    t.string "share_token"
+    t.datetime "share_expires_at"
     t.date "validity_date"
-    t.index ["created_at"], name: "index_quotes_on_created_at"
-    t.index ["customer_id"], name: "index_quotes_on_customer_id"
     t.index ["destination_country"], name: "index_quotes_on_destination_country"
-    t.index ["reference_no"], name: "index_quotes_on_reference_no"
-    t.index ["status"], name: "index_quotes_on_status"
-    t.index ["user_id", "status", "created_at"], name: "idx_quotes_user_status_date"
+    t.index ["reference_no"], name: "index_quotes_on_reference_no", unique: true
+    t.index ["share_token"], name: "index_quotes_on_share_token", unique: true
+    t.index ["status", "validity_date"], name: "index_quotes_on_status_and_validity_date"
+    t.index ["user_id", "created_at"], name: "index_quotes_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_quotes_on_user_id"
-    t.index ["validity_date"], name: "idx_quotes_stale_drafts", where: "((status)::text = ANY ((ARRAY['draft'::character varying, 'sent'::character varying])::text[]))"
   end
 
   create_table "surcharges", force: :cascade do |t|
@@ -168,12 +177,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_13_200001) do
     t.string "role"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.jsonb "networks", default: []
-    t.index ["email"], name: "index_users_on_email"
+    t.string "refresh_token_jti"
+    t.string "magic_link_token"
+    t.datetime "magic_link_token_expires_at"
+    t.index "lower((email)::text)", name: "index_users_on_lower_email", unique: true
+    t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
   end
 
-  add_foreign_key "audit_logs", "users"
-  add_foreign_key "customers", "users"
-  add_foreign_key "quotes", "customers"
   add_foreign_key "quotes", "users"
 end

@@ -31,7 +31,15 @@ interface AuthResult {
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<AuthResult>;
-  signup: (email: string, password: string, company?: string, name?: string, nationality?: string, networks?: FreightNetwork[]) => Promise<AuthResult>;
+  loginWithMagicLink: (token: string) => Promise<AuthResult>;
+  signup: (
+    email: string,
+    password: string,
+    company?: string,
+    name?: string,
+    nationality?: string,
+    networks?: FreightNetwork[],
+  ) => Promise<AuthResult>;
   logout: () => void;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<AuthResult>;
   isAuthenticated: boolean;
@@ -49,10 +57,7 @@ async function getAuthErrorMessage(response: Response, fallback: string): Promis
   if (!contentType.includes('application/json')) return fallback;
 
   const body = await response.json().catch(() => ({}));
-  const message =
-    body?.error?.message ||
-    body?.error ||
-    body?.errors?.[0];
+  const message = body?.error?.message || body?.error || body?.errors?.[0];
 
   if (typeof message === 'string' && message.trim()) {
     return message;
@@ -82,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: refreshToken }),
     })
-      .then(res => {
+      .then((res) => {
         if (res.ok) return res.json();
         throw new Error('Refresh failed');
       })
@@ -100,18 +105,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Auto-refresh access token every 14 minutes (token expires in 15)
   useEffect(() => {
     if (!user) return;
-    const interval = setInterval(() => {
-      const refreshToken = getRefreshToken();
-      if (!refreshToken) return;
-      fetch(`${API_URL}/api/v1/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: refreshToken }),
-      })
-        .then(res => { if (res.ok) return res.json(); throw new Error(); })
-        .then((data: { token: string }) => setAccessToken(data.token))
-        .catch(() => { /* next API call will trigger 401 → retry logic */ });
-    }, 14 * 60 * 1000);
+    const interval = setInterval(
+      () => {
+        const refreshToken = getRefreshToken();
+        if (!refreshToken) return;
+        fetch(`${API_URL}/api/v1/auth/refresh`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: refreshToken }),
+        })
+          .then((res) => {
+            if (res.ok) return res.json();
+            throw new Error();
+          })
+          .then((data: { token: string }) => setAccessToken(data.token))
+          .catch(() => {
+            /* next API call will trigger 401 → retry logic */
+          });
+      },
+      14 * 60 * 1000,
+    );
     return () => clearInterval(interval);
   }, [user]);
 
@@ -138,37 +151,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const signup = useCallback(async (
-    email: string,
-    password: string,
-    company?: string,
-    name?: string,
-    nationality?: string,
-    networks?: FreightNetwork[]
-  ): Promise<AuthResult> => {
-    try {
-      const res = await fetch(`${API_URL}/api/v1/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email, password, password_confirmation: password,
-          company, name, nationality,
-          networks: networks && networks.length > 0 ? networks : undefined,
-        }),
-      });
+  const signup = useCallback(
+    async (
+      email: string,
+      password: string,
+      company?: string,
+      name?: string,
+      nationality?: string,
+      networks?: FreightNetwork[],
+    ): Promise<AuthResult> => {
+      try {
+        const res = await fetch(`${API_URL}/api/v1/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            password,
+            password_confirmation: password,
+            company,
+            name,
+            nationality,
+            networks: networks && networks.length > 0 ? networks : undefined,
+          }),
+        });
 
-      if (res.ok) {
-        const data = await res.json();
-        setAccessToken(data.token);
-        setRefreshToken(data.refresh_token);
-        setUser(data.user);
-        return { success: true, user: data.user };
+        if (res.ok) {
+          const data = await res.json();
+          setAccessToken(data.token);
+          setRefreshToken(data.refresh_token);
+          setUser(data.user);
+          return { success: true, user: data.user };
+        }
+
+        return { success: false, error: await getAuthErrorMessage(res, 'Registration failed') };
+      } catch (e) {
+        Sentry.captureException(e);
+        return { success: false, error: 'Network error' };
       }
+    },
+    [],
+  );
 
-      return { success: false, error: await getAuthErrorMessage(res, 'Registration failed') };
+  const loginWithMagicLink = useCallback(async (token: string): Promise<AuthResult> => {
+    try {
+      const { verifyMagicLink } = await import('@/api/authApi');
+      const data = await verifyMagicLink(token);
+      setAccessToken(data.token);
+      setRefreshToken(data.refresh_token);
+      setUser(data.user as User);
+      return { success: true, user: data.user as User };
     } catch (e) {
       Sentry.captureException(e);
-      return { success: false, error: 'Network error' };
+      const message = e instanceof Error ? e.message : 'Invalid or expired magic link';
+      return { success: false, error: message };
     }
   }, []);
 
@@ -187,50 +222,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
   }, []);
 
-  const updatePassword = useCallback(async (currentPassword: string, newPassword: string): Promise<AuthResult> => {
-    try {
-      const { getAccessToken } = await import('@/lib/authStorage');
-      const token = getAccessToken();
-      if (!token) throw new Error('No token found');
+  const updatePassword = useCallback(
+    async (currentPassword: string, newPassword: string): Promise<AuthResult> => {
+      try {
+        const { getAccessToken } = await import('@/lib/authStorage');
+        const token = getAccessToken();
+        if (!token) throw new Error('No token found');
 
-      const res = await fetch(`${API_URL}/api/v1/auth/password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          current_password: currentPassword,
-          password: newPassword,
-          password_confirmation: newPassword
-        }),
-      });
+        const res = await fetch(`${API_URL}/api/v1/auth/password`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            current_password: currentPassword,
+            password: newPassword,
+            password_confirmation: newPassword,
+          }),
+        });
 
-      if (res.ok) {
-        return { success: true };
+        if (res.ok) {
+          return { success: true };
+        }
+
+        return { success: false, error: await getAuthErrorMessage(res, 'Password update failed') };
+      } catch (e) {
+        Sentry.captureException(e);
+        return { success: false, error: 'Network error' };
       }
-
-      return { success: false, error: await getAuthErrorMessage(res, 'Password update failed') };
-    } catch (e) {
-      Sentry.captureException(e);
-      return { success: false, error: 'Network error' };
-    }
-  }, []);
+    },
+    [],
+  );
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950">
-        <div className="w-6 h-6 border-2 border-gray-300 border-t-jways-500 rounded-full animate-spin" />
+      <div className='min-h-screen flex items-center justify-center bg-white dark:bg-gray-950'>
+        <div className='w-6 h-6 border-2 border-gray-300 border-t-jways-500 rounded-full animate-spin' />
       </div>
     );
   }
 
   return (
-    <AuthContext.Provider value={{
-      user, login, signup, logout, updatePassword,
-      isAuthenticated: !!user,
-      isLoading,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        loginWithMagicLink,
+        signup,
+        logout,
+        updatePassword,
+        isAuthenticated: !!user,
+        isLoading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

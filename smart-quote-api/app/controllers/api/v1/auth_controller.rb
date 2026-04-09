@@ -69,6 +69,33 @@ module Api
         end
       end
 
+      # POST /api/v1/auth/magic_link — request a magic link email
+      def request_magic_link
+        user = User.find_by(email: params[:email]&.downcase&.strip)
+
+        if user
+          token = user.generate_magic_link_token!
+          AuthMailer.magic_link(user, token).deliver_later
+        end
+
+        # Always return 200 to prevent email enumeration
+        render json: { message: "If that email exists, a login link has been sent." }
+      end
+
+      # GET /api/v1/auth/magic_link/verify?token=...
+      def verify_magic_link
+        user = User.find_by(magic_link_token: params[:token])
+
+        unless user&.magic_link_valid?(params[:token])
+          return render json: {
+            error: { code: "INVALID_TOKEN", message: "Invalid or expired magic link" }
+          }, status: :unauthorized
+        end
+
+        user.consume_magic_link_token!
+        render json: { token: encode_token(user), refresh_token: encode_refresh_token(user), user: user_json(user) }
+      end
+
       # POST /api/v1/auth/promote — one-time admin promotion (secret-protected)
       def promote
         secret = ENV["ADMIN_PROMOTE_SECRET"]
