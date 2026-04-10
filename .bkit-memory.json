@@ -1,9 +1,17 @@
 {
-  "activeFeature": "magic-link-hardening",
-  "phase": "completed",
+  "activeFeature": null,
+  "phase": "archived",
   "matchRate": 99,
   "iteration": 0,
+  "archivedTo": "docs/archive/2026-04/magic-link-hardening/",
   "history": [
+    {
+      "feature": "magic-link-hardening",
+      "phase": "archived",
+      "timestamp": "2026-04-11",
+      "action": "Archived to docs/archive/2026-04/magic-link-hardening/ (99%)",
+      "matchRate": 99
+    },
     {
       "feature": "magic-link-hardening",
       "phase": "completed",
