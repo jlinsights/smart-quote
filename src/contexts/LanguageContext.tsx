@@ -13,9 +13,24 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+// Domains that should always initialize in English regardless of saved preference.
+// Global-facing marketing/partner domains default to English for international visitors.
+// Users can still manually switch via the language selector; the selection is saved,
+// but each new visit re-initializes to English.
+const ENGLISH_ONLY_HOSTS = ['bridgelogis.com'];
+
+function isEnglishOnlyHost(): boolean {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname.toLowerCase();
+  return ENGLISH_ONLY_HOSTS.some((h) => host === h || host.endsWith(`.${h}`));
+}
+
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    // Default to English for all users; Admin can switch via language selector
+    // bridgelogis.com (and subdomains) always defaults to English on each visit.
+    if (isEnglishOnlyHost()) return 'en';
+
+    // Other domains (vercel.app, localhost, etc.) respect the user's saved preference.
     const saved = localStorage.getItem('smartQuoteLanguage') as Language | null;
     if (saved) return saved;
     return 'en';
