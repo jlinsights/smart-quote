@@ -12,6 +12,7 @@ Rails.application.routes.draw do
       post "auth/promote",  to: "auth#promote"
       post "auth/magic_link",        to: "auth#request_magic_link"
       get  "auth/magic_link/verify", to: "auth#verify_magic_link"
+      get  "auth/magic_link/peek",   to: "auth#peek_magic_link" if Rails.env.test?
 
       # Quotes (protected, except calculate)
       post "quotes/calculate", to: "quotes#calculate"

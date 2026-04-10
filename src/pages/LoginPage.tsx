@@ -73,7 +73,7 @@ export const LoginPage: React.FC = () => {
     e.preventDefault();
     setMagicError('');
     if (!magicEmail.trim()) {
-      setMagicError('이메일을 입력해주세요.');
+      setMagicError(t('auth.magicLink.emailRequired'));
       return;
     }
     setMagicLoading(true);
@@ -81,7 +81,7 @@ export const LoginPage: React.FC = () => {
       await requestMagicLink(magicEmail.trim());
       setMagicSent(true);
     } catch {
-      setMagicError('요청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      setMagicError(t('auth.magicLink.requestFailed'));
     } finally {
       setMagicLoading(false);
     }
@@ -184,15 +184,13 @@ export const LoginPage: React.FC = () => {
           <div className='w-full max-w-md mt-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl'>
             <div className='flex items-center gap-2 mb-4'>
               <Mail className='w-4 h-4 text-accent-400' />
-              <h3 className='text-sm font-semibold text-gray-300'>비밀번호 없이 로그인</h3>
+              <h3 className='text-sm font-semibold text-gray-300'>{t('auth.magicLink.title')}</h3>
             </div>
 
             {magicSent ? (
               <div className='p-4 text-sm text-green-400 bg-green-500/10 border border-green-500/20 rounded-xl'>
-                <p className='font-medium mb-1'>링크가 이메일로 전송되었습니다.</p>
-                <p className='text-green-400/70'>
-                  이메일을 확인하고 링크를 클릭해 로그인하세요. (15분 유효)
-                </p>
+                <p className='font-medium mb-1'>{t('auth.magicLink.sent')}</p>
+                <p className='text-green-400/70'>{t('auth.magicLink.sentBody')}</p>
               </div>
             ) : (
               <form className='space-y-3' onSubmit={handleMagicLink}>
@@ -206,7 +204,7 @@ export const LoginPage: React.FC = () => {
                     htmlFor='magic-email'
                     className='block text-sm font-medium text-gray-300 mb-1.5'
                   >
-                    이메일 주소
+                    {t('auth.magicLink.emailLabel')}
                   </label>
                   <input
                     id='magic-email'
@@ -224,7 +222,7 @@ export const LoginPage: React.FC = () => {
                   disabled={magicLoading}
                   className='w-full py-3 px-4 bg-white/10 hover:bg-white/15 disabled:opacity-50 text-white text-sm font-semibold rounded-xl border border-white/20 hover:border-white/30 transition-all duration-200'
                 >
-                  {magicLoading ? '전송 중...' : '로그인 링크 이메일로 받기'}
+                  {magicLoading ? t('auth.magicLink.sending') : t('auth.magicLink.send')}
                 </button>
               </form>
             )}

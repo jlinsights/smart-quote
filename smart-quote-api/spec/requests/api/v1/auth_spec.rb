@@ -111,4 +111,78 @@ RSpec.describe "Api::V1::Auth", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
   end
+
+  describe "POST /api/v1/auth/magic_link" do
+    let!(:user) { create(:user, email: "magic@example.com") }
+
+    before { ActionMailer::Base.deliveries.clear }
+
+    it "returns 200 and enqueues a magic link email for an existing user" do
+      expect {
+        post "/api/v1/auth/magic_link", params: { email: user.email }
+      }.to have_enqueued_mail(AuthMailer, :magic_link)
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "returns 200 for a non-existing user without enqueueing email (enumeration prevention)" do
+      expect {
+        post "/api/v1/auth/magic_link", params: { email: "nobody@example.com" }
+      }.not_to have_enqueued_mail
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["message"]).to include("login link")
+    end
+
+    it "stores only the digest of the generated token" do
+      post "/api/v1/auth/magic_link", params: { email: user.email }
+      user.reload
+      expect(user.magic_link_token_digest).to be_present
+      expect(user.magic_link_token_digest.length).to eq(64) # SHA256 hex
+      expect(user.magic_link_token).to be_nil
+    end
+  end
+
+  describe "GET /api/v1/auth/magic_link/verify" do
+    let(:user) { create(:user, email: "verify@example.com") }
+
+    it "returns a JWT for a valid raw token" do
+      raw = user.generate_magic_link_token!
+      get "/api/v1/auth/magic_link/verify", params: { token: raw }
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body["token"]).to be_present
+      expect(body["refresh_token"]).to be_present
+      expect(body["user"]["email"]).to eq(user.email)
+    end
+
+    it "consumes the token after successful verification" do
+      raw = user.generate_magic_link_token!
+      get "/api/v1/auth/magic_link/verify", params: { token: raw }
+      expect(user.reload.magic_link_token_digest).to be_nil
+    end
+
+    it "returns 401 for an already-consumed token" do
+      raw = user.generate_magic_link_token!
+      get "/api/v1/auth/magic_link/verify", params: { token: raw }
+      get "/api/v1/auth/magic_link/verify", params: { token: raw }
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "returns 401 for an expired token" do
+      raw = user.generate_magic_link_token!
+      user.update_columns(magic_link_token_expires_at: 1.minute.ago)
+      get "/api/v1/auth/magic_link/verify", params: { token: raw }
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "returns 401 for an invalid token" do
+      get "/api/v1/auth/magic_link/verify", params: { token: "bogus-token" }
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "returns 401 for an empty token without crashing" do
+      get "/api/v1/auth/magic_link/verify", params: { token: "" }
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
 end

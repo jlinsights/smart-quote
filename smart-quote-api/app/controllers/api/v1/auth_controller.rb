@@ -74,8 +74,8 @@ module Api
         user = User.find_by(email: params[:email]&.downcase&.strip)
 
         if user
-          token = user.generate_magic_link_token!
-          AuthMailer.magic_link(user, token).deliver_later
+          raw_token = user.generate_magic_link_token!
+          AuthMailer.magic_link(user, raw_token).deliver_later
         end
 
         # Always return 200 to prevent email enumeration
@@ -84,9 +84,11 @@ module Api
 
       # GET /api/v1/auth/magic_link/verify?token=...
       def verify_magic_link
-        user = User.find_by(magic_link_token: params[:token])
+        token = params[:token].to_s
+        digest = Digest::SHA256.hexdigest(token)
+        user = User.find_by(magic_link_token_digest: digest)
 
-        unless user&.magic_link_valid?(params[:token])
+        unless user&.magic_link_valid?(token)
           return render json: {
             error: { code: "INVALID_TOKEN", message: "Invalid or expired magic link" }
           }, status: :unauthorized
@@ -94,6 +96,17 @@ module Api
 
         user.consume_magic_link_token!
         render json: { token: encode_token(user), refresh_token: encode_refresh_token(user), user: user_json(user) }
+      end
+
+      # GET /api/v1/auth/magic_link/peek — test-only: return last issued raw token
+      def peek_magic_link
+        return head :not_found unless Rails.env.test?
+
+        last = ActionMailer::Base.deliveries.last
+        return render json: { token: nil } unless last
+
+        match = last.body.encoded.match(/\?token=([^\s"'<&]+)/)
+        render json: { token: match&.[](1) }
       end
 
       # POST /api/v1/auth/promote — one-time admin promotion (secret-protected)

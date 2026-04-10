@@ -6,6 +6,10 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # Provide a default FRONTEND_URL so AuthMailer's ENV.fetch does not raise
+  # during tests. Individual specs can override this with ENV["FRONTEND_URL"] =.
+  ENV["FRONTEND_URL"] ||= "http://localhost:5173"
+
   # While tests run files are not watched, reloading is not necessary.
   config.enable_reloading = false
 

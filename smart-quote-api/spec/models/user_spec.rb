@@ -42,4 +42,61 @@ RSpec.describe User, type: :model do
       expect(user.authenticate("wrong")).to be_falsey
     end
   end
+
+  describe "magic link methods" do
+    let(:user) { create(:user) }
+
+    describe "#generate_magic_link_token!" do
+      it "returns a raw token and stores only the SHA256 digest" do
+        raw = user.generate_magic_link_token!
+        expect(raw).to be_present
+        expect(raw.length).to be >= 43 # urlsafe_base64(32) -> 43 chars
+
+        user.reload
+        expect(user.magic_link_token_digest).to eq(Digest::SHA256.hexdigest(raw))
+        expect(user.magic_link_token_digest).not_to eq(raw)
+        expect(user.magic_link_token).to be_nil
+        expect(user.magic_link_token_expires_at).to be_within(5.seconds).of(15.minutes.from_now)
+      end
+
+      it "generates a new token on each call" do
+        r1 = user.generate_magic_link_token!
+        r2 = user.generate_magic_link_token!
+        expect(r1).not_to eq(r2)
+      end
+    end
+
+    describe "#magic_link_valid?" do
+      it "returns true for the correct raw token" do
+        raw = user.generate_magic_link_token!
+        expect(user.magic_link_valid?(raw)).to be true
+      end
+
+      it "returns false for an incorrect token" do
+        user.generate_magic_link_token!
+        expect(user.magic_link_valid?("wrong-token")).to be false
+      end
+
+      it "returns false for an expired token" do
+        raw = user.generate_magic_link_token!
+        user.update_columns(magic_link_token_expires_at: 1.minute.ago)
+        expect(user.magic_link_valid?(raw)).to be false
+      end
+
+      it "returns false when digest is nil" do
+        expect(user.magic_link_valid?("anything")).to be false
+      end
+    end
+
+    describe "#consume_magic_link_token!" do
+      it "nils out the digest and expiry" do
+        user.generate_magic_link_token!
+        user.consume_magic_link_token!
+        user.reload
+        expect(user.magic_link_token_digest).to be_nil
+        expect(user.magic_link_token).to be_nil
+        expect(user.magic_link_token_expires_at).to be_nil
+      end
+    end
+  end
 end

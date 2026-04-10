@@ -1,0 +1,54 @@
+import { test, expect } from '@playwright/test';
+
+// The Rails API under test must be running in RAILS_ENV=test and expose the
+// GET /api/v1/auth/magic_link/peek endpoint. The user fixture below must exist
+// in the test DB (seed or beforeAll via API). If the API is not reachable at
+// VITE_API_URL the test suite will skip.
+const API_URL = process.env.VITE_API_URL ?? 'http://localhost:3000';
+const TEST_EMAIL = 'e2e-magic@example.com';
+
+test.describe('magic link auth', () => {
+  test.beforeAll(async ({ request }) => {
+    // Best effort: ensure the test user exists. Ignore failures so the suite
+    // can still skip cleanly when the backend isn't running.
+    await request.post(`${API_URL}/api/v1/auth/register`, {
+      data: {
+        email: TEST_EMAIL,
+        password: 'password123',
+        password_confirmation: 'password123',
+        name: 'E2E Magic',
+        company: 'Test Co',
+        nationality: 'KR',
+      },
+      failOnStatusCode: false,
+    });
+  });
+
+  test('request → verify → redirect to dashboard', async ({ page, request }) => {
+    // 1. Request a magic link
+    const reqRes = await request.post(`${API_URL}/api/v1/auth/magic_link`, {
+      data: { email: TEST_EMAIL },
+      failOnStatusCode: false,
+    });
+    test.skip(!reqRes.ok(), 'Rails API not reachable in this environment');
+
+    // 2. Peek the last issued raw token via the test-only endpoint
+    const peek = await request.get(`${API_URL}/api/v1/auth/magic_link/peek`);
+    test.skip(!peek.ok(), 'peek endpoint not available (API not in test env)');
+    const { token } = await peek.json();
+    expect(token, 'peek endpoint returned a token').toBeTruthy();
+
+    // 3. Navigate to the verify URL — the page should strip the token and redirect
+    await page.goto(`/auth/verify?token=${token}`);
+    await expect(page).toHaveURL(/\/dashboard/);
+
+    // 4. URL should no longer contain the raw token after the redirect
+    expect(page.url()).not.toContain(token);
+  });
+
+  test('invalid token shows error and Back to Login button', async ({ page }) => {
+    await page.goto('/auth/verify?token=bogus-token-value');
+    await expect(page.getByText(/invalid|expired/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /back to login/i })).toBeVisible();
+  });
+});

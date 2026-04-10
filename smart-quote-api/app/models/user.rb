@@ -11,6 +11,7 @@ class User < ApplicationRecord
   validate :networks_must_be_valid
 
   VALID_NETWORKS = %w[WCA MPL EAN JCtrans].freeze
+  MAGIC_LINK_TTL = 15.minutes
 
   after_initialize :set_default_role, if: :new_record?
   validates :password, length: { minimum: 6 }, if: :password_required?
@@ -18,20 +19,31 @@ class User < ApplicationRecord
   before_save :downcase_email
 
   def generate_magic_link_token!
-    self.magic_link_token = SecureRandom.urlsafe_base64(32)
-    self.magic_link_token_expires_at = 15.minutes.from_now
+    raw = SecureRandom.urlsafe_base64(32)
+    self.magic_link_token_digest = Digest::SHA256.hexdigest(raw)
+    self.magic_link_token_expires_at = MAGIC_LINK_TTL.from_now
+    # Clear the legacy plaintext column during the 2-step migration window.
+    self.magic_link_token = nil
     save!
-    magic_link_token
+    raw
   end
 
   def magic_link_valid?(token)
-    magic_link_token.present? &&
-      magic_link_token == token &&
-      magic_link_token_expires_at > Time.current
+    return false if magic_link_token_digest.blank?
+    return false if magic_link_token_expires_at.blank?
+    return false if magic_link_token_expires_at <= Time.current
+
+    expected = magic_link_token_digest
+    actual   = Digest::SHA256.hexdigest(token.to_s)
+    ActiveSupport::SecurityUtils.secure_compare(expected, actual)
   end
 
   def consume_magic_link_token!
-    update!(magic_link_token: nil, magic_link_token_expires_at: nil)
+    update!(
+      magic_link_token_digest: nil,
+      magic_link_token: nil,
+      magic_link_token_expires_at: nil,
+    )
   end
 
   private

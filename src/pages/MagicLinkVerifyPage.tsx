@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function MagicLinkVerifyPage() {
   const [searchParams] = useSearchParams();
   const { loginWithMagicLink } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const called = useRef(false);
@@ -15,18 +17,22 @@ export default function MagicLinkVerifyPage() {
 
     const token = searchParams.get('token');
     if (!token) {
-      queueMicrotask(() => setError('Invalid link.'));
+      queueMicrotask(() => setError(t('auth.magicLink.invalidLink')));
       return;
     }
 
     loginWithMagicLink(token).then((result) => {
+      // Strip the token from the browser URL / history to avoid leaking it
+      // via Referer headers, bfcache, or browser history inspection.
+      window.history.replaceState(null, '', '/auth/verify');
+
       if (result.success) {
         navigate('/dashboard', { replace: true });
       } else {
-        setError(result.error ?? 'This link has expired or has already been used.');
+        setError(result.error ?? t('auth.magicLink.expired'));
       }
     });
-  }, [searchParams, loginWithMagicLink, navigate]);
+  }, [searchParams, loginWithMagicLink, navigate, t]);
 
   if (error) {
     return (
@@ -47,13 +53,15 @@ export default function MagicLinkVerifyPage() {
               />
             </svg>
           </div>
-          <h2 className='text-lg font-semibold text-gray-900 dark:text-white mb-2'>Login Failed</h2>
+          <h2 className='text-lg font-semibold text-gray-900 dark:text-white mb-2'>
+            {t('auth.magicLink.failed')}
+          </h2>
           <p className='text-sm text-gray-600 dark:text-gray-400 mb-6'>{error}</p>
           <button
             onClick={() => navigate('/login', { replace: true })}
             className='inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-jways-600 hover:bg-jways-700 rounded-lg transition-colors'
           >
-            Back to Login
+            {t('auth.magicLink.backToLogin')}
           </button>
         </div>
       </div>
@@ -64,7 +72,7 @@ export default function MagicLinkVerifyPage() {
     <div className='min-h-screen flex items-center justify-center bg-white dark:bg-gray-950'>
       <div className='text-center'>
         <div className='w-8 h-8 border-2 border-gray-300 border-t-jways-500 rounded-full animate-spin mx-auto mb-4' />
-        <p className='text-sm text-gray-600 dark:text-gray-400'>Signing in...</p>
+        <p className='text-sm text-gray-600 dark:text-gray-400'>{t('auth.magicLink.verifying')}</p>
       </div>
     </div>
   );

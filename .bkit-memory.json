@@ -1,9 +1,41 @@
 {
-  "activeFeature": null,
-  "phase": "archived",
-  "matchRate": 95,
+  "activeFeature": "magic-link-hardening",
+  "phase": "completed",
+  "matchRate": 99,
   "iteration": 0,
   "history": [
+    {
+      "feature": "magic-link-hardening",
+      "phase": "completed",
+      "timestamp": "2026-04-11",
+      "action": "Completion report 생성 — Match Rate 99%, 0 hard gaps, 보안 10/10, 26 새 테스트, 60 i18n 엔트리, 0 regression. Follow-up: magic-link-column-cleanup, schema-drift-recovery 별도 사이클.",
+      "matchRate": 99
+    },
+    {
+      "feature": "magic-link-hardening",
+      "phase": "check",
+      "timestamp": "2026-04-10",
+      "action": "Gap analysis 완료 — Match Rate 99%, 0 hard gaps, 2 soft deviations(test 케이스 +3, 2-step 마이그레이션 column cleanup은 후속 사이클). 보안 체크리스트 10/10 충족. 검증 명령 전부 통과. Report 진행 권장.",
+      "matchRate": 99
+    },
+    {
+      "feature": "magic-link-hardening",
+      "phase": "do",
+      "timestamp": "2026-04-10",
+      "action": "Do phase 완료 — BE: migration(digest 컬럼)/User 모델(SHA256+secure_compare)/AuthMailer(영어+fail-fast)/views(en)/Controller(digest lookup + peek endpoint)/routes(test-only peek)/rack-attack(3 throttle: IP 10h, email 5h, verify 20m)/specs(user 6 + mailer 3 + auth 7 = 16 new cases, 40 total passing). FE: i18n 15 keys × 4 langs, MagicLinkVerifyPage(t() + history.replaceState), LoginPage(t()), component test 5 cases, E2E 2 cases. 검증: tsc/lint/vitest 1229(+5)/rubocop/brakeman 전부 통과."
+    },
+    {
+      "feature": "magic-link-hardening",
+      "phase": "design",
+      "timestamp": "2026-04-10",
+      "action": "Design document created — 4 open questions 확정(i18n 키/memory store/2-step 마이그레이션/test peek endpoint). Backend 10 파일 + Frontend 4 파일 + 테스트 4종 상세 설계. Implementation order 24 steps. 보안 10항목 보장 체크리스트."
+    },
+    {
+      "feature": "magic-link-hardening",
+      "phase": "plan",
+      "timestamp": "2026-04-10",
+      "action": "Plan document created — auth-passwordless 후속 경화 사이클. 8개 gap (타이밍 공격, rate limit, 평문 토큰, 테스트 0건, 한국어 잔존, URL 히스토리, FRONTEND_URL fallback, GET 자동소비) 대응. 측정 가능 목표 8건 + open question 4건 정리."
+    },
     {
       "feature": "auth-passwordless",
       "phase": "archived",

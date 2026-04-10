@@ -19,6 +19,30 @@ class Rack::Attack
     req.ip if req.path == "/api/v1/auth/refresh" && req.post?
   end
 
+  # Throttle magic link request by IP: 10 per hour (prevent IP-based spam)
+  throttle("auth/magic_link/ip", limit: 10, period: 1.hour) do |req|
+    req.ip if req.path == "/api/v1/auth/magic_link" && req.post?
+  end
+
+  # Throttle magic link request by email: 5 per hour (prevent targeted email bombs)
+  throttle("auth/magic_link/email", limit: 5, period: 1.hour) do |req|
+    if req.path == "/api/v1/auth/magic_link" && req.post?
+      begin
+        body = req.body.read
+        req.body.rewind
+        parsed = JSON.parse(body)
+        parsed["email"]&.to_s&.downcase&.strip.presence
+      rescue JSON::ParserError
+        nil
+      end
+    end
+  end
+
+  # Throttle magic link verification: 20 per minute per IP (brute force)
+  throttle("auth/magic_link/verify", limit: 20, period: 60) do |req|
+    req.ip if req.path == "/api/v1/auth/magic_link/verify" && req.get?
+  end
+
   # Throttle public calculate endpoint: 60 per minute per IP
   throttle("quotes/calculate", limit: 60, period: 60) do |req|
     req.ip if req.path == "/api/v1/quotes/calculate" && req.post?

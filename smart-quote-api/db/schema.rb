@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_09_073241) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_10_203543) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -135,9 +135,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_09_073241) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "validity_date"
     t.string "share_token"
     t.datetime "share_expires_at"
-    t.date "validity_date"
     t.index ["destination_country"], name: "index_quotes_on_destination_country"
     t.index ["reference_no"], name: "index_quotes_on_reference_no", unique: true
     t.index ["share_token"], name: "index_quotes_on_share_token", unique: true
@@ -180,8 +180,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_09_073241) do
     t.string "refresh_token_jti"
     t.string "magic_link_token"
     t.datetime "magic_link_token_expires_at"
+    t.string "magic_link_token_digest"
     t.index "lower((email)::text)", name: "index_users_on_lower_email", unique: true
     t.index ["magic_link_token"], name: "index_users_on_magic_link_token", unique: true
+    t.index ["magic_link_token_digest"], name: "index_users_on_magic_link_token_digest", unique: true
   end
 
   add_foreign_key "quotes", "users"
