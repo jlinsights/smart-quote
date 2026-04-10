@@ -18,13 +18,27 @@
 
 ## 🔄 Follow-up PDCA Cycles
 
-### 🔴 `schema-drift-recovery` (우선)
-- **대상**: Rails API 테스트 DB에서 발견된 스키마 드리프트
-- **증상**: `users.networks`, `quotes.margin_percent` 컬럼이 `schema_migrations`에는 있지만 실제 DB에 없음
-- **영향**: 114 pre-existing rspec 실패 (magic-link-hardening 사이클 중 발견)
-- **임시 조치**: 로컬 dev/test DB에 `ALTER TABLE` 수동 적용
-- **정식 해결**: 마이그레이션 재실행 + `db/schema.rb` 재생성 + `git commit`
-- **파일**: `smart-quote-api/db/schema.rb`
+### ✅ `schema-drift-recovery` — **2026-04-11 완료 (Match 95%)**
+- 아카이브: `docs/archive/2026-04/schema-drift-recovery/`
+- 결과: schema.rb clean rebuild, rspec 114 → 10 failures (104건 해결)
+
+### 🟡 `test-suite-fixes` (신규, 후속)
+- **대상**: schema-drift-recovery 후 잔여 10 rspec failures
+- **세부**:
+  - `margin_rule_spec.rb:10` — shoulda `validate_numericality_of` vs 모델 `validates :priority, inclusion: { in: 0..200 }` 형식 mismatch (1건)
+  - `exchange_rates_spec.rb` — `Rails.cache.read` returns nil, test env가 `:null_store` (5건)
+  - `quotes_spec.rb` POST quotes — Mock/factory 이슈 (3건)
+  - `margin_rule_resolver_spec.rb:107` — 동일 cache null_store 이슈 (1건)
+- **추정 작업량**: 1-2시간
+
+### 🟢 `schema-consistency-guard` (재발 방지)
+- **대상**: schema.rb가 마이그레이션과 어긋나는 것을 CI/pre-commit에서 감지
+- **방안**: pre-commit hook 또는 GitHub Actions에 `db:drop+create+migrate vs git diff schema.rb` 체크 추가
+- **배경**: bb93c45에서 발생한 AI 환각 schema 손상 재발 방지
+
+### 🟢 `calculation-parity-fixture-fix`
+- **대상**: `spec/services/calculation_parity_spec.rb`가 외부 fixture (`../../../shared/test-fixtures/calculation-parity.json`) 경로 누락
+- **작업**: 경로 수정 또는 spec skip annotation
 
 ### 🟡 `magic-link-column-cleanup` (1-2주 후)
 - **대상**: 레거시 `users.magic_link_token` plaintext 컬럼 drop

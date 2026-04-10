@@ -1,10 +1,30 @@
 {
   "activeFeature": null,
   "phase": "archived",
-  "matchRate": 99,
+  "matchRate": 95,
   "iteration": 0,
-  "archivedTo": "docs/archive/2026-04/magic-link-hardening/",
+  "archivedTo": "docs/archive/2026-04/schema-drift-recovery/",
   "history": [
+    {
+      "feature": "schema-drift-recovery",
+      "phase": "archived",
+      "timestamp": "2026-04-11",
+      "action": "Archived to docs/archive/2026-04/schema-drift-recovery/ (95%)",
+      "matchRate": 95
+    },
+    {
+      "feature": "schema-drift-recovery",
+      "phase": "completed",
+      "timestamp": "2026-04-11",
+      "action": "Completion report 생성 — Match 95%, schema.rb clean rebuild from migrations, rspec 114→10 failures (104건/91% 해결). 잔여 10건은 schema 무관 (cache mock, shoulda matcher) — test-suite-fixes 별도 사이클. Critical 발견: Rails 8 db:migrate가 빈 DB에서 schema.rb fallback to schema:load. 우회: schema.rb 임시 제거 후 마이그레이션 강제 실행.",
+      "matchRate": 95
+    },
+    {
+      "feature": "schema-drift-recovery",
+      "phase": "plan",
+      "timestamp": "2026-04-11",
+      "action": "Plan 생성 — Root cause: bb93c45 (auth-passwordless 아카이브)에서 schema.rb가 환각으로 잘못 재생성됨. margin_rules→discount_rules 이름 변경, margin_percent→discount_percent, users.networks 누락 등 5+ drift. 114 pre-existing rspec 실패 원인. 전략: clean rebuild from migrations (db:drop+create+migrate+schema:dump). Open questions 5건."
+    },
     {
       "feature": "magic-link-hardening",
       "phase": "archived",
