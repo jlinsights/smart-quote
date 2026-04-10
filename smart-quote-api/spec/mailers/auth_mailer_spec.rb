@@ -15,7 +15,7 @@ RSpec.describe AuthMailer, type: :mailer do
     it "sends to the user's email with an English subject" do
       mail = described_class.magic_link(user, token)
       expect(mail.to).to eq([ user.email ])
-      expect(mail.subject).to eq("[Goodman GLS] Your sign-in link")
+      expect(mail.subject).to eq("[BridgeLogis] Your sign-in link")
     end
 
     it "embeds the magic link URL with the raw token" do
