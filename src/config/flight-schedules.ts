@@ -7,10 +7,10 @@ export interface FlightSchedule {
   flightType: 'cargo' | 'passenger' | 'combi';
   origin: string;
   destination: string;
-  via?: string;            // Stopover airport code (e.g. 'NRT', 'HNL')
+  via?: string; // Stopover airport code (e.g. 'NRT', 'HNL')
   departureDays: number[]; // 0=Sun, 1=Mon, ... 6=Sat
-  departureTime: string;   // HH:MM (KST)
-  arrivalTime: string;     // HH:MM (local)
+  departureTime: string; // HH:MM (KST)
+  arrivalTime: string; // HH:MM (local)
   flightDuration: string;
   maxCargoKg: number;
   remarks?: string;
@@ -34,12 +34,42 @@ export interface AirlineInfo {
 }
 
 export const GSSA_GROUP_LABELS = {
-  goodman: { en: 'Goodman GLS', ko: 'Goodman GLS', badge: 'bg-jways-100 dark:bg-jways-900/40 text-jways-700 dark:text-jways-300 border-jways-200 dark:border-jways-700' },
-  gac: { en: 'Globe Air Cargo (ECS)', ko: 'Globe Air Cargo (ECS)', badge: 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700' },
-  extrans: { en: 'Extrans Air', ko: 'Extrans Air', badge: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700' },
-  daejoo: { en: 'Daejoo Air Agencies', ko: '대주항공', badge: 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700' },
-  apex: { en: 'Apexlogistics', ko: '에이펙스로지스틱스', badge: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700' },
-  paa: { en: 'Pacific Air Agency (PAA)', ko: 'Pacific Air Agency (PAA)', badge: 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-700' },
+  goodman: {
+    en: 'Goodman GLS',
+    ko: 'Goodman GLS',
+    badge:
+      'bg-jways-100 dark:bg-jways-900/40 text-jways-700 dark:text-jways-300 border-jways-200 dark:border-jways-700',
+  },
+  gac: {
+    en: 'Globe Air Cargo (ECS)',
+    ko: 'Globe Air Cargo (ECS)',
+    badge:
+      'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700',
+  },
+  extrans: {
+    en: 'Extrans Air',
+    ko: 'Extrans Air',
+    badge:
+      'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700',
+  },
+  daejoo: {
+    en: 'Daejoo Air Agencies',
+    ko: '대주항공',
+    badge:
+      'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700',
+  },
+  apex: {
+    en: 'Apexlogistics',
+    ko: '에이펙스로지스틱스',
+    badge:
+      'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700',
+  },
+  paa: {
+    en: 'Pacific Air Agency (PAA)',
+    ko: 'Pacific Air Agency (PAA)',
+    badge:
+      'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-700',
+  },
 } as const;
 
 export const AIRLINE_INFO: AirlineInfo[] = [
@@ -414,12 +444,14 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightType: 'passenger',
     origin: 'ICN',
     destination: 'BKK',
-    departureDays: [1, 3, 4, 5, 6], // D1,3,4,5,6 (Mon, Wed, Thu, Fri, Sat)
+    departureDays: [1, 3, 4, 5, 6], // D1,3,4,5,6 (Mon, Wed, Thu, Fri, Sat) — from 15 APR 2026
     departureTime: '19:55',
     arrivalTime: '23:55',
     flightDuration: '6h 00m',
     maxCargoKg: 3000,
-    remarks: 'SU feeder · KAS T2 · AS45 · Cut-off D-day 12:00 · N/B & MSDS pre-confirm required',
+    remarks:
+      'SU feeder · KAS T2 · AS45 · Cut-off D-day 12:00 · N/B & MSDS pre-confirm required · ' +
+      '※ Until 14 APR 2026: DAILY 17:10-21:10',
   },
   {
     id: 'default-tg-659',
@@ -598,7 +630,8 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     arrivalTime: '10:35',
     flightDuration: '13h 55m',
     maxCargoKg: 15000,
-    remarks: 'Belly cargo · B788/9 · Via MEX: MTY/GDL(W/B&N/B&RFS), CUN(N/B) · GRU/EZE(W/B), LIM/BOG/MDE/GUA/SJO/SDQ(N/B)',
+    remarks:
+      'Belly cargo · B788/9 · Via MEX: MTY/GDL(W/B&N/B&RFS), CUN(N/B) · GRU/EZE(W/B), LIM/BOG/MDE/GUA/SJO/SDQ(N/B)',
   },
   // Air Premia (YP) — APR 2026 Schedule (2026.4.1~4.30), B787-9, belly cargo
   {
@@ -1245,7 +1278,10 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
 ];
 
 /** Color classes per airline code */
-export const AIRLINE_COLORS: Record<string, { bg: string; text: string; border: string; badge: string }> = {
+export const AIRLINE_COLORS: Record<
+  string,
+  { bg: string; text: string; border: string; badge: string }
+> = {
   WS: {
     bg: 'bg-teal-50 dark:bg-teal-900/20',
     text: 'text-teal-700 dark:text-teal-300',
