@@ -22,7 +22,7 @@ export const LoginPage: React.FC = () => {
   const [magicLoading, setMagicLoading] = useState(false);
 
   const { login } = useAuth();
-  const { t, setLanguage } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,16 +39,8 @@ export const LoginPage: React.FC = () => {
       try {
         const result = await login(email.trim(), password.trim());
         if (result.success) {
-          const savedLang = localStorage.getItem('smartQuoteLanguage');
-          if (!savedLang && result.user?.nationality) {
-            const natLangMap: Record<string, 'ko' | 'en' | 'cn' | 'ja'> = {
-              KR: 'ko',
-              JP: 'ja',
-              CN: 'cn',
-              TW: 'cn',
-            };
-            setLanguage(natLangMap[result.user.nationality] || 'en');
-          }
+          // English is the default for all users regardless of nationality.
+          // Users can manually switch via the language selector in the header.
 
           const userRole = result.user?.role || 'user';
           const defaultDest = userRole === 'admin' ? '/admin' : '/dashboard';
