@@ -8,7 +8,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   // A simple translation function
-  t: (key: keyof typeof translations['en']) => string;
+  t: (key: keyof (typeof translations)['en']) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -41,7 +41,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('smartQuoteLanguage', lang);
   };
 
-  const t = (key: keyof typeof translations['en']): string => {
+  const t = (key: keyof (typeof translations)['en']): string => {
     const val = translations[language][key];
     if (val != null) return val;
     const fallback = translations['en'][key];
