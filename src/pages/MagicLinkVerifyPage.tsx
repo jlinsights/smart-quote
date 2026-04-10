@@ -15,7 +15,7 @@ export default function MagicLinkVerifyPage() {
 
     const token = searchParams.get('token');
     if (!token) {
-      queueMicrotask(() => setError('유효하지 않은 링크입니다.'));
+      queueMicrotask(() => setError('Invalid link.'));
       return;
     }
 
@@ -23,7 +23,7 @@ export default function MagicLinkVerifyPage() {
       if (result.success) {
         navigate('/dashboard', { replace: true });
       } else {
-        setError(result.error ?? '링크가 만료되었거나 이미 사용된 링크입니다.');
+        setError(result.error ?? 'This link has expired or has already been used.');
       }
     });
   }, [searchParams, loginWithMagicLink, navigate]);
@@ -47,13 +47,13 @@ export default function MagicLinkVerifyPage() {
               />
             </svg>
           </div>
-          <h2 className='text-lg font-semibold text-gray-900 dark:text-white mb-2'>로그인 실패</h2>
+          <h2 className='text-lg font-semibold text-gray-900 dark:text-white mb-2'>Login Failed</h2>
           <p className='text-sm text-gray-600 dark:text-gray-400 mb-6'>{error}</p>
           <button
             onClick={() => navigate('/login', { replace: true })}
             className='inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-jways-600 hover:bg-jways-700 rounded-lg transition-colors'
           >
-            로그인 페이지로 돌아가기
+            Back to Login
           </button>
         </div>
       </div>
@@ -64,7 +64,7 @@ export default function MagicLinkVerifyPage() {
     <div className='min-h-screen flex items-center justify-center bg-white dark:bg-gray-950'>
       <div className='text-center'>
         <div className='w-8 h-8 border-2 border-gray-300 border-t-jways-500 rounded-full animate-spin mx-auto mb-4' />
-        <p className='text-sm text-gray-600 dark:text-gray-400'>로그인 중...</p>
+        <p className='text-sm text-gray-600 dark:text-gray-400'>Signing in...</p>
       </div>
     </div>
   );
