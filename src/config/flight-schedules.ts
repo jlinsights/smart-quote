@@ -14,11 +14,37 @@ export interface FlightSchedule {
   flightDuration: string;
   maxCargoKg: number;
   remarks?: string;
+  /** Inclusive lower bound, ISO YYYY-MM-DD. Omit for "always from the past". */
+  effectiveFrom?: string;
+  /** Inclusive upper bound, ISO YYYY-MM-DD. Omit for "never expires". */
+  effectiveTo?: string;
 }
 
 /** Format route display: ICN → NRT → YYC or ICN → YYC */
 export const formatRoute = (s: FlightSchedule): string =>
   s.via ? `${s.origin}→${s.via}→${s.destination}` : `${s.origin}→${s.destination}`;
+
+/**
+ * Check whether a schedule is active on the given YYYY-MM-DD day (inclusive bounds).
+ * Uses lexicographic string comparison to avoid Date/timezone drift.
+ */
+export function isActiveOn(schedule: FlightSchedule, todayYmd: string): boolean {
+  if (schedule.effectiveFrom && todayYmd < schedule.effectiveFrom) return false;
+  if (schedule.effectiveTo && todayYmd > schedule.effectiveTo) return false;
+  return true;
+}
+
+/**
+ * YYYY-MM-DD in the browser's local time (not UTC).
+ * Keeping it local prevents late-night flights from slipping into the wrong
+ * effective window near midnight KST.
+ */
+export function todayYmdLocal(now: Date = new Date()): string {
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
 export type GssaGroup = 'goodman' | 'gac' | 'extrans' | 'daejoo' | 'apex' | 'paa';
 
@@ -432,11 +458,12 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightDuration: '3h 30m',
     maxCargoKg: 3000,
   },
-  // Aeroflot (SU) — ICN-BKK-SVO transit via LJ/TG feeder · Single B/L · Effective 15-25 APR 2026
+  // Aeroflot (SU) — ICN-BKK-SVO transit via LJ/TG feeder · Single B/L
   // (Direct ICN-SVO suspended due to sanctions; cargo routed via BKK)
   // ── ICN→BKK feeder flights ──
+  // LJ001 rollover handled via effectiveFrom/To (see flight-schedule-effective-window PDCA)
   {
-    id: 'default-lj-001',
+    id: 'default-lj-001-apr10',
     airline: 'Jin Air (feeder for SU)',
     airlineCode: 'LJ',
     flightNo: 'LJ 001',
@@ -444,14 +471,32 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     flightType: 'passenger',
     origin: 'ICN',
     destination: 'BKK',
-    departureDays: [1, 3, 4, 5, 6], // D1,3,4,5,6 (Mon, Wed, Thu, Fri, Sat) — from 15 APR 2026
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // DAILY — 10-14 APR 2026
+    departureTime: '17:10',
+    arrivalTime: '21:10',
+    flightDuration: '6h 00m',
+    maxCargoKg: 3000,
+    remarks: 'SU feeder · KAS T2 · AS45 · Cut-off D-day 12:00 · N/B & MSDS pre-confirm required',
+    effectiveFrom: '2026-04-10',
+    effectiveTo: '2026-04-14',
+  },
+  {
+    id: 'default-lj-001-apr15',
+    airline: 'Jin Air (feeder for SU)',
+    airlineCode: 'LJ',
+    flightNo: 'LJ 001',
+    aircraftType: 'B737-800',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'BKK',
+    departureDays: [1, 3, 4, 5, 6], // D1,3,4,5,6 (Mon, Wed, Thu, Fri, Sat) — 15-25 APR 2026
     departureTime: '19:55',
     arrivalTime: '23:55',
     flightDuration: '6h 00m',
     maxCargoKg: 3000,
-    remarks:
-      'SU feeder · KAS T2 · AS45 · Cut-off D-day 12:00 · N/B & MSDS pre-confirm required · ' +
-      '※ Until 14 APR 2026: DAILY 17:10-21:10',
+    remarks: 'SU feeder · KAS T2 · AS45 · Cut-off D-day 12:00 · N/B & MSDS pre-confirm required',
+    effectiveFrom: '2026-04-15',
+    effectiveTo: '2026-04-25',
   },
   {
     id: 'default-tg-659',

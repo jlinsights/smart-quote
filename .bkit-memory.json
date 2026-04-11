@@ -1,10 +1,53 @@
 {
   "activeFeature": null,
   "phase": "archived",
-  "matchRate": 96,
+  "matchRate": 100,
   "iteration": 0,
-  "archivedTo": "docs/archive/2026-04/test-suite-fixes/",
+  "archivedTo": "docs/archive/2026-04/flight-schedule-effective-window/",
   "history": [
+    {
+      "feature": "flight-schedule-effective-window",
+      "phase": "archived",
+      "timestamp": "2026-04-11",
+      "action": "Archived to docs/archive/2026-04/flight-schedule-effective-window/ (100%) — 4 문서(Plan/Design/Analysis/Report) 이동, _INDEX.md 갱신. 1 세션 완결, 0 iterations."
+    },
+    {
+      "feature": "flight-schedule-effective-window",
+      "phase": "completed",
+      "timestamp": "2026-04-11",
+      "action": "Report 작성 — 100% Match Rate, 0 iterations, 1 세션 완결. 배경/결정 5건/변경 6파일/검증 1241 테스트/회고/후속 작업 3건 문서화. Archive 진행 준비 완료."
+    },
+    {
+      "feature": "flight-schedule-effective-window",
+      "phase": "check",
+      "timestamp": "2026-04-11",
+      "action": "Gap analysis 완료 — Match Rate 100% (hard gaps 0, soft 1 informational). 7개 요구 카테고리(타입/데이터/필터/UI/i18n/테스트/Open Q) 전부 매핑 ✓. 오버딜리버 3 (테스트 12 vs 9 예정). 회귀 0 (1241/1241 vitest, 0 eslint, 0 tsc, build 8.32s). Report 진행 권장."
+    },
+    {
+      "feature": "flight-schedule-effective-window",
+      "phase": "do",
+      "timestamp": "2026-04-11",
+      "action": "Do 완료 — 9단계 전부 구현. FlightSchedule에 effectiveFrom/effectiveTo + isActiveOn/todayYmdLocal 추가, LJ001 default-lj-001-apr10/apr15로 분리, useFlightSchedules legacy id rename(default-lj-001→apr15) + 오늘 기준 필터링, FlightFormModal 유효기간 2 필드, i18n 4언어 키 추가, 단위 8 + rollover 4 테스트 신규. lint 0 경고, tsc 0 에러, vitest 1241/1241 통과, vite build 8.32s 성공."
+    },
+    {
+      "feature": "flight-schedule-effective-window",
+      "phase": "design",
+      "timestamp": "2026-04-11",
+      "action": "Design 작성 — Open questions 5건 확정 (today 로컬/mount 1회, isActiveOn co-locate, legacy id rename 마이그레이션, inactive 토글 out-of-scope). Implementation order 9 steps, 6 파일 ~225 lines. LJ001 id를 default-lj-001-apr10/apr15로 분리."
+    },
+    {
+      "feature": "flight-schedule-effective-window",
+      "phase": "plan",
+      "timestamp": "2026-04-11",
+      "action": "Plan 작성 — Goodman GLS SU(555) LJ001 10-14 APR vs 15-25 APR rollover 충돌 해결. FlightSchedule에 effectiveFrom/effectiveTo 추가, useFlightSchedules에서 오늘 날짜 기준 필터링. 5 파일 ~175 lines, backward compatible."
+    },
+    {
+      "feature": "calculation-parity-fix",
+      "phase": "archived",
+      "timestamp": "2026-04-11",
+      "action": "Archived to docs/archive/2026-04/calculation-parity-fix/ (100%) — calculation_parity_spec 경로 수정 (../../../../→../../../) + UpsSurgeFee nil 가드 추가 (&.dig(:total) || 0). RSpec 187/187, Vitest 1229/1229 통과.",
+      "matchRate": 100
+    },
     {
       "feature": "test-suite-fixes",
       "phase": "archived",

@@ -1,9 +1,23 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-02-26T19:30:00.000Z",
+  "lastUpdated": "2026-04-11T13:00:00.000Z",
   "activeFeatures": [],
   "primaryFeature": null,
   "features": {
+    "flight-schedule-effective-window": {
+      "phase": "archived",
+      "planDoc": "docs/archive/2026-04/flight-schedule-effective-window/flight-schedule-effective-window.plan.md",
+      "designDoc": "docs/archive/2026-04/flight-schedule-effective-window/flight-schedule-effective-window.design.md",
+      "analysisDoc": "docs/archive/2026-04/flight-schedule-effective-window/flight-schedule-effective-window.analysis.md",
+      "reportDoc": "docs/archive/2026-04/flight-schedule-effective-window/flight-schedule-effective-window.report.md",
+      "startedAt": "2026-04-11",
+      "completedAt": "2026-04-11",
+      "archivedAt": "2026-04-11",
+      "archivedTo": "docs/archive/2026-04/flight-schedule-effective-window/",
+      "matchRate": 100,
+      "iterations": 0,
+      "note": "Goodman GLS SU LJ001 10-14 APR vs 15-25 APR rollover 해결. FlightSchedule effective window 도입, vitest 1241/1241, 0 iterations."
+    },
     "widget-upgrades": {
       "phase": "archived",
       "planDoc": null,
