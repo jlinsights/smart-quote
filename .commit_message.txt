@@ -1,1 +1,2 @@
 🧪 test: rspec 잔여 10건 failures 해결 (166/166 통과)
+

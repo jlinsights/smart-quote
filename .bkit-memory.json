@@ -1,10 +1,30 @@
 {
-  "activeFeature": "test-suite-fixes",
-  "phase": "design",
-  "matchRate": null,
+  "activeFeature": null,
+  "phase": "archived",
+  "matchRate": 96,
   "iteration": 0,
-  "archivedTo": "docs/archive/2026-04/schema-drift-recovery/",
+  "archivedTo": "docs/archive/2026-04/test-suite-fixes/",
   "history": [
+    {
+      "feature": "test-suite-fixes",
+      "phase": "archived",
+      "timestamp": "2026-04-11",
+      "action": "Archived to docs/archive/2026-04/test-suite-fixes/ (96%) — 166/166 RSpec 통과, Hard gaps 0, 회귀 0, rubocop 0 위반.",
+      "matchRate": 96
+    },
+    {
+      "feature": "test-suite-fixes",
+      "phase": "check",
+      "timestamp": "2026-04-11",
+      "action": "Gap analysis 완료 — Match Rate 96%, hard gaps 0, soft deviations 3 (D1: exchange_rates webmock 미설치 → Net::HTTP RSpec mock 우회 +1 file, D2: manual_surge_cost || 0 scope 확장, D3: test count 163→166). 166 examples 0 failures. 회귀 0. rubocop 0 위반. Report 진행 권장.",
+      "matchRate": 96
+    },
+    {
+      "feature": "test-suite-fixes",
+      "phase": "do",
+      "timestamp": "2026-04-11",
+      "action": "Do phase 완료 — 5 파일 변경 (design 4 + exchange_rates_spec 추가). 10 → 0 failures (166 examples). Step 별 진행: S1 pickup_in_seoul_cost + manual_surge_cost || 0, S2 memory_store, S3 before(:each) cache.clear hook, S4 shoulda → 4 cases, S5 Net::HTTP RSpec mock (webmock gem 미설치 우회). rubocop 0 위반."
+    },
     {
       "feature": "test-suite-fixes",
       "phase": "design",

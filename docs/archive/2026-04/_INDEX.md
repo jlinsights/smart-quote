@@ -8,3 +8,4 @@
 | magic-link-hardening | 99% | 2026-04-11 | Plan, Design, Analysis, Report — auth-passwordless 후속 경화 (secure_compare, SHA256 digest, rack-attack 3 throttle, i18n 15 keys × 4 langs, 26 신규 테스트, 보안 10/10) |
 | schema-drift-recovery | 95% | 2026-04-11 | Plan, Design, Analysis, Report — bb93c45 환각 schema.rb 손상 복원 (margin_rules/discount_rules 정정, networks/margin_percent/profit_amount 복원). rspec 114→10 failures (104건 해결). Rails 8 db:migrate schema.rb fallback 동작 발견. |
 | ups-dhl-tariff-update | 100% | 2026-04-11 | Report only (비공식 PDCA, 요율 데이터 업데이트 작업) — UPS/DHL 공시 정가 반영. 4개 파일 완전 재작성 (TS 2 + Ruby 2), 903개 값 100% TS↔Ruby 동기화, Vercel+Render 동시 배포. |
+| test-suite-fixes | 96% | 2026-04-11 | Plan, Design, Analysis, Report — schema-drift-recovery 후 잔여 10 RSpec failures 해결 (166/166 통과). C1 shoulda matcher 정정, C2 memory_store+cache.clear hook, C3 pickup_in_seoul_cost+manual_surge_cost || 0 fallback. Hard gaps 0, 회귀 0, rubocop 0 위반. |
