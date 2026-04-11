@@ -1,1 +1,1 @@
-🌐 feat(intercom): 해외 파트너 경험 강화 - 다국어(영어 고정) + 이벤트 훅 A/B/C/F + Help Center 8 articles
+📘 docs(intercom): 대시보드 세팅 단일 런북 — 9 phase 복붙 가이드 + 24h 대기 포인트
