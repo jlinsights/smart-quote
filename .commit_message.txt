@@ -1,1 +1,1 @@
-📘 docs(intercom): 대시보드 세팅 단일 런북 — 9 phase 복붙 가이드 + 24h 대기 포인트
+🔀 chore(subtree): smart-quote-api drift 정리 — api-deploy 3개 커밋 back-merge (intercom_hash + Gemfile cleanup + lock regen)

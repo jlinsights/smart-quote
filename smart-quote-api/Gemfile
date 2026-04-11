@@ -6,26 +6,19 @@ gem "rails", "~> 8.0.4"
 gem "pg", "~> 1.1"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
-# Build JSON APIs with ease [https://github.com/rails/jbuilder]
-# gem "jbuilder"
 
-# Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
+# Use Active Model has_secure_password
 gem "bcrypt", "~> 3.1.7"
 
 # JWT authentication
-gem "jwt"
+gem "jwt", "~> 3.1"
 
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ windows jruby ]
+# Sentry error monitoring
+gem "sentry-ruby"
+gem "sentry-rails"
 
-# Reduces boot times through caching; required in config/boot.rb
-gem "bootsnap", require: false
-
-# Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-# gem "image_processing", "~> 1.2"
-
-# Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
-gem "rack-cors"
+# Use Rack CORS for handling Cross-Origin Resource Sharing (CORS)
+gem "rack-cors", "~> 3.0"
 
 # Anthropic AI SDK
 gem "anthropic"
@@ -38,16 +31,22 @@ gem "rack-attack"
 
 # CSV and RSS (removed from default gems in Ruby 3.4)
 gem "csv"
-gem "rss"
+gem "rss", "~> 0.3.2"
+
+# Windows does not include zoneinfo files
+gem "tzinfo-data", platforms: %i[ windows jruby ]
+
+# Reduces boot times through caching; required in config/boot.rb
+gem "bootsnap", require: false
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
-  # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
+  # Static analysis for security vulnerabilities
   gem "brakeman", require: false
 
-  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
+  # Omakase Ruby styling
   gem "rubocop-rails-omakase", require: false
 
   # Testing
@@ -55,4 +54,7 @@ group :development, :test do
   gem "factory_bot_rails"
   gem "shoulda-matchers"
   gem "faker"
+
+  # Load environment variables from .env
+  gem "dotenv-rails"
 end

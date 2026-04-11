@@ -88,7 +88,20 @@ module JwtAuthenticatable
       name: user.name,
       company: user.company,
       nationality: user.nationality,
-      networks: user.networks
+      networks: user.networks,
+      intercom_hash: intercom_hash(user)
     }
+  end
+
+  private
+
+  def intercom_hash(user)
+    return nil if ENV["INTERCOM_SECRET_KEY"].blank?
+
+    OpenSSL::HMAC.hexdigest(
+      "SHA256",
+      ENV["INTERCOM_SECRET_KEY"],
+      user.id.to_s
+    )
   end
 end

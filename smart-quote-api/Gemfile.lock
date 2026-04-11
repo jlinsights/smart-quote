@@ -95,6 +95,10 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.6.2)
+    dotenv (3.2.0)
+    dotenv-rails (3.2.0)
+      dotenv (= 3.2.0)
+      railties (>= 6.1)
     drb (2.2.3)
     erb (6.0.1)
     erubi (1.13.1)
@@ -293,6 +297,13 @@ GEM
       rubocop-rails (>= 2.30)
     ruby-progressbar (1.13.0)
     securerandom (0.4.1)
+    sentry-rails (6.4.1)
+      railties (>= 5.2.0)
+      sentry-ruby (~> 6.4.1)
+    sentry-ruby (6.4.1)
+      bigdecimal
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      logger
     shoulda-matchers (7.0.1)
       activesupport (>= 7.1)
     stringio (3.2.0)
@@ -330,18 +341,21 @@ DEPENDENCIES
   brakeman
   csv
   debug
+  dotenv-rails
   factory_bot_rails
   faker
-  jwt
+  jwt (~> 3.1)
   kaminari
   pg (~> 1.1)
   puma (>= 5.0)
   rack-attack
-  rack-cors
+  rack-cors (~> 3.0)
   rails (~> 8.0.4)
   rspec-rails
-  rss
+  rss (~> 0.3.2)
   rubocop-rails-omakase
+  sentry-rails
+  sentry-ruby
   shoulda-matchers
   tzinfo-data
 

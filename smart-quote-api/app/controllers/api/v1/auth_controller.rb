@@ -2,6 +2,7 @@ module Api
   module V1
     class AuthController < ApplicationController
       include JwtAuthenticatable
+      before_action :authenticate_user!, only: [ :update_password, :me ]
 
       # POST /api/v1/auth/register
       def register
@@ -33,9 +34,7 @@ module Api
 
       # GET /api/v1/auth/me
       def me
-        authenticate_user!
-        return if performed?
-        render json: user_json(current_user)
+        render json: { user: user_json(current_user) }
       end
 
       # POST /api/v1/auth/refresh — issue new access token using refresh token
