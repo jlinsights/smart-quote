@@ -5,7 +5,7 @@ RSpec.describe QuoteCalculator, "Calculation Parity" do
   let(:fixtures_path) { Rails.root.join("..", "shared", "test-fixtures", "calculation-parity.json") }
   let(:fixtures) { JSON.parse(File.read(fixtures_path)) }
 
-  fixtures_data = JSON.parse(File.read(File.expand_path("../../../../shared/test-fixtures/calculation-parity.json", __dir__)))
+  fixtures_data = JSON.parse(File.read(File.expand_path("../../../shared/test-fixtures/calculation-parity.json", __dir__)))
 
   fixtures_data["fixtures"].each do |fixture|
     context fixture["name"] do

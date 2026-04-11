@@ -87,7 +87,7 @@ class QuoteCalculator
         billable_weight: @billable_weight,
         fsc_percent: @input[:fscPercent] || DEFAULT_FSC_PERCENT
       )
-      @ups_surge_total = ups_surge_fee_result[:total]
+      @ups_surge_total = ups_surge_fee_result&.dig(:total) || 0
     end
 
     @manual_surge_cost = @input[:manualSurgeCost] || 0
