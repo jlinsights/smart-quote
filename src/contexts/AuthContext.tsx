@@ -20,6 +20,7 @@ export interface User {
   name?: string;
   nationality?: string;
   networks?: FreightNetwork[];
+  intercom_hash?: string;
 }
 
 interface AuthResult {

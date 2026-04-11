@@ -106,6 +106,7 @@ export function Intercom() {
         ic('boot', {
           ...baseSettings,
           user_id: String(user.id),
+          user_hash: user.intercom_hash,
           name: user.name || user.email?.split('@')[0] || '',
           email: user.email || '',
           ...(user.company ? { company: { company_id: user.company, name: user.company } } : {}),
