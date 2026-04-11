@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { QuoteInput, QuoteResult, QuoteDetail, Incoterm, PackingType } from '../types';
 import { generatePDF } from '@/lib/pdfService';
 import { calculateQuote } from '@/features/quote/services/calculationService';
+import { trackEvent, IntercomEvents } from '@/lib/intercom';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { QuoteHistoryPage } from '@/features/history/components/QuoteHistoryPage';
 import { AppView } from '@/components/layout/NavigationTabs';
@@ -11,7 +12,11 @@ import { Header } from '@/components/layout/Header';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { DEFAULT_EXCHANGE_RATE, DEFAULT_FSC_PERCENT, DEFAULT_FSC_PERCENT_DHL } from '@/config/rates';
+import {
+  DEFAULT_EXCHANGE_RATE,
+  DEFAULT_FSC_PERCENT,
+  DEFAULT_FSC_PERCENT_DHL,
+} from '@/config/rates';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useResolvedMargin } from '@/features/dashboard/hooks/useResolvedMargin';
 import { CalculatorActionBar } from './components/CalculatorActionBar';
@@ -26,15 +31,13 @@ const INITIAL_INPUT: QuoteInput = {
   shippingMode: 'Door-to-Door',
   incoterm: Incoterm.DAP,
   packingType: PackingType.NONE,
-  items: [
-    { id: '1', width: 10, length: 10, height: 10, weight: 1, quantity: 1 }
-  ],
+  items: [{ id: '1', width: 10, length: 10, height: 10, weight: 1, quantity: 1 }],
   marginPercent: 15,
   dutyTaxEstimate: 0,
   exchangeRate: DEFAULT_EXCHANGE_RATE,
   fscPercent: DEFAULT_FSC_PERCENT,
   overseasCarrier: 'UPS',
-  manualPackingCost: undefined
+  manualPackingCost: undefined,
 };
 
 const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false }) => {
@@ -57,7 +60,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
     const carrier = input.overseasCarrier || 'UPS';
     if (lastFscCarrier !== carrier) {
       const carrierDefault = carrier === 'DHL' ? DEFAULT_FSC_PERCENT_DHL : DEFAULT_FSC_PERCENT;
-      setInput(prev => ({ ...prev, fscPercent: carrierDefault }));
+      setInput((prev) => ({ ...prev, fscPercent: carrierDefault }));
       setLastFscCarrier(carrier);
     }
   }, [input.overseasCarrier, lastFscCarrier]);
@@ -70,11 +73,38 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
     }
   }, [input]);
 
+  // Debounced Intercom event: fire 2s after the user stops editing so the
+  // operator side sees one event per real quote, not one per keystroke.
+  // Deps are intentionally fine-grained (not the whole `result` object) so we
+  // don't re-schedule on every unrelated recalc identity change.
+  useEffect(() => {
+    if (!result) return;
+    const handle = window.setTimeout(() => {
+      trackEvent(IntercomEvents.QuoteCalculated, {
+        carrier: input.overseasCarrier,
+        destination: input.destinationCountry,
+        zone: result.appliedZone,
+        billable_weight_kg: result.billableWeight,
+        total_krw: result.totalQuoteAmount,
+      });
+    }, 2000);
+    return () => window.clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    result?.totalQuoteAmount,
+    result?.appliedZone,
+    result?.billableWeight,
+    input.overseasCarrier,
+    input.destinationCountry,
+  ]);
+
   const hasManuallyChangedMargin = React.useRef(false);
   const marginResolutionTimeout = React.useRef<NodeJS.Timeout | null>(null);
 
   const { data: resolvedMargin } = useResolvedMargin(
-    user?.email, user?.nationality, result?.billableWeight
+    user?.email,
+    user?.nationality,
+    result?.billableWeight,
   );
 
   React.useEffect(() => {
@@ -97,7 +127,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
       }
 
       if (input.marginPercent !== defaultMargin) {
-        setInput(prev => ({ ...prev, marginPercent: defaultMargin }));
+        setInput((prev) => ({ ...prev, marginPercent: defaultMargin }));
       }
     }, 300);
 
@@ -105,7 +135,14 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
       if (marginResolutionTimeout.current) clearTimeout(marginResolutionTimeout.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally track only billableWeight, not entire result
-  }, [result?.billableWeight, resolvedMargin, user?.nationality, user?.email, isKorean, input.marginPercent]);
+  }, [
+    result?.billableWeight,
+    resolvedMargin,
+    user?.nationality,
+    user?.email,
+    isKorean,
+    input.marginPercent,
+  ]);
 
   const handleMarginChange = (newMargin: number) => {
     hasManuallyChangedMargin.current = true;
@@ -134,13 +171,19 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   };
 
   const handleReset = () => setShowResetConfirm(true);
-  const handleDownloadPdf = async () => result && await generatePDF(input, result, undefined, { isAdmin, isKorean });
+  const handleDownloadPdf = async () =>
+    result && (await generatePDF(input, result, undefined, { isAdmin, isKorean }));
   const handleQuoteSaved = () => setCurrentView('history');
-  const scrollToResults = () => document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToResults = () =>
+    document
+      .getElementById('result-section')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   const layoutProps = {
     isDarkMode,
-    setIsDarkMode: (v: boolean) => { if (v !== isDarkMode) toggleDarkMode(); },
+    setIsDarkMode: (v: boolean) => {
+      if (v !== isDarkMode) toggleDarkMode();
+    },
     isMobileView,
     setIsMobileView,
     input,
@@ -157,7 +200,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-950 min-h-screen font-sans transition-colors duration-200">
+    <div className='bg-gray-50 dark:bg-gray-950 min-h-screen font-sans transition-colors duration-200'>
       <Header />
       <CalculatorActionBar
         currentView={currentView}
@@ -176,26 +219,30 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
           {isMobileView ? (
             <MobileLayout {...layoutProps} />
           ) : (
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32 lg:pb-8">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                <div className="lg:col-span-7 space-y-8">
+            <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32 lg:pb-8'>
+              <div className='grid grid-cols-1 lg:grid-cols-12 gap-8 items-start'>
+                <div className='lg:col-span-7 space-y-8'>
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('calc.shipmentConfig')}</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('calc.shipmentConfigDesc')}</p>
+                    <h2 className='text-xl font-semibold text-gray-900 dark:text-white'>
+                      {t('calc.shipmentConfig')}
+                    </h2>
+                    <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
+                      {t('calc.shipmentConfigDesc')}
+                    </p>
                   </div>
-                  <InputSection 
-                    input={input} 
-                    onChange={setInput} 
-                    isMobileView={false} 
-                    effectiveMarginPercent={result?.profitMargin} 
-                    hideMargin={hideMargin} 
-                    intlBase={result?.breakdown.intlBase} 
-                    billableWeight={result?.billableWeight} 
-                    resolvedMargin={resolvedMargin} 
+                  <InputSection
+                    input={input}
+                    onChange={setInput}
+                    isMobileView={false}
+                    effectiveMarginPercent={result?.profitMargin}
+                    hideMargin={hideMargin}
+                    intlBase={result?.breakdown.intlBase}
+                    billableWeight={result?.billableWeight}
+                    resolvedMargin={resolvedMargin}
                   />
                   {isAdmin && <AdminWidgets />}
                 </div>
-                <div className="lg:col-span-5 lg:sticky top-24" id="result-section">
+                <div className='lg:col-span-5 lg:sticky top-24' id='result-section'>
                   {result && (
                     <ResultSection
                       result={result}
@@ -203,7 +250,9 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
                       hideMargin={hideMargin}
                       onMarginChange={handleMarginChange}
                       onDownloadPdf={handleDownloadPdf}
-                      onSwitchCarrier={(carrier) => setInput(prev => ({ ...prev, overseasCarrier: carrier }))}
+                      onSwitchCarrier={(carrier) =>
+                        setInput((prev) => ({ ...prev, overseasCarrier: carrier }))
+                      }
                       marginPercent={input.marginPercent}
                       isKorean={isKorean}
                     />
@@ -224,7 +273,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
         <QuoteHistoryPage onDuplicate={handleDuplicate} />
       )}
 
-      <div className="hidden lg:block">
+      <div className='hidden lg:block'>
         <Footer />
       </div>
 
@@ -233,8 +282,11 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
         title={t('calc.resetTitle')}
         message={t('calc.resetMessage')}
         confirmLabel={t('calc.resetQuote')}
-        variant="warning"
-        onConfirm={() => { setShowResetConfirm(false); setInput(INITIAL_INPUT); }}
+        variant='warning'
+        onConfirm={() => {
+          setShowResetConfirm(false);
+          setInput(INITIAL_INPUT);
+        }}
         onCancel={() => setShowResetConfirm(false)}
       />
     </div>

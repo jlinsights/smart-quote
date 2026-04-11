@@ -1,1 +1,1 @@
-✨ feat(schedule): FlightSchedule 유효기간 기반 자동 전환 + SU LJ001 rollover 해결 (PDCA 100%)
+🌐 feat(intercom): 해외 파트너 경험 강화 - 다국어(영어 고정) + 이벤트 훅 A/B/C/F + Help Center 8 articles
