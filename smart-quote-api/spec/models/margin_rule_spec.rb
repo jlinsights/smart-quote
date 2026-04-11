@@ -7,7 +7,30 @@ RSpec.describe MarginRule, type: :model do
     it { should validate_presence_of(:rule_type) }
     it { should validate_inclusion_of(:rule_type).in_array(%w[flat weight_based]) }
     it { should validate_presence_of(:priority) }
-    it { should validate_numericality_of(:priority).only_integer.is_greater_than_or_equal_to(0).is_less_than_or_equal_to(200) }
+
+    describe "priority range" do
+      it "rejects priority below 0" do
+        rule = build(:margin_rule, priority: -1)
+        expect(rule).not_to be_valid
+        expect(rule.errors[:priority]).to be_present
+      end
+
+      it "rejects priority above 200" do
+        rule = build(:margin_rule, priority: 201)
+        expect(rule).not_to be_valid
+        expect(rule.errors[:priority]).to be_present
+      end
+
+      it "accepts priority at boundaries" do
+        expect(build(:margin_rule, priority: 0)).to be_valid
+        expect(build(:margin_rule, priority: 200)).to be_valid
+      end
+
+      it "rejects non-integer priority" do
+        rule = build(:margin_rule, priority: 50.5)
+        expect(rule).not_to be_valid
+      end
+    end
     it { should validate_presence_of(:margin_percent) }
     it { should validate_numericality_of(:margin_percent).is_greater_than_or_equal_to(5).is_less_than_or_equal_to(50) }
     it { should validate_numericality_of(:weight_min).is_greater_than_or_equal_to(0).allow_nil }

@@ -68,6 +68,12 @@ RSpec.configure do |config|
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
 
+  # Clear Rails.cache before each example for test isolation.
+  # Test env uses :memory_store (see config/environments/test.rb).
+  config.before(:each) do
+    Rails.cache.clear
+  end
+
   # FactoryBot
   config.include FactoryBot::Syntax::Methods
 

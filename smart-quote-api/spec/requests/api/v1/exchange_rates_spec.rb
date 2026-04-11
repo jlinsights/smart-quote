@@ -53,7 +53,9 @@ RSpec.describe "Api::V1::ExchangeRates", type: :request do
         Rails.cache.clear
         allow(ENV).to receive(:[]).and_call_original
         allow(ENV).to receive(:[]).with("OPEN_EXCHANGE_APP_ID").and_return("test_key")
-        stub_request(:get, /openexchangerates\.org/).to_return(status: 500, body: "Server Error")
+        failure = Net::HTTPServerError.new("1.1", "500", "Server Error")
+        allow(failure).to receive(:body).and_return("Server Error")
+        allow(Net::HTTP).to receive(:get_response).and_return(failure)
       end
 
       it "returns 503 when no data available" do
@@ -85,8 +87,9 @@ RSpec.describe "Api::V1::ExchangeRates", type: :request do
         Rails.cache.clear
         allow(ENV).to receive(:[]).and_call_original
         allow(ENV).to receive(:[]).with("OPEN_EXCHANGE_APP_ID").and_return("test_key")
-        stub_request(:get, /openexchangerates\.org/)
-          .to_return(status: 200, body: api_response.to_json, headers: { "Content-Type" => "application/json" })
+        success = Net::HTTPSuccess.new("1.1", "200", "OK")
+        allow(success).to receive(:body).and_return(api_response.to_json)
+        allow(Net::HTTP).to receive(:get_response).and_return(success)
       end
 
       it "fetches from API and caches the result" do

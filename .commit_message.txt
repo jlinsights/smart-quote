@@ -1,1 +1,1 @@
-🐛 MagicLinkVerifyPage useEffect 내 동기 setState lint 오류 수정
+🧪 test: rspec 잔여 10건 failures 해결 (166/166 통과)

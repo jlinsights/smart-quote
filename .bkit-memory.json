@@ -1,10 +1,22 @@
 {
-  "activeFeature": null,
-  "phase": "archived",
-  "matchRate": 95,
+  "activeFeature": "test-suite-fixes",
+  "phase": "design",
+  "matchRate": null,
   "iteration": 0,
   "archivedTo": "docs/archive/2026-04/schema-drift-recovery/",
   "history": [
+    {
+      "feature": "test-suite-fixes",
+      "phase": "design",
+      "timestamp": "2026-04-11",
+      "action": "Design 작성 — Open questions 4건 확정. Critical 발견: quotes_controller.rb:183 pickup_in_seoul_cost가 || 0 fallback 누락 (다른 라인은 모두 default 있음). Implementation order 7 steps. 변경 4 파일 ~25 lines. 각 변경 독립적이라 개별 rollback 가능."
+    },
+    {
+      "feature": "test-suite-fixes",
+      "phase": "plan",
+      "timestamp": "2026-04-11",
+      "action": "Plan 생성 — schema-drift-recovery 후 잔여 10 rspec failures 처리. 4 카테고리: C1 shoulda matcher 형식(1), C2 cache null_store(6), C3 pickup_in_seoul_cost NOT NULL(3). 전략: A/B/A 옵션으로 spec 1개 + test.rb 1줄 + rails_helper hook + controller fallback. Open questions 4건."
+    },
     {
       "feature": "schema-drift-recovery",
       "phase": "archived",

@@ -179,8 +179,8 @@ module Api
           fsc_percent: input["fscPercent"] || input[:fscPercent],
           manual_domestic_cost: input["manualDomesticCost"] || input[:manualDomesticCost],
           manual_packing_cost: input["manualPackingCost"] || input[:manualPackingCost],
-          manual_surge_cost: input["manualSurgeCost"] || input[:manualSurgeCost],
-          pickup_in_seoul_cost: input["pickupInSeoulCost"] || input[:pickupInSeoulCost],
+          manual_surge_cost: input["manualSurgeCost"] || input[:manualSurgeCost] || 0,
+          pickup_in_seoul_cost: input["pickupInSeoulCost"] || input[:pickupInSeoulCost] || 0,
           overseas_carrier: input["overseasCarrier"] || input[:overseasCarrier] || "UPS"
         }
       end
