@@ -142,8 +142,10 @@ export function Intercom() {
       prevUserIdRef.current = currentUserId;
       prevLangRef.current = language;
     } else if (user) {
-      // Same user, profile may have updated
+      // Same user, profile may have updated (e.g. intercom_hash arrived via refresh)
       ic('update', {
+        user_id: String(user.id),
+        user_hash: user.intercom_hash,
         name: user.name || '',
         email: user.email || '',
       });
