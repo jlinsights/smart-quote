@@ -1,1 +1,1 @@
-🔀 chore(subtree): smart-quote-api drift 정리 — api-deploy 3개 커밋 back-merge (intercom_hash + Gemfile cleanup + lock regen)
+🔧 chore: untrack bootsnap cache (1496 files) — Rails /tmp/* 이미 gitignore됨
