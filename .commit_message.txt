@@ -1,1 +1,1 @@
-🔧 chore: untrack bootsnap cache (1496 files) — Rails /tmp/* 이미 gitignore됨
+⛽ chore: UPS FSC 48.50%, DHL FSC 46.00% 업데이트 (2026-04-13)
