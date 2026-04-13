@@ -1,24 +1,20 @@
-import {
-  QuoteInput,
-  QuoteResult,
-  PackingType,
-  Incoterm,
-  CargoItem
-} from "@/types";
+import { QuoteInput, QuoteResult, PackingType, Incoterm, CargoItem } from '@/types';
 import {
   FUMIGATION_FEE,
   DEFAULT_EXCHANGE_RATE,
+  DEFAULT_FSC_PERCENT,
+  DEFAULT_FSC_PERCENT_DHL,
   PACKING_MATERIAL_BASE_COST,
   PACKING_LABOR_UNIT_COST,
   WAR_RISK_SURCHARGE_RATE,
-  TRANSIT_TIMES
-} from "@/config/rates";
-import { UPS_EXACT_RATES, UPS_RANGE_RATES } from "@/config/ups_tariff";
-import { DHL_EXACT_RATES, DHL_RANGE_RATES } from "@/config/dhl_tariff";
-import { applyPackingDimensions } from "@/lib/packing-utils";
-import { MAX_MARGIN_PERCENT } from "@/config/business-rules";
-import { calculateDhlAddOnCosts } from "./dhlAddonCalculator";
-import { calculateUpsAddOnCosts } from "./upsAddonCalculator";
+  TRANSIT_TIMES,
+} from '@/config/rates';
+import { UPS_EXACT_RATES, UPS_RANGE_RATES } from '@/config/ups_tariff';
+import { DHL_EXACT_RATES, DHL_RANGE_RATES } from '@/config/dhl_tariff';
+import { applyPackingDimensions } from '@/lib/packing-utils';
+import { MAX_MARGIN_PERCENT } from '@/config/business-rules';
+import { calculateDhlAddOnCosts } from './dhlAddonCalculator';
+import { calculateUpsAddOnCosts } from './upsAddonCalculator';
 
 // --- Types for Internal Calculations ---
 interface ItemCalculationResult {
@@ -39,7 +35,12 @@ interface CarrierCostResult {
 
 // --- Helper Functions ---
 
-export const calculateVolumetricWeight = (l: number, w: number, h: number, divisor: number = 5000) => {
+export const calculateVolumetricWeight = (
+  l: number,
+  w: number,
+  h: number,
+  divisor: number = 5000,
+) => {
   return (Math.ceil(l) * Math.ceil(w) * Math.ceil(h)) / divisor;
 };
 
@@ -58,7 +59,7 @@ const lookupCarrierRate = (
   billableWeight: number,
   zoneKey: string,
   exactRates: ExactRateTable,
-  rangeRates: RangeRateEntry[]
+  rangeRates: RangeRateEntry[],
 ): number => {
   const lookupWeight = roundToHalf(billableWeight);
   const zoneRates = exactRates[zoneKey];
@@ -67,17 +68,19 @@ const lookupCarrierRate = (
     return zoneRates[lookupWeight];
   }
 
-  const range = rangeRates.find(r => billableWeight >= r.min && billableWeight <= r.max);
+  const range = rangeRates.find((r) => billableWeight >= r.min && billableWeight <= r.max);
   if (range && range.rates[zoneKey]) {
     return Math.ceil(billableWeight) * range.rates[zoneKey];
   }
 
   if (zoneRates) {
-    const weights = Object.keys(zoneRates).map(Number).sort((a, b) => a - b);
-    const found = weights.find(w => w >= lookupWeight);
+    const weights = Object.keys(zoneRates)
+      .map(Number)
+      .sort((a, b) => a - b);
+    const found = weights.find((w) => w >= lookupWeight);
     if (found) return zoneRates[found];
 
-    const nextRange = rangeRates.find(r => r.min <= Math.ceil(billableWeight));
+    const nextRange = rangeRates.find((r) => r.min <= Math.ceil(billableWeight));
     if (nextRange && nextRange.rates[zoneKey]) {
       return Math.ceil(billableWeight) * nextRange.rates[zoneKey];
     }
@@ -87,7 +90,12 @@ const lookupCarrierRate = (
 };
 
 // Surge auto-calc disabled; manual surge input applies to all carriers via calculateQuote().
-export const calculateItemCosts = (items: CargoItem[], packingType: PackingType, manualPackingCost?: number, volumetricDivisor: number = 5000): ItemCalculationResult => {
+export const calculateItemCosts = (
+  items: CargoItem[],
+  packingType: PackingType,
+  manualPackingCost?: number,
+  volumetricDivisor: number = 5000,
+): ItemCalculationResult => {
   let totalActualWeight = 0;
   let totalPackedVolumetricWeight = 0;
   let packingMaterialCost = 0;
@@ -95,16 +103,23 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
   const warnings: string[] = [];
 
   items.forEach((item) => {
-    const packed = applyPackingDimensions(item.length, item.width, item.height, item.weight, packingType);
+    const packed = applyPackingDimensions(
+      item.length,
+      item.width,
+      item.height,
+      item.weight,
+      packingType,
+    );
     const { l, w, h, weight } = packed;
 
     // Packing impact
     if (packingType !== PackingType.NONE) {
-      const surfaceAreaM2 = (2 * (l*w + l*h + w*h)) / 10000;
+      const surfaceAreaM2 = (2 * (l * w + l * h + w * h)) / 10000;
       packingMaterialCost += surfaceAreaM2 * PACKING_MATERIAL_BASE_COST * item.quantity;
-      const laborPerItem = packingType === PackingType.VACUUM
-        ? PACKING_LABOR_UNIT_COST * 1.5
-        : PACKING_LABOR_UNIT_COST;
+      const laborPerItem =
+        packingType === PackingType.VACUUM
+          ? PACKING_LABOR_UNIT_COST * 1.5
+          : PACKING_LABOR_UNIT_COST;
       packingLaborCost += laborPerItem * item.quantity;
     }
 
@@ -112,13 +127,14 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
     // Applies to all carriers (UPS, DHL). See calculateQuote() for integration.
 
     totalActualWeight += weight * item.quantity;
-    totalPackedVolumetricWeight += calculateVolumetricWeight(l, w, h, volumetricDivisor) * item.quantity;
+    totalPackedVolumetricWeight +=
+      calculateVolumetricWeight(l, w, h, volumetricDivisor) * item.quantity;
   });
 
   // Manual Override Logic
   if (manualPackingCost !== undefined && manualPackingCost >= 0) {
-      packingMaterialCost = manualPackingCost;
-      packingLaborCost = 0;
+    packingMaterialCost = manualPackingCost;
+    packingLaborCost = 0;
   }
 
   return {
@@ -126,35 +142,38 @@ export const calculateItemCosts = (items: CargoItem[], packingType: PackingType,
     totalPackedVolumetricWeight,
     packingMaterialCost,
     packingLaborCost,
-    warnings
+    warnings,
   };
 };
 
-export const calculateUpsCosts = (
-  billableWeight: number,
-  country: string,
-): CarrierCostResult => {
-    const zoneInfo = determineUpsZone(country);
-    const intlBase = lookupCarrierRate(billableWeight, zoneInfo.rateKey, UPS_EXACT_RATES, UPS_RANGE_RATES as RangeRateEntry[]);
-    const intlWarRisk = intlBase * (WAR_RISK_SURCHARGE_RATE / 100);
-    return {
-      intlBase,
-      intlFsc: 0, // FSC calculated in orchestrator
-      intlWarRisk,
-      appliedZone: zoneInfo.label,
-      transitTime: TRANSIT_TIMES.UPS
-    };
+export const calculateUpsCosts = (billableWeight: number, country: string): CarrierCostResult => {
+  const zoneInfo = determineUpsZone(country);
+  const intlBase = lookupCarrierRate(
+    billableWeight,
+    zoneInfo.rateKey,
+    UPS_EXACT_RATES,
+    UPS_RANGE_RATES as RangeRateEntry[],
+  );
+  const intlWarRisk = intlBase * (WAR_RISK_SURCHARGE_RATE / 100);
+  return {
+    intlBase,
+    intlFsc: 0, // FSC calculated in orchestrator
+    intlWarRisk,
+    appliedZone: zoneInfo.label,
+    transitTime: TRANSIT_TIMES.UPS,
+  };
 };
-
 
 // --- DHL Calculator ---
 
-export const calculateDhlCosts = (
-  billableWeight: number,
-  country: string,
-): CarrierCostResult => {
+export const calculateDhlCosts = (billableWeight: number, country: string): CarrierCostResult => {
   const zoneInfo = determineDhlZone(country);
-  const intlBase = lookupCarrierRate(billableWeight, zoneInfo.rateKey, DHL_EXACT_RATES, DHL_RANGE_RATES as RangeRateEntry[]);
+  const intlBase = lookupCarrierRate(
+    billableWeight,
+    zoneInfo.rateKey,
+    DHL_EXACT_RATES,
+    DHL_RANGE_RATES as RangeRateEntry[],
+  );
   const intlWarRisk = intlBase * (WAR_RISK_SURCHARGE_RATE / 100);
   return {
     intlBase,
@@ -172,7 +191,12 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const volumetricDivisor = 5000;
 
   // 1. Calculate Item Costs (Packing, Surge, Weights)
-  const itemResult = calculateItemCosts(input.items, input.packingType, input.manualPackingCost, volumetricDivisor);
+  const itemResult = calculateItemCosts(
+    input.items,
+    input.packingType,
+    input.manualPackingCost,
+    volumetricDivisor,
+  );
 
   let packingFumigationCost = 0;
   if (input.packingType !== PackingType.NONE) {
@@ -183,17 +207,21 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   // When manualPackingCost is set: material=override, labor=0, fumigation=0, handling=0
   // When manualPackingCost is empty: material=auto, labor=auto, fumigation=auto, handling=0
   if (input.manualPackingCost !== undefined && input.manualPackingCost >= 0) {
-      packingFumigationCost = 0;
+    packingFumigationCost = 0;
   }
 
-  const packingTotal = itemResult.packingMaterialCost + itemResult.packingLaborCost + packingFumigationCost;
+  const packingTotal =
+    itemResult.packingMaterialCost + itemResult.packingLaborCost + packingFumigationCost;
 
   // 2. Billable Weight
-  const billableWeight = Math.max(itemResult.totalActualWeight, itemResult.totalPackedVolumetricWeight);
+  const billableWeight = Math.max(
+    itemResult.totalActualWeight,
+    itemResult.totalPackedVolumetricWeight,
+  );
   const userWarnings = [...itemResult.warnings];
 
   if (itemResult.totalPackedVolumetricWeight > itemResult.totalActualWeight * 1.2) {
-    userWarnings.push("High Volumetric Weight Detected (>20% over actual). Consider Repacking.");
+    userWarnings.push('High Volumetric Weight Detected (>20% over actual). Consider Repacking.');
   }
 
   // 3. Carrier Costs (routing by carrier)
@@ -210,13 +238,16 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   // System surcharges from DB (War Risk, PSS, EBS, etc.)
   const manualSurgeCost = input.manualSurgeCost ?? 0;
   let systemSurchargeTotal = 0;
-  let appliedSurcharges: NonNullable<import("@/types").CostBreakdown["appliedSurcharges"]> | undefined;
+  let appliedSurcharges:
+    | NonNullable<import('@/types').CostBreakdown['appliedSurcharges']>
+    | undefined;
 
   if (input.resolvedSurcharges && input.resolvedSurcharges.length > 0) {
-    const applied = input.resolvedSurcharges.map(s => {
-      const appliedAmount = s.chargeType === 'rate'
-        ? Math.round(carrierResult.intlBase * s.amount / 100)
-        : Math.round(s.amount);
+    const applied = input.resolvedSurcharges.map((s) => {
+      const appliedAmount =
+        s.chargeType === 'rate'
+          ? Math.round((carrierResult.intlBase * s.amount) / 100)
+          : Math.round(s.amount);
       return {
         code: s.code,
         name: s.name,
@@ -235,7 +266,9 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
 
   // 3a. Carrier Add-on Services (DHL or UPS)
   let carrierAddOnTotal = 0;
-  let carrierAddOnDetails: NonNullable<import("@/types").CostBreakdown["carrierAddOnDetails"]> | undefined;
+  let carrierAddOnDetails:
+    | NonNullable<import('@/types').CostBreakdown['carrierAddOnDetails']>
+    | undefined;
   if (carrier === 'DHL') {
     const dhlAddOns = calculateDhlAddOnCosts(input, billableWeight, input.fscPercent);
     carrierAddOnTotal = dhlAddOns.total;
@@ -271,26 +304,43 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
   const marginAmount = baseWithMargin - baseRate;
 
   // Step 3: FSC on (Base Rate + Margin)
-  const fscRate = (input.fscPercent || 0) / 100;
+  const defaultFsc = carrier === 'DHL' ? DEFAULT_FSC_PERCENT_DHL : DEFAULT_FSC_PERCENT;
+  const fscRate = (input.fscPercent || defaultFsc) / 100;
   const intlFscNew = Math.round(baseWithMargin * fscRate);
 
   // Step 4: Add-ons (no margin applied)
-  const addOnTotal = packingTotal + pickupInSeoul + surgeCost + carrierAddOnTotal + destDuty + carrierResult.intlWarRisk;
+  const addOnTotal =
+    packingTotal +
+    pickupInSeoul +
+    surgeCost +
+    carrierAddOnTotal +
+    destDuty +
+    carrierResult.intlWarRisk;
 
   // Collect term handling
   if ([Incoterm.EXW, Incoterm.FOB].includes(input.incoterm)) {
-    userWarnings.push("Collect Term: International Freight calculated for reference but may be billed to Consignee/Partner.");
+    userWarnings.push(
+      'Collect Term: International Freight calculated for reference but may be billed to Consignee/Partner.',
+    );
   }
 
   // Final totals — costFsc is the actual FSC cost (without margin) paid to carrier
   const costFsc = Math.round(baseRate * fscRate);
-  const totalCostAmount = baseRate + costFsc + carrierResult.intlWarRisk + surgeCost + packingTotal + carrierAddOnTotal + destDuty + pickupInSeoul;
+  const totalCostAmount =
+    baseRate +
+    costFsc +
+    carrierResult.intlWarRisk +
+    surgeCost +
+    packingTotal +
+    carrierAddOnTotal +
+    destDuty +
+    pickupInSeoul;
   const rawQuoteAmount = baseWithMargin + intlFscNew + addOnTotal;
   const totalQuoteAmount = Math.ceil(rawQuoteAmount / 100) * 100; // Round up to nearest 100 KRW
   const totalQuoteAmountUSD = totalQuoteAmount / exchangeRate;
 
   if (safeMarginPercent < 10) {
-    userWarnings.push("Low Margin Alert: Profit margin is below 10%. Approval required.");
+    userWarnings.push('Low Margin Alert: Profit margin is below 10%. Approval required.');
   }
 
   return {
@@ -323,7 +373,7 @@ export const calculateQuote = (input: QuoteInput): QuoteResult => {
       carrierAddOnTotal: carrierAddOnTotal || undefined,
       carrierAddOnDetails: carrierAddOnDetails,
       destDuty,
-      totalCost: totalCostAmount
-    }
+      totalCost: totalCostAmount,
+    },
   };
 };

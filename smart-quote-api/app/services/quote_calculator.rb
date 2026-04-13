@@ -58,7 +58,7 @@ class QuoteCalculator
                          Calculators::DhlCost.call(
                            billable_weight: @billable_weight,
                            country: @input[:destinationCountry],
-                           fsc_percent: @input[:fscPercent] || DEFAULT_FSC_PERCENT
+                           fsc_percent: @input[:fscPercent] || DEFAULT_FSC_PERCENT_DHL
                          )
                        else
                          Calculators::UpsCost.call(
@@ -107,7 +107,8 @@ class QuoteCalculator
     @margin_amount = @base_with_margin - base_rate
 
     # FSC on (Base Rate + Margin)
-    fsc_rate = ((@input[:fscPercent] || 0) / 100.0)
+    default_fsc = @carrier == 'DHL' ? DEFAULT_FSC_PERCENT_DHL : DEFAULT_FSC_PERCENT
+    fsc_rate = ((@input[:fscPercent] || default_fsc) / 100.0)
     @intl_fsc_new = (@base_with_margin * fsc_rate).round
 
     # Add-ons (no margin applied)

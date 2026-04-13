@@ -1,10 +1,17 @@
 {
   "activeFeature": null,
-  "phase": "archived",
+  "phase": "completed",
   "matchRate": 100,
   "iteration": 0,
-  "archivedTo": "docs/archive/2026-04/flight-schedule-effective-window/",
+  "archivedTo": null,
   "history": [
+    {
+      "feature": "fsc-update",
+      "phase": "completed",
+      "timestamp": "2026-04-13",
+      "action": "Report 작성 — 100% Match Rate, hotfix 사이클 (Plan/Design 생략). FSC 기본값 0% 버그 수정 4곳 (calculationService.ts 2, quote_calculator.rb 2). UPS 48.5%, DHL 46.0% 기본값 적용. tsc EXIT:0, gap-detector 8/8. 백엔드 배포 필요.",
+      "matchRate": 100
+    },
     {
       "feature": "flight-schedule-effective-window",
       "phase": "archived",
