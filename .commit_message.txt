@@ -1,1 +1,1 @@
-⛽ chore: UPS FSC 48.50%, DHL FSC 46.00% 업데이트 (2026-04-13)
+⛽ FSC 동기화 — 대시보드 useFscRates를 rates.ts와 통일, 히스토리 시드·FscRate·fetcher·CLAUDE 반영

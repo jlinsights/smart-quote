@@ -1,8 +1,11 @@
 class FscFetcher
-  # Fallback rates if DB is unavailable (verified 2026-03-15)
+  include Constants::Rates
+
+  # Fallback rates when DB is unavailable. These must stay aligned with the
+  # quote calculator defaults so widgets and calculations show the same FSC.
   DEFAULT_RATES = {
-    "UPS" => { "international" => 38.5, "domestic" => 36.5 },
-    "DHL" => { "international" => 39, "domestic" => 37 }
+    "UPS" => { "international" => DEFAULT_FSC_PERCENT.to_f, "domestic" => DEFAULT_FSC_PERCENT.to_f },
+    "DHL" => { "international" => DEFAULT_FSC_PERCENT_DHL.to_f, "domestic" => DEFAULT_FSC_PERCENT_DHL.to_f }
   }.freeze
 
   class << self

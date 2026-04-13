@@ -1,33 +1,25 @@
-import { useState, useEffect, useCallback } from 'react';
-import * as Sentry from '@sentry/browser';
-import { getFscRates, FscRates } from '@/api/fscApi';
+import { useMemo, useCallback } from 'react';
+import type { FscRates } from '@/api/fscApi';
+import { DEFAULT_FSC_PERCENT, DEFAULT_FSC_PERCENT_DHL } from '@/config/rates';
 
-const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
-
+/**
+ * FSC 표시는 `src/config/rates.ts`와 동일한 기본값을 씁니다.
+ * (관리자 FSC 위젯과 대시보드 환율 위젯이 같은 숫자를 보여 주도록 맞춤.)
+ * DB `/api/v1/fsc/rates`는 배포·DB 시드와 어긋날 수 있어 읽기 경로에서는 사용하지 않습니다.
+ */
 export function useFscRates() {
-  const [data, setData] = useState<FscRates | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const data = useMemo<FscRates>(
+    () => ({
+      rates: {
+        UPS: { international: DEFAULT_FSC_PERCENT, domestic: DEFAULT_FSC_PERCENT },
+        DHL: { international: DEFAULT_FSC_PERCENT_DHL, domestic: DEFAULT_FSC_PERCENT_DHL },
+      },
+      updatedAt: new Date().toISOString(),
+    }),
+    [],
+  );
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const rates = await getFscRates();
-      setData(rates);
-    } catch (err) {
-      Sentry.captureException(err);
-      setError(err instanceof Error ? err.message : 'Failed to load FSC rates');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const retry = useCallback(() => {}, []);
 
-  useEffect(() => {
-    load();
-    const interval = setInterval(load, REFRESH_INTERVAL);
-    return () => clearInterval(interval);
-  }, [load]);
-
-  return { data, loading, error, retry: load };
+  return { data, loading: false, error: null as string | null, retry };
 }

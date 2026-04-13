@@ -58,7 +58,7 @@ bundle exec rspec spec/requests/api/v1/quotes_spec.rb
     config/                    # Rate tables, business rules, UI constants
       ups_tariff.ts            # UPS Z1-Z10 rate tables (synced with backend)
       dhl_tariff.ts            # DHL Z1-Z8 rate tables (synced with backend)
-      rates.ts                 # KRW cost constants, DEFAULT_EXCHANGE_RATE=1450, DEFAULT_FSC_PERCENT=41.75
+      rates.ts                 # KRW cost constants, DEFAULT_EXCHANGE_RATE=1450, DEFAULT_FSC_PERCENT=48.50 (UPS), DEFAULT_FSC_PERCENT_DHL=46.00 (DHL)
       business-rules.ts        # Surge thresholds, packing weight buffer/addition
       options.ts               # Country options, carrier options, incoterm options
       addon-utils.ts           # Shared AddonRateLike/NormalizedRate types, calcAddonFee(), findRate()
