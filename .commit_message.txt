@@ -1,1 +1,1 @@
-⛽ FSC 동기화 — 대시보드 useFscRates를 rates.ts와 통일, 히스토리 시드·FscRate·fetcher·CLAUDE 반영
+🔧 fix: Vercel 배포 URL CORS 허용 — smart-quote-main*.vercel.app 정규식 + 기본 origin 확장
