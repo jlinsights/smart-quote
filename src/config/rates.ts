@@ -11,8 +11,19 @@ export const TRANSIT_TIMES = {
 
 // Market Defaults
 export const DEFAULT_EXCHANGE_RATE = 1450; // Manual: 하나은행 월요일 09시 송금환율 (2026-03-24)
-export const DEFAULT_FSC_PERCENT = 48.5; // UPS default, effective 2026-04-13
-export const DEFAULT_FSC_PERCENT_DHL = 46.0; // DHL default, effective 2026-04-13~04/19
+
+// ============================================================
+// FSC 주간 업데이트 — 변경 시 아래 두 파일을 반드시 함께 수정
+//   1. src/config/rates.ts          ← 이 파일 (프론트엔드)
+//   2. smart-quote-api/lib/constants/rates.rb (백엔드)
+//
+// UPS FSC : 매주 월요일 업데이트
+//   출처: https://www.ups.com/kr/ko/support/shipping-support/shipping-costs-rates/fuel-surcharges.page
+// DHL FSC : 매월 1일 업데이트
+//   출처: https://mydhl.express.dhl/kr/ko/ship/surcharges.html#/fuel_surcharge
+// ============================================================
+export const DEFAULT_FSC_PERCENT = 48.5; // UPS FSC, effective 2026-04-13
+export const DEFAULT_FSC_PERCENT_DHL = 46.0; // DHL FSC, effective 2026-04-13~04/19
 export const UPS_FSC_URL =
   'https://www.ups.com/kr/ko/support/shipping-support/shipping-costs-rates/fuel-surcharges.page';
 export const UPS_RATES_HUB_URL =

@@ -3,14 +3,13 @@ module Calculators
     # Using Lib::Constants because the file is in app/lib/constants expecting module Lib::Constants or we need to fix loading.
     # For now assuming we will fix namespaces. Using Constants::... assuming they are loaded.
     
-    def self.call(billable_weight:, country:, fsc_percent:)
-      new(billable_weight, country, fsc_percent).call
+    def self.call(billable_weight:, country:)
+      new(billable_weight, country).call
     end
 
-    def initialize(billable_weight, country, fsc_percent)
+    def initialize(billable_weight, country)
       @billable_weight = billable_weight
       @country = country
-      @fsc_percent = fsc_percent
     end
 
     def call
@@ -18,14 +17,10 @@ module Calculators
       zone_key = zone_info[:rate_key]
       
       ups_base = calculate_base_rate(zone_key)
-      
-      fsc_rate = (@fsc_percent || 0).to_f / 100
-      ups_fsc = ups_base * fsc_rate
       ups_war_risk = ups_base * Constants::Rates::WAR_RISK_SURCHARGE_RATE
 
       {
         intl_base: ups_base,
-        intl_fsc: ups_fsc,
         intl_war_risk: ups_war_risk,
         applied_zone: zone_info[:label],
         transit_time: 'UPS 2-4 Business Days'
