@@ -266,14 +266,14 @@ export const FscRateWidget: React.FC<FscRateWidgetProps> = () => {
               </div>
               <div className='flex items-center gap-1.5'>
                 <span className='inline-block w-2.5 h-2.5 rounded-full bg-amber-500' />
-                <span>DHL (Monthly){latestDhl !== null ? ` — ${latestDhl}%` : ''}</span>
+                <span>DHL (Weekly){latestDhl !== null ? ` — ${latestDhl}%` : ''}</span>
               </div>
             </div>
 
             {/* Update frequency notes */}
             <div className='text-[10px] text-gray-400 dark:text-gray-500 space-y-0.5'>
               <p>UPS: 매주 월요일 갱신 (Weekly, every Monday)</p>
-              <p>DHL: 매월 1일 갱신 (Monthly, 1st of month)</p>
+              <p>DHL: 매주 월요일 갱신 (Weekly, every Monday)</p>
             </div>
 
             {/* Add Entry Form */}
@@ -295,10 +295,10 @@ export const FscRateWidget: React.FC<FscRateWidgetProps> = () => {
                 </div>
                 <div>
                   <label className='block text-[10px] text-gray-400 mb-0.5'>
-                    Date {addCarrier === 'ups' ? '(YYYY-MM-DD)' : '(YYYY-MM)'}
+                    Date (YYYY-MM-DD)
                   </label>
                   <input
-                    type={addCarrier === 'ups' ? 'date' : 'month'}
+                    type='date'
                     value={addDate}
                     onChange={(e) => setAddDate(e.target.value)}
                     className='px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white'

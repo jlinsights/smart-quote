@@ -1,1 +1,1 @@
-📦 chore: fsc-auto-update PDCA 아카이브 — Plan/Design/Report 3 문서 → docs/archive/2026-04/fsc-auto-update/ 이동, .bkit-memory.json 갱신
+🔧 fix: DHL FSC 히스토리 입력 월별→주간 변경 — date input type="month"→"date", 레전드/주기 안내 텍스트 "Monthly"→"Weekly" 수정
