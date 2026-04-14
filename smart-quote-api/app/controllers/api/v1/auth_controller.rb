@@ -74,7 +74,7 @@ module Api
 
         if user
           raw_token = user.generate_magic_link_token!
-          AuthMailer.magic_link(user, raw_token).deliver_later
+          AuthMailer.magic_link(user, raw_token).deliver_now
         end
 
         # Always return 200 to prevent email enumeration
