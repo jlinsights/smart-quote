@@ -1,10 +1,48 @@
 {
   "activeFeature": null,
-  "phase": "completed",
-  "matchRate": 100,
-  "iteration": 0,
-  "archivedTo": null,
+  "phase": "archived",
+  "matchRate": 97,
+  "iteration": 1,
+  "archivedTo": "docs/archive/2026-04/fsc-auto-update/",
   "history": [
+    {
+      "feature": "fsc-auto-update",
+      "phase": "archived",
+      "timestamp": "2026-04-14",
+      "action": "Archived to docs/archive/2026-04/fsc-auto-update/ (97%) — Plan/Design/Report 3 문서 이동 (Analysis 없음, context 압축 전 in-memory). FSC DB-first 연동 + FscRateWidget 편집 UI. Admin이 /admin에서 직접 UPS/DHL 요율 수정 → 배포 없이 즉시 반영. RSpec 189/190, Vitest 1241/1241.",
+      "matchRate": 97
+    },
+    {
+      "feature": "fsc-auto-update",
+      "phase": "report",
+      "timestamp": "2026-04-14",
+      "action": "Report 작성 — 최종 Match Rate 97%. Plan→Do→Check(94%)→Act(편집 UI)→Report 전 사이클 완료. Admin이 /admin FscRateWidget에서 연필 아이콘 클릭 → UPS/DHL 값 입력 → 저장 → 즉시 반영. 배포 불필요. RSpec 189/190, Vitest 1241/1241."
+    },
+    {
+      "feature": "fsc-auto-update",
+      "phase": "act",
+      "timestamp": "2026-04-14",
+      "action": "Act(1회) — FscRateWidget.tsx 편집 UI 추가. 연필 아이콘 클릭 → isEditing 모드 → UPS/DHL number inputs(현재 DB값 자동채움) → Check 아이콘 저장(updateFscRate API) → fetchRates 재호출 → UI 갱신. 1회 iteration으로 94%→97% 달성."
+    },
+    {
+      "feature": "fsc-auto-update",
+      "phase": "do",
+      "timestamp": "2026-04-14",
+      "action": "Do 완료 — 3파일 변경. Phase1: quote_calculator.rb FscFetcher.current_rates 연동(@db_fsc_rates 캐싱, UPS surge+main FSC 동적 적용). Phase2: useFscRates.ts no-op→실 API 훅(useState+useEffect+retry). Phase3: FscRateWidget.tsx hardcoded→useFscRates() 1줄. RSpec 189/190 통과(1 pre-existing auth_spec 무관), Vitest 1241/1241 통과. 배포 없이 Admin UI에서 즉시 반영."
+    },
+    {
+      "feature": "fsc-auto-update",
+      "phase": "plan",
+      "timestamp": "2026-04-14",
+      "action": "Plan 작성 — FSC 하드코딩 → DB 우선 전환 (Option B). FscFetcher/FscRate/fsc_controller 인프라 이미 존재, quote_calculator.rb + useFscRates + FscRateWidget 3곳 비활성화 상태. 5파일 변경 계획, 상수 fallback 유지, 배포 없이 주간 FSC 업데이트 가능화 목표."
+    },
+    {
+      "feature": "fsc-weekly-update",
+      "phase": "archived",
+      "timestamp": "2026-04-14",
+      "action": "Archived to docs/archive/2026-04/fsc-weekly-update/ (95%) — Analysis+Report only (긴급 핫픽스, Plan/Design 생략). UPS/DHL FSC 미적용 버그 3레벨 수정 (아키텍처 혼선/데드코드/nil-safety). UPS 48.50% / DHL 46.00% (2026-04-13) 정상 적용. Vercel+Render 배포 완료.",
+      "matchRate": 95
+    },
     {
       "feature": "fsc-update",
       "phase": "completed",

@@ -1,25 +1,36 @@
-import { useMemo, useCallback } from 'react';
-import type { FscRates } from '@/api/fscApi';
+import { useState, useEffect, useCallback } from 'react';
+import { getFscRates, type FscRates } from '@/api/fscApi';
 import { DEFAULT_FSC_PERCENT, DEFAULT_FSC_PERCENT_DHL } from '@/config/rates';
 
-/**
- * FSC 표시는 `src/config/rates.ts`와 동일한 기본값을 씁니다.
- * (관리자 FSC 위젯과 대시보드 환율 위젯이 같은 숫자를 보여 주도록 맞춤.)
- * DB `/api/v1/fsc/rates`는 배포·DB 시드와 어긋날 수 있어 읽기 경로에서는 사용하지 않습니다.
- */
+const DEFAULT_FSC_RATES: FscRates = {
+  rates: {
+    UPS: { international: DEFAULT_FSC_PERCENT, domestic: DEFAULT_FSC_PERCENT },
+    DHL: { international: DEFAULT_FSC_PERCENT_DHL, domestic: DEFAULT_FSC_PERCENT_DHL },
+  },
+  updatedAt: new Date().toISOString(),
+};
+
 export function useFscRates() {
-  const data = useMemo<FscRates>(
-    () => ({
-      rates: {
-        UPS: { international: DEFAULT_FSC_PERCENT, domestic: DEFAULT_FSC_PERCENT },
-        DHL: { international: DEFAULT_FSC_PERCENT_DHL, domestic: DEFAULT_FSC_PERCENT_DHL },
-      },
-      updatedAt: new Date().toISOString(),
-    }),
-    [],
-  );
+  const [data, setData] = useState<FscRates>(DEFAULT_FSC_RATES);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const retry = useCallback(() => {}, []);
+  const fetchRates = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await getFscRates();
+      setData(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'FSC 요율 조회 실패');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  return { data, loading: false, error: null as string | null, retry };
+  useEffect(() => {
+    fetchRates();
+  }, [fetchRates]);
+
+  return { data, loading, error, retry: fetchRates };
 }

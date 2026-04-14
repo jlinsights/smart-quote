@@ -315,7 +315,8 @@ POST   /api/v1/notifications/slack   # Slack webhook proxy
 - **Tailwind**: Custom `jways-*` color palette (blue theme), class-based dark mode
 - **Environment**: `VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_EIA_API_KEY`
 - **Tariff sync**: Frontend tariff files in `src/config/` must stay in sync with backend `lib/constants/`
-- **Market defaults**: `DEFAULT_EXCHANGE_RATE=1450` (하나은행 월요일 09시 송금환율), `DEFAULT_FSC_PERCENT=48.50` (UPS 2026-04-13), `DEFAULT_FSC_PERCENT_DHL=46.00` (DHL 2026-04-13~04/19) in `src/config/rates.ts`
+- **Market defaults**: `DEFAULT_EXCHANGE_RATE=1450` (하나은행 월요일 09시 송금환율), `DEFAULT_FSC_PERCENT=48.50` (UPS 2026-04-13), `DEFAULT_FSC_PERCENT_DHL=46.00` (DHL 2026-04-13) in `src/config/rates.ts`
+- **FSC 업데이트 주기**: UPS/DHL 모두 매주 월요일. `src/config/rates.ts` + `smart-quote-api/lib/constants/rates.rb` 동시 수정 후 Vercel+Render 배포.
 - **Exchange rate policy**: Live API 자동세팅 비활성화, 매주 월요일 수동 업데이트 (하나은행 기준)
 - **Error tracking**: Sentry (`@sentry/browser`) integrated across all catch blocks
 

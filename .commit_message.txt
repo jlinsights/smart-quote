@@ -1,1 +1,1 @@
-🐛 fix: FSC 등 구번들 잔상 방지 — SW 네트워크 우선·캐시 v3, Vercel Cache-Control 분리
+📦 chore: fsc-auto-update PDCA 아카이브 — Plan/Design/Report 3 문서 → docs/archive/2026-04/fsc-auto-update/ 이동, .bkit-memory.json 갱신

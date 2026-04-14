@@ -68,6 +68,8 @@ class QuoteCalculator
   end
 
   def calculate_surcharges
+    @db_fsc_rates = FscFetcher.current_rates
+
     surcharge_result = SurchargeResolver.calculate_total(
       carrier: @carrier,
       country: @input[:destinationCountry],
@@ -80,7 +82,9 @@ class QuoteCalculator
     # UPS Surge Fee (급증수수료) — auto-detect for Middle East / Israel
     @ups_surge_total = 0
     if @carrier == 'UPS'
-      fsc_for_surge = @input[:fscPercent].nil? ? DEFAULT_FSC_PERCENT : @input[:fscPercent].to_f
+      fsc_for_surge = @input[:fscPercent].nil? ?
+        (@db_fsc_rates.dig('UPS', 'international') || DEFAULT_FSC_PERCENT) :
+        @input[:fscPercent].to_f
       ups_surge_fee_result = Calculators::UpsSurgeFee.call(
         country: @input[:destinationCountry],
         billable_weight: @billable_weight,
@@ -106,8 +110,13 @@ class QuoteCalculator
     @margin_amount = @base_with_margin - base_rate
 
     # FSC on (Base Rate + Margin)
-    default_fsc = @carrier == 'DHL' ? DEFAULT_FSC_PERCENT_DHL : DEFAULT_FSC_PERCENT
-    fsc_percent = @input[:fscPercent].nil? ? default_fsc : @input[:fscPercent].to_f
+    if @input[:fscPercent].nil?
+      default_fsc = @db_fsc_rates.dig(@carrier, 'international') ||
+                    (@carrier == 'DHL' ? DEFAULT_FSC_PERCENT_DHL : DEFAULT_FSC_PERCENT)
+      fsc_percent = default_fsc
+    else
+      fsc_percent = @input[:fscPercent].to_f
+    end
     fsc_rate = fsc_percent / 100.0
     @intl_fsc_new = (@base_with_margin * fsc_rate).round
 
