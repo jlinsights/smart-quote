@@ -1,1 +1,1 @@
-🔧 fix: DHL FSC 히스토리 입력 월별→주간 변경 — date input type="month"→"date", 레전드/주기 안내 텍스트 "Monthly"→"Weekly" 수정
+✅ chore: test-coverage PDCA 아카이브 완료 — 100%(80/80), Act 1회, 4문서 이동 → docs/archive/2026-04/test-coverage/

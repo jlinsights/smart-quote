@@ -3,13 +3,18 @@ module Api
     class QuotesController < ApplicationController
       include JwtAuthenticatable
 
+      InvalidInputError = Class.new(StandardError)
+
       before_action :authenticate_user!, except: [ :calculate ]
 
       # POST /api/v1/quotes/calculate (public - stateless)
       def calculate
         input = clean_params
+        validate_quote_input!(input)
         result = QuoteCalculator.call(input)
         render json: result
+      rescue InvalidInputError => e
+        render json: { error: { code: "INVALID_INPUT", message: e.message } }, status: :unprocessable_entity
       rescue StandardError => e
         Rails.logger.error "[CALCULATE] #{e.class}: #{e.message}"
         render json: { error: { code: "CALCULATION_ERROR", message: "Failed to calculate quote" } }, status: :unprocessable_entity
@@ -18,6 +23,7 @@ module Api
       # POST /api/v1/quotes (calculate + save)
       def create
         input = clean_params
+        validate_quote_input!(input)
         result = QuoteCalculator.call(input)
 
         quote = current_user.quotes.new(
@@ -36,6 +42,11 @@ module Api
         else
           render json: { error: { code: "VALIDATION_ERROR", message: quote.errors.full_messages.join(", ") } }, status: :unprocessable_entity
         end
+      rescue InvalidInputError => e
+        render json: { error: { code: "INVALID_INPUT", message: e.message } }, status: :unprocessable_entity
+      rescue StandardError => e
+        Rails.logger.error "[CREATE] #{e.class}: #{e.message}"
+        render json: { error: { code: "CALCULATION_ERROR", message: "Failed to create quote" } }, status: :unprocessable_entity
       end
 
       # GET /api/v1/quotes
@@ -99,7 +110,8 @@ module Api
         name = params[:recipientName] || "Customer"
         message = params[:message]
 
-        unless email.present? && email.match?(URI::MailTo::EMAIL_REGEXP)
+        valid_email_regex = /\A[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+\z/
+        unless email.present? && email.match?(valid_email_regex)
           return render json: { error: { code: "INVALID_EMAIL", message: "Valid email required" } }, status: :unprocessable_entity
         end
 
@@ -137,9 +149,22 @@ module Api
 
       def scoped_quotes
         if current_user.role == "admin"
-          Quote.recent
+          Quote.includes(:customer, :user).recent
         else
-          current_user.quotes.recent
+          current_user.quotes.includes(:customer, :user).recent
+        end
+      end
+
+      def validate_quote_input!(input)
+        destination = input["destinationCountry"] || input[:destinationCountry]
+        raise InvalidInputError, "destinationCountry is required" if destination.blank?
+
+        items = input["items"] || input[:items] || []
+        items.each_with_index do |item, idx|
+          weight = item["weight"] || item[:weight]
+          unless weight.present? && weight.to_f > 0
+            raise InvalidInputError, "Item #{idx + 1}: weight must be greater than 0"
+          end
         end
       end
 

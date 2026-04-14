@@ -48,12 +48,12 @@ RSpec.describe "Api::V1::Quotes", type: :request do
       fscPercent: 27.5,
       items: [
         {
-          description: "Electronic Parts",
+          name: "Electronic Parts",
           quantity: 2,
-          weightPerItem: 5.0,
-          lengthCm: 40,
-          widthCm: 30,
-          heightCm: 20
+          weight: 5.0,
+          length: 40,
+          width: 30,
+          height: 20
         }
       ]
     }
@@ -72,6 +72,34 @@ RSpec.describe "Api::V1::Quotes", type: :request do
       post "/api/v1/quotes/calculate", params: valid_params, as: :json
 
       expect(response).to have_http_status(:ok)
+    end
+
+    context "input validation" do
+      it "returns 422 when destinationCountry is missing" do
+        params = valid_params.except(:destinationCountry)
+        post "/api/v1/quotes/calculate", params: params, as: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json["error"]["code"]).to eq("INVALID_INPUT")
+        expect(json["error"]["message"]).to match(/destinationCountry/)
+      end
+
+      it "returns 422 when an item has weight of 0" do
+        params = valid_params.merge(items: [ { weight: 0, quantity: 1 } ])
+        post "/api/v1/quotes/calculate", params: params, as: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json["error"]["code"]).to eq("INVALID_INPUT")
+        expect(json["error"]["message"]).to match(/weight must be greater than 0/)
+      end
+
+      it "returns 422 when an item has negative weight" do
+        params = valid_params.merge(items: [ { weight: -1, quantity: 1 } ])
+        post "/api/v1/quotes/calculate", params: params, as: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json["error"]["code"]).to eq("INVALID_INPUT")
+      end
     end
   end
 
@@ -118,6 +146,33 @@ RSpec.describe "Api::V1::Quotes", type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(json["error"]["code"]).to eq("VALIDATION_ERROR")
+      end
+    end
+
+    context "input validation" do
+      it "returns 422 when destinationCountry is missing" do
+        params = valid_params.except(:destinationCountry)
+        post "/api/v1/quotes", params: params, headers: user_headers, as: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json["error"]["code"]).to eq("INVALID_INPUT")
+        expect(json["error"]["message"]).to match(/destinationCountry/)
+      end
+
+      it "returns 422 when an item has weight of 0" do
+        params = valid_params.merge(items: [ { weight: 0, quantity: 1 } ])
+        post "/api/v1/quotes", params: params, headers: user_headers, as: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json["error"]["code"]).to eq("INVALID_INPUT")
+        expect(json["error"]["message"]).to match(/weight must be greater than 0/)
+      end
+
+      it "does not call QuoteCalculator when input is invalid" do
+        params = valid_params.except(:destinationCountry)
+        post "/api/v1/quotes", params: params, headers: user_headers, as: :json
+
+        expect(QuoteCalculator).not_to have_received(:call)
       end
     end
   end

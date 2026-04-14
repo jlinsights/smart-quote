@@ -16,7 +16,7 @@ const makeInput = (overrides: Partial<QuoteInput> = {}): QuoteInput =>
     fscPercent: 0,
     upsAddOns: [],
     ...overrides,
-  } as QuoteInput);
+  }) as QuoteInput;
 
 describe('calculateUpsAddOnCosts', () => {
   it('추가 옵션 없음: total=0', () => {
@@ -83,5 +83,78 @@ describe('calculateUpsAddOnCosts', () => {
     // 2 cartons * 15100 = 30200
     const { total } = calculateUpsAddOnCosts(input, 20, 0);
     expect(total).toBe(30200);
+  });
+
+  it('AHS 경계값: wt=25 → AHS 미적용 (total=0)', () => {
+    const input = makeInput({
+      items: [{ id: '1', length: 30, width: 30, height: 30, weight: 25, quantity: 1 }],
+    });
+    // weight > 25 조건 → wt=25는 미적용
+    const { total } = calculateUpsAddOnCosts(input, 25, 0);
+    expect(total).toBe(0);
+  });
+
+  it('AHS 최장변 >122cm: total=21400', () => {
+    const input = makeInput({
+      items: [{ id: '1', length: 123, width: 30, height: 30, weight: 10, quantity: 1 }],
+    });
+    // sorted[0]=123 > 122 → AHS 자동 감지
+    const { total } = calculateUpsAddOnCosts(input, 10, 0);
+    expect(total).toBe(21400);
+  });
+
+  it('AHS 2번째 긴 변 >76cm: total=21400', () => {
+    const input = makeInput({
+      items: [{ id: '1', length: 100, width: 77, height: 30, weight: 10, quantity: 1 }],
+    });
+    // sorted=[100,77,30], sorted[1]=77 > 76 → AHS 자동 감지
+    const { total } = calculateUpsAddOnCosts(input, 10, 0);
+    expect(total).toBe(21400);
+  });
+
+  it('AHS WOODEN_BOX 포장: total=21400', () => {
+    const input = makeInput({ packingType: PackingType.WOODEN_BOX });
+    const { total } = calculateUpsAddOnCosts(input, 20, 0);
+    expect(total).toBe(21400);
+  });
+
+  it('AHS SKID 포장: total=21400', () => {
+    const input = makeInput({ packingType: PackingType.SKID });
+    const { total } = calculateUpsAddOnCosts(input, 20, 0);
+    expect(total).toBe(21400);
+  });
+
+  it('DDP + FSC 50%: total=28500 (DDP는 FSC 미적용)', () => {
+    const input = makeInput({ incoterm: Incoterm.DDP });
+    // fscApplicable=false이므로 FSC 50%여도 28500 그대로
+    const { total } = calculateUpsAddOnCosts(input, 10, 50);
+    expect(total).toBe(28500);
+  });
+
+  it('SGF 미국(US) 행선지: total=0 (서지피 미적용)', () => {
+    const input = makeInput({ destinationCountry: 'US' });
+    // US는 이스라엘/중동 목록에 없음 → SGF 미적용
+    const { total } = calculateUpsAddOnCosts(input, 10, 0);
+    expect(total).toBe(0);
+  });
+
+  it('DB 요금 오버라이드: resolvedAddonRates 사용', () => {
+    const input = makeInput({
+      incoterm: Incoterm.DDP,
+      resolvedAddonRates: [
+        {
+          carrier: 'UPS',
+          code: 'DDP',
+          amount: 30000,
+          fscApplicable: false,
+          nameKo: 'DDP 수수료',
+          nameEn: 'DDP Service Fee',
+          chargeType: 'fixed',
+        },
+      ],
+    });
+    // DB 요금(30000)이 기본 하드코딩(28500)을 대체해야 함
+    const { total } = calculateUpsAddOnCosts(input, 10, 0);
+    expect(total).toBe(30000);
   });
 });

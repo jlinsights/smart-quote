@@ -7,7 +7,6 @@ class ApplicationController < ActionController::API
   end
 
   def intercom_user_hash
-    Rails.logger.info "=== current_user: #{current_user.inspect}"
     return nil unless respond_to?(:current_user) && current_user
 
     OpenSSL::HMAC.hexdigest(

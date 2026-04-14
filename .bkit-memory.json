@@ -1,10 +1,63 @@
 {
   "activeFeature": null,
   "phase": "archived",
-  "matchRate": 97,
+  "matchRate": 100,
   "iteration": 1,
-  "archivedTo": "docs/archive/2026-04/fsc-auto-update/",
+  "archivedTo": "docs/archive/2026-04/test-coverage/",
   "history": [
+    {
+      "feature": "test-coverage",
+      "phase": "archived",
+      "timestamp": "2026-04-15",
+      "action": "Archived to docs/archive/2026-04/test-coverage/ (100%) — Plan/Design/Analysis/Report 4문서 이동. 80케이스 100% 달성, Act 1회(78.75%→100%), 102/104 pass (2 pre-existing carrierRateEngine failures). Testing 1→8/10, 품질 89→92+ 달성.",
+      "matchRate": 100
+    },
+    {
+      "feature": "test-coverage",
+      "phase": "report",
+      "timestamp": "2026-04-15",
+      "action": "완료 보고서 생성 — 최종 일치율 100%(80/80). Act(1회) 17개 케이스 추가(78.75%→100%). 102 pass/104(2 pre-existing carrierRateEngine failures). Testing 1→8/10, 품질 89→92+ 달성. 보고서: docs/04-report/test-coverage.report.md",
+      "matchRate": 100
+    },
+    {
+      "feature": "test-coverage",
+      "phase": "act",
+      "timestamp": "2026-04-15",
+      "action": "Act(1회) — 17개 신규 테스트 케이스 추가. upsCalculation(+1), dhlCalculation(+1), upsAddonCalculator(+8: AHS 경계값/WOODEN_BOX/SKID/DDP-FSC미적용/SGF-US/DB오버라이드), dhlAddonCalculator(+7: OSP 2변/경계값/수량/OWT 경계값/OWT+FSC/RMT 최소금액/DB오버라이드). 매칭률 78.75%→100%(80/80). 102 pass, 2 pre-existing failures(carrierRateEngine).",
+      "matchRate": 100
+    },
+    {
+      "feature": "test-coverage",
+      "phase": "plan",
+      "timestamp": "2026-04-15",
+      "action": "Plan 작성 — H1 리팩터링으로 추출된 6개 서브모듈(carrierRateEngine, itemCalculation, upsCalculation, dhlCalculation, upsAddonCalculator, dhlAddonCalculator) 전용 단위 테스트 신규 작성. 목표: 60+ 케이스, Testing 1/10→8/10, 전체 89→92+/100."
+    },
+    {
+      "feature": "code-quality-main-v2",
+      "phase": "archived",
+      "timestamp": "2026-04-15",
+      "action": "Archived to docs/archive/2026-04/code-quality-main-v2/ (100%) — Plan/Design/Report 3문서 이동 (Analysis 없음, in-memory 분석). Phase 1 C1-C4 + Phase 2 H1-H5 전 9건 완료. 코드 분석 72→87+ 달성 예상. Vitest 1241/1241, RSpec 189/190 통과.",
+      "matchRate": 100
+    },
+    {
+      "feature": "code-quality-main-v2",
+      "phase": "completed",
+      "timestamp": "2026-04-14",
+      "action": "완료 보고서 생성 — 최종 일치율 100% (9/9 PASS). Phase 1 Critical 4건(C1: EIA API key 헤더, C2: PII 로그 제거, C3: console.* 제거, C4: 이메일 검증) + Phase 2 High 5건(H1: calculationService orchestrator + 4 서브모듈, H2: N+1 eager loading, H3: fetch 타임아웃, H4: 입력 검증, H5: pdfService 중첩 리팩터링) 전부 구현. 코드 분석 점수 72→87+ 달성 예상. Vitest 1241/1241, RSpec 189/190 통과(회귀 0). 배포 준비 완료.",
+      "matchRate": 100
+    },
+    {
+      "feature": "code-quality-main-v2",
+      "phase": "design",
+      "timestamp": "2026-04-14",
+      "action": "Design document 작성 — 9개 항목 상세 설계 (Phase 1: C1-C4, Phase 2: H1-H5). 각 항목별 검증 기준 정의. calculationService orchestrator 패턴 + 4 서브모듈 구조 상세 명세. Implementation order 9 steps."
+    },
+    {
+      "feature": "code-quality-main-v2",
+      "phase": "plan",
+      "timestamp": "2026-04-14",
+      "action": "Plan document 작성 — code-quality-fixes v1(2026-04-05, 96%)에서 구조/아키텍처 이슈 처리 후, v2는 보안·품질·성능 이슈 집중. 현재 점수 72/100 → 목표 87+/100. Phase 1 Critical 4건 + Phase 2 High 5건, 총 9개 항목."
+    },
     {
       "feature": "fsc-auto-update",
       "phase": "archived",

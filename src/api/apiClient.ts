@@ -1,12 +1,16 @@
 import { clearAllTokens, getAccessToken, getRefreshToken, setAccessToken } from '@/lib/authStorage';
 
 export const API_URL: string = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+export const REQUEST_TIMEOUT_MS = 30_000;
 
 /** Fired when the API returns 401 — AuthContext listens for this. */
 export const AUTH_EXPIRED_EVENT = 'auth:expired';
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string) {
+  constructor(
+    public status: number,
+    message: string,
+  ) {
     super(message);
     this.name = 'ApiError';
   }
@@ -27,10 +31,7 @@ async function getErrorMessage(response: Response): Promise<string> {
   }
 
   const body = await response.json().catch(() => ({}));
-  const message =
-    body?.error?.message ||
-    body?.error ||
-    body?.message;
+  const message = body?.error?.message || body?.error || body?.message;
 
   if (typeof message === 'string' && message.trim() && response.status < 500) {
     return message;
@@ -68,38 +69,50 @@ export async function request<T>(path: string, options?: RequestInit): Promise<T
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  let response = await fetch(`${API_URL}${path}`, {
-    headers: { ...headers, ...(options?.headers || {}) },
-    ...options,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-  // 401 → try refresh once, then retry the original request
-  if (response.status === 401 && getRefreshToken()) {
-    if (!refreshPromise) {
-      refreshPromise = refreshAccessToken();
-    }
-    const refreshed = await refreshPromise;
-    refreshPromise = null;
+  try {
+    let response = await fetch(`${API_URL}${path}`, {
+      headers: { ...headers, ...(options?.headers || {}) },
+      ...options,
+      signal: controller.signal,
+    });
 
-    if (refreshed) {
-      const newToken = getAccessToken();
-      const retryHeaders: HeadersInit = {
-        ...headers,
-        ...(options?.headers || {}),
-        'Authorization': `Bearer ${newToken}`,
-      };
-      response = await fetch(`${API_URL}${path}`, { ...options, headers: retryHeaders });
+    // 401 → try refresh once, then retry the original request
+    if (response.status === 401 && getRefreshToken()) {
+      if (!refreshPromise) {
+        refreshPromise = refreshAccessToken();
+      }
+      const refreshed = await refreshPromise;
+      refreshPromise = null;
+
+      if (refreshed) {
+        const newToken = getAccessToken();
+        const retryHeaders: HeadersInit = {
+          ...headers,
+          ...(options?.headers || {}),
+          Authorization: `Bearer ${newToken}`,
+        };
+        response = await fetch(`${API_URL}${path}`, {
+          ...options,
+          headers: retryHeaders,
+          signal: controller.signal,
+        });
+      }
     }
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        clearAllTokens();
+        window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT));
+      }
+      throw new ApiError(response.status, await getErrorMessage(response));
+    }
+
+    if (response.status === 204) return undefined as T;
+    return response.json();
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      clearAllTokens();
-      window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT));
-    }
-    throw new ApiError(response.status, await getErrorMessage(response));
-  }
-
-  if (response.status === 204) return undefined as T;
-  return response.json();
 }

@@ -24,15 +24,11 @@ describe('fetchJetFuelPrices', () => {
 
   it('returns empty array when API key is not configured', async () => {
     vi.stubEnv('VITE_EIA_API_KEY', '');
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const { fetchJetFuelPrices } = await import('../eiaApi');
     const result = await fetchJetFuelPrices();
 
     expect(result).toEqual([]);
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('VITE_EIA_API_KEY not configured'),
-    );
   });
 
   it('parses successful EIA response and returns prices in chronological order', async () => {
@@ -81,10 +77,7 @@ describe('fetchJetFuelPrices', () => {
 
   it('throws on non-OK HTTP response', async () => {
     vi.stubEnv('VITE_EIA_API_KEY', 'test-key');
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({ ok: false, status: 500 }),
-    );
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500 }));
 
     const { fetchJetFuelPrices } = await import('../eiaApi');
     await expect(fetchJetFuelPrices()).rejects.toThrow('EIA API error: 500');

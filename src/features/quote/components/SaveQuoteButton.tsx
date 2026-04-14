@@ -69,7 +69,6 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
       setState('error');
       const msg = e instanceof Error ? e.message : 'Unknown error';
       toast('error', `Failed to save quote: ${msg}`);
-      console.error('[SaveQuote]', e);
       setTimeout(() => setState('idle'), 5000);
     }
   };
