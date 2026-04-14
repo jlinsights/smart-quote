@@ -1,1 +1,1 @@
-🔧 fix: Vercel 배포 URL CORS 허용 — smart-quote-main*.vercel.app 정규식 + 기본 origin 확장
+🐛 fix: FSC 등 구번들 잔상 방지 — SW 네트워크 우선·캐시 v3, Vercel Cache-Control 분리
