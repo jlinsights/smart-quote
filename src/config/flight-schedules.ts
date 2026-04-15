@@ -46,7 +46,7 @@ export function todayYmdLocal(now: Date = new Date()): string {
   return `${y}-${m}-${d}`;
 }
 
-export type GssaGroup = 'goodman' | 'gac' | 'extrans' | 'daejoo' | 'apex' | 'paa';
+export type GssaGroup = 'goodman' | 'gac' | 'extrans' | 'daejoo' | 'apex' | 'paa' | 'ans';
 
 export interface AirlineInfo {
   code: string;
@@ -95,6 +95,12 @@ export const GSSA_GROUP_LABELS = {
     ko: 'Pacific Air Agency (PAA)',
     badge:
       'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-700',
+  },
+  ans: {
+    en: 'Air Network Solution (ANS)',
+    ko: 'Air Network Solution (ANS)',
+    badge:
+      'bg-cyan-100 dark:bg-cyan-900/40 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-700',
   },
 } as const;
 
@@ -262,6 +268,17 @@ export const AIRLINE_INFO: AirlineInfo[] = [
     hubCity: 'Mexico City (NLU)',
     contractType: 'GSSA — Cargo Sales Agent (via Pacific Air Agency)',
     gssaGroup: 'paa',
+  },
+  // --- Air Network Solution (ANS) ---
+  {
+    code: 'MS',
+    name: 'EgyptAir Cargo',
+    nameKo: '이집트항공 카고',
+    logo: '🇪🇬',
+    country: 'Egypt',
+    hubCity: 'Cairo (CAI)',
+    contractType: 'GSSA — Cargo Sales Agent (via Air Network Solution)',
+    gssaGroup: 'ans',
   },
 ];
 
@@ -1320,6 +1337,61 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     maxCargoKg: 45000,
     remarks: 'A332F · Effective 17Apr26 · UIO/BOG/VCP 연결서비스',
   },
+  // EgyptAir (MS) — ICN-NRT-CAI via TW/LJ feeder · WPS MS 077 (EFF: 01MAR2026 U.F.N)
+  // GSSA: Air Network Solution (ANS)
+  // ── ICN→NRT feeder flights ──
+  {
+    id: 'default-tw-241',
+    airline: "T'way Air (feeder for MS)",
+    airlineCode: 'TW',
+    flightNo: 'TW 241',
+    aircraftType: 'B737',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'NRT',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // DAILY
+    departureTime: '11:30',
+    arrivalTime: '17:55',
+    flightDuration: '2h 25m',
+    maxCargoKg: 3000,
+    remarks: 'MS feeder · Cut-off D-1 · ANS 취급',
+    effectiveFrom: '2026-03-01',
+  },
+  {
+    id: 'default-lj-217',
+    airline: 'Jin Air (feeder for MS)',
+    airlineCode: 'LJ',
+    flightNo: 'LJ 217',
+    aircraftType: 'B737',
+    flightType: 'passenger',
+    origin: 'ICN',
+    destination: 'NRT',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // DAILY
+    departureTime: '15:15',
+    arrivalTime: '17:45',
+    flightDuration: '2h 30m',
+    maxCargoKg: 3000,
+    remarks: 'MS feeder · Cut-off D-1 · ANS 취급',
+    effectiveFrom: '2026-03-01',
+  },
+  // ── NRT→CAI main EgyptAir flight ──
+  {
+    id: 'default-ms-965',
+    airline: 'EgyptAir Cargo',
+    airlineCode: 'MS',
+    flightNo: 'MS 965',
+    aircraftType: 'B777',
+    flightType: 'passenger',
+    origin: 'NRT',
+    destination: 'CAI',
+    departureDays: [0, 1, 2, 3, 4, 5, 6], // DAILY
+    departureTime: '22:00',
+    arrivalTime: '05:00',
+    flightDuration: '13h 00m',
+    maxCargoKg: 20000,
+    remarks: 'WPS · EFF 01MAR2026 U.F.N · GSSA: ANS · ICN→NRT feeder 이용',
+    effectiveFrom: '2026-03-01',
+  },
 ];
 
 /** Color classes per airline code */
@@ -1393,6 +1465,12 @@ export const AIRLINE_COLORS: Record<
     border: 'border-lime-200 dark:border-lime-800',
     badge: 'bg-lime-100 dark:bg-lime-900/40 text-lime-700 dark:text-lime-300',
   },
+  MS: {
+    bg: 'bg-cyan-50 dark:bg-cyan-900/20',
+    text: 'text-cyan-700 dark:text-cyan-300',
+    border: 'border-cyan-200 dark:border-cyan-800',
+    badge: 'bg-cyan-100 dark:bg-cyan-900/40 text-cyan-700 dark:text-cyan-300',
+  },
 };
 
 /** Hex colors per airline code — used by route map components (SVG & 3D) */
@@ -1408,6 +1486,7 @@ export const AIRLINE_HEX_COLORS: Record<string, string> = {
   DE: '#facc15', // yellow-400
   WE: '#f472b6', // pink-400
   M7: '#a3e635', // lime-400
+  MS: '#22d3ee', // cyan-400
 };
 
 export const DEFAULT_HEX_COLOR = '#94a3b8'; // slate-400

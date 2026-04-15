@@ -1,10 +1,16 @@
 {
   "activeFeature": null,
-  "phase": "archived",
+  "phase": "completed",
   "matchRate": 100,
-  "iteration": 1,
-  "archivedTo": "docs/archive/2026-04/test-coverage/",
+  "iteration": 0,
   "history": [
+    {
+      "feature": "EgyptAir-schedule",
+      "phase": "completed",
+      "timestamp": "2026-04-15",
+      "action": "완료 보고서 생성 — 100% Match Rate. ANS GSSA 그룹 추가(GssaGroup 'ans'), MS EgyptAir Cargo 항공사 등록, TW241/LJ217 feeder + MS965(NRT→CAI) 스케줄 등록. AIRLINE_COLORS/HEX cyan 계열. EFF 01MAR2026 U.F.N. 보고서: docs/04-report/EgyptAir-schedule.report.md",
+      "matchRate": 100
+    },
     {
       "feature": "test-coverage",
       "phase": "archived",
