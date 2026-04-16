@@ -1,9 +1,16 @@
 {
   "activeFeature": null,
-  "phase": "completed",
+  "phase": "archived",
   "matchRate": 100,
   "iteration": 0,
   "history": [
+    {
+      "feature": "EgyptAir-schedule",
+      "phase": "archived",
+      "timestamp": "2026-04-15",
+      "action": "Archived to docs/archive/2026-04/EgyptAir-schedule/ (100%) — Report only (긴급 핫픽스). ANS GSSA 그룹 추가(GssaGroup 'ans', cyan 배지), MS EgyptAir Cargo 항공사 등록, TW241/LJ217 feeder(ICN→NRT) + MS965(NRT→CAI) 스케줄 등록. EFF 01MAR2026 U.F.N.",
+      "matchRate": 100
+    },
     {
       "feature": "EgyptAir-schedule",
       "phase": "completed",
