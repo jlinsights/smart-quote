@@ -1,9 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect, Suspense } from 'react';
-import {
-  Plane, MapPin,
-  Filter, Plus,
-  RotateCcw, Settings,
-} from 'lucide-react';
+import { Plane, MapPin, Filter, Plus, RotateCcw, Settings } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Header } from '@/components/layout/Header';
@@ -52,9 +48,14 @@ const FlightSchedulePage: React.FC = () => {
   const isAdmin = user?.role === 'admin';
 
   const {
-    schedules, airlines,
-    addSchedule, updateSchedule, deleteSchedule,
-    addAirline, resetToDefaults, isCustomized,
+    schedules,
+    airlines,
+    addSchedule,
+    updateSchedule,
+    deleteSchedule,
+    addAirline,
+    resetToDefaults,
+    isCustomized,
   } = useFlightSchedules();
 
   const [selectedAirline, setSelectedAirline] = useState<string>('all');
@@ -64,7 +65,7 @@ const FlightSchedulePage: React.FC = () => {
   const [dayFilter, setDayFilter] = useState<number | null>(null);
   const [expandedAirlines, setExpandedAirlines] = useState<Set<string>>(new Set());
   const [isMobileView, setIsMobileView] = useState(() =>
-    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false,
   );
 
   useEffect(() => {
@@ -94,13 +95,12 @@ const FlightSchedulePage: React.FC = () => {
     schedules.forEach((s) => {
       if (!routeMap.has(s.destination)) {
         const label = s.via
-          ? `ICN→${s.via}→${s.destination}`
-          : `ICN→${s.destination}`;
+          ? `${s.origin}→${s.via}→${s.destination}`
+          : `${s.origin}→${s.destination}`;
         routeMap.set(s.destination, label);
       }
     });
-    return Array.from(routeMap.entries())
-      .sort((a, b) => a[1].localeCompare(b[1]));
+    return Array.from(routeMap.entries()).sort((a, b) => a[1].localeCompare(b[1]));
   }, [schedules]);
 
   const filteredSchedules = useMemo(() => {
@@ -108,7 +108,10 @@ const FlightSchedulePage: React.FC = () => {
 
     if (gssaFilter !== 'all') {
       const airlineCodes = filteredAirlines.map((a) => a.code);
-      filtered = filtered.filter((s) => airlineCodes.includes(s.airlineCode));
+      filtered = filtered.filter((s) => {
+        if (s.gssaGroup) return s.gssaGroup === gssaFilter;
+        return airlineCodes.includes(s.airlineCode);
+      });
     }
     if (selectedAirline !== 'all') {
       filtered = filtered.filter((s) => s.airlineCode === selectedAirline);
@@ -125,7 +128,15 @@ const FlightSchedulePage: React.FC = () => {
 
     filtered.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
     return filtered;
-  }, [schedules, selectedAirline, destinationFilter, gssaFilter, filteredAirlines, flightTypeFilter, dayFilter]);
+  }, [
+    schedules,
+    selectedAirline,
+    destinationFilter,
+    gssaFilter,
+    filteredAirlines,
+    flightTypeFilter,
+    dayFilter,
+  ]);
 
   const toggleAirlineCard = useCallback((code: string) => {
     setExpandedAirlines((prev) => {
@@ -150,20 +161,26 @@ const FlightSchedulePage: React.FC = () => {
     setShowFlightModal(true);
   }, []);
 
-  const handleSaveFlight = useCallback((data: Omit<FlightSchedule, 'id'>) => {
-    if (editingSchedule) {
-      updateSchedule(editingSchedule.id, data);
-    } else {
-      addSchedule(data);
-    }
-    setShowFlightModal(false);
-    setEditingSchedule(null);
-  }, [editingSchedule, updateSchedule, addSchedule]);
+  const handleSaveFlight = useCallback(
+    (data: Omit<FlightSchedule, 'id'>) => {
+      if (editingSchedule) {
+        updateSchedule(editingSchedule.id, data);
+      } else {
+        addSchedule(data);
+      }
+      setShowFlightModal(false);
+      setEditingSchedule(null);
+    },
+    [editingSchedule, updateSchedule, addSchedule],
+  );
 
-  const handleDeleteFlight = useCallback((id: string) => {
-    deleteSchedule(id);
-    setConfirmDeleteId(null);
-  }, [deleteSchedule]);
+  const handleDeleteFlight = useCallback(
+    (id: string) => {
+      deleteSchedule(id);
+      setConfirmDeleteId(null);
+    },
+    [deleteSchedule],
+  );
 
   const handleReset = useCallback(() => {
     if (window.confirm(t('schedule.resetConfirm'))) {
@@ -171,48 +188,51 @@ const FlightSchedulePage: React.FC = () => {
     }
   }, [resetToDefaults, t]);
 
-  const handleSaveAirline = useCallback((airline: AirlineInfo) => {
-    addAirline(airline);
-    setShowAirlineModal(false);
-  }, [addAirline]);
+  const handleSaveAirline = useCallback(
+    (airline: AirlineInfo) => {
+      addAirline(airline);
+      setShowAirlineModal(false);
+    },
+    [addAirline],
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
+    <div className='min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200'>
       <Header />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6'>
         {/* Page Header */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 sm:p-6 transition-colors duration-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 mb-1">
-              <div className="p-2 bg-jways-50 dark:bg-jways-900/30 rounded-lg">
-                <Plane className="w-6 h-6 text-jways-600 dark:text-jways-400" />
+        <div className='bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 sm:p-6 transition-colors duration-200'>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center gap-3 mb-1'>
+              <div className='p-2 bg-jways-50 dark:bg-jways-900/30 rounded-lg'>
+                <Plane className='w-6 h-6 text-jways-600 dark:text-jways-400' />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                <div className='flex items-center gap-2'>
+                  <h1 className='text-xl sm:text-2xl font-bold text-gray-900 dark:text-white'>
                     {t('schedule.title')}
                   </h1>
                   {isCustomized && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+                    <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'>
                       {t('schedule.customized')}
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3.5 h-3.5" />
+                <p className='text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5'>
+                  <MapPin className='w-3.5 h-3.5' />
                   {t('schedule.subtitle')}
                 </p>
               </div>
             </div>
             {isAdmin && (
-              <div className="flex items-center gap-2">
+              <div className='flex items-center gap-2'>
                 {editMode && isCustomized && (
                   <button
                     onClick={handleReset}
-                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    className='flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors'
                   >
-                    <RotateCcw className="w-4 h-4" />
-                    <span className="hidden sm:inline">{t('schedule.resetDefaults')}</span>
+                    <RotateCcw className='w-4 h-4' />
+                    <span className='hidden sm:inline'>{t('schedule.resetDefaults')}</span>
                   </button>
                 )}
                 <button
@@ -223,8 +243,8 @@ const FlightSchedulePage: React.FC = () => {
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}
                 >
-                  <Settings className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t('schedule.manage')}</span>
+                  <Settings className='w-4 h-4' />
+                  <span className='hidden sm:inline'>{t('schedule.manage')}</span>
                 </button>
               </div>
             )}
@@ -233,19 +253,19 @@ const FlightSchedulePage: React.FC = () => {
 
         {/* Edit Mode Action Bar */}
         {editMode && (
-          <div className="flex flex-wrap gap-2">
+          <div className='flex flex-wrap gap-2'>
             <button
               onClick={handleAddFlight}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-jways-500 text-white hover:bg-jways-600 transition-colors shadow-sm"
+              className='flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-jways-500 text-white hover:bg-jways-600 transition-colors shadow-sm'
             >
-              <Plus className="w-4 h-4" />
+              <Plus className='w-4 h-4' />
               {t('schedule.addFlight')}
             </button>
             <button
               onClick={() => setShowAirlineModal(true)}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className='flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors'
             >
-              <Plus className="w-4 h-4" />
+              <Plus className='w-4 h-4' />
               {t('schedule.addAirline')}
             </button>
           </div>
@@ -254,8 +274,11 @@ const FlightSchedulePage: React.FC = () => {
         {/* 3D Route Map */}
         <Suspense
           fallback={
-            <div className="rounded-2xl bg-slate-900 flex items-center justify-center" style={{ height: '500px' }}>
-              <div className="animate-spin rounded-full h-8 w-8 border-2 border-white/30 border-t-white" />
+            <div
+              className='rounded-2xl bg-slate-900 flex items-center justify-center'
+              style={{ height: '500px' }}
+            >
+              <div className='animate-spin rounded-full h-8 w-8 border-2 border-white/30 border-t-white' />
             </div>
           }
         >
@@ -263,26 +286,39 @@ const FlightSchedulePage: React.FC = () => {
             schedules={filteredSchedules}
             airlines={filteredAirlines}
             selectedAirline={selectedAirline}
-            onAirlineSelect={(code) => setSelectedAirline(prev => prev === code ? 'all' : code)}
+            onAirlineSelect={(code) => setSelectedAirline((prev) => (prev === code ? 'all' : code))}
             language={language}
           />
         </Suspense>
 
         {/* GSSA Group Filter */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mr-1">GSSA:</span>
-          {(['all', ...(Object.keys(GSSA_GROUP_LABELS) as GssaGroup[])] as (GssaGroup | 'all')[]).map((group) => {
+        <div className='flex items-center gap-2 flex-wrap'>
+          <span className='text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mr-1'>
+            GSSA:
+          </span>
+          {(
+            ['all', ...(Object.keys(GSSA_GROUP_LABELS) as GssaGroup[])] as (GssaGroup | 'all')[]
+          ).map((group) => {
             const isActive = gssaFilter === group;
-            const label = group === 'all'
-              ? t('schedule.filterAll')
-              : GSSA_GROUP_LABELS[group][language === 'ko' ? 'ko' : 'en'];
-            const badgeClass = group === 'all'
-              ? (isActive ? 'bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-900' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400')
-              : (isActive ? GSSA_GROUP_LABELS[group].badge + ' ring-2 ring-offset-1 ring-current' : 'border ' + GSSA_GROUP_LABELS[group].badge + ' opacity-60');
+            const label =
+              group === 'all'
+                ? t('schedule.filterAll')
+                : GSSA_GROUP_LABELS[group][language === 'ko' ? 'ko' : 'en'];
+            const badgeClass =
+              group === 'all'
+                ? isActive
+                  ? 'bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-900'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                : isActive
+                  ? GSSA_GROUP_LABELS[group].badge + ' ring-2 ring-offset-1 ring-current'
+                  : 'border ' + GSSA_GROUP_LABELS[group].badge + ' opacity-60';
             return (
               <button
                 key={group}
-                onClick={() => { setGssaFilter(group); setSelectedAirline('all'); }}
+                onClick={() => {
+                  setGssaFilter(group);
+                  setSelectedAirline('all');
+                }}
                 className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${badgeClass}`}
               >
                 {label}
@@ -300,7 +336,7 @@ const FlightSchedulePage: React.FC = () => {
         />
 
         {/* Airline Info Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3'>
           {filteredAirlines.map((airline) => (
             <AirlineCard
               key={airline.code}
@@ -316,19 +352,19 @@ const FlightSchedulePage: React.FC = () => {
         </div>
 
         {/* Filter Controls */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 transition-colors duration-200">
-          <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-            <Filter className="w-4 h-4" />
+        <div className='bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 transition-colors duration-200'>
+          <div className='flex items-center gap-2 mb-3 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
+            <Filter className='w-4 h-4' />
             {t('schedule.filters')}
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className='flex flex-wrap gap-3'>
             <div>
               <select
                 value={selectedAirline}
                 onChange={(e) => setSelectedAirline(e.target.value)}
-                className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:ring-jways-500 focus:border-jways-500 transition-colors"
+                className='text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:ring-jways-500 focus:border-jways-500 transition-colors'
               >
-                <option value="all">{t('schedule.filterAll')}</option>
+                <option value='all'>{t('schedule.filterAll')}</option>
                 {airlines.map((a) => (
                   <option key={a.code} value={a.code}>
                     {a.code} — {language === 'ko' ? a.nameKo : a.name}
@@ -340,9 +376,11 @@ const FlightSchedulePage: React.FC = () => {
               <select
                 value={destinationFilter}
                 onChange={(e) => setDestinationFilter(e.target.value)}
-                className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:ring-jways-500 focus:border-jways-500 transition-colors"
+                className='text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:ring-jways-500 focus:border-jways-500 transition-colors'
               >
-                <option value="all">{t('schedule.route')} — {t('schedule.filterAll')}</option>
+                <option value='all'>
+                  {t('schedule.route')} — {t('schedule.filterAll')}
+                </option>
                 {allRoutes.map(([dest, label]) => (
                   <option key={dest} value={dest}>
                     {label}
@@ -350,7 +388,7 @@ const FlightSchedulePage: React.FC = () => {
                 ))}
               </select>
             </div>
-            <div className="flex gap-1">
+            <div className='flex gap-1'>
               {(['all', 'cargo', 'passenger'] as FlightTypeFilter[]).map((type) => (
                 <button
                   key={type}
@@ -369,7 +407,7 @@ const FlightSchedulePage: React.FC = () => {
                 </button>
               ))}
             </div>
-            <div className="flex gap-1">
+            <div className='flex gap-1'>
               <button
                 onClick={() => setDayFilter(null)}
                 className={`px-2.5 py-2 text-xs rounded-lg font-medium transition-colors ${
@@ -409,10 +447,14 @@ const FlightSchedulePage: React.FC = () => {
         />
 
         {/* Summary */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4 flex flex-wrap gap-4 text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200">
-          <span className="font-medium">{filteredSchedules.length} {t('schedule.flightsShown')}</span>
+        <div className='bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4 flex flex-wrap gap-4 text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200'>
+          <span className='font-medium'>
+            {filteredSchedules.length} {t('schedule.flightsShown')}
+          </span>
           <span>&middot;</span>
-          <span>{airlines.length} GSSA {t('schedule.airline').toLowerCase()}</span>
+          <span>
+            {airlines.length} GSSA {t('schedule.airline').toLowerCase()}
+          </span>
           <span>&middot;</span>
           <span>{t('schedule.timezoneNote')}</span>
         </div>
@@ -425,7 +467,10 @@ const FlightSchedulePage: React.FC = () => {
           airlines={airlines}
           title={editingSchedule ? t('schedule.editFlight') : t('schedule.addFlight')}
           onSave={handleSaveFlight}
-          onCancel={() => { setShowFlightModal(false); setEditingSchedule(null); }}
+          onCancel={() => {
+            setShowFlightModal(false);
+            setEditingSchedule(null);
+          }}
           t={t}
           language={language}
         />
@@ -447,7 +492,7 @@ const FlightSchedulePage: React.FC = () => {
         message={t('schedule.confirmDelete')}
         confirmLabel={t('schedule.deleteFlight')}
         cancelLabel={t('schedule.cancel')}
-        variant="danger"
+        variant='danger'
         onConfirm={() => confirmDeleteId && handleDeleteFlight(confirmDeleteId)}
         onCancel={() => setConfirmDeleteId(null)}
       />

@@ -18,6 +18,12 @@ export interface FlightSchedule {
   effectiveFrom?: string;
   /** Inclusive upper bound, ISO YYYY-MM-DD. Omit for "never expires". */
   effectiveTo?: string;
+  /**
+   * Override the airline's GSSA group for this specific flight.
+   * Use when a flight is operated by one carrier but handled by a different GSSA
+   * (e.g. TW/LJ feeder flights handled by ANS on behalf of EgyptAir).
+   */
+  gssaGroup?: GssaGroup;
 }
 
 /** Format route display: ICN → NRT → YYC or ICN → YYC */
@@ -1356,6 +1362,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     maxCargoKg: 3000,
     remarks: 'MS feeder · Cut-off D-1 · ANS 취급',
     effectiveFrom: '2026-03-01',
+    gssaGroup: 'ans', // ANS handles this feeder on behalf of EgyptAir
   },
   {
     id: 'default-lj-217',
@@ -1373,6 +1380,7 @@ export const FLIGHT_SCHEDULES: FlightSchedule[] = [
     maxCargoKg: 3000,
     remarks: 'MS feeder · Cut-off D-1 · ANS 취급',
     effectiveFrom: '2026-03-01',
+    gssaGroup: 'ans', // ANS handles this feeder on behalf of EgyptAir
   },
   // ── NRT→CAI main EgyptAir flight ──
   {

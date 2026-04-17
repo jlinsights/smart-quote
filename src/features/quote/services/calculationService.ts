@@ -1,4 +1,4 @@
-import { QuoteInput, QuoteResult, PackingType, Incoterm } from '@/types';
+import { QuoteInput, QuoteResult, Incoterm } from '@/types';
 import {
   DEFAULT_EXCHANGE_RATE,
   DEFAULT_FSC_PERCENT,
@@ -8,8 +8,8 @@ import { MAX_MARGIN_PERCENT } from '@/config/business-rules';
 import { calculateDhlAddOnCosts } from './dhlAddonCalculator';
 import { calculateUpsAddOnCosts } from './upsAddonCalculator';
 import { calculateItemCosts, computePackingTotal } from './itemCalculation';
-import { calculateUpsCosts, determineUpsZone } from './upsCalculation';
-import { calculateDhlCosts, determineDhlZone } from './dhlCalculation';
+import { calculateUpsCosts } from './upsCalculation';
+import { calculateDhlCosts } from './dhlCalculation';
 import { CarrierCostResult } from './carrierRateEngine';
 
 // Re-exports for backward compatibility (tests and other consumers import from here)

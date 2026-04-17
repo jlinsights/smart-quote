@@ -1,1 +1,1 @@
-✅ chore: test-coverage PDCA 아카이브 완료 — 100%(80/80), Act 1회, 4문서 이동 → docs/archive/2026-04/test-coverage/
+✅ fix: carrierRateEngine Path4 청구무게 Math.ceil 복원 및 unused import 제거 — calculationService.ts 3개 미사용 import 삭제, carrierRateEngine.test.ts Path4 기댓값 수정(2450→2800, 1750→2000), 전체 1326테스트 통과

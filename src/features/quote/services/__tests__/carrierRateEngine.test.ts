@@ -73,17 +73,16 @@ describe('lookupCarrierRate', () => {
   describe('Path 4 - nextRange fallback', () => {
     it('exact 없고 range exact 미만이지만 nextRange 조건에서 폴백', () => {
       // weight=3.3, roundToHalf=3.5, not in Z2 exact
-      // range check: 4<=3.5? NO. next higher exact in Z2 (keys 0.5,1.0,3.0): none >= 3.5
-      // nextRange: r.min <= ceil(3.3)=4 → range[0] min=4 <= 4 → 700*3.5=2450
-      expect(lookupCarrierRate(3.3, 'Z2', MOCK_EXACT, MOCK_RANGE)).toBe(2450);
+      // range check: 4<=3.3? NO. next higher exact in Z2 (keys 0.5,1.0,3.0): none >= 3.5
+      // nextRange: r.min <= ceil(3.3)=4 → range[0] min=4 <= 4 → ceil(3.3)*700=4*700=2800
+      expect(lookupCarrierRate(3.3, 'Z2', MOCK_EXACT, MOCK_RANGE)).toBe(2800);
     });
 
     it('Z1 nextRange fallback', () => {
-      // weight=3.3, roundToHalf=3.5, Z1 has 3.0 exact → actually hits path3
-      // weight=3.6, roundToHalf=4.0, Z1: exact? No 4.0 in Z1 → range: 4<=4.0<=70 → exact match in range → path2
-      // Let me reconsider: weight=3.2, roundToHalf=3.5, Z1: no 3.5 key, range: 4<=3.5? NO
-      // next higher exact in Z1 >= 3.5: none (max is 3.0) → nextRange: ceil(3.2)=4 >= range[0].min=4? No wait: r.min <= ceil(billableWeight) → 4 <= 4 → YES → 500*3.5=1750
-      expect(lookupCarrierRate(3.2, 'Z1', MOCK_EXACT, MOCK_RANGE)).toBe(1750);
+      // weight=3.2, roundToHalf=3.5, Z1: no 3.5 key, range: 4<=3.2? NO
+      // next higher exact in Z1 >= 3.5: none (max is 3.0)
+      // nextRange: r.min <= ceil(3.2)=4 → YES → ceil(3.2)*500=4*500=2000
+      expect(lookupCarrierRate(3.2, 'Z1', MOCK_EXACT, MOCK_RANGE)).toBe(2000);
     });
   });
 
