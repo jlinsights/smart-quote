@@ -19,6 +19,8 @@ import { STATUS_COLORS } from '../constants';
 import { useToast } from '@/components/ui/Toast';
 import { showNewMessage } from '@/lib/intercom';
 import { MetricCard, Section, Field, BreakdownRow } from './QuoteDetailSubcomponents';
+import { QuoteCargoTable } from './QuoteCargoTable';
+import { QuoteCostBreakdown } from './QuoteCostBreakdown';
 
 interface Props {
   quote: QuoteDetail;
@@ -316,75 +318,10 @@ export const QuoteDetailModal: React.FC<Props> = ({
           </Section>
 
           {/* Cargo Items */}
-          <Section title='Cargo Items'>
-            <div className='overflow-x-auto'>
-              <table className='w-full text-xs'>
-                <thead>
-                  <tr className='text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700'>
-                    <th className='text-left py-2 pr-3'>#</th>
-                    <th className='text-right py-2 px-2'>W(cm)</th>
-                    <th className='text-right py-2 px-2'>L(cm)</th>
-                    <th className='text-right py-2 px-2'>H(cm)</th>
-                    <th className='text-right py-2 px-2'>Wt(kg)</th>
-                    <th className='text-right py-2 pl-2'>Qty</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {quote.items.map((item, i) => (
-                    <tr
-                      key={i}
-                      className='border-b border-gray-50 dark:border-gray-700/50 text-gray-700 dark:text-gray-300'
-                    >
-                      <td className='py-2 pr-3'>{i + 1}</td>
-                      <td className='text-right py-2 px-2'>{item.width}</td>
-                      <td className='text-right py-2 px-2'>{item.length}</td>
-                      <td className='text-right py-2 px-2'>{item.height}</td>
-                      <td className='text-right py-2 px-2'>{item.weight}</td>
-                      <td className='text-right py-2 pl-2'>{item.quantity}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Section>
+          <QuoteCargoTable items={quote.items} />
 
           {/* Cost Breakdown */}
-          <Section title='Cost Breakdown'>
-            <div className='space-y-1.5 text-sm'>
-              <BreakdownRow label='Packing Material' value={quote.breakdown.packingMaterial} />
-              <BreakdownRow label='Packing Labor' value={quote.breakdown.packingLabor} />
-              <BreakdownRow label='Packing Fumigation' value={quote.breakdown.packingFumigation} />
-              <BreakdownRow label='Handling Fees' value={quote.breakdown.handlingFees} />
-              <BreakdownRow label='Intl. Base' value={quote.breakdown.intlBase} />
-              <BreakdownRow label='Intl. FSC' value={quote.breakdown.intlFsc} />
-              {quote.breakdown.appliedSurcharges && quote.breakdown.appliedSurcharges.length > 0 ? (
-                <>
-                  {quote.breakdown.appliedSurcharges.map((s, i) => (
-                    <BreakdownRow
-                      key={i}
-                      label={`  ${s.nameKo || s.name}${s.chargeType === 'rate' ? ` (${s.amount}%)` : ''}`}
-                      value={s.appliedAmount}
-                    />
-                  ))}
-                  {(quote.breakdown.intlManualSurge ?? 0) > 0 && (
-                    <BreakdownRow label='  Manual Surge' value={quote.breakdown.intlManualSurge!} />
-                  )}
-                </>
-              ) : (
-                <>
-                  <BreakdownRow label='Intl. War Risk' value={quote.breakdown.intlWarRisk} />
-                  <BreakdownRow label='Intl. Surge' value={quote.breakdown.intlSurge} />
-                </>
-              )}
-              {quote.breakdown.destDuty > 0 && (
-                <BreakdownRow label='Dest Duty/Tax' value={quote.breakdown.destDuty} />
-              )}
-              <div className='pt-2 mt-2 border-t border-gray-200 dark:border-gray-700 flex justify-between font-bold text-gray-900 dark:text-white'>
-                <span>Total Cost</span>
-                <span>{fmt(quote.breakdown.totalCost)} KRW</span>
-              </div>
-            </div>
-          </Section>
+          <QuoteCostBreakdown breakdown={quote.breakdown} />
 
           {/* Warnings */}
           {quote.warnings && quote.warnings.length > 0 && (

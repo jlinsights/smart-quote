@@ -18,7 +18,7 @@ export const Header: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
-  const canViewSchedule = user?.role === 'admin';
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -69,12 +69,7 @@ export const Header: React.FC = () => {
                           {t('nav.admin')}
                         </Link>
                    )}
-                   {canViewSchedule && (
-                     <Link to="/schedule" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-accent-600 dark:hover:text-white transition-colors flex items-center gap-1">
-                       <Plane className="w-4 h-4" />
-                       {t('nav.schedule')}
-                     </Link>
-                   )}
+
                    <Link to="/dashboard" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-accent-600 dark:hover:text-white transition-colors">
                      {t('nav.dashboard')}
                    </Link>
@@ -191,12 +186,7 @@ export const Header: React.FC = () => {
                       {t('nav.admin')}
                     </Link>
                 )}
-                {canViewSchedule && (
-                  <Link to="/schedule" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-1.5 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-accent-600">
-                    <Plane className="w-4 h-4" />
-                    {t('nav.schedule')}
-                  </Link>
-                )}
+
                 <Link to="/guide" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-1.5 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-accent-600">
                   <BookOpen className="w-4 h-4" />
                   {t('nav.guide')}
