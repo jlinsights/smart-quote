@@ -18,6 +18,7 @@ import { createShareLink } from '@/api/shareApi';
 import { STATUS_COLORS } from '../constants';
 import { useToast } from '@/components/ui/Toast';
 import { showNewMessage } from '@/lib/intercom';
+import { MetricCard, Section, Field, BreakdownRow } from './QuoteDetailSubcomponents';
 
 interface Props {
   quote: QuoteDetail;
@@ -416,44 +417,4 @@ export const QuoteDetailModal: React.FC<Props> = ({
   );
 };
 
-// ── Sub-components ──
 
-const MetricCard: React.FC<{ icon: React.ReactNode; label: string; value: string }> = ({
-  icon,
-  label,
-  value,
-}) => (
-  <div className='bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3'>
-    <div className='flex items-center gap-1.5 mb-1'>
-      {icon}
-      <span className='text-xs text-gray-500 dark:text-gray-400'>{label}</span>
-    </div>
-    <p className='text-sm font-bold text-gray-900 dark:text-white truncate'>{value}</p>
-  </div>
-);
-
-const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <div>
-    <h4 className='text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2'>
-      {title}
-    </h4>
-    {children}
-  </div>
-);
-
-const Field: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className='flex justify-between py-1'>
-    <span className='text-gray-500 dark:text-gray-400'>{label}</span>
-    <span className='font-medium text-gray-900 dark:text-white'>{value}</span>
-  </div>
-);
-
-const BreakdownRow: React.FC<{ label: string; value: number }> = ({ label, value }) => {
-  if (value === 0) return null;
-  return (
-    <div className='flex justify-between text-gray-600 dark:text-gray-300'>
-      <span>{label}</span>
-      <span className='tabular-nums'>{formatNum(value)} KRW</span>
-    </div>
-  );
-};

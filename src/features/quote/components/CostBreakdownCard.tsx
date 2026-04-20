@@ -35,7 +35,7 @@ export const CostBreakdownCard: React.FC<Props> = ({ result, onMarginChange, mar
   const packingTotal = result.breakdown.packingMaterial + result.breakdown.packingLabor + result.breakdown.packingFumigation + result.breakdown.handlingFees;
 
   // Derive FSC% for display
-  const fscPercent = baseWithMargin > 0 ? Math.round(fscAmount / baseWithMargin * 1000) / 10 : 0;
+  const fscPercent = baseWithMargin > 0 ? Math.round(fscAmount / baseWithMargin * 10000) / 100 : 0;
 
   return (
       <div className={cardClass}>

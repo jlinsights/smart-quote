@@ -19,11 +19,16 @@ module Api
       # POST /api/v1/fsc/update (admin only — guarded by before_action)
       def update_rates
         carrier = params[:carrier]&.upcase
-        international = params[:international]&.to_f
-        domestic = params[:domestic]&.to_f
 
         unless %w[UPS DHL].include?(carrier)
           return render json: { error: { code: "INVALID_CARRIER", message: "Carrier must be UPS or DHL" } }, status: :unprocessable_entity
+        end
+
+        international = parse_rate(params[:international])
+        domestic = parse_rate(params[:domestic])
+
+        if international.nil? || domestic.nil?
+          return render json: { error: { code: "INVALID_RATE", message: "international/domestic must be numeric between 0 and 100" } }, status: :unprocessable_entity
         end
 
         FscFetcher.update!(
@@ -42,9 +47,23 @@ module Api
         )
 
         render json: { success: true, rates: FscFetcher.current_rates }
-      rescue StandardError => e
+      rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotSaved => e
         Rails.logger.error "[FSC] #{e.class}: #{e.message}"
         render json: { error: { code: "UPDATE_FAILED", message: "FSC rate update failed" } }, status: :unprocessable_entity
+      end
+
+      private
+
+      # Accepts numeric or numeric-like string in [0, 100]. Returns Float or nil.
+      # Explicit validation prevents silent `nil.to_f == 0.0` coercion that would
+      # otherwise let a missing/invalid param quietly zero out a carrier's FSC.
+      def parse_rate(value)
+        return nil if value.nil? || value.to_s.strip.empty?
+        return nil unless value.to_s.match?(/\A-?\d+(\.\d+)?\z/)
+
+        rate = value.to_f
+        return nil if rate.negative? || rate > 100
+        rate
       end
     end
   end

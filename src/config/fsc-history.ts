@@ -33,12 +33,14 @@ export const DEFAULT_FSC_HISTORY: FscHistoryData = {
     { date: '2026-03-16', rate: 38.5 },
     { date: '2026-03-23', rate: 41.75 },
     { date: '2026-04-13', rate: 48.5 },
+    { date: '2026-04-20', rate: 47.5 },
   ],
   dhl: [
     { date: '2026-01', rate: 30.0 },
     { date: '2026-02', rate: 28.75 },
     { date: '2026-03', rate: 30.5 },
     { date: '2026-04', rate: 46.0 },
+    { date: '2026-04-20', rate: 47.75 },
   ],
 };
 
