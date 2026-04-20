@@ -1,1 +1,1 @@
-✅ fix: carrierRateEngine Path4 청구무게 Math.ceil 복원 및 unused import 제거 — calculationService.ts 3개 미사용 import 삭제, carrierRateEngine.test.ts Path4 기댓값 수정(2450→2800, 1750→2000), 전체 1326테스트 통과
+🔄 FSC 요율 업데이트: UPS 47.5% / DHL 47.75% (2026-04-20 기준)
