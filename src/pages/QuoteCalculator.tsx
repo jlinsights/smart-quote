@@ -107,6 +107,13 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
     result?.billableWeight,
   );
 
+  // Set default margin to 24% for admin once user role is known
+  React.useEffect(() => {
+    if (!isAdmin) return;
+    if (hasManuallyChangedMargin.current) return;
+    setInput((prev) => ({ ...prev, marginPercent: 24 }));
+  }, [isAdmin]);
+
   React.useEffect(() => {
     if (!result || hasManuallyChangedMargin.current) return;
     if (isAdmin) return; // Admin sets margin freely — skip auto-resolution
