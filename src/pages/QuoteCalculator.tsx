@@ -109,6 +109,7 @@ const QuoteCalculator: React.FC<{ isPublic?: boolean }> = ({ isPublic = false })
 
   React.useEffect(() => {
     if (!result || hasManuallyChangedMargin.current) return;
+    if (isAdmin) return; // Admin sets margin freely — skip auto-resolution
 
     if (marginResolutionTimeout.current) clearTimeout(marginResolutionTimeout.current);
 
