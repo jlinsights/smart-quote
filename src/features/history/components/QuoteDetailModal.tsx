@@ -18,7 +18,7 @@ import { createShareLink } from '@/api/shareApi';
 import { STATUS_COLORS } from '../constants';
 import { useToast } from '@/components/ui/Toast';
 import { showNewMessage } from '@/lib/intercom';
-import { MetricCard, Section, Field, BreakdownRow } from './QuoteDetailSubcomponents';
+import { MetricCard, Section, Field } from './QuoteDetailSubcomponents';
 import { QuoteCargoTable } from './QuoteCargoTable';
 import { QuoteCostBreakdown } from './QuoteCostBreakdown';
 

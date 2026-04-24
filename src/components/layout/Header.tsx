@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Globe, Moon, Sun, LogOut, Settings, Menu, X, BookOpen, Plane } from 'lucide-react';
+import { Globe, Moon, Sun, LogOut, Settings, Menu, X, BookOpen } from 'lucide-react';
 import { AccountSettingsModal } from '@/features/dashboard/components/AccountSettingsModal';
 
 const LANGUAGES = [

@@ -1,1 +1,1 @@
-🎨 refactor: DESIGN.md Phase 2 완료 — jways-*→brand-blue-*, accent-*→cyan-* (262건/59파일 + Tailwind Legacy 제거 + DESIGN.md v1.1.0, Match Rate 95%)
+🧹 chore: pre-existing unused imports 제거 — Header.tsx Plane, QuoteDetailModal.tsx BreakdownRow (CI lint --max-warnings 0 통과용)
