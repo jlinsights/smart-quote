@@ -1,9 +1,16 @@
 {
-  "activeFeature": "jways-brand-migration",
-  "phase": "completed",
+  "activeFeature": null,
+  "phase": "archived",
   "matchRate": 100,
   "iteration": 0,
   "history": [
+    {
+      "feature": "jways-brand-migration",
+      "phase": "archived",
+      "timestamp": "2026-04-24",
+      "action": "Archived to docs/archive/2026-04/jways-brand-migration/ (100%) — Plan/Design/Analysis/Report 4문서 이동. PR #1 머지 완료(2fcc29f on main). DESIGN.md Phase 2 완료 (v1.1.0), 262건 legacy 토큰 이행, Tailwind Legacy 블록 제거. Pre-existing lint 2건(Plane/BreakdownRow) 함께 정리(6d812b4). 자동 검증 100%(tsc/vitest 1316/1316/build/lint pass).",
+      "matchRate": 100
+    },
     {
       "feature": "jways-brand-migration",
       "phase": "completed",
