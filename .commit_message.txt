@@ -1,1 +1,1 @@
-📦 chore: Archive jways-brand-migration — PDCA 4문서를 docs/archive/2026-04/ 로 이동 + _INDEX.md 갱신
+✨ chore: prettier auto-format — Header.tsx 재정렬 + QuoteDetailModal.tsx 꼬리 공백 제거

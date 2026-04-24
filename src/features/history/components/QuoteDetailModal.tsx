@@ -353,5 +353,3 @@ export const QuoteDetailModal: React.FC<Props> = ({
     </div>
   );
 };
-
-
