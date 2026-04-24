@@ -1,1 +1,1 @@
-🔄 FSC 요율 업데이트: UPS 47.5% / DHL 47.75% (2026-04-20 기준)
+🎨 docs: BridgeLogis DESIGN.md 1.0.0-alpha (Phase 1 non-breaking) — Brand 5색(navy/deep-blue/brand-blue/cyan/gold) + Semantic 4종 Tailwind 추가, 차트 HEX 3곳 chartColors.ts 중앙화

@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useFscRates } from '@/features/dashboard/hooks/useFscRates';
 import { updateFscRate } from '@/api/fscApi';
+import { CHART_COLORS } from '@/lib/chartColors';
 import {
   Fuel,
   RefreshCw,
@@ -105,8 +106,8 @@ export const FscRateWidget: React.FC<FscRateWidgetProps> = () => {
   // Chart lines
   const chartLines = useMemo(
     () => [
-      { entries: history.ups, color: '#3b82f6', label: 'UPS' },
-      { entries: history.dhl, color: '#f59e0b', label: 'DHL' },
+      { entries: history.ups, color: CHART_COLORS.brandBlue, label: 'UPS' },
+      { entries: history.dhl, color: CHART_COLORS.gold, label: 'DHL' },
     ],
     [history],
   );

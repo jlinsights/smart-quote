@@ -4,6 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { WidgetSkeleton } from '@/features/dashboard/components/WidgetSkeleton';
 import { WidgetError } from '@/features/dashboard/components/WidgetError';
 import { useJetFuelPrices } from '@/features/dashboard/hooks/useJetFuelPrices';
+import { CHART_COLORS } from '@/lib/chartColors';
 
 /** SVG-based sparkline chart for jet fuel price trend */
 const PriceChart: React.FC<{ prices: { date: string; price: number }[] }> = ({
@@ -61,7 +62,7 @@ const PriceChart: React.FC<{ prices: { date: string; price: number }[] }> = ({
       <polyline
         points={linePoints}
         fill="none"
-        stroke="#f59e0b"
+        stroke={CHART_COLORS.warning}
         strokeWidth={2}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -72,7 +73,7 @@ const PriceChart: React.FC<{ prices: { date: string; price: number }[] }> = ({
         cx={toX(lastIdx)}
         cy={toY(prices[lastIdx].price)}
         r={4}
-        fill="#f59e0b"
+        fill={CHART_COLORS.warning}
         stroke="white"
         strokeWidth={2}
       />
