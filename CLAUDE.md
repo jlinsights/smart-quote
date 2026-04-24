@@ -312,7 +312,7 @@ POST   /api/v1/notifications/slack   # Slack webhook proxy
 ## Configuration
 
 - **Path alias**: `@/` -> `src/` (both vite.config.ts and tsconfig.json)
-- **Tailwind**: Custom `jways-*` color palette (blue theme), class-based dark mode
+- **Tailwind**: BridgeLogis brand palette (`brand-blue-*`, `cyan-*`, `navy`, `deep-blue`, `gold`) + Semantic (`success/warning/destructive/info`), class-based dark mode. Phase 2 완료 후 레거시 `jways-*`/`accent-*` 제거.
 - **Environment**: `VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_EIA_API_KEY`
 - **Tariff sync**: Frontend tariff files in `src/config/` must stay in sync with backend `lib/constants/`
 - **Market defaults**: `DEFAULT_EXCHANGE_RATE=1450` (하나은행 월요일 09시 송금환율), `DEFAULT_FSC_PERCENT=48.50` (UPS 2026-04-13), `DEFAULT_FSC_PERCENT_DHL=46.00` (DHL 2026-04-13) in `src/config/rates.ts`
@@ -342,7 +342,7 @@ POST   /api/v1/notifications/slack   # Slack webhook proxy
 - BridgeLogis 브랜드 토큰·Semantic 토큰의 단일 진실 공급원(SSOT)
 - YAML 프론트매터 = 기계 참조용 토큰 (`{colors.brand-blue}`, `{colors.navy}` 등)
 - 마크다운 본문 = Do's/Don'ts + 컴포넌트 패턴 + WCAG 검증 쌍
-- **Phase 1 non-breaking 상태** (2026-04-24) — 기존 `jways-*`/`accent-*`/기본 `blue-*`/`sky-*` 는 유지, 신규 코드에서 **사용 금지**
+- **Phase 2 완료** (2026-04-24, DESIGN.md v1.1.0) — 레거시 `jways-*`/`accent-*` 전면 제거. Tailwind 기본 `blue-*`/`sky-*` 도 **사용 금지**
 - 토큰이 없으면 임의 값을 만들지 말고 DESIGN.md 를 먼저 수정한다
 - 차트·SVG 등 HEX 직접 사용 영역은 `src/lib/chartColors.ts` 의 `CHART_COLORS` 상수만 사용
 - Feature 단위 design 문서(`docs/02-design/features/*.design.md`)는 DESIGN.md 토큰을 참조

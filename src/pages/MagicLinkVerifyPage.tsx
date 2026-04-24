@@ -59,7 +59,7 @@ export default function MagicLinkVerifyPage() {
           <p className='text-sm text-gray-600 dark:text-gray-400 mb-6'>{error}</p>
           <button
             onClick={() => navigate('/login', { replace: true })}
-            className='inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-jways-600 hover:bg-jways-700 rounded-lg transition-colors'
+            className='inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-brand-blue-600 hover:bg-brand-blue-700 rounded-lg transition-colors'
           >
             {t('auth.magicLink.backToLogin')}
           </button>
@@ -71,7 +71,7 @@ export default function MagicLinkVerifyPage() {
   return (
     <div className='min-h-screen flex items-center justify-center bg-white dark:bg-gray-950'>
       <div className='text-center'>
-        <div className='w-8 h-8 border-2 border-gray-300 border-t-jways-500 rounded-full animate-spin mx-auto mb-4' />
+        <div className='w-8 h-8 border-2 border-gray-300 border-t-brand-blue-500 rounded-full animate-spin mx-auto mb-4' />
         <p className='text-sm text-gray-600 dark:text-gray-400'>{t('auth.magicLink.verifying')}</p>
       </div>
     </div>

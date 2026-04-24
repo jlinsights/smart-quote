@@ -1,1 +1,1 @@
-✨ chore: prettier auto-format AuthContext.test.tsx + JetFuelWidget.tsx (whitespace only, no logic change)
+🎨 refactor: DESIGN.md Phase 2 완료 — jways-*→brand-blue-*, accent-*→cyan-* (262건/59파일 + Tailwind Legacy 제거 + DESIGN.md v1.1.0, Match Rate 95%)

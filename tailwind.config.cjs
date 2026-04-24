@@ -3,13 +3,14 @@ const colors = require('tailwindcss/colors');
 
 //
 // BridgeLogis by Goodman GLS — Tailwind config
-// 디자인 토큰 SSOT: docs/02-design/DESIGN.md (§1.1.0-alpha, 2026-04-24)
+// 디자인 토큰 SSOT: docs/02-design/DESIGN.md (v1.1.0, 2026-04-24)
 //
 // 토큰 레이어:
 //   1. Brand    — BridgeLogis 브랜드 가이드 정본 (navy/deep-blue/brand-blue/cyan/gold)
 //   2. Semantic — UI 의도 (success/warning/destructive/info)
-//   3. Legacy   — jways-* / accent-* (기존 코드 호환, 신규 사용 지양 — Phase 2 에서 brand-* 로 마이그레이션)
-//   4. Neutral  — gray (grayscale)
+//   3. Neutral  — gray (grayscale)
+//
+// Phase 2 완료 (2026-04-24): Legacy jways-*/accent-* 제거. Tailwind 기본 blue-*/sky-* 사용 금지.
 //
 module.exports = {
   content: [
@@ -92,33 +93,6 @@ module.exports = {
           500: '#1D6FD1',
         },
 
-        // ─── Legacy (Phase 1 non-breaking 유지, Phase 2에서 brand-blue 로 마이그레이션) ───
-        jways: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-          950: '#172554',
-        },
-        accent: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-          950: '#082f49',
-        },
       }
     },
   },

@@ -1,9 +1,44 @@
 {
-  "activeFeature": null,
-  "phase": "archived",
-  "matchRate": 100,
+  "activeFeature": "jways-brand-migration",
+  "phase": "completed",
+  "matchRate": 95,
   "iteration": 0,
   "history": [
+    {
+      "feature": "jways-brand-migration",
+      "phase": "completed",
+      "timestamp": "2026-04-24",
+      "action": "완료 보고서 생성 — DESIGN.md Phase 2 (v1.1.0) 완료. Match Rate 95%. 262건 legacy 토큰 이행(jways-* 207→brand-blue-*, accent-* 55→cyan-*, accent-950 1→cyan-900), 59개 코드 파일 + tailwind.config.cjs Legacy 블록(26라인) 삭제 + DESIGN.md/CLAUDE.md 동기화. 자동 검증 100%(tsc/vitest 1316/1316/build pass, lint pre-existing 2건만 baseline 동일). 남은 작업: Visual 검수(사용자), 커밋, archive. 보고서: docs/04-report/features/jways-brand-migration.report.md",
+      "matchRate": 95
+    },
+    {
+      "feature": "jways-brand-migration",
+      "phase": "check",
+      "timestamp": "2026-04-24",
+      "action": "Check 완료 — gap-detector Agent 분석 결과 Match Rate 95%. DoD 7/8 완전 달성(grep 0, tailwind Legacy 제거, DESIGN.md v1.1.0, tsc pass, vitest 1316/1316, build 9.14s, .commit_message.txt 기록), DoD 1건 DEFERRED(Visual 검수=사용자 액션), Warning 1건 PARTIAL(lint pre-existing 2건=baseline 동일, 본 작업 무관). Critical 갭 0건. /pdca report 수행 조건(≥90%) 충족. docs/03-analysis/jways-brand-migration.analysis.md 생성.",
+      "matchRate": 95
+    },
+    {
+      "feature": "jways-brand-migration",
+      "phase": "do",
+      "timestamp": "2026-04-24",
+      "action": "Do 완료 — feat/jways-brand-migration 브랜치에서 perl 기반 치환 스크립트 실행(BSD sed \\b 미지원으로 perl 전환). 59개 파일, 262건 legacy token 치환(jways-* 207→brand-blue-*, accent-* 55→cyan-*, accent-950 1건→cyan-900). tailwind.config.cjs Legacy 블록(26라인) 삭제, DESIGN.md v1.0.1-alpha→1.1.0 (§2.3 Legacy 섹션 제거, 3레이어 구조 정립, changelog 추가), CLAUDE.md Phase 2 완료 문구 갱신. 자동 검증: grep 잔존 0, tsc pass, vitest 1316/1316 pass, build 9.14s success, lint 2건 pre-existing(Plane/BreakdownRow unused, baseline과 동일). 미커밋 상태(사용자 명시적 요청 대기).",
+      "matchRate": 0
+    },
+    {
+      "feature": "jways-brand-migration",
+      "phase": "design",
+      "timestamp": "2026-04-24",
+      "action": "Design 작성 — 치환 스크립트(scripts/migrate-jways-to-brand.sh) 프로토타입 + 3-tier hotspot 체크리스트(Critical 11/Medium 5/Low) + dark mode 대비 재검증 전략(45건 brand-blue-800/900 검수) + 5 Step 실행 가이드(Baseline→sed→수동 보정→자동 검증→Visual 검수, 총 80분 추정). 예외 4건(WelcomeBanner gradient, Header accent-500 nav, Admin widget sky계열, dark:via-jways-950) 수동 개입 포인트 명시.",
+      "matchRate": 0
+    },
+    {
+      "feature": "jways-brand-migration",
+      "phase": "plan",
+      "timestamp": "2026-04-24",
+      "action": "Plan 작성 — DESIGN.md Phase 2 (legacy jways-* 207건 + accent-* 55건 = 262건을 brand-blue-*/cyan-* 로 전면 이행). 5단계 실행계획(baseline→sed 치환→수동 보정→4종 검증→hotspot 검수). tailwind.config.cjs jways/accent 블록 제거, DESIGN.md 1.0.1-alpha → 1.1.0 범프 예정.",
+      "matchRate": 0
+    },
     {
       "feature": "EgyptAir-schedule",
       "phase": "archived",

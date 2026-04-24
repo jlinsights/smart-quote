@@ -115,14 +115,14 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder='Add notes (optional)'
-            className='px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-jways-500 focus:border-transparent w-48'
+            className='px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-blue-500 focus:border-transparent w-48'
             onKeyDown={handleKeyDown}
             autoFocus
           />
           <button
             onClick={handleSave}
             disabled={state === 'saving'}
-            className='flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-jways-600 rounded-lg hover:bg-jways-700 disabled:opacity-50 transition-colors'
+            className='flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-brand-blue-600 rounded-lg hover:bg-brand-blue-700 disabled:opacity-50 transition-colors'
           >
             {state === 'saving' ? (
               <Loader2 className='w-3 h-3 animate-spin' />
@@ -156,7 +156,7 @@ export const SaveQuoteButton: React.FC<Props> = ({ input, result, onSaved }) => 
         {onSaved && (
           <button
             onClick={() => onSaved(savedRefNo)}
-            className='flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-jways-600 dark:text-jways-400 hover:bg-jways-50 dark:hover:bg-jways-900/20 rounded-lg transition-colors'
+            className='flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-brand-blue-600 dark:text-brand-blue-400 hover:bg-brand-blue-50 dark:hover:bg-brand-blue-900/20 rounded-lg transition-colors'
           >
             View <ExternalLink className='w-3 h-3' />
           </button>

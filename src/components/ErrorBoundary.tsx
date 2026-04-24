@@ -83,7 +83,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className='px-6 py-2.5 bg-jways-500 text-white rounded-lg hover:bg-jways-600 transition-colors font-medium'
+                className='px-6 py-2.5 bg-brand-blue-500 text-white rounded-lg hover:bg-brand-blue-600 transition-colors font-medium'
               >
                 {getErrorBoundaryTranslation('error.reloadPage')}
               </button>
