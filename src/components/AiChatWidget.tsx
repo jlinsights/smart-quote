@@ -100,7 +100,7 @@ const MessageBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
       <div
         className={`max-w-[80%] px-4 py-2.5 text-sm leading-relaxed break-words ${
           isUser
-            ? 'bg-jways-600 text-white rounded-2xl rounded-tr-sm'
+            ? 'bg-brand-blue-600 text-white rounded-2xl rounded-tr-sm'
             : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-2xl rounded-tl-sm'
         }`}
       >
@@ -253,7 +253,7 @@ export const AiChatWidget: React.FC = () => {
         `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-jways-600 to-jways-700 text-white sm:rounded-t-2xl shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-brand-blue-600 to-brand-blue-700 text-white sm:rounded-t-2xl shrink-0">
           <div className="flex items-center gap-2">
             <MessageCircle size={20} />
             <h3 className="font-semibold text-sm">{l.title}</h3>
@@ -283,7 +283,7 @@ export const AiChatWidget: React.FC = () => {
                 <button
                   key={q}
                   onClick={() => handleSend(q)}
-                  className="text-left text-xs px-3.5 py-2.5 rounded-xl border border-jways-200 dark:border-jways-700 bg-jways-50 dark:bg-jways-900/20 text-jways-700 dark:text-jways-300 hover:bg-jways-100 dark:hover:bg-jways-900/40 hover:border-jways-300 dark:hover:border-jways-600 transition-all duration-150"
+                  className="text-left text-xs px-3.5 py-2.5 rounded-xl border border-brand-blue-200 dark:border-brand-blue-700 bg-brand-blue-50 dark:bg-brand-blue-900/20 text-brand-blue-700 dark:text-brand-blue-300 hover:bg-brand-blue-100 dark:hover:bg-brand-blue-900/40 hover:border-brand-blue-300 dark:hover:border-brand-blue-600 transition-all duration-150"
                 >
                   {q}
                 </button>
@@ -304,7 +304,7 @@ export const AiChatWidget: React.FC = () => {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={l.placeholder}
-              className="flex-1 px-4 py-2.5 text-sm rounded-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-jways-500 transition-shadow"
+              className="flex-1 px-4 py-2.5 text-sm rounded-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-brand-blue-500 transition-shadow"
               disabled={isLoading}
               enterKeyHint="send"
               autoComplete="off"
@@ -312,7 +312,7 @@ export const AiChatWidget: React.FC = () => {
             <button
               onClick={() => handleSend()}
               disabled={!inputValue.trim() || isLoading}
-              className="p-2.5 rounded-full bg-jways-600 hover:bg-jways-700 active:scale-95 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
+              className="p-2.5 rounded-full bg-brand-blue-600 hover:bg-brand-blue-700 active:scale-95 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
               aria-label="Send message"
             >
               <Send size={16} />
@@ -324,7 +324,7 @@ export const AiChatWidget: React.FC = () => {
       {/* ---- Floating button (hidden on mobile when chat is open) ---- */}
       <button
         onClick={isOpen ? () => setIsOpen(false) : handleOpen}
-        className={`fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-jways-600 hover:bg-jways-700 active:scale-95 text-white shadow-lg flex items-center justify-center transition-all duration-200
+        className={`fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-brand-blue-600 hover:bg-brand-blue-700 active:scale-95 text-white shadow-lg flex items-center justify-center transition-all duration-200
           ${isOpen ? 'max-sm:hidden rotate-90 sm:scale-90' : 'rotate-0 scale-100'}
         `}
         aria-label={isOpen ? 'Close chat' : 'Open chat'}

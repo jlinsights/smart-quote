@@ -19,7 +19,7 @@ export const WidgetError: React.FC<WidgetErrorProps> = ({ message, onRetry }) =>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-jways-600 dark:text-jways-400 hover:text-jways-700 dark:hover:text-jways-300 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-blue-600 dark:text-brand-blue-400 hover:text-brand-blue-700 dark:hover:text-brand-blue-300 transition-colors"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           {t('widget.common.retry')}

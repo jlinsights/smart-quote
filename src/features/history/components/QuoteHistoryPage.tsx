@@ -127,7 +127,7 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
       {/* Stats Cards */}
       {quotes.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <StatCard icon={<FileText className="w-4 h-4 text-jways-500" />} label="This Month" value={String(stats.count)} />
+          <StatCard icon={<FileText className="w-4 h-4 text-brand-blue-500" />} label="This Month" value={String(stats.count)} />
           <StatCard icon={<DollarSign className="w-4 h-4 text-green-500" />} label="Total Amount" value={`${formatNum(stats.totalAmount)}`} sub="KRW" />
           <StatCard icon={<TrendingUp className="w-4 h-4 text-blue-500" />} label="Avg Margin" value={`${stats.avgMargin.toFixed(1)}%`} />
           <StatCard icon={<CheckCircle className="w-4 h-4 text-emerald-500" />} label="Win Rate" value={`${stats.winRate.toFixed(0)}%`} />
@@ -147,13 +147,13 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
             onClick={() => setShowFilters(!showFilters)}
             className={`hidden sm:flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition-colors ${
               showFilters || hasActiveFilters
-                ? 'border-jways-500 text-jways-600 bg-jways-50 dark:bg-jways-900/20 dark:text-jways-400'
+                ? 'border-brand-blue-500 text-brand-blue-600 bg-brand-blue-50 dark:bg-brand-blue-900/20 dark:text-brand-blue-400'
                 : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
             }`}
           >
             <Filter className="w-4 h-4" />
             Filters
-            {hasActiveFilters && <span className="w-2 h-2 bg-jways-500 rounded-full" />}
+            {hasActiveFilters && <span className="w-2 h-2 bg-brand-blue-500 rounded-full" />}
           </button>
           <button
             onClick={handleExport}
@@ -206,7 +206,7 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
       {isLoadingDetail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <div className="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-xl px-6 py-4 shadow-lg">
-            <Loader2 className="w-5 h-5 animate-spin text-jways-500" />
+            <Loader2 className="w-5 h-5 animate-spin text-brand-blue-500" />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Loading quote...</span>
           </div>
         </div>

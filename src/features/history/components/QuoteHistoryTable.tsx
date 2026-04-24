@@ -116,7 +116,7 @@ export const QuoteHistoryTable: React.FC<Props> = ({
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => onView(q.id)}
-                      className="p-2.5 rounded-md text-gray-400 hover:text-jways-600 hover:bg-jways-50 dark:hover:bg-jways-900/20 transition-colors"
+                      className="p-2.5 rounded-md text-gray-400 hover:text-brand-blue-600 hover:bg-brand-blue-50 dark:hover:bg-brand-blue-900/20 transition-colors"
                       aria-label="View detail"
                     >
                       <Eye className="w-5 h-5" />
@@ -233,7 +233,7 @@ export const QuoteHistoryTable: React.FC<Props> = ({
                   <div className="flex items-center justify-center gap-1">
                     <button
                       onClick={() => onView(q.id)}
-                      className="p-2.5 sm:p-1.5 rounded-md text-gray-400 hover:text-jways-600 hover:bg-jways-50 dark:hover:bg-jways-900/20 transition-colors"
+                      className="p-2.5 sm:p-1.5 rounded-md text-gray-400 hover:text-brand-blue-600 hover:bg-brand-blue-50 dark:hover:bg-brand-blue-900/20 transition-colors"
                       aria-label="View detail"
                     >
                       <Eye className="w-5 h-5 sm:w-4 sm:h-4" />

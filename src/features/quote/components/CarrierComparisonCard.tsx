@@ -79,7 +79,7 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
       <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ArrowRightLeft className="w-4 h-4 text-jways-500" />
+          <ArrowRightLeft className="w-4 h-4 text-brand-blue-500" />
           <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
             {t('comparison.title')}
           </h4>
@@ -88,7 +88,7 @@ export const CarrierComparisonCard: React.FC<Props> = ({ input, currentResult, i
           {!hideMargin && (
             <button
               onClick={() => setShowKRW(prev => !prev)}
-              className="flex items-center gap-1 text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-300 transition-colors"
+              className="flex items-center gap-1 text-[10px] font-semibold text-gray-500 hover:text-brand-blue-600 dark:text-gray-400 dark:hover:text-brand-blue-300 transition-colors"
               title="Toggle currency"
             >
               <ArrowUpDown className="w-3 h-3" />
@@ -176,7 +176,7 @@ const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, showKRW,
           .replace('{max}', String(transitDaysMax))
       : result.transitTime;
   return (
-    <div className={`p-4 ${isCurrent ? 'bg-jways-50/50 dark:bg-jways-900/10' : ''}`}>
+    <div className={`p-4 ${isCurrent ? 'bg-brand-blue-50/50 dark:bg-brand-blue-900/10' : ''}`}>
       {badges.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-2">
           {badges.map(b => {
@@ -198,13 +198,13 @@ const CarrierColumn: React.FC<CarrierColumnProps> = ({ carrier, result, showKRW,
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-bold text-gray-900 dark:text-white">{carrier}</span>
         {isCurrent ? (
-          <span className="flex items-center gap-1 text-[10px] font-semibold text-jways-600 dark:text-jways-400 bg-jways-100 dark:bg-jways-900/30 px-2 py-0.5 rounded-full">
+          <span className="flex items-center gap-1 text-[10px] font-semibold text-brand-blue-600 dark:text-brand-blue-400 bg-brand-blue-100 dark:bg-brand-blue-900/30 px-2 py-0.5 rounded-full">
             <Check className="w-3 h-3" /> Selected
           </span>
         ) : !hideSwitch ? (
           <button
             onClick={onSelect}
-            className="text-[10px] font-semibold text-gray-500 hover:text-jways-600 dark:text-gray-400 dark:hover:text-jways-400 bg-gray-100 hover:bg-jways-50 dark:bg-gray-700 dark:hover:bg-jways-900/30 px-2 py-0.5 rounded-full transition-colors"
+            className="text-[10px] font-semibold text-gray-500 hover:text-brand-blue-600 dark:text-gray-400 dark:hover:text-brand-blue-400 bg-gray-100 hover:bg-brand-blue-50 dark:bg-gray-700 dark:hover:bg-brand-blue-900/30 px-2 py-0.5 rounded-full transition-colors"
           >
             Switch
           </button>

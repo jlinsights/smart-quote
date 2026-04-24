@@ -140,7 +140,7 @@ const UserGuidePage: React.FC = () => {
           {/* Section Header */}
           <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-jways-100 dark:bg-jways-900/30 text-jways-600 dark:text-jways-400">
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-blue-100 dark:bg-brand-blue-900/30 text-brand-blue-600 dark:text-brand-blue-400">
                 {SECTION_ICONS[key]}
               </div>
               <div className="flex items-center gap-2">
@@ -283,7 +283,7 @@ const UserGuidePage: React.FC = () => {
         {/* Page Title */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <BookOpen className="w-7 h-7 text-jways-600 dark:text-jways-400" />
+            <BookOpen className="w-7 h-7 text-brand-blue-600 dark:text-brand-blue-400" />
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               {guide.pageTitle}
             </h1>
@@ -293,7 +293,7 @@ const UserGuidePage: React.FC = () => {
               </span>
             )}
             {!isAdmin && (
-              <span className="px-2.5 py-1 text-xs font-bold uppercase tracking-wider bg-jways-100 dark:bg-jways-900/30 text-jways-600 dark:text-jways-400 rounded-full">
+              <span className="px-2.5 py-1 text-xs font-bold uppercase tracking-wider bg-brand-blue-100 dark:bg-brand-blue-900/30 text-brand-blue-600 dark:text-brand-blue-400 rounded-full">
                 {guide.memberBadge}
               </span>
             )}
@@ -328,7 +328,7 @@ const UserGuidePage: React.FC = () => {
                       onClick={() => scrollToSection(key)}
                       className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${
                         activeSection === key
-                          ? 'bg-jways-50 dark:bg-jways-900/20 text-jways-600 dark:text-jways-400 font-semibold'
+                          ? 'bg-brand-blue-50 dark:bg-brand-blue-900/20 text-brand-blue-600 dark:text-brand-blue-400 font-semibold'
                           : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                       }`}
                     >
@@ -377,7 +377,7 @@ const UserGuidePage: React.FC = () => {
                           onClick={() => scrollToSection(key)}
                           className={`w-full flex items-center gap-2 px-4 py-2 text-left text-[13px] transition-colors group ${
                             activeSection === key
-                              ? 'bg-jways-50 dark:bg-jways-900/20 text-jways-600 dark:text-jways-400 font-semibold border-l-2 border-jways-500'
+                              ? 'bg-brand-blue-50 dark:bg-brand-blue-900/20 text-brand-blue-600 dark:text-brand-blue-400 font-semibold border-l-2 border-brand-blue-500'
                               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-2 border-transparent'
                           }`}
                         >

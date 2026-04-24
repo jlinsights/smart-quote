@@ -85,8 +85,8 @@ export const LoginPage: React.FC = () => {
 
       <div className='relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-950 to-black'>
         <div className='absolute inset-0 pointer-events-none' style={dotGridStyle} />
-        <div className='absolute -top-40 -right-40 w-[400px] h-[400px] rounded-full bg-accent-600/20 blur-[120px] pointer-events-none' />
-        <div className='absolute -bottom-40 -left-40 w-[300px] h-[300px] rounded-full bg-accent-500/15 blur-[100px] pointer-events-none' />
+        <div className='absolute -top-40 -right-40 w-[400px] h-[400px] rounded-full bg-cyan-600/20 blur-[120px] pointer-events-none' />
+        <div className='absolute -bottom-40 -left-40 w-[300px] h-[300px] rounded-full bg-cyan-500/15 blur-[100px] pointer-events-none' />
 
         <div className='relative flex flex-col items-center justify-center py-16 sm:py-24 px-4'>
           <Link
@@ -97,8 +97,8 @@ export const LoginPage: React.FC = () => {
             {t('auth.backHome')}
           </Link>
 
-          <div className='w-14 h-14 rounded-2xl bg-accent-500/20 border border-accent-500/30 flex items-center justify-center mb-6'>
-            <LogIn className='w-7 h-7 text-accent-400' />
+          <div className='w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center mb-6'>
+            <LogIn className='w-7 h-7 text-cyan-400' />
           </div>
 
           <h2 className='text-2xl sm:text-3xl font-extrabold text-white text-center mb-2'>
@@ -126,7 +126,7 @@ export const LoginPage: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className='w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500/50 text-sm transition-colors'
+                  className='w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-sm transition-colors'
                   placeholder='name@company.com'
                 />
               </div>
@@ -146,14 +146,14 @@ export const LoginPage: React.FC = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className='w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500/50 text-sm transition-colors'
+                  className='w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-sm transition-colors'
                 />
               </div>
 
               <button
                 type='submit'
                 disabled={isLoading}
-                className='w-full py-3 px-4 bg-accent-600 hover:bg-accent-500 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-lg shadow-accent-600/25 hover:shadow-accent-500/30 transition-all duration-200'
+                className='w-full py-3 px-4 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white text-sm font-semibold rounded-xl shadow-lg shadow-cyan-600/25 hover:shadow-cyan-500/30 transition-all duration-200'
               >
                 {t('auth.signin')}
               </button>
@@ -164,7 +164,7 @@ export const LoginPage: React.FC = () => {
                 {t('auth.noAccount')}{' '}
                 <Link
                   to='/signup'
-                  className='font-semibold text-accent-400 hover:text-accent-300 transition-colors'
+                  className='font-semibold text-cyan-400 hover:text-cyan-300 transition-colors'
                 >
                   {t('auth.signup')}
                 </Link>
@@ -175,7 +175,7 @@ export const LoginPage: React.FC = () => {
           {/* Magic Link Section */}
           <div className='w-full max-w-md mt-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl'>
             <div className='flex items-center gap-2 mb-4'>
-              <Mail className='w-4 h-4 text-accent-400' />
+              <Mail className='w-4 h-4 text-cyan-400' />
               <h3 className='text-sm font-semibold text-gray-300'>{t('auth.magicLink.title')}</h3>
             </div>
 
@@ -205,7 +205,7 @@ export const LoginPage: React.FC = () => {
                     autoComplete='email'
                     value={magicEmail}
                     onChange={(e) => setMagicEmail(e.target.value)}
-                    className='w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500/50 text-sm transition-colors'
+                    className='w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-sm transition-colors'
                     placeholder='name@company.com'
                   />
                 </div>

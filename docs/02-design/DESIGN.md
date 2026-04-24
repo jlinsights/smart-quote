@@ -1,11 +1,10 @@
 ---
 name: BridgeLogis Design System (smart-quote-main)
-version: 1.0.1-alpha
+version: 1.1.0
 description: >-
   BridgeLogis by Goodman GLS 웹 애플리케이션의 디자인 시스템 명세.
   외부 운영 중인 SaaS(bridgelogis.com)의 단일 진실 공급원(SSOT).
-  Phase 1 = non-breaking 토큰 추가(기존 jways-*/accent-* 유지),
-  Phase 2 = 레거시 → brand-* 마이그레이션 (별도 세션).
+  Phase 2 완료 (2026-04-24) — 레거시 jways-*/accent-* 전면 제거, brand-blue-*/cyan-* 로 통합.
 references:
   tailwind: tailwind.config.cjs
   globals: src/index.css
@@ -13,7 +12,7 @@ references:
   brand-memory: memory/project_bridgelogis_brand.md
 
 # ─────────────────────────────────────────────
-# COLORS — 4 레이어 (Brand / Semantic / Legacy / Neutral)
+# COLORS — 3 레이어 (Brand / Semantic / Neutral)
 # ─────────────────────────────────────────────
 colors:
   # ═══ Brand (BridgeLogis 정본) — 신규 UI는 반드시 이 레이어 ═══
@@ -28,11 +27,6 @@ colors:
   warning: '#f59e0b'           # amber-500 — 주의·임박·저마진
   destructive: '#ef4444'       # red-500 — 삭제·실패·오류
   info: '#1D6FD1'              # brand-blue 와 정렬 — 안내·툴팁
-
-  # ═══ Legacy (Phase 2 마이그레이션 대상, 신규 사용 금지) ═══
-  jways-500: '#3b82f6'         # Tailwind 기본 blue-500 — 브랜드와 불일치
-  accent-500: '#0ea5e9'        # sky-500 — cyan 과 기능 중복
-  # 전체 스케일은 tailwind.config.cjs 참조
 
   # ═══ Neutral ═══
   gray-50: '#fafafa'
@@ -95,8 +89,8 @@ charts:
 # BridgeLogis Design System
 
 > 외부 운영 중인 SaaS(bridgelogis.com)의 디자인 토큰 SSOT.
-> **Phase 1 = non-breaking 추가**. 기존 `jways-*`·`accent-*`는 건드리지 않았다.
-> Phase 2(별도 세션)에서 레거시를 `brand-*` 로 마이그레이션한다.
+> **Phase 2 완료 (2026-04-24)** — 레거시 `jways-*`·`accent-*` 전면 제거.
+> 모든 UI 는 Brand(`navy`/`deep-blue`/`brand-blue`/`cyan`/`gold`) 또는 Semantic 토큰만 사용한다.
 
 ## 1. Overview
 
@@ -114,10 +108,9 @@ BridgeLogis는 **Goodman GLS & J-Ways 의 국제 특송(Express) SaaS 플랫폼*
 다음 순서로 토큰을 선택한다:
 
 ```
-신규 컴포넌트 → Brand (§2.1) 또는 Semantic (§2.2)
-상태 표현     → Semantic (§2.2)
-기존 컴포넌트 → Legacy (§2.3) 유지, Phase 2 에서 migrate
-회색조        → Neutral
+신규/기존 컴포넌트 → Brand (§2.1) 또는 Semantic (§2.2)
+상태 표현          → Semantic (§2.2)
+회색조             → Neutral
 ```
 
 ### 2.1 Brand — BridgeLogis 정본
@@ -145,25 +138,14 @@ BridgeLogis는 **Goodman GLS & J-Ways 의 국제 특송(Express) SaaS 플랫폼*
 각 토큰은 Tailwind 내장 스케일(emerald/amber/red/blue) 전체를 포함한다.
 `text-success-600` 같은 보조 톤 사용 가능.
 
-### 2.3 Legacy — Phase 2 마이그레이션 대상
-
-| 레거시 토큰 | 용도 현황 (2026-04-24) | 마이그레이션 후보 |
-|---|---|---|
-| `jways-*` | 392곳 — 사실상 브랜드 블루로 쓰이고 있으나 Tailwind 기본 `blue-*` 와 동일 | `brand-blue-*` |
-| `accent-*` | 83곳 — sky 계열로 이미 브랜드 cyan 과 겹침 | `cyan-*` |
-| `blue-*` (기본) | 143곳 — 의도 불명, `jways` 와 혼용 | `brand-blue-*` |
-| `sky-*` | 10곳 | `cyan-*` |
-
-> **신규 코드는 레거시 토큰 금지.** Legacy 는 기존 UI 안정성 유지를 위해 일시 허용.
-
-### 2.4 Neutral
+### 2.3 Neutral
 
 `gray-50 ~ gray-950` 11단계. Tailwind 기본 gray 를 커스텀 스케일(`#fafafa` ~ `#0a0a0a`)로
 덮어썼다. 이는 **라이트/다크 모드 간 콘트라스트를 보다 선명하게** 하기 위함이며
 (`gray-950 #0a0a0a` 는 Tailwind 기본 `#030712` 보다 더 중립적 검정), body 배경을
 `bg-gray-50 dark:bg-gray-950` 로 극단 양끝에 배치한다.
 
-### 2.5 WCAG 검증 쌍
+### 2.4 WCAG 검증 쌍
 
 라이트 모드 흰 배경(`#ffffff`) 기준 ([WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/) 로 측정):
 
@@ -300,7 +282,7 @@ import { CHART_COLORS } from '@/lib/chartColors';
 
 ### ❌ Don't
 
-- 신규 코드에 `jways-*`/`accent-*`/기본 `blue-*`/`sky-*` 사용 금지 (Legacy)
+- 레거시 `jways-*`/`accent-*` 재도입 금지 (Phase 2 에서 제거됨) · Tailwind 기본 `blue-*`/`sky-*` 사용 금지
 - 색상을 HEX 로 인라인 하드코딩 금지 (`style={{color:'#1D6FD1'}}` 금지, 차트 제외)
 - `cyan`·`gold`·`success`·`destructive` 를 **본문 텍스트 색**으로 쓰지 않음 (WCAG 미달)
 - 프리미엄 강조에 `warning` 사용 금지 → `gold` 사용
@@ -313,8 +295,7 @@ import { CHART_COLORS } from '@/lib/chartColors';
 1. **조회 순서**: 이 문서 → `tailwind.config.cjs` → `src/index.css` → 기존 컴포넌트
 2. **토큰 참조 문법**: `{colors.brand-blue}`, `{typography.family.sans}` — 규칙 인용 시
 3. **토큰이 없을 때**: 임의 값 만들지 말고, 사용자에게 "DESIGN.md에 추가 필요" 보고 후 승인받아 먼저 본 문서 수정
-4. **Phase 2 마이그레이션**: 별도 요청 없이는 기존 `jways-*`/`accent-*` 를 수정하지 않음
-   (non-breaking 원칙)
+4. **레거시 재도입 금지**: `jways-*`/`accent-*` 는 Phase 2 에서 제거됨. 신규 코드에 재도입 금지
 5. **Feature 단위 design 문서**(`docs/02-design/features/*.design.md`): 본 문서의 토큰을
    참조해야 하며, 중복 정의 금지
 
@@ -327,6 +308,10 @@ import { CHART_COLORS } from '@/lib/chartColors';
 
 ### Changelog
 
+- **1.1.0** (2026-04-24) — Phase 2 완료. 레거시 `jways-*` (207건) / `accent-*` (55건) 전면
+  제거, `brand-blue-*` / `cyan-*` 로 통합. `tailwind.config.cjs` Legacy 블록 삭제,
+  §2.3 Legacy 섹션 제거 (3 레이어 구조: Brand / Semantic / Neutral). `accent-950`
+  사용 1건은 `cyan-900` 으로 강등 (cyan 팔레트에 950 스텝 없음).
 - **1.0.1-alpha** (2026-04-24) — design-validator 피드백 반영: WCAG 측정 도구 명시,
   다크 모드 브랜드 색상 스케일 가이드 구체화, Neutral 스케일 커스터마이징 근거
   추가, Component 예제 dark: 변형 보강 (§8.2), §8.4 Premium Badge 예제 추가.
@@ -334,8 +319,7 @@ import { CHART_COLORS } from '@/lib/chartColors';
   `project_bridgelogis_brand.md`, 2026-03-24) 와 Tailwind 코드 미정렬 문제 발견 →
   Phase 1 non-breaking 도입. Brand 5색(navy/deep-blue/brand-blue/cyan/gold) +
   Semantic 4종(success/warning/destructive/info) Tailwind config 추가. 차트 HEX
-  3곳을 `src/lib/chartColors.ts` 로 중앙화. 레거시 `jways-*`/`accent-*` 는 유지
-  (Phase 2 별도 세션에서 마이그레이션).
+  3곳을 `src/lib/chartColors.ts` 로 중앙화.
 
 ---
 

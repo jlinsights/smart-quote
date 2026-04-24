@@ -1,1 +1,1 @@
-✨ chore: prettier auto-format AuthContext.test.tsx + JetFuelWidget.tsx (whitespace only, no logic change)
+🧹 chore: pre-existing unused imports 제거 — Header.tsx Plane, QuoteDetailModal.tsx BreakdownRow (CI lint --max-warnings 0 통과용)

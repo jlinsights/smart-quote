@@ -28,7 +28,7 @@ export const FinancialSection: React.FC<Props> = ({ input, onFieldChange, isMobi
     <div className={grayCardClass}>
       <div className="flex items-center justify-between mb-4">
          <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider flex items-center">
-             <TrendingUp className="w-4 h-4 mr-2 text-jways-600 dark:text-jways-400" />
+             <TrendingUp className="w-4 h-4 mr-2 text-brand-blue-600 dark:text-brand-blue-400" />
              {t('calc.section.financial')}
          </h3>
          <div className="flex items-center gap-3">
