@@ -183,6 +183,48 @@ describe('AuthContext', () => {
         }),
       );
     });
+
+    it('persists rotated refresh token on mount (refresh token rotation)', async () => {
+      localStorage.setItem(REFRESH_KEY, 'R1');
+
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({ token: 'new-access', refresh_token: 'R2', user: mockUser }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        ),
+      );
+
+      await act(async () => {
+        renderWithAuth(() => {});
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('authenticated')).toHaveTextContent('true');
+      });
+
+      expect(localStorage.getItem(REFRESH_KEY)).toBe('R2');
+    });
+
+    it('keeps old refresh token if server does not rotate (backward compatibility)', async () => {
+      localStorage.setItem(REFRESH_KEY, 'R1');
+
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+        new Response(JSON.stringify({ token: 'new-access', user: mockUser }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      );
+
+      await act(async () => {
+        renderWithAuth(() => {});
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('authenticated')).toHaveTextContent('true');
+      });
+
+      expect(localStorage.getItem(REFRESH_KEY)).toBe('R1');
+    });
   });
 
   describe('expired/invalid refresh token handling', () => {

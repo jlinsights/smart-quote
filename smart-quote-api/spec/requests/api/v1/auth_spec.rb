@@ -112,6 +112,61 @@ RSpec.describe "Api::V1::Auth", type: :request do
     end
   end
 
+  describe "POST /api/v1/auth/refresh" do
+    let(:user) { create(:user, email: "refresh@example.com", password: "password123") }
+
+    def login_and_get_refresh_token
+      post "/api/v1/auth/login", params: { email: user.email, password: "password123" }, as: :json
+      JSON.parse(response.body)["refresh_token"]
+    end
+
+    it "returns a new access token and a new refresh token (rotation)" do
+      original_refresh = login_and_get_refresh_token
+      expect(original_refresh).to be_present
+
+      post "/api/v1/auth/refresh", params: { refresh_token: original_refresh }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body["token"]).to be_present
+      expect(body["refresh_token"]).to be_present
+      expect(body["user"]["email"]).to eq(user.email)
+    end
+
+    it "issued refresh token is a valid JWT that can be used again (chained rotation)" do
+      r1 = login_and_get_refresh_token
+
+      post "/api/v1/auth/refresh", params: { refresh_token: r1 }, as: :json
+      r2 = JSON.parse(response.body)["refresh_token"]
+      expect(r2).to be_present
+
+      post "/api/v1/auth/refresh", params: { refresh_token: r2 }, as: :json
+      expect(response).to have_http_status(:ok)
+      r3 = JSON.parse(response.body)["refresh_token"]
+      expect(r3).to be_present
+    end
+
+    it "returns 401 for an invalid refresh token" do
+      post "/api/v1/auth/refresh", params: { refresh_token: "bogus.token.here" }, as: :json
+
+      expect(response).to have_http_status(:unauthorized)
+      body = JSON.parse(response.body)
+      expect(body["error"]["code"]).to eq("INVALID_TOKEN")
+    end
+
+    it "returns 401 for an expired refresh token" do
+      expired = JWT.encode(
+        { user_id: user.id, type: "refresh", exp: 1.minute.ago.to_i },
+        Rails.application.credentials.secret_key_base || Rails.application.secret_key_base,
+        "HS256"
+      )
+
+      post "/api/v1/auth/refresh", params: { refresh_token: expired }, as: :json
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
   describe "POST /api/v1/auth/magic_link" do
     let!(:user) { create(:user, email: "magic@example.com") }
 

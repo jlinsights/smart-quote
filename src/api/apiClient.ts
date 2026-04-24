@@ -1,4 +1,10 @@
-import { clearAllTokens, getAccessToken, getRefreshToken, setAccessToken } from '@/lib/authStorage';
+import {
+  clearAllTokens,
+  getAccessToken,
+  getRefreshToken,
+  setAccessToken,
+  setRefreshToken,
+} from '@/lib/authStorage';
 
 export const API_URL: string = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 export const REQUEST_TIMEOUT_MS = 30_000;
@@ -56,6 +62,10 @@ async function refreshAccessToken(): Promise<boolean> {
     if (!res.ok) return false;
     const data = await res.json();
     setAccessToken(data.token);
+    // Refresh token rotation: backend issues new refresh token on each refresh
+    if (data.refresh_token) {
+      setRefreshToken(data.refresh_token);
+    }
     return true;
   } catch {
     return false;

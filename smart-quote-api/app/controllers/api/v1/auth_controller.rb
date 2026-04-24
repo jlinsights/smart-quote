@@ -37,12 +37,19 @@ module Api
         render json: { user: user_json(current_user) }
       end
 
-      # POST /api/v1/auth/refresh — issue new access token using refresh token
+      # POST /api/v1/auth/refresh — issue new access token + rotated refresh token
+      # Security: refresh token rotation (OAuth 2.0 Security BCP, RFC 9700).
+      # 매 refresh 호출마다 새 refresh token 발급. 이전 token 은 expiry 까지 유효.
+      # Level 2 (jti denylist 로 즉시 무효화)는 후속 작업.
       def refresh
         user = decode_refresh_token(params[:refresh_token])
 
         if user
-          render json: { token: encode_token(user), user: user_json(user) }
+          render json: {
+            token: encode_token(user),
+            refresh_token: encode_refresh_token(user),
+            user: user_json(user)
+          }
         else
           render json: { error: { code: "INVALID_TOKEN", message: "Invalid or expired refresh token" } }, status: :unauthorized
         end
