@@ -1,16 +1,16 @@
 const { fontFamily } = require('tailwindcss/defaultTheme');
 const colors = require('tailwindcss/colors');
 
-/**
- * BridgeLogis by Goodman GLS — Tailwind config
- * 디자인 토큰 SSOT: docs/02-design/DESIGN.md (§1.1.0-alpha, 2026-04-24)
- *
- * 토큰 레이어:
- *   1. Brand    — BridgeLogis 브랜드 가이드 정본 (navy/deep-blue/brand-blue/cyan/gold)
- *   2. Semantic — UI 의도 (success/warning/destructive/info)
- *   3. Legacy   — jways-*/accent-* (기존 코드 호환, 신규 사용 지양 — Phase 2 에서 brand-* 로 마이그레이션)
- *   4. Neutral  — gray (grayscale)
- */
+//
+// BridgeLogis by Goodman GLS — Tailwind config
+// 디자인 토큰 SSOT: docs/02-design/DESIGN.md (§1.1.0-alpha, 2026-04-24)
+//
+// 토큰 레이어:
+//   1. Brand    — BridgeLogis 브랜드 가이드 정본 (navy/deep-blue/brand-blue/cyan/gold)
+//   2. Semantic — UI 의도 (success/warning/destructive/info)
+//   3. Legacy   — jways-* / accent-* (기존 코드 호환, 신규 사용 지양 — Phase 2 에서 brand-* 로 마이그레이션)
+//   4. Neutral  — gray (grayscale)
+//
 module.exports = {
   content: [
     "./index.html",
