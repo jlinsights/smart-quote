@@ -1,1 +1,1 @@
-🎨 docs: BridgeLogis DESIGN.md 1.0.0-alpha (Phase 1 non-breaking) — Brand 5색(navy/deep-blue/brand-blue/cyan/gold) + Semantic 4종 Tailwind 추가, 차트 HEX 3곳 chartColors.ts 중앙화
+✨ chore: prettier auto-format AuthContext.test.tsx + JetFuelWidget.tsx (whitespace only, no logic change)
