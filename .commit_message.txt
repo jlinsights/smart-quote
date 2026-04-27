@@ -1,1 +1,1 @@
-✨ chore: prettier auto-format — Header.tsx 재정렬 + QuoteDetailModal.tsx 꼬리 공백 제거
+🔄 chore: FSC 요율 업데이트 — UPS 47.5%→45.5% / DHL 47.75%→48.0% (2026-04-27 기준, src/config/rates.ts + smart-quote-api/lib/constants/rates.rb 동시 수정)
