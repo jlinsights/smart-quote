@@ -11,10 +11,14 @@ export async function fetchJetFuelPrices(weeks: number = 12): Promise<JetFuelPri
     return [];
   }
 
-  const url = `https://api.eia.gov/v2/petroleum/pri/spt/data/?frequency=weekly&data[0]=value&facets[product][]=EPJK&facets[duoarea][]=RGC&sort[0][column]=period&sort[0][direction]=desc&length=${weeks}`;
+  // NOTE: api_key must be in query string, not X-Api-Key header.
+  // Custom header triggers CORS preflight; EIA API does not return
+  // Access-Control-Allow-Headers for x-api-key, so the browser blocks
+  // the request with "Failed to fetch".
+  const url = `https://api.eia.gov/v2/petroleum/pri/spt/data/?api_key=${encodeURIComponent(apiKey)}&frequency=weekly&data[0]=value&facets[product][]=EPJK&facets[duoarea][]=RGC&sort[0][column]=period&sort[0][direction]=desc&length=${weeks}`;
 
   return fetchWithRetry(async () => {
-    const res = await fetch(url, { headers: { 'X-Api-Key': apiKey } });
+    const res = await fetch(url);
     if (!res.ok) throw new Error(`EIA API error: ${res.status}`);
 
     const json = await res.json();

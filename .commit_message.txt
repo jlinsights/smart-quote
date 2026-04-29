@@ -1,1 +1,1 @@
-💄 chore: vite.config.ts prettier auto-format (trailing comma + line wrap)
+🐛 fix: JetFuelWidget Failed to fetch — EIA api_key를 X-Api-Key 헤더 대신 쿼리스트링으로 전달 (CORS preflight 회피)
