@@ -1,1 +1,1 @@
-🔄 chore: FSC 요율 업데이트 — UPS 47.5%→45.5% / DHL 47.75%→48.0% (2026-04-27 기준, src/config/rates.ts + smart-quote-api/lib/constants/rates.rb 동시 수정)
+⛽ chore: UPS FSC 45.50%, DHL FSC 48.00% 업데이트 (2026-04-27)

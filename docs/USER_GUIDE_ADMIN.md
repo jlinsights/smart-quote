@@ -2,7 +2,7 @@
 
 > **Goodman GLS & J-Ways** Internal Logistics Quoting System
 >
-> Version 3.2 | Last Updated: 2026-04-01
+> Version 3.2 | Last Updated: 2026-04-27
 
 ---
 
