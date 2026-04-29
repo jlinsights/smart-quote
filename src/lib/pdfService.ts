@@ -1,17 +1,42 @@
 import { QuoteInput, QuoteResult } from '@/types';
-import { loadKoreanFont } from './pdfFontLoader';
-import { buildFilename, CurrencyMode, FONTS, COLORS, MARGIN_X, nextLine, getLastAutoTableY } from './pdf/pdfUtils';
-import { drawHeader, drawShipmentDetails, drawQuoteSummary, drawWarnings, drawDisclaimer, drawFooter, drawSavingsNote } from './pdf/pdfLayout';
-import { drawCargoTable, drawCostTable, buildComparisonRows, makeDidParseCell } from './pdf/pdfTables';
+import {
+  buildFilename,
+  CurrencyMode,
+  FONTS,
+  COLORS,
+  MARGIN_X,
+  nextLine,
+  getLastAutoTableY,
+} from './pdf/pdfUtils';
+import {
+  drawHeader,
+  drawShipmentDetails,
+  drawQuoteSummary,
+  drawWarnings,
+  drawDisclaimer,
+  drawFooter,
+  drawSavingsNote,
+} from './pdf/pdfLayout';
+import {
+  drawCargoTable,
+  drawCostTable,
+  buildComparisonRows,
+  makeDidParseCell,
+} from './pdf/pdfTables';
 
-export const generatePDF = async (input: QuoteInput, result: QuoteResult, referenceNo?: string, options?: { isAdmin?: boolean; isKorean?: boolean }) => {
+export const generatePDF = async (
+  input: QuoteInput,
+  result: QuoteResult,
+  referenceNo?: string,
+  options?: { isAdmin?: boolean; isKorean?: boolean },
+) => {
   const currency: CurrencyMode = options?.isAdmin ? 'both' : options?.isKorean ? 'krw' : 'usd';
   const { jsPDF: JsPDF } = await import('jspdf');
   const doc = new JsPDF();
 
-  await loadKoreanFont(doc);
-
-  const validityDate = referenceNo ? new Date(Date.now() + 7 * 86400000).toLocaleDateString('ko-KR') : undefined;
+  const validityDate = referenceNo
+    ? new Date(Date.now() + 7 * 86400000).toLocaleDateString('en-US')
+    : undefined;
 
   let yPos = 20;
   yPos = drawHeader(doc, yPos, referenceNo, validityDate);
@@ -29,25 +54,27 @@ export const generatePDF = async (input: QuoteInput, result: QuoteResult, refere
   doc.save(buildFilename('JWays_Quote', referenceNo));
 };
 
-export const generateComparisonPDF = async (input: QuoteInput, upsResult: QuoteResult, dhlResult: QuoteResult): Promise<void> => {
+export const generateComparisonPDF = async (
+  input: QuoteInput,
+  upsResult: QuoteResult,
+  dhlResult: QuoteResult,
+): Promise<void> => {
   const { jsPDF: JsPDF } = await import('jspdf');
   const autoTable = (await import('jspdf-autotable')).default;
   const doc = new JsPDF();
-
-  await loadKoreanFont(doc);
 
   const carriers = ['UPS', 'DHL'];
   const results = [upsResult, dhlResult];
   const amounts = results.map((r) => r.totalQuoteAmount);
   const minAmount = Math.min(...amounts);
-  const validityDate = new Date(Date.now() + 7 * 86400000).toLocaleDateString('ko-KR');
+  const validityDate = new Date(Date.now() + 7 * 86400000).toLocaleDateString('en-US');
 
   let yPos = 20;
   yPos = drawHeader(doc, yPos, undefined, validityDate);
 
   doc.setFontSize(FONTS.SIZE_SUBHEADER);
   doc.setTextColor(...COLORS.PRIMARY);
-  doc.text('캐리어 비교 / Carrier Comparison Report', MARGIN_X, yPos);
+  doc.text('Carrier Comparison Report', MARGIN_X, yPos);
   yPos = nextLine(yPos, 10);
 
   yPos = drawShipmentDetails(doc, input, yPos);
@@ -60,7 +87,12 @@ export const generateComparisonPDF = async (input: QuoteInput, upsResult: QuoteR
     head: [headRow],
     body: bodyRows,
     theme: 'grid',
-    headStyles: { fillColor: COLORS.PRIMARY as [number, number, number], font: FONTS.FAMILY, fontSize: FONTS.SIZE_TABLE, halign: 'center' },
+    headStyles: {
+      fillColor: COLORS.PRIMARY as [number, number, number],
+      font: FONTS.FAMILY,
+      fontSize: FONTS.SIZE_TABLE,
+      halign: 'center',
+    },
     bodyStyles: { font: FONTS.FAMILY, fontSize: FONTS.SIZE_TABLE, halign: 'center' },
     columnStyles: { 0: { halign: 'left', fontStyle: 'bold', cellWidth: 55 } },
     didParseCell: makeDidParseCell(amounts, minAmount),

@@ -15,8 +15,6 @@ const mockSetDrawColor = vi.fn();
 const mockSetLineWidth = vi.fn();
 const mockSetFont = vi.fn();
 const mockAddImage = vi.fn();
-const mockAddFileToVFS = vi.fn();
-const mockAddFont = vi.fn();
 
 vi.mock('jspdf', () => {
   return {
@@ -33,13 +31,11 @@ vi.mock('jspdf', () => {
       setLineWidth = mockSetLineWidth;
       setFont = mockSetFont;
       addImage = mockAddImage;
-      addFileToVFS = mockAddFileToVFS;
-      addFont = mockAddFont;
       internal = {
-        pageSize: { height: 297, width: 210 }
+        pageSize: { height: 297, width: 210 },
       };
       getCurrentPageInfo = () => ({ pageNumber: 1 });
-    }
+    },
   };
 });
 
@@ -49,17 +45,8 @@ vi.mock('jspdf-autotable', () => ({
   }),
 }));
 
-vi.mock('@/assets/fonts/NotoSansKR-Regular-base64', () => ({
-  default: 'FAKE_BASE64_FONT_DATA',
-}));
-
 vi.mock('@/assets/logo-base64', () => ({
   default: 'data:image/png;base64,FAKE_LOGO',
-}));
-
-// Reset font cache before each test
-vi.mock('./pdfFontLoader', () => ({
-  loadKoreanFont: vi.fn(),
 }));
 
 const mockInput: QuoteInput = {
@@ -126,12 +113,6 @@ describe('pdfService', () => {
       expect(filename).toMatch(/^JWays_Quote_SQ-2026-0042_\d{4}-\d{2}-\d{2}\.pdf$/);
     });
 
-    it('calls loadKoreanFont', async () => {
-      const { loadKoreanFont } = await import('./pdfFontLoader');
-      await generatePDF(mockInput, mockResult);
-      expect(loadKoreanFont).toHaveBeenCalled();
-    });
-
     it('renders text content', async () => {
       await generatePDF(mockInput, mockResult);
       expect(mockText).toHaveBeenCalled();
@@ -154,6 +135,5 @@ describe('pdfService', () => {
       const filename = mockSave.mock.calls[0][0] as string;
       expect(filename).toMatch(/^JWays_Comparison_DRAFT_\d{4}-\d{2}-\d{2}\.pdf$/);
     });
-
   });
 });

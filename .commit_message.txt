@@ -1,1 +1,1 @@
-⛽ chore: UPS FSC 45.50%, DHL FSC 48.00% 업데이트 (2026-04-27)
+🪶 chore: PDF 영문 전용 전환 — NotoSansKR 폰트 (~3MB chunk) 제거 + 한글 라벨 영문화 + jsPDF 내장 helvetica 사용

@@ -3,12 +3,23 @@ import { QuoteInput, QuoteResult, PackingType } from '@/types';
 import { applyPackingDimensions } from '../packing-utils';
 import { formatNum, formatNumDec } from '../format';
 import {
-  COLORS, FONTS, MARGIN_X, getLastAutoTableY, nextLine,
-  CurrencyMode, pdfFormatKRW, pdfFormatUSD
+  COLORS,
+  FONTS,
+  MARGIN_X,
+  getLastAutoTableY,
+  nextLine,
+  CurrencyMode,
+  pdfFormatKRW,
+  pdfFormatUSD,
 } from './pdfUtils';
 
 export const drawCargoTable = async (
-  doc: jsPDF, items: QuoteInput['items'], result: QuoteResult, yPos: number, packingType: PackingType = PackingType.NONE, volumetricDivisor: number = 5000
+  doc: jsPDF,
+  items: QuoteInput['items'],
+  result: QuoteResult,
+  yPos: number,
+  packingType: PackingType = PackingType.NONE,
+  volumetricDivisor: number = 5000,
 ): Promise<number> => {
   const autoTable = (await import('jspdf-autotable')).default;
   doc.setFont(FONTS.FAMILY, 'normal');
@@ -21,7 +32,13 @@ export const drawCargoTable = async (
     startY: yPos,
     head: [['#', 'Dimensions L×W×H (cm)', 'Weight (kg)', 'Qty', 'Vol. Weight (kg)']],
     body: items.map((item, i) => {
-      const packed = applyPackingDimensions(item.length, item.width, item.height, item.weight, packingType);
+      const packed = applyPackingDimensions(
+        item.length,
+        item.width,
+        item.height,
+        item.weight,
+        packingType,
+      );
       const volWeight = ((packed.l * packed.w * packed.h) / volumetricDivisor) * item.quantity;
       return [
         i + 1,
@@ -32,18 +49,36 @@ export const drawCargoTable = async (
       ];
     }),
     foot: [
-      [{ content: '', colSpan: 2 }, `Actual: ${formatNum(result.totalActualWeight)} kg`, '', `Billable: ${formatNum(result.billableWeight)} kg`],
+      [
+        { content: '', colSpan: 2 },
+        `Actual: ${formatNum(result.totalActualWeight)} kg`,
+        '',
+        `Billable: ${formatNum(result.billableWeight)} kg`,
+      ],
     ],
     theme: 'grid',
-    headStyles: { fillColor: COLORS.PRIMARY as [number, number, number], font: FONTS.FAMILY, fontSize: FONTS.SIZE_TABLE, halign: 'center' },
+    headStyles: {
+      fillColor: COLORS.PRIMARY as [number, number, number],
+      font: FONTS.FAMILY,
+      fontSize: FONTS.SIZE_TABLE,
+      halign: 'center',
+    },
     bodyStyles: { font: FONTS.FAMILY, fontSize: FONTS.SIZE_TABLE, halign: 'center' },
-    footStyles: { font: FONTS.FAMILY, fontSize: FONTS.SIZE_TABLE, fontStyle: 'bold', halign: 'center' },
+    footStyles: {
+      font: FONTS.FAMILY,
+      fontSize: FONTS.SIZE_TABLE,
+      fontStyle: 'bold',
+      halign: 'center',
+    },
     margin: { left: MARGIN_X, right: MARGIN_X },
   });
   return getLastAutoTableY(doc) + 10;
 };
 
-const buildPackingRows = (bd: QuoteResult['breakdown'], fmtAmt: (v: number) => string): (string | number)[][] => {
+const buildPackingRows = (
+  bd: QuoteResult['breakdown'],
+  fmtAmt: (v: number) => string,
+): (string | number)[][] => {
   const total = bd.packingMaterial + bd.packingLabor + bd.packingFumigation + bd.handlingFees;
   if (total <= 0) return [];
   const rows: (string | number)[][] = [['Packing & Handling', fmtAmt(total)]];
@@ -54,7 +89,10 @@ const buildPackingRows = (bd: QuoteResult['breakdown'], fmtAmt: (v: number) => s
   return rows;
 };
 
-const buildSurchargeRows = (bd: QuoteResult['breakdown'], fmtAmt: (v: number) => string): (string | number)[][] => {
+const buildSurchargeRows = (
+  bd: QuoteResult['breakdown'],
+  fmtAmt: (v: number) => string,
+): (string | number)[][] => {
   if (bd.appliedSurcharges && bd.appliedSurcharges.length > 0) {
     const rows: (string | number)[][] = bd.appliedSurcharges.map((s) => {
       const suffix = s.chargeType === 'rate' ? ` (${s.amount}%)` : '';
@@ -69,9 +107,15 @@ const buildSurchargeRows = (bd: QuoteResult['breakdown'], fmtAmt: (v: number) =>
   return rows;
 };
 
-const buildAddonRows = (bd: QuoteResult['breakdown'], carrier: string, fmtAmt: (v: number) => string): (string | number)[][] => {
+const buildAddonRows = (
+  bd: QuoteResult['breakdown'],
+  carrier: string,
+  fmtAmt: (v: number) => string,
+): (string | number)[][] => {
   if (!bd.carrierAddOnDetails || bd.carrierAddOnDetails.length === 0) return [];
-  const rows: (string | number)[][] = [[`${carrier} Add-on Services`, fmtAmt(bd.carrierAddOnTotal || 0)]];
+  const rows: (string | number)[][] = [
+    [`${carrier} Add-on Services`, fmtAmt(bd.carrierAddOnTotal || 0)],
+  ];
   bd.carrierAddOnDetails.forEach((d) => {
     const fscNote = d.fscAmount > 0 ? ' +FSC' : '';
     rows.push([`  ${d.nameEn} (${d.code})${fscNote}`, fmtAmt(d.amount + d.fscAmount)]);
@@ -79,9 +123,15 @@ const buildAddonRows = (bd: QuoteResult['breakdown'], carrier: string, fmtAmt: (
   return rows;
 };
 
-export const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: number, currency: CurrencyMode = 'both'): Promise<number> => {
+export const drawCostTable = async (
+  doc: jsPDF,
+  result: QuoteResult,
+  yPos: number,
+  currency: CurrencyMode = 'both',
+): Promise<number> => {
   const exchangeRate = result.totalQuoteAmount / result.totalQuoteAmountUSD;
-  const fmtAmt = (krw: number) => currency === 'usd' ? pdfFormatUSD(krw / exchangeRate) : pdfFormatKRW(krw);
+  const fmtAmt = (krw: number) =>
+    currency === 'usd' ? pdfFormatUSD(krw / exchangeRate) : pdfFormatKRW(krw);
   const amountHeader = currency === 'usd' ? 'Amount (USD)' : 'Amount (KRW)';
   const autoTable = (await import('jspdf-autotable')).default;
 
@@ -107,7 +157,11 @@ export const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: numbe
     head: [['Item', amountHeader]],
     body: rows,
     theme: 'striped',
-    headStyles: { fillColor: COLORS.PRIMARY as [number, number, number], font: FONTS.FAMILY, fontSize: FONTS.SIZE_TABLE },
+    headStyles: {
+      fillColor: COLORS.PRIMARY as [number, number, number],
+      font: FONTS.FAMILY,
+      fontSize: FONTS.SIZE_TABLE,
+    },
     bodyStyles: { font: FONTS.FAMILY, fontSize: FONTS.SIZE_TABLE },
     columnStyles: { 0: { halign: 'left', cellWidth: 100 }, 1: { halign: 'right' } },
     margin: { left: MARGIN_X, right: MARGIN_X },
@@ -115,26 +169,51 @@ export const drawCostTable = async (doc: jsPDF, result: QuoteResult, yPos: numbe
   return getLastAutoTableY(doc) + 8;
 };
 
-export const buildComparisonRows = (results: QuoteResult[], carriers: string[]): { headRow: string[]; bodyRows: (string | number)[][] } => {
-  const headRow = ['항목', ...carriers];
+export const buildComparisonRows = (
+  results: QuoteResult[],
+  carriers: string[],
+): { headRow: string[]; bodyRows: (string | number)[][] } => {
+  const headRow = ['Item', ...carriers];
   const bodyRows: (string | number)[][] = [
     ['Zone', ...results.map((r) => r.appliedZone)],
     ['Transit Time', ...results.map((r) => r.transitTime)],
-    ['청구중량 (kg)', ...results.map((r) => formatNum(r.billableWeight))],
-    ['포장/핸들링', ...results.map((r) => pdfFormatKRW(r.breakdown.packingMaterial + r.breakdown.packingLabor + r.breakdown.packingFumigation + r.breakdown.handlingFees))],
-    ['국제운송', ...results.map((r) => pdfFormatKRW(r.breakdown.intlBase + r.breakdown.intlFsc + r.breakdown.intlWarRisk + r.breakdown.intlSurge))],
-    ['총 비용', ...results.map((r) => pdfFormatKRW(r.breakdown.totalCost))],
-    ['견적가 (KRW)', ...results.map((r) => pdfFormatKRW(r.totalQuoteAmount))],
-    ['견적가 (USD)', ...results.map((r) => pdfFormatUSD(r.totalQuoteAmountUSD))],
+    ['Billable Weight (kg)', ...results.map((r) => formatNum(r.billableWeight))],
+    [
+      'Packing/Handling',
+      ...results.map((r) =>
+        pdfFormatKRW(
+          r.breakdown.packingMaterial +
+            r.breakdown.packingLabor +
+            r.breakdown.packingFumigation +
+            r.breakdown.handlingFees,
+        ),
+      ),
+    ],
+    [
+      'International Freight',
+      ...results.map((r) =>
+        pdfFormatKRW(
+          r.breakdown.intlBase +
+            r.breakdown.intlFsc +
+            r.breakdown.intlWarRisk +
+            r.breakdown.intlSurge,
+        ),
+      ),
+    ],
+    ['Total Cost', ...results.map((r) => pdfFormatKRW(r.breakdown.totalCost))],
+    ['Quote (KRW)', ...results.map((r) => pdfFormatKRW(r.totalQuoteAmount))],
+    ['Quote (USD)', ...results.map((r) => pdfFormatUSD(r.totalQuoteAmountUSD))],
   ];
   return { headRow, bodyRows };
 };
 
-export const makeDidParseCell = (amounts: number[], minAmount: number) => (data: import('jspdf-autotable').CellHookData): void => {
-  if (data.row.index !== 6 || data.column.index === 0) return;
-  const carrierIdx = data.column.index - 1;
-  if (amounts[carrierIdx] === minAmount) {
-    data.cell.styles.textColor = COLORS.PRIMARY;
-    data.cell.styles.fontStyle = 'bold';
-  }
-};
+export const makeDidParseCell =
+  (amounts: number[], minAmount: number) =>
+  (data: import('jspdf-autotable').CellHookData): void => {
+    if (data.row.index !== 6 || data.column.index === 0) return;
+    const carrierIdx = data.column.index - 1;
+    if (amounts[carrierIdx] === minAmount) {
+      data.cell.styles.textColor = COLORS.PRIMARY;
+      data.cell.styles.fontStyle = 'bold';
+    }
+  };

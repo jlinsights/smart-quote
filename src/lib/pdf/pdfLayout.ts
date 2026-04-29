@@ -3,18 +3,31 @@ import { QuoteInput, QuoteResult, PackingType } from '@/types';
 import { COUNTRY_OPTIONS } from '@/config/options';
 import { calculateCo2Kg } from '../co2';
 import {
-  COLORS, FONTS, MARGIN_X, PAGE_WIDTH, CONTENT_WIDTH, nextLine,
-  CurrencyMode, pdfFormatKRW, pdfFormatUSD, stripEmoji
+  COLORS,
+  FONTS,
+  MARGIN_X,
+  PAGE_WIDTH,
+  CONTENT_WIDTH,
+  nextLine,
+  CurrencyMode,
+  pdfFormatKRW,
+  pdfFormatUSD,
+  stripEmoji,
 } from './pdfUtils';
 
-const PACKING_TYPE_LABELS: Record<string, { ko: string; en: string }> = {
-  [PackingType.NONE]: { ko: '포장 없음', en: 'No Packing' },
-  [PackingType.WOODEN_BOX]: { ko: '목재 박스', en: 'Wooden Box' },
-  [PackingType.SKID]: { ko: '스키드', en: 'Skid' },
-  [PackingType.VACUUM]: { ko: '진공 포장', en: 'Vacuum' },
+const PACKING_TYPE_LABELS: Record<string, string> = {
+  [PackingType.NONE]: 'No Packing',
+  [PackingType.WOODEN_BOX]: 'Wooden Box',
+  [PackingType.SKID]: 'Skid',
+  [PackingType.VACUUM]: 'Vacuum',
 };
 
-export const drawHeader = (doc: jsPDF, yPos: number, referenceNo?: string, validityDate?: string): number => {
+export const drawHeader = (
+  doc: jsPDF,
+  yPos: number,
+  referenceNo?: string,
+  validityDate?: string,
+): number => {
   doc.setFont(FONTS.FAMILY, 'normal');
   doc.setFontSize(FONTS.SIZE_TITLE);
   doc.setTextColor(...COLORS.PRIMARY);
@@ -26,7 +39,7 @@ export const drawHeader = (doc: jsPDF, yPos: number, referenceNo?: string, valid
   yPos = nextLine(yPos, 8);
   doc.setFontSize(FONTS.SIZE_SMALL);
   doc.setTextColor(...COLORS.TEXT_LIGHT);
-  doc.text(`Date: ${new Date().toLocaleDateString('ko-KR')}`, MARGIN_X, yPos);
+  doc.text(`Date: ${new Date().toLocaleDateString('en-US')}`, MARGIN_X, yPos);
   const ref = referenceNo || 'DRAFT';
   doc.text(`Ref: ${ref}`, PAGE_WIDTH - MARGIN_X, yPos, { align: 'right' });
   if (validityDate) {
@@ -46,18 +59,26 @@ export const drawShipmentDetails = (doc: jsPDF, input: QuoteInput, yPos: number)
   yPos = nextLine(yPos, 9);
   doc.setFontSize(FONTS.SIZE_NORMAL);
   doc.setTextColor(...COLORS.TEXT);
-  const rawCountryLabel = COUNTRY_OPTIONS.find((c) => c.code === input.destinationCountry)?.name || input.destinationCountry;
+  const rawCountryLabel =
+    COUNTRY_OPTIONS.find((c) => c.code === input.destinationCountry)?.name ||
+    input.destinationCountry;
   const countryLabel = stripEmoji(rawCountryLabel);
   doc.text(`Origin: ${input.originCountry}`, MARGIN_X + 5, yPos);
   doc.text(`Destination: ${countryLabel} (${input.destinationZip || '-'})`, 110, yPos);
   yPos = nextLine(yPos);
-  const packingLabel = PACKING_TYPE_LABELS[input.packingType] ?? { ko: input.packingType, en: input.packingType };
+  const packingLabel = PACKING_TYPE_LABELS[input.packingType] ?? input.packingType;
   doc.text(`Shipping: ${input.shippingMode || 'Door-to-Door'}`, MARGIN_X + 5, yPos);
-  doc.text(`Packing: ${packingLabel.en}`, 110, yPos);
+  doc.text(`Packing: ${packingLabel}`, 110, yPos);
   return nextLine(yPos, 15);
 };
 
-export const drawQuoteSummary = (doc: jsPDF, input: QuoteInput, result: QuoteResult, yPos: number, currency: CurrencyMode = 'both'): number => {
+export const drawQuoteSummary = (
+  doc: jsPDF,
+  input: QuoteInput,
+  result: QuoteResult,
+  yPos: number,
+  currency: CurrencyMode = 'both',
+): number => {
   doc.setFont(FONTS.FAMILY, 'normal');
   doc.setFillColor(...COLORS.PRIMARY);
   doc.roundedRect(MARGIN_X, yPos, CONTENT_WIDTH, 35, 3, 3, 'F');
@@ -82,7 +103,11 @@ export const drawQuoteSummary = (doc: jsPDF, input: QuoteInput, result: QuoteRes
   doc.text(`Zone: ${result.appliedZone}`, rightX, yPos + 17, { align: 'right' });
   doc.text(`Transit: ${result.transitTime}`, rightX, yPos + 24, { align: 'right' });
   doc.text(`Incoterm: ${input.incoterm}`, rightX, yPos + 31, { align: 'right' });
-  const co2Kg = calculateCo2Kg(result.carrier as 'UPS' | 'DHL' | 'FEDEX', result.billableWeight, input.destinationCountry);
+  const co2Kg = calculateCo2Kg(
+    result.carrier as 'UPS' | 'DHL' | 'FEDEX',
+    result.billableWeight,
+    input.destinationCountry,
+  );
   if (co2Kg !== null) {
     doc.text(`CO2: ${co2Kg.toFixed(1)} kg (IATA RP1678)`, rightX, yPos + 38, { align: 'right' });
     return yPos + 52;
@@ -108,7 +133,8 @@ export const drawDisclaimer = (doc: jsPDF, yPos: number): number => {
   doc.setFont(FONTS.FAMILY, 'normal');
   doc.setFontSize(FONTS.SIZE_SMALL);
   doc.setTextColor(...COLORS.TEXT_LIGHT);
-  const disclaimerEn = 'This quotation is valid within the stated period. Surcharges are subject to change at time of booking.';
+  const disclaimerEn =
+    'This quotation is valid within the stated period. Surcharges are subject to change at time of booking.';
   const rateDate = `Rates as of: ${new Date().toLocaleDateString('en-US')}`;
   doc.text(disclaimerEn, MARGIN_X, yPos);
   yPos = nextLine(yPos, 4);
@@ -124,11 +150,23 @@ export const drawFooter = (doc: jsPDF) => {
   doc.line(MARGIN_X, pageHeight - 28, PAGE_WIDTH - MARGIN_X, pageHeight - 28);
   doc.setFontSize(FONTS.SIZE_SMALL);
   doc.setTextColor(...COLORS.TEXT_LIGHT);
-  doc.text('This quote is an estimate based on provided dimensions and is subject to change upon final measurement.', MARGIN_X, pageHeight - 20);
-  doc.text(`Page ${doc.getCurrentPageInfo().pageNumber}`, PAGE_WIDTH - MARGIN_X, pageHeight - 12, { align: 'right' });
+  doc.text(
+    'This quote is an estimate based on provided dimensions and is subject to change upon final measurement.',
+    MARGIN_X,
+    pageHeight - 20,
+  );
+  doc.text(`Page ${doc.getCurrentPageInfo().pageNumber}`, PAGE_WIDTH - MARGIN_X, pageHeight - 12, {
+    align: 'right',
+  });
 };
 
-export const drawSavingsNote = (doc: jsPDF, carriers: string[], amounts: number[], exchangeRate: number, yPos: number): number => {
+export const drawSavingsNote = (
+  doc: jsPDF,
+  carriers: string[],
+  amounts: number[],
+  exchangeRate: number,
+  yPos: number,
+): number => {
   const minAmount = Math.min(...amounts);
   const hasSavings = amounts.some((a) => a !== minAmount);
   if (!hasSavings) return yPos;
@@ -136,6 +174,10 @@ export const drawSavingsNote = (doc: jsPDF, carriers: string[], amounts: number[
   const savings = Math.max(...amounts) - minAmount;
   doc.setFontSize(FONTS.SIZE_NORMAL);
   doc.setTextColor(...COLORS.PRIMARY);
-  doc.text(`→ ${carriers[cheapestIdx]}가 최저가: ${pdfFormatKRW(savings)} 절감 (Approx.${pdfFormatUSD(savings / exchangeRate)})`, MARGIN_X, yPos);
+  doc.text(
+    `→ ${carriers[cheapestIdx]} is cheapest: ${pdfFormatKRW(savings)} saved (Approx.${pdfFormatUSD(savings / exchangeRate)})`,
+    MARGIN_X,
+    yPos,
+  );
   return nextLine(yPos, 10);
 };
