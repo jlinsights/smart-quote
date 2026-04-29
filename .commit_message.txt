@@ -1,1 +1,1 @@
-🧹 chore: dead code 정리 + html2canvas 번들 제외 (~200KB chunk 제거)
+💄 chore: vite.config.ts prettier auto-format (trailing comma + line wrap)

@@ -67,7 +67,7 @@ function logisticsNewsDevProxy(): Plugin {
               } catch {
                 return [];
               }
-            })
+            }),
           );
 
           const allItems = results
@@ -80,7 +80,13 @@ function logisticsNewsDevProxy(): Plugin {
         } catch {
           res.statusCode = 500;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ error: 'Failed to fetch RSS feeds', items: [], fetchedAt: new Date().toISOString() }));
+          res.end(
+            JSON.stringify({
+              error: 'Failed to fetch RSS feeds',
+              items: [],
+              fetchedAt: new Date().toISOString(),
+            }),
+          );
         }
       });
     },
