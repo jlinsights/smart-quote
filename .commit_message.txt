@@ -1,1 +1,1 @@
-🪶 chore: PDF 영문 전용 전환 — NotoSansKR 폰트 (~3MB chunk) 제거 + 한글 라벨 영문화 + jsPDF 내장 helvetica 사용
+🏷️ chore: PDF 파일명 prefix JWays → BridgeLogis 브랜드 정렬

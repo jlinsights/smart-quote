@@ -103,14 +103,14 @@ describe('pdfService', () => {
 
       expect(mockSave).toHaveBeenCalledTimes(1);
       const filename = mockSave.mock.calls[0][0] as string;
-      expect(filename).toMatch(/^JWays_Quote_DRAFT_\d{4}-\d{2}-\d{2}\.pdf$/);
+      expect(filename).toMatch(/^BridgeLogis_Quote_DRAFT_\d{4}-\d{2}-\d{2}\.pdf$/);
     });
 
     it('saves PDF with referenceNo in filename', async () => {
       await generatePDF(mockInput, mockResult, 'SQ-2026-0042');
 
       const filename = mockSave.mock.calls[0][0] as string;
-      expect(filename).toMatch(/^JWays_Quote_SQ-2026-0042_\d{4}-\d{2}-\d{2}\.pdf$/);
+      expect(filename).toMatch(/^BridgeLogis_Quote_SQ-2026-0042_\d{4}-\d{2}-\d{2}\.pdf$/);
     });
 
     it('renders text content', async () => {
@@ -133,7 +133,7 @@ describe('pdfService', () => {
 
       expect(mockSave).toHaveBeenCalledTimes(1);
       const filename = mockSave.mock.calls[0][0] as string;
-      expect(filename).toMatch(/^JWays_Comparison_DRAFT_\d{4}-\d{2}-\d{2}\.pdf$/);
+      expect(filename).toMatch(/^BridgeLogis_Comparison_DRAFT_\d{4}-\d{2}-\d{2}\.pdf$/);
     });
   });
 });

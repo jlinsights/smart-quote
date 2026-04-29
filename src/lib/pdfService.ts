@@ -51,7 +51,7 @@ export const generatePDF = async (
   drawDisclaimer(doc, yPos);
   drawFooter(doc);
 
-  doc.save(buildFilename('JWays_Quote', referenceNo));
+  doc.save(buildFilename('BridgeLogis_Quote', referenceNo));
 };
 
 export const generateComparisonPDF = async (
@@ -104,5 +104,5 @@ export const generateComparisonPDF = async (
   yPos = drawSavingsNote(doc, carriers, amounts, input.exchangeRate, yPos);
   drawDisclaimer(doc, yPos);
   drawFooter(doc);
-  doc.save(buildFilename('JWays_Comparison'));
+  doc.save(buildFilename('BridgeLogis_Comparison'));
 };
