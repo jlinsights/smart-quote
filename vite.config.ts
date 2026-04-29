@@ -96,6 +96,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // jsPDF optional dep — never called (no doc.html()/addHTML()). Stub
+      // shrinks ~200KB chunk to a few bytes. Remove if HTML rendering needed.
+      html2canvas: path.resolve(__dirname, './src/lib/html2canvas-stub.ts'),
     },
   },
   build: {

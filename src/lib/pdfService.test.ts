@@ -45,10 +45,6 @@ vi.mock('jspdf-autotable', () => ({
   }),
 }));
 
-vi.mock('@/assets/logo-base64', () => ({
-  default: 'data:image/png;base64,FAKE_LOGO',
-}));
-
 const mockInput: QuoteInput = {
   originCountry: 'KR',
   destinationCountry: 'US',

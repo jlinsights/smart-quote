@@ -8,7 +8,6 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './components/ui/Toast';
 import { Intercom } from './components/Intercom';
-// import { AiChatWidget } from './components/AiChatWidget'; // Hidden — using Intercom instead
 
 const QuoteCalculator = React.lazy(() => import('./pages/QuoteCalculator'));
 const CustomerDashboard = React.lazy(() => import('./pages/CustomerDashboard'));
