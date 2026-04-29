@@ -1,9 +1,23 @@
 {
-  "activeFeature": null,
-  "phase": "archived",
-  "matchRate": 100,
+  "activeFeature": "smart-quote-monorepo-cleanup",
+  "phase": "design",
+  "matchRate": 0,
   "iteration": 0,
   "history": [
+    {
+      "feature": "smart-quote-monorepo-cleanup",
+      "phase": "design",
+      "timestamp": "2026-04-29",
+      "action": "Design 문서 생성 — drift inventory 18건(PF 4 + DC 8 + CL 6) + 6-step 실행 계획(A standalone 보강 → B spot-check → C 사본 제거 → D 문서 → E 검증 → F 메모리) + rollback 절차 + 사용자 결정 필요 항목 4개(open questions) 정리. Step A와 Step C 사이 24시간 검증 간격 권장. 다음 단계: 사용자 inventory 검토 + open questions 답변 후 /pdca do 진입.",
+      "matchRate": 0
+    },
+    {
+      "feature": "smart-quote-monorepo-cleanup",
+      "phase": "plan",
+      "timestamp": "2026-04-29",
+      "action": "Plan 문서 생성 — smart-quote-main 의 smart-quote-api/ 사본 디렉토리 제거 + drift 정리 + FSC 운영 워크플로우를 Admin UI 기반으로 전환. SSoT 인프라(FscRate DB + /api/v1/fsc/rates + useFscRates + FscRateWidget) 이미 완비 확인. 다음 단계: /pdca design 으로 drift inventory 표 작성.",
+      "matchRate": 0
+    },
     {
       "feature": "jways-brand-migration",
       "phase": "archived",
