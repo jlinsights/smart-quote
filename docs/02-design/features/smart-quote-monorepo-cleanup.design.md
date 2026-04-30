@@ -3,10 +3,10 @@ template: design
 version: 1.2
 description: smart-quote-main 안의 smart-quote-api/ 사본 디렉토리 제거 및 양방향 drift 정리 설계
 feature: smart-quote-monorepo-cleanup
-date: 2026-04-29
+date: 2026-04-30
 author: jhlim725
 project: j-ways-smart-quote-system (smart-quote-main)
-version_value: 0.0.0
+version_value: 0.2.0
 ---
 
 # smart-quote-monorepo-cleanup Design Document
@@ -134,7 +134,7 @@ smart-quote-api/
 |----|------|---------|----------|------|
 | **CL-1** | `smart-quote-api/vendor/bundle/` | 1000+ gem 파일 tracked | **DELETE** | smart-quote-api/.gitignore 에 `/vendor/bundle` 있으나 monorepo 의 git 이 그 .gitignore 를 무시하고 추적 중. 디렉토리 삭제로 자동 해결. |
 | **CL-2** | `smart-quote-api/log/test.log` | tracked | **DELETE** | 빌드 산출물. 사본 디렉토리와 함께 정리. |
-| **CL-3** | `smart-quote-api/storage/tariffs/` | tracked (디렉토리만 사본) | **DELETE** | 만약 standalone 에 동일 자산이 필요한 경우, Render 배포 시 active storage upload 로 처리. 본 cleanup 에서는 단순 삭제. 사용자 확인 필요. |
+| **CL-3** | `smart-quote-api/storage/tariffs/` | tracked (디렉토리만 사본, **운영 데이터 / Active Storage 업로드**) | **MIGRATE → DELETE** | 사용자 확인 결과 **운영 데이터**. Step C 진입 전 별도 마이그레이션 단계 필요: (1) standalone Render persistent disk 또는 S3 로 동일 파일 set 복제 (2) Active Storage attachment 무결성 검증 (3) 그 후에야 사본 디렉토리 삭제 가능. 마이그레이션 절차는 Step C 시작 전 별도 design addendum 으로 확정. |
 | **CL-4** | `smart-quote-api/.commit_message.txt` | meta-only | **DELETE** | 사본 디렉토리와 함께 정리. |
 | **CL-5** | `smart-quote-api/` 디렉토리 자체 | tracked | **DELETE (`git rm -r`)** | 모든 PF + DC + CL 처리 완료 후 단일 commit. |
 | **CL-6** | `smart-quote-main/.gitignore` | — | **ADD** `smart-quote-api/` | 향후 실수 재체크인 방지. CL-5 와 동일 commit 또는 직후 commit. |
@@ -227,14 +227,24 @@ Step F — Memory 갱신
 
 ---
 
-## 6. Open Questions (사용자 결정 필요)
+## 6. Open Questions — RESOLVED (2026-04-30)
 
-1. **CL-3 `storage/tariffs/` 의 정체** — Active Storage 의 운영 업로드 데이터인가? 아니면 dev 캐시인가?
-   - 운영 데이터 → 사본 삭제 전에 standalone 의 Active Storage / S3 로 마이그레이션 필요
-   - dev 캐시 → 단순 삭제 OK
-2. **PF-4 migration 운영 적용 시점** — Render 자동 적용 OK 인가, 아니면 maintenance window 내에서 manual 적용 선호인가?
-3. **Step A 와 Step C 사이 24시간 간격** — 단일 세션에서 모두 진행하는 것을 선호하는 경우, smoke test 강도를 강화하여 risk 보상.
-4. **DOC-5 standalone README** 갱신 범위 — README.md 가 현재 어떤 상태인지 확인 후 작성.
+| # | 질문 | 사용자 답변 (2026-04-30) | 영향 |
+|---|------|--------------------------|------|
+| 1 | CL-3 `storage/tariffs/` 의 정체 | **운영 데이터** (Active Storage 업로드) | CL-3 처리 변경: DELETE → **MIGRATE then DELETE**. Step C 시작 전 별도 마이그레이션 단계 필요 (3.3 CL-3 갱신 반영) |
+| 2 | PF-4 migration 운영 적용 시점 | **Render 자동 적용 OK** | Step A6 push 시 Render 가 `bin/rails db:migrate` 자동 실행. 별도 maintenance window 불필요 |
+| 3 | Step A↔C 24시간 간격 | **분리 진행** (24h 간격) | Step A 오늘 진행, Step B(spot-check) + C(사본 제거) 는 24h 후 별도 세션 |
+| 4 | DOC-5 standalone README 갱신 범위 | **전부 갱신** | DOC-5 적용 범위: standalone README.md 전체 + 매주 FSC 운영 절차 + monorepo cleanup 결과 반영 |
+
+### 6.1 CL-3 마이그레이션 절차 (Step C 시작 전 확정 필요)
+
+운영 데이터 결정에 따라 단순 git rm 불가. Step C 시작 전 다음 옵션 중 하나로 마이그레이션 계획 확정:
+
+- **옵션 A — Render persistent disk**: standalone Render 인스턴스에 persistent disk 마운트 후 `storage/tariffs/` 동기화. 가장 간단하지만 Render disk 비용·재배포 시 보존 정책 확인 필요.
+- **옵션 B — S3 (또는 Cloudflare R2)**: Active Storage service 를 `:amazon` 으로 전환, 기존 파일을 `bin/rails active_storage:migrate` 같은 절차로 이전. 장기 운영에 가장 안정적이지만 설정·비용 증가.
+- **옵션 C — git LFS**: 파일이 정적·소량이면 standalone repo 자체에 LFS 로 옮겨도 가능. 단, git 이력에 운영 데이터 영구 추적되는 단점.
+
+→ Step C 24h 후 세션 시작 시 사용자에게 옵션 제시 + 결정 받은 뒤 마이그레이션 절차를 design addendum 으로 추가 확정한 뒤 Step C 진행.
 
 ---
 
@@ -245,8 +255,8 @@ Step F — Memory 갱신
 - [x] 실행 순서 (4.1 Sequenced Steps) 명시
 - [x] Rollback 절차 (4.2) 명시
 - [x] 사용자 검증 checklist (5)
-- [x] Open Questions 정리 (6)
-- [ ] 사용자 confirm — Open Questions 답변 + Pre-Do checklist 동의 → Do 진입
+- [x] Open Questions 정리 (6) — **RESOLVED 2026-04-30**
+- [x] 사용자 confirm — Open Questions 답변 완료 + Pre-Do checklist 동의 → Do 진입 (Step A 시작)
 
 ---
 
@@ -255,3 +265,4 @@ Step F — Memory 갱신
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
 | 0.1 | 2026-04-29 | Initial draft — drift inventory 18건 (PF 4 + DC 8 + CL 6) + 6-step 실행 계획 + rollback + 4개 open question | jhlim725 |
+| 0.2 | 2026-04-30 | Open Questions 4건 RESOLVED — Q1 운영데이터 → CL-3 MIGRATE then DELETE 로 처리방식 변경 (3.3 갱신 + 6.1 마이그레이션 옵션 추가). Q2 Render 자동 OK. Q3 24h 분리. Q4 README 전부. Step A 오늘 진입. | jhlim725 |

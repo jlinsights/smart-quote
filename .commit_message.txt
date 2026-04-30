@@ -1,1 +1,1 @@
-🐛 fix: JetFuelWidget Failed to fetch — EIA api_key를 X-Api-Key 헤더 대신 쿼리스트링으로 전달 (CORS preflight 회피)
+📋 docs: smart-quote-monorepo-cleanup Design v0.2 — 4 open questions resolved + CL-3 운영데이터 MIGRATE then DELETE 갱신
