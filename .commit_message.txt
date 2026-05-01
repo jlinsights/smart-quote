@@ -1,1 +1,1 @@
-🔧 fix(test): vitest exclude 확장 — apps/output/.claude 워크트리 분리
+📋 docs: smart-quote-e2e-debt PDCA Plan — PR #7에서 노출된 pre-existing e2e fail 9건 정리 사이클

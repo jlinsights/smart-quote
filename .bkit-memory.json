@@ -1,9 +1,16 @@
 {
-  "activeFeature": "smart-quote-monorepo-cleanup",
-  "phase": "design",
+  "activeFeature": "smart-quote-e2e-debt",
+  "phase": "plan",
   "matchRate": 0,
   "iteration": 0,
   "history": [
+    {
+      "feature": "smart-quote-e2e-debt",
+      "phase": "plan",
+      "timestamp": "2026-05-02",
+      "action": "Plan 문서 생성 — PR #7(insights-scaffold)에서 처음 실행된 e2e 잡 9 tests fail / 5 spec files 영향. 인벤토리 5건(landing hero 셀렉터, login email 라벨 중복, ECONNREFUSED ::1:3000, accessibility 라벨 중복, magic-link-auth 미정). 4개 fix 안(셀렉터 narrow / 텍스트 동기화 / page.route mock / spec 정밀 진단). 분리 출처: feedback_split_cycle_principle.md 룰. 다음: /pdca design 으로 LoginPage·magic-link spec 정밀 inspection + fix matrix 확정.",
+      "matchRate": 0
+    },
     {
       "feature": "smart-quote-monorepo-cleanup",
       "phase": "design",
