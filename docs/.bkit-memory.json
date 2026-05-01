@@ -17,6 +17,13 @@
       "startedAt": "2026-03-29",
       "matchRate": null,
       "iterations": 0
+    },
+    "build-chunk-split": {
+      "phase": "plan",
+      "startedAt": "2026-05-01",
+      "matchRate": null,
+      "iterations": 0,
+      "note": "메인 번들 760KB → <500KB 분할 (Sentry defer + manualChunks 정상화 + LandingPage lazy)"
     }
   },
   "archivedFeatures": {

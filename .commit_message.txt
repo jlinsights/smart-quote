@@ -1,1 +1,1 @@
-📋 docs: smart-quote-monorepo-cleanup Design v0.2 — 4 open questions resolved + CL-3 운영데이터 MIGRATE then DELETE 갱신
+🔧 fix(test): vitest exclude 확장 — apps/output/.claude 워크트리 분리
