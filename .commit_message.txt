@@ -1,1 +1,1 @@
-🐛 fix(e2e): magic-link-auth try-catch — ECONNREFUSED 도 skip 으로 처리 (CI fix)
+📊 docs(analysis): smart-quote-e2e-debt PDCA Check — Match Rate 100% (11/11 + Critical 0)
