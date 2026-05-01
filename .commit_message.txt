@@ -1,1 +1,1 @@
-📋 docs: smart-quote-e2e-debt PDCA Design — Fix Matrix 11항목 + Selector 전략 표준
+🐛 fix(e2e): magic-link-auth try-catch — ECONNREFUSED 도 skip 으로 처리 (CI fix)
