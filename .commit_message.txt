@@ -1,1 +1,1 @@
-📋 docs: smart-quote-monorepo-cleanup Design v0.2 — 4 open questions resolved + CL-3 운영데이터 MIGRATE then DELETE 갱신
+📋 docs(pdca): build-chunk-split Plan 문서 — 메인 번들 760KB→<500KB (Sentry defer + manualChunks 정상화 + LandingPage lazy)
