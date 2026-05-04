@@ -28,6 +28,12 @@ on:
         required: false
         default: ''
 
+# Required by marocchino/sticky-pull-request-comment in sitemap-diff and summary jobs.
+# Default GITHUB_TOKEN permissions are read-only on PR workflows in this repo.
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   # ─────────────────────────────────────────────
   # 1) Static checks — robots.txt format, sitemap.ts compiles
