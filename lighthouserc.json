@@ -2,7 +2,7 @@
   "ci": {
     "collect": {
       "staticDistDir": "./dist",
-      "url": ["/", "/quote", "/guide"],
+      "url": ["/"],
       "numberOfRuns": 3,
       "settings": {
         "preset": "desktop",

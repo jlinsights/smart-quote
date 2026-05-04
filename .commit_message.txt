@@ -1,1 +1,1 @@
-🔧 ci(seo): seo-checks 워크플로에 pull-requests:write permission 추가 — sticky-pull-request-comment 액션의 "Resource not accessible by integration" 실패 해소
+🐛 fix(ci): lighthouserc.json staticDistDir url을 ["/"]로 되돌림 — SPA fallback 없는 정적 dist에서 /quote, /guide 404. Preview Lighthouse는 워크플로 urls 입력으로 SPA 경로 커버하므로 무관
