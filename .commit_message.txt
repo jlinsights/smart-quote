@@ -1,1 +1,1 @@
-🐛 fix(seo): PR #3 CodeRabbit 리뷰 5건 해소 — workflow tsx 런너(render-sitemap.mts), seo-audit unused import 정리, robots.txt 봇 그룹 제거(글로벌 Disallow 우회 방지), vercel.json slug rewrite 제거
+🧹 chore(dev): lint/test 환경 정비 — .eslintrc PoC dirs 무시(apps/insights/.next, next-env.d.ts, output/phase2 PoCs) + vitest config exclude 확장(.claude/worktrees, apps, output)
