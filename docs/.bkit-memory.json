@@ -1,7 +1,7 @@
 {
   "sessionCount": 63,
   "lastSession": {
-    "startedAt": "2026-04-30T23:33:06.753Z",
+    "startedAt": "2026-05-04T00:34:15.736Z",
     "platform": "claude",
     "level": "Dynamic"
   },
@@ -18,12 +18,12 @@
       "matchRate": null,
       "iterations": 0
     },
-    "phase-1.5-seo-infra": {
+    "build-chunk-split": {
       "phase": "plan",
       "startedAt": "2026-05-01",
       "matchRate": null,
       "iterations": 0,
-      "note": "사후 작성 — 구현은 PR #3에서 완료 (8b7d460, 0be694a)"
+      "note": "메인 번들 760KB → <500KB 분할 (Sentry defer + manualChunks 정상화 + LandingPage lazy)"
     }
   },
   "archivedFeatures": {

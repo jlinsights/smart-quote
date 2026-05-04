@@ -1,1 +1,1 @@
-🧹 chore(dev): lint/test 환경 정비 — .eslintrc PoC dirs 무시(apps/insights/.next, next-env.d.ts, output/phase2 PoCs) + vitest config exclude 확장(.claude/worktrees, apps, output)
+🔀 merge: origin/main → feature/phase15-seo-infra — DIRTY 충돌 4건 해소 (.eslintrc/vitest.config/.bkit-memory main 채택, .commit_message ours)

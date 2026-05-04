@@ -1,9 +1,58 @@
 {
-  "activeFeature": "smart-quote-monorepo-cleanup",
+  "activeFeature": "insights-deploy",
   "phase": "design",
   "matchRate": 0,
   "iteration": 0,
   "history": [
+    {
+      "feature": "insights-deploy",
+      "phase": "design",
+      "timestamp": "2026-05-02",
+      "action": "Design 문서 생성 — Open Questions 5/5 default 채택(rewrite/app_metadata.role/신규 Vercel 프로젝트/빈 골격/메인 SPA login redirect). 13-Step 구현 순서 + 7개 신규 파일 + vercel.json rewrites 3줄 변경. middleware.ts/supabase-server.ts 코드 명세 포함. 자동/수동/보안 검증 기준. Open Items 2건(preview redirect 분기, role 데이터 채우기는 운영). 비범위 명확(콘텐츠/MDX/OG/Admin 세부 기능 별 사이클). 다음: /pdca do insights-deploy.",
+      "matchRate": 0
+    },
+    {
+      "feature": "insights-deploy",
+      "phase": "plan",
+      "timestamp": "2026-05-02",
+      "action": "Plan 문서 생성 — 사용자 결정 옵션 C(공개 콘텐츠 + Admin 게이트). 현황 진단: vercel.json rewrites가 /insights를 메인 SPA로 흡수하여 랜딩으로 redirect, apps/insights는 Vercel 미등록. 4 Phase(Deploy / Admin 골격 / Middleware / Cookie 공유) + 5 Open Questions(도메인 전략 / role 저장소 / Vercel 분리 / Admin 1차 범위 / 미인증 redirect 대상). 비범위 명시(콘텐츠 이전·MDX 라우터·OG·i18n은 별 사이클). 다음: /pdca design insights-deploy 진입, Open Questions 답변.",
+      "matchRate": 0
+    },
+    {
+      "feature": "smart-quote-e2e-debt",
+      "phase": "archived",
+      "timestamp": "2026-05-02",
+      "action": "Archived to docs/archive/2026-05/smart-quote-e2e-debt/ (100%) — 4 PDCA 문서(Plan/Design/Analysis/Report) 이동. PR #8 머지 완료(4d5f691 on main). 4 spec files / ~28 insert / ~12 delete, 메인 SPA 0 변경. 학습 메모리 4건 저장(failOnStatusCode 한계 / check→e2e 가림 패턴 / smartQuoteLanguage / Header role=banner).",
+      "matchRate": 100
+    },
+    {
+      "feature": "smart-quote-e2e-debt",
+      "phase": "completed",
+      "timestamp": "2026-05-02",
+      "action": "완료 보고서 생성 — report-generator Agent. Match Rate 100%, 11/11 Fix Matrix, Critical 0, Positive delta 4건. 변경 4 spec files / ~28 insert / ~12 delete, 메인 SPA 0. 핵심 학습 4건(failOnStatusCode 한계 / check→e2e 가림 패턴 / i18n key smartQuoteLanguage / Header role=banner). 후속 사이클 후보 3건(e2e-backend-integration / e2e-i18n-guidelines / e2e-visual-regression). 보고서: docs/04-report/features/smart-quote-e2e-debt.report.md (292 lines).",
+      "matchRate": 100
+    },
+    {
+      "feature": "smart-quote-e2e-debt",
+      "phase": "check",
+      "timestamp": "2026-05-02",
+      "action": "Check 완료 — gap-detector Agent 분석 결과 Match Rate 100%. Design Fix Matrix 11/11 충족, Critical gap 0. Verification 5.1 자동(4/4) + 5.2 수동(4/4) 모두 PASS. Positive delta 4건(정규식 확장/ECONNREFUSED 선제 try-catch/landing 코멘트/#magic-email 검증 추가). Out of Scope 위반 0(메인 SPA·backend·마크업 무영향). PR #8(4d5f691) merged. /pdca report 자격(>=90%) 충족, iterate 불필요. docs/03-analysis/smart-quote-e2e-debt.analysis.md 생성.",
+      "matchRate": 100
+    },
+    {
+      "feature": "smart-quote-e2e-debt",
+      "phase": "design",
+      "timestamp": "2026-05-02",
+      "action": "Design 문서 생성 — Inventory 정밀 진단(LoginPage 두 form 라벨 중복 확정, LandingPage WCA/MPL/EAN/JCtrans 마크업 0건 확정, magic-link-auth 두 번째 테스트는 i18n/role mismatch 가설). Fix Matrix 11항목(8건 PASS 추정 / 4 spec files ~16 line 수정). Selector 전략 표준 채택(id/role 우선). 4-Step 실행 계획(A selector-only, B magic-link 분기, C ECONNREFUSED 조건부 mock, D 로컬 + push). 메인 SPA 코드 변경 0. 다음: /pdca do 진입, feature 브랜치 생성 후 Step A 부터.",
+      "matchRate": 0
+    },
+    {
+      "feature": "smart-quote-e2e-debt",
+      "phase": "plan",
+      "timestamp": "2026-05-02",
+      "action": "Plan 문서 생성 — PR #7(insights-scaffold)에서 처음 실행된 e2e 잡 9 tests fail / 5 spec files 영향. 인벤토리 5건(landing hero 셀렉터, login email 라벨 중복, ECONNREFUSED ::1:3000, accessibility 라벨 중복, magic-link-auth 미정). 4개 fix 안(셀렉터 narrow / 텍스트 동기화 / page.route mock / spec 정밀 진단). 분리 출처: feedback_split_cycle_principle.md 룰. 다음: /pdca design 으로 LoginPage·magic-link spec 정밀 inspection + fix matrix 확정.",
+      "matchRate": 0
+    },
     {
       "feature": "smart-quote-monorepo-cleanup",
       "phase": "design",

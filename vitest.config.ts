@@ -17,9 +17,9 @@ export default defineConfig({
       '**/node_modules/**',
       '**/dist/**',
       'e2e/**',
-      '.claude/worktrees/**',
       'apps/**',
       'output/**',
+      '.claude/**',
     ],
   },
 });
