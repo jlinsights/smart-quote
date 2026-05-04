@@ -1,1 +1,1 @@
-📝 docs(claude): backend deploy 섹션을 monorepo mode로 업데이트 — Render source repo 마이그레이션 완료(2026-05-04), subtree push 폐기, healthCheckPath 명시
+📋 docs(spec): fsc-sync 도구 설계 문서 — 두 프로젝트 FSC 주간 업데이트 자동화 (Bun CLI, ~/Developer/Tools/fsc-sync/)
