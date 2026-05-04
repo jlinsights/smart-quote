@@ -1,1 +1,1 @@
-📋 docs(plan): fsc-sync 구현 계획 — 13개 task TDD bite-sized (Bun TS, ~/Developer/Tools/fsc-sync/)
+📝 docs: Margin 공식 표기를 실제 시스템 동작(Markup × 1.24)에 맞게 정정 — CLAUDE.md/AGENTS.md/README.md/USER_GUIDE_ADMIN.md (코드는 이미 정확)
