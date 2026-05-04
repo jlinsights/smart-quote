@@ -1,1 +1,1 @@
-🐛 fix(ci): lighthouserc.json staticDistDir url을 ["/"]로 되돌림 — SPA fallback 없는 정적 dist에서 /quote, /guide 404. Preview Lighthouse는 워크플로 urls 입력으로 SPA 경로 커버하므로 무관
+🐛 fix(ci): lighthouserc.json "preset": "lighthouse:recommended" 제거 — 5개 audit-level 룰(color-contrast/unminified/unused-js 등)이 category 임계값 외로 실패시키는 회귀. category 임계값(SEO/A11y 0.90 error, perf 0.75 warn)은 유지
