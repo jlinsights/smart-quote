@@ -1,1 +1,1 @@
-📋 docs: insights-deploy PDCA Design — Open Questions 5/5 default + 13-Step 구현 명세
+⛽ chore(fsc): 2026-05-04 FSC 업데이트 — UPS 45.50→47.25%, DHL 48.00→47.00% (frontend+backend 동시)
