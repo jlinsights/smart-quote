@@ -1,1 +1,1 @@
-📋 docs(design): production-seo-schedule PDCA Design — workflow spec(트리거 매트릭스/steps/wait 폴링) + lighthouserc.production.json 차이 + issue idempotent 생성 의사코드 + rollback/위험·open questions
+🔧 ci(seo): production-seo-schedule 구현 — bridgelogis.com 대상 Lighthouse SEO 모니터, push/cron/manual 트리거 + 회귀 시 GitHub Issue 자동 생성(sticky title 일일 중복 방지)
