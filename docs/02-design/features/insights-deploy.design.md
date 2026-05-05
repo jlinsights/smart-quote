@@ -13,8 +13,10 @@ version_value: 0.1.0
 
 > **Summary**: 사용자 결정 5/5 default 채택. 안 1A(rewrite) + app_metadata.role + 신규 Vercel 프로젝트 + 빈 골격 + 메인 SPA `/login` redirect. 본 사이클은 인프라(배포)와 인증 게이트만 다루고 콘텐츠/MDX/OG 등은 별 사이클.
 >
+> ⚠️ **정정 노트 (2026-05-05)** — 본 design 의 §27 "role 저장소 = `app_metadata.role` (Supabase server-set only)" 와 §67 "Supabase 클라이언트가 `bridgelogis.com` 에 cookie set → 동일 origin 자동 공유" 는 잘못된 전제. 메인 SPA 는 Rails JWT 사용, Supabase 클라이언트 import 0건. 인증 architecture 부분은 [`insights-admin-rails-auth`](../../01-plan/features/insights-admin-rails-auth.plan.md) 가 supersede — Rails JWT + httpOnly `bl_session` cookie + middleware fetch `/api/v1/auth/me`. 인프라(rewrite/배포/admin shell/Next 15) 부분은 그대로 유효.
+>
 > **Project**: j-ways-smart-quote-system (smart-quote-main)
-> **Status**: Draft
+> **Status**: Superseded (인증 부분만, by `insights-admin-rails-auth`)
 > **Planning Doc**: [insights-deploy.plan.md](../../01-plan/features/insights-deploy.plan.md)
 
 ---

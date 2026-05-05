@@ -27,7 +27,7 @@ export default function AdminDashboardPage() {
         </h3>
         <ul style={{ margin: 0, paddingLeft: '1.25rem', lineHeight: 1.6, color: '#4b5563' }}>
           <li>Vercel 배포 + 메인 도메인 rewrite</li>
-          <li>Supabase JWT + role=admin 미들웨어 게이트</li>
+          <li>Rails JWT (httpOnly bl_session cookie) + role=admin 미들웨어 게이트</li>
           <li>빈 dashboard / login redirect 골격</li>
         </ul>
       </div>

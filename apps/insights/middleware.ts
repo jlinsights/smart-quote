@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createMiddlewareClient } from './lib/auth/supabase-server';
+import { fetchSessionUser } from './lib/auth/rails-session';
 
 const PRODUCTION_ORIGIN = 'https://bridgelogis.com';
 
@@ -10,16 +10,11 @@ function loginRedirectOrigin(req: NextRequest): string {
 }
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient(req, res);
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   // basePath '/insights' 는 Next.js 미들웨어에서 자동 제거되어 pathname 은 '/admin/...'.
   // matcher 가 '/admin/:path*' 로 잡으므로 본 핸들러는 admin 영역에서만 실행됨.
   const returnTo = `/insights${req.nextUrl.pathname}${req.nextUrl.search}`;
+
+  const user = await fetchSessionUser(req);
 
   if (!user) {
     const loginUrl = new URL('/login', loginRedirectOrigin(req));
@@ -27,12 +22,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const role = user.app_metadata?.role ?? user.user_metadata?.role;
-  if (role !== 'admin') {
-    return NextResponse.redirect(new URL('/', loginRedirectOrigin(req)));
+  if (user.role !== 'admin') {
+    return NextResponse.redirect(new URL('/dashboard', loginRedirectOrigin(req)));
   }
 
-  return res;
+  return NextResponse.next();
 }
 
 export const config = {
