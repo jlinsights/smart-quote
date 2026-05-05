@@ -1,1 +1,1 @@
-🐛 fix(ci): lighthouse preview 전용 config 분리 — lighthouserc.preview.json (staticDistDir 없이 urls 직접 사용). 이전 fail은 staticDistDir 모드가 urls 입력 무시하고 로컬서버 띄워 404
+🔧 fix(ci): preview SEO 어설션 error→warn — Vercel preview 자동 X-Robots-Tag:noindex 로 SEO 0.90 달성 불가. preview는 정보성 게이트로 운영, production SEO 검증은 별도 워크플로 필요
