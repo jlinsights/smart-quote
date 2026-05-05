@@ -1,1 +1,1 @@
-📦 chore(archive): phase-1.5-seo-infra PDCA 4문서 → docs/archive/2026-05/ — Plan + Report만 archive(Design/Analysis 미작성, 사후 회복형 PDCA), _INDEX.md 갱신
+📋 docs(plan): production-seo-schedule PDCA Plan — bridgelogis.com 주기적 lighthouse 워크플로로 phase-1.5에서 warn 처리된 SEO 0.90 게이트 복원. 사용자 결정 2건(주기/알림채널) 포함
