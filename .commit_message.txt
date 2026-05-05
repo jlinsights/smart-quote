@@ -1,1 +1,1 @@
-📝 docs: Margin 공식 표기를 실제 시스템 동작(Markup × 1.24)에 맞게 정정 — CLAUDE.md/AGENTS.md/README.md/USER_GUIDE_ADMIN.md (코드는 이미 정확)
+🔧 fix(ci): preview SEO 어설션 error→warn — Vercel preview 자동 X-Robots-Tag:noindex 로 SEO 0.90 달성 불가. preview는 정보성 게이트로 운영, production SEO 검증은 별도 워크플로 필요
