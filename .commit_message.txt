@@ -1,1 +1,1 @@
-📋 docs(plan): production-seo-schedule PDCA Plan — bridgelogis.com 주기적 lighthouse 워크플로로 phase-1.5에서 warn 처리된 SEO 0.90 게이트 복원. 사용자 결정 2건(주기/알림채널) 포함
+📋 docs(design): production-seo-schedule PDCA Design — workflow spec(트리거 매트릭스/steps/wait 폴링) + lighthouserc.production.json 차이 + issue idempotent 생성 의사코드 + rollback/위험·open questions
