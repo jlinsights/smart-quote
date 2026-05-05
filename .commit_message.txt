@@ -1,1 +1,1 @@
-📋 docs(report): phase-1.5-seo-infra PDCA 완료 보고서 — 본 세션 차단 9건 해소 + PR #3 머지(b1bfd40), Vercel Pro 업그레이드 + preview SEO warn 트레이드오프 명시
+📦 chore(archive): phase-1.5-seo-infra PDCA 4문서 → docs/archive/2026-05/ — Plan + Report만 archive(Design/Analysis 미작성, 사후 회복형 PDCA), _INDEX.md 갱신
