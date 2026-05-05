@@ -339,4 +339,28 @@ RSpec.describe "Api::V1::Auth", type: :request do
       expect(set_cookie).to match(/SameSite=Lax/i)
     end
   end
+
+  describe "POST /api/v1/auth/logout (bl_session cookie clearance)" do
+    let!(:user) { create(:user, email: "logout@example.com", password: "password123") }
+
+    it "clears bl_session cookie on logout" do
+      # 먼저 로그인하여 cookie 발급
+      post "/api/v1/auth/login", params: { email: user.email, password: "password123" }, as: :json
+      expect(response.cookies["bl_session"]).to be_present
+
+      # 로그인 응답의 cookie 가 다음 요청에 자동 전달되도록 cookie jar 활용
+      post "/api/v1/auth/logout"
+
+      expect(response).to have_http_status(:ok)
+      # 삭제된 cookie 는 빈 값 + 과거 expiry 로 응답
+      set_cookie = response.headers["Set-Cookie"]
+      expect(set_cookie).to include("bl_session=")
+      expect(set_cookie).to match(/expires=Thu, 01 Jan 1970/i).or match(/max-age=0/i)
+    end
+
+    it "succeeds even when no session cookie present (idempotent)" do
+      post "/api/v1/auth/logout"
+      expect(response).to have_http_status(:ok)
+    end
+  end
 end

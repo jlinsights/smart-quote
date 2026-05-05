@@ -61,6 +61,15 @@ module Api
         end
       end
 
+      # POST /api/v1/auth/logout — clear bl_session httpOnly cookie
+      # 클라이언트는 httpOnly cookie 를 직접 못 지우므로 서버가 만료 cookie 로 덮어씀.
+      # access/refresh JWT 자체의 즉시 무효화는 별도 사이클(jti denylist).
+      # 항상 200 — 비로그인 상태에서도 idempotent.
+      def logout
+        cookies.delete(:bl_session, domain: session_cookie_domain)
+        render json: { message: "Logged out" }
+      end
+
       # PUT /api/v1/auth/password — change password (authenticated)
       def update_password
         authenticate_user!
