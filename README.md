@@ -253,9 +253,3 @@ POST   /api/v1/notifications/slack  # Slack webhook proxy
 | [Admin User Guide](docs/USER_GUIDE_ADMIN.md) | Complete guide for Admin users |
 | [Member User Guide](docs/USER_GUIDE_MEMBER.md) | Complete guide for Member users |
 | [CLAUDE.md](CLAUDE.md) | AI assistant project context |
-
----
-
-## Internal Use Only
-
-This system contains proprietary rate tables and logic for Goodman GLS / J-Ways internal operations.

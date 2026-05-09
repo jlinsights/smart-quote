@@ -1,1 +1,1 @@
-💱 chore(rates): DEFAULT_EXCHANGE_RATE 1450 → 1400 (하나은행 송금환율 2026-05-07) — frontend/backend/CLAUDE.md 동기화
+📝 docs: BridgeLogis 자체 브랜드 외부 SaaS 포지셔닝 명확화 (README "Internal Use Only" 제거, .agents/product-marketing-context.md 시나리오 통일)
