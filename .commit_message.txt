@@ -1,1 +1,1 @@
-📝 docs(spec+plan): quote-history-fr04-fr07-debt 디자인 + 구현 plan 작성 — amount-range filter + Excel(xlsx) export 2건 최소 사이클, i18n 스코프 빠짐 명시
+🤖 chore(seo): AI 가독 파일 추가 (llms.txt + pricing.md) + robots.txt/vercel.json 보강
