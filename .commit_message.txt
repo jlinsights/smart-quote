@@ -1,1 +1,1 @@
-✨ feat(exporter): xlsx format 분기 추가 (caxlsx 사용, csv 동일 헤더 1행=1quote)
+✨ feat(quotes#export): xlsx 분기 + amount-range permit + 422 invalid range
