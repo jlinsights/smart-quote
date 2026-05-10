@@ -1,1 +1,1 @@
-📝 docs: BridgeLogis 자체 브랜드 외부 SaaS 포지셔닝 명확화 (README "Internal Use Only" 제거, .agents/product-marketing-context.md 시나리오 통일)
+📝 docs(spec+plan): quote-history-fr04-fr07-debt 디자인 + 구현 plan 작성 — amount-range filter + Excel(xlsx) export 2건 최소 사이클, i18n 스코프 빠짐 명시
