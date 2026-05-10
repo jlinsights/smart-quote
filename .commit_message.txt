@@ -1,1 +1,1 @@
-✨ feat(quote): by_amount_range scope 추가 — KRW/USD 토글 + min/max nullable
+✨ feat(searcher): by_amount_range 체이닝 + min>max 422 가드 + indifferent params
