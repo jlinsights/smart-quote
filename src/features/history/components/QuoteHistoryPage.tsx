@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import * as Sentry from '@sentry/browser';
-import { QuoteSummary, QuoteDetail, QuoteListParams, QuoteStatus, Pagination } from '@/types';
-import { listQuotes, getQuote, deleteQuote, exportQuotesCsv } from '@/api/quoteApi';
-import { Download, Filter, FileText, DollarSign, TrendingUp, CheckCircle, Loader2 } from 'lucide-react';
+import { AmountCurrency, QuoteSummary, QuoteDetail, QuoteListParams, QuoteStatus, Pagination } from '@/types';
+import { listQuotes, getQuote, deleteQuote, exportQuotes } from '@/api/quoteApi';
+import { Download, Filter, FileText, DollarSign, TrendingUp, CheckCircle, Loader2, ChevronDown } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
 import { formatNum } from '@/lib/format';
@@ -18,7 +18,7 @@ interface QuoteHistoryPageProps {
 export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate }) => {
   const [quotes, setQuotes] = useState<QuoteSummary[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
-  const [params, setParams] = useState<QuoteListParams>({ page: 1, perPage: 20 });
+  const [params, setParams] = useState<QuoteListParams>({ page: 1, perPage: 20, amountCurrency: 'KRW' });
   const [searchInput, setSearchInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +26,20 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; refNo: string } | null>(null);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!exportMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
+        setExportMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [exportMenuOpen]);
 
   const fetchList = useCallback(async () => {
     setIsLoading(true);
@@ -89,22 +102,39 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
     }
   };
 
-  const handleExport = async () => {
+  const handleExport = async (format: 'csv' | 'xlsx') => {
     try {
-      await exportQuotesCsv(params);
-      toast('success', 'CSV exported successfully');
+      await exportQuotes(params, format);
+      toast('success', `${format.toUpperCase()} exported successfully`);
     } catch (e) {
       Sentry.captureException(e);
-      toast('error', 'Failed to export CSV');
+      const message = e instanceof Error ? e.message : `Failed to export ${format.toUpperCase()}`;
+      toast('error', message);
     }
+  };
+
+  const handleAmountChange = ({ min, max }: { min: number | undefined; max: number | undefined }) => {
+    setParams(prev => ({ ...prev, minAmount: min, maxAmount: max, page: 1 }));
+  };
+
+  const handleCurrencyChange = (next: AmountCurrency) => {
+    setParams(prev => ({ ...prev, amountCurrency: next, page: 1 }));
   };
 
   const clearFilters = () => {
     setSearchInput('');
-    setParams({ page: 1, perPage: 20 });
+    setParams({ page: 1, perPage: 20, amountCurrency: 'KRW' });
   };
 
-  const hasActiveFilters = !!(params.q || params.status || params.destinationCountry || params.dateFrom || params.dateTo);
+  const hasActiveFilters = !!(
+    params.q ||
+    params.status ||
+    params.destinationCountry ||
+    params.dateFrom ||
+    params.dateTo ||
+    params.minAmount != null ||
+    params.maxAmount != null
+  );
 
   const stats = useMemo(() => {
     const now = new Date();
@@ -155,13 +185,42 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
             Filters
             {hasActiveFilters && <span className="w-2 h-2 bg-brand-blue-500 rounded-full" />}
           </button>
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            Export CSV
-          </button>
+          <div className="relative" ref={exportMenuRef}>
+            <button
+              type="button"
+              onClick={() => setExportMenuOpen(v => !v)}
+              aria-haspopup="menu"
+              aria-expanded={exportMenuOpen}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Export
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+            {exportMenuOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 mt-1 w-32 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg z-10"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => { setExportMenuOpen(false); void handleExport('csv'); }}
+                  className="block w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  CSV
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => { setExportMenuOpen(false); void handleExport('xlsx'); }}
+                  className="block w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Excel
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -176,6 +235,11 @@ export const QuoteHistoryPage: React.FC<QuoteHistoryPageProps> = ({ onDuplicate 
         onToggleFilters={() => setShowFilters(!showFilters)}
         hasActiveFilters={hasActiveFilters}
         onClearFilters={clearFilters}
+        minAmount={params.minAmount}
+        maxAmount={params.maxAmount}
+        amountCurrency={params.amountCurrency ?? 'KRW'}
+        onAmountChange={handleAmountChange}
+        onCurrencyChange={handleCurrencyChange}
       />
 
       {/* Error */}
