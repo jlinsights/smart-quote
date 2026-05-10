@@ -1,1 +1,1 @@
-📦 chore(deps): caxlsx gem 추가 — Excel(xlsx) export 위한 의존성
+✨ feat(quote): by_amount_range scope 추가 — KRW/USD 토글 + min/max nullable
