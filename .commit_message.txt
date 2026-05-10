@@ -1,1 +1,1 @@
-📝 docs(spec+plan): quote-history-fr04-fr07-debt 디자인 + 구현 plan 작성 — amount-range filter + Excel(xlsx) export 2건 최소 사이클, i18n 스코프 빠짐 명시
+🔄 FSC 요율 업데이트: UPS 49.25% / DHL 46.75% (2026-05-11 기준, 사용자 수동 확인)
