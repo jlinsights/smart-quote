@@ -1,7 +1,11 @@
 # bridgelogis.com — robots.txt
-# Last updated: 2026-05-01
+# Last updated: 2026-05-10
 # Powered by: Goodman GLS
 
+# Default rule — applies to all crawlers (incl. AI bots like GPTBot,
+# PerplexityBot, ClaudeBot, Google-Extended, Bingbot) unless they have
+# their own block below. We allow public content so the product can be
+# cited in AI-generated answers.
 User-agent: *
 Allow: /
 
@@ -37,3 +41,10 @@ Crawl-delay: 10
 
 # Sitemaps
 Sitemap: https://bridgelogis.com/sitemap.xml
+
+# AI-agent context files
+# llms.txt — product context for LLMs (https://llmstxt.org)
+# pricing.md — machine-readable pricing tiers for AI agents
+# Both are linked here so AI crawlers can find them without guessing paths.
+# https://bridgelogis.com/llms.txt
+# https://bridgelogis.com/pricing.md
