@@ -1,0 +1,53 @@
+# BridgeLogis — Smart Quote
+
+> 190개국 UPS / DHL Express 견적을 1초 만에 산출하는 글로벌 항공 익스프레스 견적·관리 플랫폼. Goodman GLS GSSA 운영 노하우를 BridgeLogis 자체 브랜드로 셀프서비스화.
+
+BridgeLogis runs Smart Quote, a B2B express-shipping quoting SaaS for shippers, e-commerce sellers, and forwarders moving cargo from Korea via UPS or DHL Express. The system mirrors Goodman GLS' (a General Sales & Service Agent / GSSA) operational rules — zone-based rates, FSC, EAS/RAS auto-detection, surge fees, margin policy — into a self-service tool with a 4-language UI (English / Korean / Chinese / Japanese).
+
+## Product
+
+- [Landing](https://bridgelogis.com/) — 190개국 1초 견적 hero, 핵심 차별점, 회원가입 진입점
+- [Quote Calculator](https://bridgelogis.com/quote) — 출발지·도착지·화물 정보 입력 → UPS / DHL 동시 비교, FSC + add-on + 마진 자동 계산, PDF 다운로드, 견적 저장 (`SQ-YYYY-NNNN`)
+- [User Guide](https://bridgelogis.com/guide) — 회원·관리자 사용 가이드, 인코텀 정책 (DAP only), 마진 룰 우선순위 (P100 / P90 / P50 / P0)
+- [Sign Up](https://bridgelogis.com/signup) — 화주·GSSA 파트너사 회원가입 (회사명·국적·물류 네트워크)
+
+## How it works
+
+- **Carriers**: UPS Express (Z1–Z10) + DHL Express (Z1–Z8). FedEx / EMS / sea freight 미지원.
+- **Auto-detected surcharges**: EAS / RAS (86 countries, 39,876 zip ranges, binary search), UPS Surge Fee (Israel KRW 4,722/kg, 중동 KRW 2,004/kg), DHL 19종 add-on, UPS 6종 add-on.
+- **FSC**: 매주 월요일 자동 갱신. 최신값은 견적 시스템이 실시간 적용 (UPS/DHL 공식 페이지 기반, Admin DB → fallback 상수 순서로 우선).
+- **환율**: 하나은행 송금환율 매주 월요일 수동 갱신. 기본 1,400 KRW/USD (2026-05-07 기준).
+- **Margin engine**: 4단계 우선순위 룰 — P100 (per-user flat) > P90 (per-user weight) > P50 (nationality) > P0 (default). Markup 방식: `revenue = cost × (1 + margin%)`, KRW 100 단위 올림.
+- **Incoterm policy**: DAP only (UPS/DHL 익스프레스 본 제품의 유일 인코텀).
+- **Quote persistence**: `SQ-YYYY-NNNN` reference, audit log 전부, status 추적 (draft → sent → accepted / rejected / expired), CSV / Excel(xlsx) export, PDF.
+- **Auth & roles**: JWT, Admin / Member 분리. Member 견적 저장 시 Slack 알림.
+
+## Pricing
+
+- Free quote (회원 가입 후 셀프서비스 견적 생성·저장·PDF) — 가격 미정 phase, 회사별 구독제 가능성.
+- Custom enterprise / 정밀 견적 — contact via 챗봇 또는 직접 컨택.
+- 자세한 내용: [Pricing](https://bridgelogis.com/pricing.md)
+
+## Operator & background
+
+- **Operator**: Goodman GLS (GSSA, EAN / MPL 회원사) + J-Ways. 한국발 UPS / DHL Express 운영.
+- **Brand**: BridgeLogis — "Bridging Your Cargo to the World"
+- **Tech**: React 19 + Vite 6 frontend, Rails 8 API + PostgreSQL backend. Vercel + Render Singapore.
+- **Anti-personas**: Sea freight, general air cargo, FedEx-only shippers, super-large enterprise (자체 TMS 보유).
+
+## Content this site covers
+
+- Express shipping cost mechanics (zone × weight × FSC × add-on × exchange rate × margin)
+- UPS Express vs DHL Express 비교 (zone 분류, add-on 차이, FSC 정책)
+- EAS / RAS / DAS surcharge geography (Korea-shipping focus)
+- DAP incoterm 적용 시 화주 책임 범위
+- GSSA 운영 모델과 forwarder / freight forwarder 의 차이
+
+## Glossary
+
+- **GSSA**: General Sales & Service Agent — 캐리어를 대신해 영업·서비스를 수행하는 한국 대리점
+- **FSC**: Fuel Surcharge — 연료할증료, 매주 월요일 갱신
+- **EAS / RAS / DAS**: Extended / Remote / Delivery Area Surcharge
+- **DAP**: Delivered at Place — 본 제품의 유일한 인코텀
+- **Markup margin**: `revenue = cost × (1 + margin%)`, KRW 100 단위 올림
+- **EAN / MPL**: Goodman GLS 가 회원인 글로벌 GSSA 네트워크

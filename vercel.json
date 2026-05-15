@@ -58,6 +58,32 @@
       ]
     },
     {
+      "source": "/llms.txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/pricing.md",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/markdown; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, must-revalidate"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
@@ -81,7 +107,7 @@
       "destination": "https://smart-quote-insights.vercel.app/insights/$1"
     },
     {
-      "source": "/((?!api/|assets/|robots\\.txt|sitemap.*\\.xml|favicon|icon|manifest|sw\\.js|goodman-gls.*|naver.*\\.html|data/|insights).*)",
+      "source": "/((?!api/|assets/|robots\\.txt|sitemap.*\\.xml|llms\\.txt|pricing\\.md|favicon|icon|manifest|sw\\.js|goodman-gls.*|naver.*\\.html|data/|insights).*)",
       "destination": "/index.html"
     }
   ]

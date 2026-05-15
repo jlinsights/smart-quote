@@ -1,1 +1,1 @@
-🔄 FSC 요율 업데이트: UPS 49.25% / DHL 46.75% (2026-05-11 기준, 사용자 수동 확인)
+🔀 chore: origin/main 동기화 (FSC main fast-track 7236a0d + llms.txt P1 fix 3b2cbd6 통합)
