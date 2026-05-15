@@ -1,1 +1,1 @@
-📐 docs(design): smart-quote-input-validation Phase A (Frontend Zod) design 작성
+💄 style(validation): quoteListParams.schema prettier 정렬 (datePatternSchema 1줄)
