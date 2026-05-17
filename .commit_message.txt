@@ -1,1 +1,1 @@
-📊 FSC history 2026-05-18 엔트리 추가 (UPS 49.5% / DHL 47.25%)
+📊 FSC history backfill — UPS/DHL 누락 주차 보정 + emax 정본 정렬 (2026-03-30~05-18)
