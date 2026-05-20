@@ -1,1 +1,1 @@
-📋 docs(plan): smart-quote-history-table-refactor plan 신규
+📋 docs(design): smart-quote-history-table-refactor design 신규
