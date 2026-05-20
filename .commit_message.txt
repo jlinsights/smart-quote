@@ -1,1 +1,1 @@
-♻️ refactor(history): QuoteHistoryTable mobile/desktop 뷰 분리 — 외부 인터페이스 보존 (Phase C)
+📋 docs(plan): smart-quote-history-table-refactor plan 신규
