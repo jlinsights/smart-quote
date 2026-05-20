@@ -1,1 +1,1 @@
-♻️ refactor(history): expiry util 추출 + 단위 테스트 (history-table-refactor Phase A)
+♻️ refactor(history): QuoteHistoryTableParts 추출 (StatusPill/SurchargeStaleBadge/ExpiryBadge/MarginText/RowActions) — Phase B
